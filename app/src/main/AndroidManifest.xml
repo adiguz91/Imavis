@@ -18,6 +18,32 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--
+        <activity
+            android:name=".uav.control.activity.BebopActivity"
+            android:screenOrientation="landscape"/>
+
+        <activity
+            android:name=".uav.control.activity.SkyControllerActivity"
+            android:screenOrientation="landscape"/>
+
+        <activity
+            android:name=".uav.control.activity.SkyController2Activity"
+            android:screenOrientation="landscape"/>
+
+        <activity
+            android:name=".uav.control.activity.JSActivity"
+            android:screenOrientation="landscape"/>
+
+        <activity
+            android:name=".uav.control.activity.MiniDroneActivity"
+            android:screenOrientation="landscape"/>
+
+        <activity
+            android:name=".uav.control.activity.SwingDroneActivity"
+            android:screenOrientation="landscape"/>
+            -->
     </application>
 
 </manifest>
