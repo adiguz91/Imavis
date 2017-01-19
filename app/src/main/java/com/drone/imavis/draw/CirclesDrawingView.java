@@ -100,15 +100,16 @@ public class CirclesDrawingView extends View {
         int counter = 0;
 
         for (CircleArea circle : mCircles) {
+
             canv.drawCircle(circle.centerX, circle.centerY, circle.radius, mCirclePaint);
             if(counter > 0) {
                 drawLineArrow(mCirclePaint, canv, lastX, lastY, circle.centerX, circle.centerY);
                 //canv.drawLine( circle.centerX, circle.centerY, lastX, lastY, mCirclePaint);
             }
 
-
             lastX = circle.centerX;
             lastY = circle.centerY;
+
             counter++;
         }
     }
