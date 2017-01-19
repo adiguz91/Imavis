@@ -8,6 +8,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -20,6 +25,9 @@
         </activity>
 
         <!--
+        <activity
+            android:name=".map.MapsActivity" />
+
         <activity
             android:name=".uav.control.activity.BebopActivity"
             android:screenOrientation="landscape"/>
