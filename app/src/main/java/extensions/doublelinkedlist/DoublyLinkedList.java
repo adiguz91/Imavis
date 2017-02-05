@@ -69,7 +69,7 @@ public class DoublyLinkedList<E> extends AbstractList<E>
      */
     public boolean add(E value)
     {
-        addFirst(value);
+        addLast(value); // addFirst(value)
         return true;
     }
 

@@ -2,21 +2,17 @@ package com.drone.imavis.flyplan;
 
 import com.drone.imavis.constants.classes.CFlyPlan;
 import com.drone.imavis.constants.classes.CFlyPlan.UnitOfLength;
+import com.drone.imavis.flyplan.nodes.Nodes;
 
 /**
  * Created by Adrian on 26.11.2016.
  */
 
 public class FlyPlan {
-    Map map;
-    Points points;
-    int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
-    int minSpeed = CFlyPlan.MIN_SPEED;
-    UnitOfLength unitOfLength = CFlyPlan.UNIT_OF_LENGTH;
 
     public FlyPlan(Map map) {
         this.map = map;
-        points = new Points();
+        this.nodes = new Nodes();
     }
 
     public Map getMap() {
@@ -27,12 +23,12 @@ public class FlyPlan {
         this.map = map;
     }
 
-    public Points getPoints() {
-        return points;
+    public Nodes getPoints() {
+        return nodes;
     }
 
-    private void setPoints(Points points) {
-        this.points = points;
+    private void setPoints(Nodes points) {
+        this.nodes = nodes;
     }
 
     public int getMinFlyHeight() {
@@ -59,4 +55,10 @@ public class FlyPlan {
         this.unitOfLength = unitOfLength;
         // todo convert all unitOfLength values and reload
     }
+
+    Map map;
+    Nodes nodes;
+    int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
+    int minSpeed = CFlyPlan.MIN_SPEED;
+    UnitOfLength unitOfLength = CFlyPlan.UNIT_OF_LENGTH;
 }

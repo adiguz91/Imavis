@@ -1,6 +1,7 @@
 package com.drone.imavis.flyplan;
 
-import android.util.*;
+import com.drone.imavis.flyplan.coordinates.Coordinate;
+import com.drone.imavis.flyplan.dimension.Size;
 
 /**
  * Created by Adrian on 26.11.2016.
