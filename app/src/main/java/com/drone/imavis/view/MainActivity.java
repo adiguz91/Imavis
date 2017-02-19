@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity
 
     private Toolbar toolbar;
     private GoogleMap googleMap;
+    private LatLng location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,17 @@ public class MainActivity extends AppCompatActivity
     private void setupWindowAnimations() {
         Slide slide = (Slide) TransitionInflater.from(this).inflateTransition(R.transition.slide);
         getWindow().setExitTransition(slide);
+    }
+
+    public GoogleMap getGoogleMap() {
+        return googleMap;
+    }
+
+    public void Zoom(float zoomFactor) {
+
+
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(getLocation(), zoomFactor * 10 + 2));
+        //googleMap.animateCamera(CameraUpdateFactory.zoomTo(googleMap.getMaxZoomLevel() - 0.5f));
     }
 
     private void Load() {
@@ -95,14 +107,22 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
 
+        //googleMap.setMinZoomPreference(0.5f);
+        //googleMap.setMaxZoomPreference(2.0f);
+
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(46.617396, 13.846820);
-        MarkerOptions marker = new MarkerOptions().position(sydney).title("Marker in Sydney");
+
+        MarkerOptions marker = new MarkerOptions().position(getLocation()).title("Marker in Sydney");
         googleMap.addMarker(marker);
-        CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(sydney, 16);
+        CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18f);
         googleMap.moveCamera(cameraUpdateFactory);
+    }
 
-
+    public LatLng getLocation() {
+        if(location == null) {
+            location = new LatLng(46.617396, 13.846820); // Villach
+        }
+        return location;
     }
 
     @Override
