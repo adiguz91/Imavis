@@ -1,5 +1,6 @@
 package com.drone.imavis.view;
 
+import android.graphics.Point;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 //import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -112,12 +114,31 @@ public class MainActivity extends AppCompatActivity
 
         // Add a marker in Sydney and move the camera
 
-        MarkerOptions marker = new MarkerOptions().position(getLocation()).title("Marker in Sydney");
+        MarkerOptions marker = new MarkerOptions().position(getLocation()).title("Marker in Villach");
         googleMap.addMarker(marker);
         CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18f);
         googleMap.moveCamera(cameraUpdateFactory);
+
+        // Get Projection of the map:
+        Projection projection = googleMap.getProjection();
+        // Get location of your marker:
+        LatLng markerLocation = marker.getPosition();
+        // Pass location to the Projection.toScreenLocation() method:
+        Point screenPosition = projection.toScreenLocation(markerLocation);
+
     }
 
+/*
+    private Point getPointOfGPS(LatLng location) {
+        return new Point(0,0);
+    }
+
+    private LatLng getGPSofPoint(Point point) {
+        LatLng location = new LatLng(0,0);
+        return location;
+    }
+*/
+    
     public LatLng getLocation() {
         if(location == null) {
             location = new LatLng(46.617396, 13.846820); // Villach
