@@ -1,6 +1,14 @@
 package com.drone.imavis.view;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -22,6 +30,7 @@ import android.widget.FrameLayout;
 
 import com.drone.imavis.R;
 import com.drone.imavis.map.MapFragmentClass;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,6 +38,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -40,6 +50,8 @@ public class MainActivity extends AppCompatActivity
     private Toolbar toolbar;
     private GoogleMap googleMap;
     private LatLng location;
+    private LocationManager locationManager;
+    private Marker currLocationMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,15 +80,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void Load() {
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        LoadFloatingActionButton();
+        InitLocationFinder();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -89,6 +94,86 @@ public class MainActivity extends AppCompatActivity
 
         LoadFragment();
     }
+
+    private void LoadFloatingActionButton() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setImageResource(R.drawable.ic_my_location_black_34dp);
+
+        fab.setBackgroundTintList(ColorStateList.valueOf(Color
+                .parseColor("#5386E4")));
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
+
+            }
+        });
+    }
+
+    private long LOCATION_REFRESH_TIME = 5000;
+    private long LOCATION_REFRESH_DISTANCE = 10;
+
+    private void InitLocationFinder() {
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+
+
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
+                LOCATION_REFRESH_DISTANCE, locationListener);
+
+        LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setInterval(5000); //5 seconds
+        locationRequest.setFastestInterval(3000); //3 seconds
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        //mLocationRequest.setSmallestDisplacement(0.1F); //1/10 meter
+
+    }
+
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            //your code here
+
+            if (currLocationMarker != null) {
+                currLocationMarker.remove();
+            }
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.title("Current Position");
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+            currLocationMarker = googleMap.addMarker(markerOptions);
+            //zoom to current position:
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
+
 
     private void LoadFragment() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -109,6 +194,7 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
 
+
         //googleMap.setMinZoomPreference(0.5f);
         //googleMap.setMaxZoomPreference(2.0f);
 
@@ -119,6 +205,8 @@ public class MainActivity extends AppCompatActivity
         CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18f);
         googleMap.moveCamera(cameraUpdateFactory);
 
+        LocationEnable();
+
         // Get Projection of the map:
         Projection projection = googleMap.getProjection();
         // Get location of your marker:
@@ -126,6 +214,22 @@ public class MainActivity extends AppCompatActivity
         // Pass location to the Projection.toScreenLocation() method:
         Point screenPosition = projection.toScreenLocation(markerLocation);
 
+    }
+
+    private void LocationEnable() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+
+            return;
+        }
+        googleMap.setMyLocationEnabled(true);
     }
 
 /*
@@ -138,7 +242,7 @@ public class MainActivity extends AppCompatActivity
         return location;
     }
 */
-    
+
     public LatLng getLocation() {
         if(location == null) {
             location = new LatLng(46.617396, 13.846820); // Villach

@@ -2,6 +2,7 @@ package extensions.doublelinkedlist;
 
 import java.util.AbstractList;
 import java.util.Iterator;
+import java.util.ListIterator;
 
 /**
  * http://www.cs.pomona.edu/classes/cs062/structure5/DoublyLinkedList.java
