@@ -2,31 +2,39 @@ package com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.geometric;
 
 import android.graphics.Color;
 
+import com.drone.imavis.constants.classes.CColor;
+import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.flyplan.mvc.model.extensions.coordinates.Coordinate;
+import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterest;
+import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.IShape;
 
 /**
  * Created by adigu on 03.02.2017.
  */
 
-public abstract class GeometricShape implements IShape {
+public abstract class GeometricShape<T> implements IShape {
+
+    private T type;
 
     public GeometricShape(Coordinate coordinate) {
         setCoordinate(coordinate);
+        if(type.getClass() == Waypoint.class)
+            initWaypoint();
+        if(type.getClass() == PointOfInterest.class)
+            initPOI();
     }
 
-    public Coordinate centralizedCoordinate(Coordinate coordinate, int size) {
-        float centeredX = coordinate.getX() - size/2;
-        float centeredY = coordinate.getY() - size/2;
+    private void initWaypoint() {
+        setBackgroundColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
+        setBorderColor(Color.parseColor(CColor.WAYPOINT_CIRCLE_BORDER));
+        setBorder(CShape.WAYPOINT_CIRCLE_BORDERSIZE);
+    }
 
-        if(centeredX < 0)
-            centeredX = 0;
-
-        if(centeredY < 0)
-            centeredY = 0;
-
-        //coordinate.setCoordinate(centeredX, centeredY);
-        return coordinate;
+    private void initPOI() {
+        setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
+        setBorderColor(Color.parseColor(CColor.POI_CIRCLE_BORDER));
+        setBorder(CShape.POI_CIRCLE_BORDERSIZE);
     }
 
     public Coordinate getCoordinate() {
@@ -35,14 +43,6 @@ public abstract class GeometricShape implements IShape {
 
     public void setCoordinate(Coordinate coordinate) {
         this.coordinate = coordinate;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     public int getBorder() {
@@ -69,7 +69,6 @@ public abstract class GeometricShape implements IShape {
         this.borderColor = borderColor;
     }
 
-    private int size = 50;
     private int border = 10;
     private int backgroundColor = Color.WHITE;
     private int borderColor = Color.GREEN;

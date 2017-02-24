@@ -83,6 +83,13 @@ public class FileExtension {
         return null;
     }
 
+    public static String FilePathCombine (String pathA, String pathB)
+    {
+        File file1 = new File(pathA);
+        File file2 = new File(file1, pathB);
+        return file2.getAbsolutePath();
+    }
+
     public static boolean writeToFile(String absoluteFileName, String content)
     {
         try

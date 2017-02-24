@@ -7,6 +7,5 @@ import android.graphics.Canvas;
  */
 
 public interface IShape {
-
     void draw(Canvas canvas);
 }

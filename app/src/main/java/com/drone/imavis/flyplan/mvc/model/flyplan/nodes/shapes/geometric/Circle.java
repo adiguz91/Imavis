@@ -4,44 +4,73 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.drone.imavis.constants.classes.CColor;
+import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.flyplan.mvc.model.extensions.coordinates.Coordinate;
+import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.Node;
 
 /**
  * Created by adigu on 03.02.2017.
  */
 
-public class Circle extends GeometricShape {
+public class Circle<T> extends GeometricShape {
 
-    public Circle(Coordinate coordinate) {
+    private T type;
+
+    public Circle(Coordinate coordinate, int radius) {
         super(coordinate);
+        this.radius = radius;
     }
 
     @Override
     public void draw(Canvas canvas) {
-        Coordinate centralizedCoordinate = centralizedCoordinate(getCoordinate(), getSize());
-        Coordinate cartesianCoordinate = getScaledCoordinate(centralizedCoordinate, FlyPlanController.getInstance().getScaleFactor());
-
-        //paint.setColor(Color.GREEN);
-        //paint.setStyle(Paint.Style.FILL);
-        //canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), getSize() + getBorder(), paint);
-
-        Paint paint = new Paint(FlyPlanController.getInstance().getPaintNode());
-        paint.setColor(Color.WHITE);
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), getSize(), paint);
-
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.parseColor("#CC5386E4"));
-        paint.setStrokeWidth(20.0f);
-        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), getSize(), paint);
+        Coordinate centralCoordinate = centralizedCoordinate(getCoordinate());
+        Coordinate cartesianCoordinate = centralCoordinate.toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle());
+        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder());
     }
 
-    public Coordinate getScaledCoordinate(Coordinate originalPoint, float scalingFactor) {
-        float newX, newY;
-        newX = originalPoint.getX() / scalingFactor;
-        newY = originalPoint.getY() / scalingFactor;
-        return new Coordinate(newX, newY);
+    public Coordinate centralizedCoordinate(Coordinate coordinate) {
+        float centeredX = coordinate.getX() - radius/2;
+        float centeredY = coordinate.getY() - radius/2;
+        if(centeredX < 0)
+            centeredX = 0;
+        if(centeredY < 0)
+            centeredY = 0;
+        return new Coordinate(centeredX, centeredY);
     }
+
+    public Paint getPaintCircle() {
+        if(paintCircle == null) {
+            paintCircle = new Paint();
+            paintCircle.setStyle(Paint.Style.FILL);
+            paintCircle.setAntiAlias(true);
+            paintCircle.setColor(getBackgroundColor());
+        }
+        return paintCircle;
+    }
+
+    public Paint getPaintCircleBorder() {
+        if(paintCircleBorder == null) {
+            paintCircleBorder = new Paint();
+            paintCircleBorder.setStyle(Paint.Style.STROKE);
+            paintCircleBorder.setColor(getBorderColor());
+            paintCircleBorder.setStrokeWidth(getBorder());
+        }
+        return paintCircleBorder;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    protected void setRadius(float radius) {
+        this.radius = radius;
+    }
+
+    private float radius;
+    private Paint paintCircle;
+    private Paint paintCircleBorder;
 
 }

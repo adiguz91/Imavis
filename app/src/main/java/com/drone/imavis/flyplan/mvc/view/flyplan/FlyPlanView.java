@@ -11,6 +11,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import com.drone.imavis.constants.classes.CMap;
+import com.drone.imavis.flyplan.mvc.controller.FlyPlanDrawController;
 import com.drone.imavis.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.Node;
@@ -28,6 +29,8 @@ public class FlyPlanView extends View {
     private static ScaleGestureDetector scaleDetector;
     private GestureDetector gestureDetector;
     private Coordinate touchCoordinate = null;
+
+    private FlyPlanDrawController flyPlanDrawController = new FlyPlanDrawController();
 
     public FlyPlanView(final Context context) {
         super(context);
@@ -66,20 +69,20 @@ public class FlyPlanView extends View {
 
         // BEGIN onDraw() ----------
         int counter = 1;
-        Node node, lastNode = null;
+        Waypoint node, lastNode = null;
         ListIterator<Waypoint> iterator =  FlyPlanController.getInstance().getFlyPlan().getPoints().getWaypoints().listIterator();
 
         while (iterator.hasNext()) {
             node = iterator.next();
 
             if(lastNode != null)
-                FlyPlanController.getInstance().drawPath(canvas, lastNode.getShape().getCoordinate(), node.getShape().getCoordinate());
+                node.addLine(canvas, lastNode, node);
 
             node.getShape().draw(canvas);
-            FlyPlanController.getInstance().drawText(canvas, String.valueOf(counter), node.getShape().getCoordinate());
+            node.addText(canvas, String.valueOf(counter));
 
             if(lastNode != null)
-                FlyPlanController.getInstance().drawArcExtended(canvas, lastNode.getShape(), node.getShape());
+                node.addDirection(canvas, lastNode, node);
 
             lastNode = node;
             counter++;

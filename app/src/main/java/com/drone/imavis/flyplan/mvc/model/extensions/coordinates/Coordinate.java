@@ -36,6 +36,12 @@ public class Coordinate {
         this.z = z;
     }
 
+    public Coordinate toScaleFactor(float scaleFactor) {
+        return new Coordinate(
+                getX() / scaleFactor,
+                getY() / scaleFactor);
+    }
+
     public void setCoordinate(float x, float y) {
         setCoordinate(x, y, 0);
     }
