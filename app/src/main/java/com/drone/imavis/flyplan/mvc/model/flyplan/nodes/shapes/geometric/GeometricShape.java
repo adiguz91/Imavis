@@ -9,16 +9,21 @@ import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterest
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.IShape;
 
+import java.lang.reflect.ParameterizedType;
+
 /**
  * Created by adigu on 03.02.2017.
  */
 
 public abstract class GeometricShape<T> implements IShape {
 
-    private Class<T> type;
+    public GeometricShape(Class<T> type, Coordinate coordinate) {
+        this.type = type;
+        this.coordinate = coordinate;
+        initByType();
+    }
 
-    public GeometricShape(Coordinate coordinate) {
-        setCoordinate(coordinate);
+    private void initByType() {
         if(type == Waypoint.class)
             initWaypoint();
         if(type == PointOfInterest.class)
@@ -73,4 +78,5 @@ public abstract class GeometricShape<T> implements IShape {
     private int backgroundColor = Color.WHITE;
     private int borderColor = Color.GREEN;
     private Coordinate coordinate;
+    private Class<T> type;
 }

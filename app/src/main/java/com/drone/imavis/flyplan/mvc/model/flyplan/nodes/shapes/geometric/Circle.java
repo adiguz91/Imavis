@@ -10,18 +10,32 @@ import com.drone.imavis.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.Node;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 /**
  * Created by adigu on 03.02.2017.
  */
 
 public class Circle<T> extends GeometricShape {
 
-    private T type;
 
-    public Circle(Coordinate coordinate, int radius) {
-        super(coordinate);
+
+    public Circle(Class<T> type, Coordinate coordinate, int radius) {
+        super(type, coordinate);
+        this.type = type;
         this.radius = radius;
     }
+
+    private Class<T> type;
+    public Class<T> getType() { return type; }
+
+    /*
+    private void setTypeAtRuntime() {
+        this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).
+                getActualTypeArguments()[0];
+    }
+    */
 
     @Override
     public void draw(Canvas canvas) {

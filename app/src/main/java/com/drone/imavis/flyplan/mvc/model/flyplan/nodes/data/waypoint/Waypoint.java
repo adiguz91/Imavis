@@ -10,7 +10,9 @@ import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.Node;
+import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
+import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Square;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.simple.Line;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.simple.Text;
 
@@ -20,10 +22,28 @@ import java.util.List;
  * Created by adigu on 03.02.2017.
  */
 
-public class Waypoint extends Node implements IWaypointDraw {
+public class Waypoint<T> extends Node implements IWaypointDraw {
+
+    private GeometricShape shape;
 
     public Waypoint(GeometricShape shape, WaypointData data) {
         super(shape, data);
+    }
+
+    /*
+    @Override
+    public GeometricShape getShape() {
+        return shape;
+    }
+    */
+
+    GeometricShape createShape(Class<T> classType, Coordinate coordinate) {
+        GeometricShape geometricShape = null;
+        if(classType == Circle.class)
+            geometricShape = new Circle(Waypoint.class, coordinate, CShape.WAYPOINT_CIRCLE_RADIUS);
+        if(classType == Square.class)
+            geometricShape =  new Square(Waypoint.class, coordinate);
+        return geometricShape;
     }
 
     // first and last waypoint have bigger size then the rest
@@ -85,7 +105,7 @@ public class Waypoint extends Node implements IWaypointDraw {
         float anglePoint1 = angleDirection - (angleDistance/2);
         //float anglePoint2 = angleDirection + (angleDistance/2);
 
-        float radius = CShape.WAYPOINT_CIRCLE_SIZE / 2; //currentWaypoint.getShape()<Waypoint>.getRadius();
+        float radius = CShape.WAYPOINT_CIRCLE_RADIUS; //currentWaypoint.getShape()<Waypoint>.getRadius();
         float distance = radius + currentWaypoint.getShape().getBorder() + CShape.WAYPOINT_DIRECTION_DISTANCE;
 
         //paint.setStyle(Paint.Style.STROKE);

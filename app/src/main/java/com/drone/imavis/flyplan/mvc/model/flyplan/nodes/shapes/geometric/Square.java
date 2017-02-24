@@ -8,10 +8,14 @@ import com.drone.imavis.flyplan.mvc.model.extensions.coordinates.Coordinate;
  * Created by adigu on 03.02.2017.
  */
 
-public class Square extends GeometricShape {
+public class Square<T> extends GeometricShape {
 
-    public Square(Coordinate coordinate) {
-        super(coordinate);
+    private Class<T> type;
+    public Class<T> getType() { return type; }
+
+    public Square(Class<T> type, Coordinate coordinate) {
+        super(type, coordinate);
+        this.type = type;
     }
 
     @Override

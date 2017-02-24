@@ -16,11 +16,13 @@ import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.waypoint.WaypointData;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
+import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
 import com.drone.imavis.flyplan.mvc.view.flyplan.FlyPlanView;
 import com.google.android.gms.maps.GoogleMap;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.ListIterator;
 
 import extensions.file.FileExtension;
 
@@ -29,8 +31,8 @@ import extensions.file.FileExtension;
  */
 public class FlyPlanController implements IFlyPlan {
 
-    private java.util.Map<Integer, Node> nodes = new LinkedHashMap<>();
-    private SparseArray<Node> nodePointers = new SparseArray(CFlyPlan.MAX_NODES);
+    //private java.util.Map<Integer, Node> nodes = new LinkedHashMap<>();
+    //private SparseArray<Node> nodePointers = new SparseArray(CFlyPlan.MAX_NODES);
 
     private static FlyPlanController flyPlanController;
     private FlyPlan flyPlan;
@@ -56,10 +58,6 @@ public class FlyPlanController implements IFlyPlan {
         this.flyPlan = flyPlan;
     }
 
-    public void init(final Context context) {
-    }
-
-
     /**
      * Search and creates new (if needed) node based on touch area
      *
@@ -71,18 +69,16 @@ public class FlyPlanController implements IFlyPlan {
         Node touchedNode = getTouchedNode(touchCoordinate);
 
         if (touchedNode == null) {
-            Circle shape = new Circle(touchCoordinate, CShape.WAYPOINT_CIRCLE_SIZE/2);
+            GeometricShape shape = new Circle(Waypoint.class, touchCoordinate, CShape.WAYPOINT_CIRCLE_RADIUS);
             WaypointData nodeData = new WaypointData();
             touchedNode = new Waypoint(shape, nodeData);
             touchedNode.getShape().setCoordinate(touchCoordinate);
 
-            if (nodes.size() == CFlyPlan.MAX_NODES) {
-                //Log.w(TAG, "Clear all circles, size is " + nodes.size());
-                // remove first node
-                nodes.clear();
+            if (flyPlan.getPoints().getWaypoints().size() == CFlyPlan.MAX_NODES) {
+                flyPlan.getPoints().getWaypoints().clear();
             }
             //Log.w(TAG, "Added node " + touchedNode);
-            nodes.put(nodes.size(), touchedNode);
+            flyPlan.getPoints().addNode(touchedNode);
         }
 
         touchedNode.getShape().setCoordinate(touchCoordinate);
@@ -99,16 +95,16 @@ public class FlyPlanController implements IFlyPlan {
     private Node getTouchedNode(Coordinate touchCoordinate) {
         Node touched = null;
         Node node;
+        int radius = CShape.WAYPOINT_CIRCLE_RADIUS;
 
-        int nodeSize = CShape.WAYPOINT_CIRCLE_SIZE;
-
-        for (java.util.Map.Entry<Integer, Node> entry : nodes.entrySet()) {
-            node = entry.getValue();
+        ListIterator iterator = flyPlan.getPoints().getWaypoints().listIterator();
+        while (iterator.hasNext()) {
+            node = (Waypoint) iterator.next();
             if ((node.getShape().getCoordinate().getX() - touchCoordinate.getX()) *
                     (node.getShape().getCoordinate().getX() - touchCoordinate.getX()) +
                     (node.getShape().getCoordinate().getY() - touchCoordinate.getY()) *
                             (node.getShape().getCoordinate().getY() - touchCoordinate.getY()) <=
-                    nodeSize * nodeSize) {
+                    radius * radius) {
                 touched = node;
                 break;
             }
@@ -130,10 +126,11 @@ public class FlyPlanController implements IFlyPlan {
 
     @Override
     public FlyPlan onPlanCreateNew() {
-        return null;
+        Coordinate coordinate = new Coordinate(0, 0);
+        Size size = new Size(50, 50);
+        Map map = new Map(coordinate, size);
+        return new FlyPlan(map);
     }
-
-
 
     @Override
     public FlyPlan onPlanLoad(File file) {

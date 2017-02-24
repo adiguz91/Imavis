@@ -29,7 +29,7 @@ public class FlyPlanDrawController implements IFlyPlanDraw {
 
     @Override
     public void onAddNode(Canvas canvas, Node node) {
-
+        node.getShape().draw(canvas);
     }
 
     @Override
