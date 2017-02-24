@@ -15,13 +15,13 @@ import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.IShape;
 
 public abstract class GeometricShape<T> implements IShape {
 
-    private T type;
+    private Class<T> type;
 
     public GeometricShape(Coordinate coordinate) {
         setCoordinate(coordinate);
-        if(type.getClass() == Waypoint.class)
+        if(type == Waypoint.class)
             initWaypoint();
-        if(type.getClass() == PointOfInterest.class)
+        if(type == PointOfInterest.class)
             initPOI();
     }
 

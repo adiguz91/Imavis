@@ -24,11 +24,11 @@ public class Text<T> implements IShape {
         this.coordinate = coordinate;
         this.content = content;
 
-        if(type.getClass() == Waypoint.class) {
+        if(type == Waypoint.class) {
             this.size = CText.SIZE;
             this.color = Color.parseColor(CColor.WAYPOINT_TEXT);
         }
-        if(type.getClass() == PointOfInterest.class) {
+        if(type == PointOfInterest.class) {
             this.size = CText.SIZE;;
             this.color = Color.parseColor(CColor.POI_CIRCLE_TEXT);
         }
@@ -50,7 +50,7 @@ public class Text<T> implements IShape {
     private int color;
     private int size;
     private Paint paint;
-    private T type;
+    private Class<T> type;
 
     @Override
     public void draw(Canvas canvas) {

@@ -24,6 +24,7 @@ public class Line implements IShape {
 
     private Paint getPaint() {
         if(paint == null) {
+            paint = new Paint();
             paint.setAntiAlias(true);
             paint.setColor(Color.parseColor(CColor.LINE));
             paint.setStrokeWidth(CShape.LINE_STROKEWIDTH);
