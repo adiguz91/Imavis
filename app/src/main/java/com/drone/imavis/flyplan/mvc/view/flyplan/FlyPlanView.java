@@ -99,10 +99,11 @@ public class FlyPlanView extends View {
             counter++;
         }
 
+        counter = 1;
         for (PointOfInterest pointOfInterest : FlyPlanController.getInstance().getFlyPlan().getPoints().getPointOfInterests()) {
             poi = pointOfInterest;
             poi.getShape().draw(canvas);
-            //poi.addText(canvas, String.valueOf(counter));
+            poi.addText(canvas, String.valueOf(counter));
             counter++;
         }
         // END onDraw() ----------
