@@ -1,9 +1,5 @@
 package com.drone.imavis.flyplan.mvc.controller;
 
-import android.content.Context;
-import android.util.Log;
-import android.util.SparseArray;
-
 import com.drone.imavis.constants.classes.CFileDirectories;
 import com.drone.imavis.constants.classes.CFiles;
 import com.drone.imavis.constants.classes.CFlyPlan;
@@ -23,7 +19,6 @@ import com.drone.imavis.flyplan.mvc.view.flyplan.FlyPlanView;
 import com.google.android.gms.maps.GoogleMap;
 
 import java.io.File;
-import java.util.LinkedHashMap;
 import java.util.ListIterator;
 
 import extensions.file.FileExtension;
@@ -35,6 +30,11 @@ public class FlyPlanController implements IFlyPlan {
 
     private static FlyPlanController flyPlanController;
     private FlyPlan flyPlan;
+
+    private static Node touchedNodeGlobal;
+    public static Node getTouchedNode() {
+        return touchedNodeGlobal;
+    }
 
     // SINGLETON PATTERN
     public static FlyPlanController getInstance() {
@@ -64,8 +64,8 @@ public class FlyPlanController implements IFlyPlan {
      *
      * @return obtained {@link Node}
      */
-    public Node obtainTouchedNode(Class className, Coordinate touchCoordinate) {
-        Node touchedNode = getTouchedNode(touchCoordinate);
+    public boolean obtainTouchedNode(Class className, Coordinate touchCoordinate, Node touchedNode) {
+        touchedNode = getTouchedNode(touchCoordinate);
 
         if (touchedNode == null) {
             if(className == Waypoint.class) {
@@ -73,29 +73,26 @@ public class FlyPlanController implements IFlyPlan {
                 WaypointData nodeData = new WaypointData();
                 touchedNode = new Waypoint(shape, nodeData);
                 touchedNode.getShape().setCoordinate(touchCoordinate);
-
                 if (flyPlan.getPoints().getWaypoints().size() == CFlyPlan.MAX_NODES) {
                     flyPlan.getPoints().getWaypoints().clear();
                 }
             }
-
             if(className == PointOfInterest.class) {
                 GeometricShape shape = new Circle(PointOfInterest.class, touchCoordinate, CShape.POI_CIRCLE_RADIUS);
                 PointOfInterestData nodeData = new PointOfInterestData();
                 touchedNode = new PointOfInterest(shape, nodeData);
                 touchedNode.getShape().setCoordinate(touchCoordinate);
-
                 if (flyPlan.getPoints().getPointOfInterests().size() == CFlyPlan.MAX_NODES) {
                     flyPlan.getPoints().getPointOfInterests().clear();
                 }
             }
-
             //Log.w(TAG, "Added node " + touchedNode);
             flyPlan.getPoints().addNode(touchedNode);
+            return true;
         }
-
         touchedNode.getShape().setCoordinate(touchCoordinate);
-        return touchedNode;
+        touchedNodeGlobal = touchedNode;
+        return false;
     }
 
     /**
@@ -105,7 +102,7 @@ public class FlyPlanController implements IFlyPlan {
      *
      * @return {@link Node} touched node or null if no node has been touched
      */
-    private Node getTouchedNode(Coordinate touchCoordinate) {
+    public Node getTouchedNode(Coordinate touchCoordinate) {
         Node touched = null;
         Node node;
         ListIterator iterator;
@@ -138,8 +135,11 @@ public class FlyPlanController implements IFlyPlan {
             }
         }
 
-        if(touched != null)
+        if(touched != null) {
             touched.getShape().setCoordinate(touchCoordinate);
+        }
+        
+        touchedNodeGlobal = touched;
         return touched;
     }
 

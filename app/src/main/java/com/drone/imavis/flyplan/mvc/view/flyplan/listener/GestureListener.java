@@ -20,14 +20,15 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
     private Coordinate touchCoordinate;
     private Node touchedNode;
     private int pointerId;
+    private static Node selectedWaypoint;
+    private static Node selectedPOI;
 
     @Override
     public boolean onDown(MotionEvent event) {
-        //FlyPlanView.getNodes().clear();
-        //pointerId = event.getPointerId(0);
-        //touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
-        //touchedNode = (Waypoint) FlyPlanController.getInstance().obtainTouchedNode(touchCoordinate);
-        //FlyPlanView.getNodes().put(pointerId, touchedNode);
+        FlyPlanView.getNodes().clear();
+        pointerId = event.getPointerId(0);
+        touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
+        touchedNode = FlyPlanController.getInstance().getTouchedNode(touchCoordinate);
         return true;
     }
 
@@ -39,8 +40,14 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         FlyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
-        touchedNode = (Waypoint) FlyPlanController.getInstance().obtainTouchedNode(Waypoint.class, touchCoordinate);
-        FlyPlanView.getNodes().put(pointerId, touchedNode);
+        boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(Waypoint.class, touchCoordinate, touchedNode);
+        if(touchedNode != null) {
+            if(isObtained)
+                FlyPlanView.getNodes().put(pointerId, touchedNode);
+            else
+                checkSelected(touchedNode.getClass());
+        } else
+            return false;
         return true;
     }
 
@@ -50,8 +57,13 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         FlyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
-        touchedNode = (PointOfInterest) FlyPlanController.getInstance().obtainTouchedNode(PointOfInterest.class, touchCoordinate);
-        FlyPlanView.getNodes().put(pointerId, touchedNode);
+        boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(PointOfInterest.class, touchCoordinate, touchedNode);
+        if(touchedNode != null) {
+            if(isObtained) {
+                FlyPlanView.getNodes().put(pointerId, touchedNode);
+            } else
+                checkSelected(touchedNode.getClass());
+        }
     }
 /*
 
@@ -67,5 +79,15 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         return true;
     }
 */
+
+    public void checkSelected(Class classname) {
+        if (classname == Waypoint.class) {
+            selectedPOI = null;
+            selectedWaypoint = touchedNode;
+        } else if (classname == PointOfInterest.class){
+            selectedWaypoint = null;
+            selectedPOI = touchedNode;
+        }
+    }
 
 }

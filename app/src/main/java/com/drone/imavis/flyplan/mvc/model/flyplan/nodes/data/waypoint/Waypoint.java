@@ -8,6 +8,7 @@ import android.graphics.RectF;
 
 import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CShape;
+import com.drone.imavis.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
@@ -95,18 +96,26 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         line.draw(canvas);
     }
 
+    private float toScaleFactor(float value, float scaleFactor) {
+        return value / scaleFactor;
+    }
+
     @Override
     public void addDirection(Canvas canvas, Waypoint currentWaypoint, Waypoint nextWaypoint) {
         Paint paint = new Paint();
         final RectF rect = new RectF();
         float angleDirection = angleBetweenPoints(currentWaypoint.getShape(), nextWaypoint.getShape());
+        //angleDirection = toScaleFactor(angleDirection, FlyPlanController.getInstance().getScaleFactor());
         float angleDistance = CShape.WAYPOINT_DIRECTION_ANGLE_DISTANCE;
-
+        //angleDistance = toScaleFactor(angleDistance, FlyPlanController.getInstance().getScaleFactor());
         float anglePoint1 = angleDirection - (angleDistance/2);
+        //anglePoint1 = toScaleFactor(anglePoint1, FlyPlanController.getInstance().getScaleFactor());
         //float anglePoint2 = angleDirection + (angleDistance/2);
 
         float radius = CShape.WAYPOINT_CIRCLE_RADIUS; //currentWaypoint.getShape()<Waypoint>.getRadius();
+        //radius = toScaleFactor(radius, FlyPlanController.getInstance().getScaleFactor());
         float distance = radius + currentWaypoint.getShape().getBorder() + CShape.WAYPOINT_DIRECTION_DISTANCE;
+        //distance = toScaleFactor(distance, FlyPlanController.getInstance().getScaleFactor());
 
         //paint.setStyle(Paint.Style.STROKE);
         //paint.setStrokeWidth(10);
@@ -115,13 +124,20 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setColor(Color.parseColor(CColor.WAYPOINT_DIRECTION));
 
-        rect.set(currentWaypoint.getShape().getCoordinate().getX() - distance,
-                currentWaypoint.getShape().getCoordinate().getY() - distance,
-                currentWaypoint.getShape().getCoordinate().getX() + distance,
-                currentWaypoint.getShape().getCoordinate().getY() + distance);
+        Coordinate scaledCurrentWaypoint;
+        scaledCurrentWaypoint = currentWaypoint.getShape().getCoordinate().toScaleFactor(
+                                FlyPlanController.getInstance().getScaleFactor());
+        //scaledCurrentWaypoint = currentWaypoint.getShape().getCoordinate();
 
-        Coordinate peakPoint = pointOnCircle(currentWaypoint.getShape().getCoordinate(), distance+distance/2, angleDirection); // Kreuzpunkt
-        Coordinate point1 = pointOnCircle(currentWaypoint.getShape().getCoordinate(), distance, anglePoint1);
+        //currentWaypoint.getShape().setCoordinate(scaledCurrentWaypoint);
+
+        rect.set(scaledCurrentWaypoint.getX() - distance,
+                scaledCurrentWaypoint.getY() - distance,
+                scaledCurrentWaypoint.getX() + distance,
+                scaledCurrentWaypoint.getY() + distance);
+
+        Coordinate peakPoint = pointOnCircle(scaledCurrentWaypoint, distance+distance/2, angleDirection); // Kreuzpunkt
+        Coordinate point1 = pointOnCircle(scaledCurrentWaypoint, distance, anglePoint1);
         //Coordinate point2 = pointOnCircle(currentWaypoint.getShape().getCoordinate(), distance, anglePoint2);
 
         Path path = new Path();

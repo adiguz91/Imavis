@@ -37,6 +37,17 @@ public class FlyPlanView extends View {
 
     private static SparseArray<Node> nodes = new SparseArray<Node>(CFlyPlan.MAX_NODES);
 
+    private static PointOfInterest selectedPOI = null;
+    private static Waypoint selectedWaypoint = null;
+
+    public static PointOfInterest getSelectedPOI() {
+        return selectedPOI;
+    }
+
+    public static Waypoint getSelectedWaypoint() {
+        return selectedWaypoint;
+    }
+
     public FlyPlanView(final Context context) {
         super(context);
         init(context);
@@ -161,7 +172,8 @@ public class FlyPlanView extends View {
                 for (actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
                     pointerId = event.getPointerId(actionIndex);
                     Coordinate coordinateTouched = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
-                    touchedNode = nodes.get(pointerId);
+                    //touchedNode = getNodes().get(pointerId);
+                    touchedNode = FlyPlanController.getTouchedNode();
                     if (touchedNode != null) {
                         touchedNode.getShape().setCoordinate(coordinateTouched);
                     }
@@ -186,7 +198,8 @@ public class FlyPlanView extends View {
                 break;
         }
 
-        return handled;
+        //return super.onTouchEvent(event);
+        return true;
         //return super.onTouchEvent(event) || handled;
     }
 
