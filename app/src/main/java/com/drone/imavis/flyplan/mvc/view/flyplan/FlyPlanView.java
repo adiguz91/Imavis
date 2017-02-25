@@ -18,6 +18,7 @@ import com.drone.imavis.flyplan.mvc.controller.FlyPlanDrawController;
 import com.drone.imavis.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.Node;
+import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterest;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
 import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.waypoint.WaypointData;
 import com.drone.imavis.flyplan.mvc.view.flyplan.listener.GestureListener;
@@ -77,22 +78,31 @@ public class FlyPlanView extends View {
 
         // BEGIN onDraw() ----------
         int counter = 1;
-        Waypoint node, lastNode = null;
-        ListIterator<Waypoint> iterator =  FlyPlanController.getInstance().getFlyPlan().getPoints().getWaypoints().listIterator();
+        Waypoint waypoint, waypointLastNode = null;
+        PointOfInterest poi;
+        ListIterator<Waypoint> iterator;
 
+        iterator = FlyPlanController.getInstance().getFlyPlan().getPoints().getWaypoints().listIterator();
         while (iterator.hasNext()) {
-            node = iterator.next();
+            waypoint = iterator.next();
 
-            if(lastNode != null)
-                node.addLine(canvas, lastNode, node);
+            if(waypointLastNode != null)
+                waypoint.addLine(canvas, waypointLastNode, waypoint);
 
-            node.getShape().draw(canvas);
-            node.addText(canvas, String.valueOf(counter));
+            waypoint.getShape().draw(canvas);
+            waypoint.addText(canvas, String.valueOf(counter));
 
-            if(lastNode != null)
-                node.addDirection(canvas, lastNode, node);
+            if(waypointLastNode != null)
+                waypoint.addDirection(canvas, waypointLastNode, waypoint);
 
-            lastNode = node;
+            waypointLastNode = waypoint;
+            counter++;
+        }
+
+        for (PointOfInterest pointOfInterest : FlyPlanController.getInstance().getFlyPlan().getPoints().getPointOfInterests()) {
+            poi = pointOfInterest;
+            poi.getShape().draw(canvas);
+            //poi.addText(canvas, String.valueOf(counter));
             counter++;
         }
         // END onDraw() ----------
@@ -102,24 +112,31 @@ public class FlyPlanView extends View {
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        Log.w(TAG, "onTouchEvent: " + event);
-        scaleDetector.onTouchEvent(event);
-        gestureDetector.onTouchEvent(event);
-
         boolean handled = false;
+
+        Log.w(TAG, "onTouchEvent: " + event);
+        handled = scaleDetector.onTouchEvent(event);
+        handled = gestureDetector.onTouchEvent(event);
+
         Node touchedNode;
         int pointerId;
         int actionIndex = event.getActionIndex();
 
         // get touch event coordinates and make transparent node from it
         switch (event.getActionMasked()) {
+            /*
             case MotionEvent.ACTION_DOWN:
-                // it's the first pointer, so clear all existing pointers data
                 clearCirclePointer();
                 pointerId = event.getPointerId(0);
                 touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
                 touchedNode = (Waypoint) FlyPlanController.getInstance().obtainTouchedNode(touchCoordinate);
                 nodes.put(pointerId, touchedNode);
+                invalidate();
+                handled = true;
+                break;
+
+            case MotionEvent.ACTION_UP:
+                clearCirclePointer();
                 invalidate();
                 handled = true;
                 break;
@@ -136,7 +153,7 @@ public class FlyPlanView extends View {
                 invalidate();
                 handled = true;
                 break;
-
+*/
             case MotionEvent.ACTION_MOVE:
                 final int pointerCount = event.getPointerCount();
 
@@ -151,13 +168,7 @@ public class FlyPlanView extends View {
                 invalidate();
                 handled = true;
                 break;
-
-            case MotionEvent.ACTION_UP:
-                clearCirclePointer();
-                invalidate();
-                handled = true;
-                break;
-
+/*
             case MotionEvent.ACTION_POINTER_UP:
                 pointerId = event.getPointerId(actionIndex);
                 nodes.remove(pointerId);
@@ -168,13 +179,14 @@ public class FlyPlanView extends View {
             case MotionEvent.ACTION_CANCEL:
                 handled = true;
                 break;
-
+*/
             default:
                 // do nothing
                 break;
         }
 
-        return super.onTouchEvent(event) || handled;
+        return handled;
+        //return super.onTouchEvent(event) || handled;
     }
 
     @Override
