@@ -12,7 +12,7 @@ import com.drone.imavis.flyplan.mvc.view.flyplan.FlyPlanView;
 
 public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
-    private float scaleFactor = CMap.SCALE_FACTOR_DEFAULT;
+    private static float scaleFactor = CMap.SCALE_FACTOR_DEFAULT;
 
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
@@ -22,5 +22,5 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
         return true;
     }
 
-    public float getScaleFactor() { return scaleFactor; }
+    public static float getScaleFactor() { return scaleFactor; }
 }

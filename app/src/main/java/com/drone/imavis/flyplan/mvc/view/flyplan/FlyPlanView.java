@@ -54,7 +54,7 @@ public class FlyPlanView extends View {
 
     public static float getScaleFactor() {
         if(scaleDetector != null)
-            return scaleDetector.getScaleFactor();
+            return ScaleListener.getScaleFactor();
         return CMap.SCALE_FACTOR_DEFAULT;
     }
 
@@ -73,7 +73,7 @@ public class FlyPlanView extends View {
         super.onDraw(canvas);
 
         canvas.save();
-        canvas.scale(FlyPlanController.getInstance().getScaleFactor(), FlyPlanController.getInstance().getScaleFactor());
+        canvas.scale(getScaleFactor(), getScaleFactor());
         //mainActivity.Zoom(mScaleFactor);
 
         // BEGIN onDraw() ----------
@@ -113,15 +113,15 @@ public class FlyPlanView extends View {
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        boolean handled = false;
-
         Log.w(TAG, "onTouchEvent: " + event);
-        handled = scaleDetector.onTouchEvent(event);
-        handled = gestureDetector.onTouchEvent(event);
-
+        boolean handled = false;
         Node touchedNode;
         int pointerId;
         int actionIndex = event.getActionIndex();
+
+        // trigger events
+        handled = scaleDetector.onTouchEvent(event);
+        handled = gestureDetector.onTouchEvent(event);
 
         // get touch event coordinates and make transparent node from it
         switch (event.getActionMasked()) {
