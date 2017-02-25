@@ -20,9 +20,10 @@ import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.shapes.IShape;
 
 public class Text<T> implements IShape {
 
-    public Text(Coordinate coordinate, String content) {
+    public Text(Class<T> type, Coordinate coordinate, String content) {
         this.coordinate = coordinate;
         this.content = content;
+        this.type = type;
 
         if(type == Waypoint.class) {
             this.size = CText.SIZE;
@@ -60,7 +61,7 @@ public class Text<T> implements IShape {
 
     private Coordinate centralizedCoordinate() {
         //float textWidth = paint.measureText(content) / 2;
-        float textHeight = getPaint().getTextSize();
-        return new Coordinate(coordinate.getX(), coordinate.getY() + textHeight / 2);
+        float centeredHeight = getPaint().getTextSize()/2 - 6;
+        return new Coordinate(coordinate.getX(), coordinate.getY() + centeredHeight);
     }
 }

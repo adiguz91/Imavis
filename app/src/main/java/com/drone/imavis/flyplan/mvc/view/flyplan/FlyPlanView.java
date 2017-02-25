@@ -34,8 +34,7 @@ public class FlyPlanView extends View {
     private GestureDetector gestureDetector;
     private Coordinate touchCoordinate = null;
 
-    private SparseArray<Node> nodes = new SparseArray<Node>(CFlyPlan.MAX_NODES);
-    //private FlyPlanDrawController flyPlanDrawController = new FlyPlanDrawController();
+    private static SparseArray<Node> nodes = new SparseArray<Node>(CFlyPlan.MAX_NODES);
 
     public FlyPlanView(final Context context) {
         super(context);
@@ -56,6 +55,10 @@ public class FlyPlanView extends View {
         if(scaleDetector != null)
             return scaleDetector.getScaleFactor();
         return CMap.SCALE_FACTOR_DEFAULT;
+    }
+
+    public static SparseArray<Node> getNodes() {
+        return nodes;
     }
 
     public void init(final Context context) {
@@ -100,8 +103,8 @@ public class FlyPlanView extends View {
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         Log.w(TAG, "onTouchEvent: " + event);
-        //scaleDetector.onTouchEvent(event);
-        //gestureDetector.onTouchEvent(event);
+        scaleDetector.onTouchEvent(event);
+        gestureDetector.onTouchEvent(event);
 
         boolean handled = false;
         Node touchedNode;
@@ -116,10 +119,8 @@ public class FlyPlanView extends View {
                 pointerId = event.getPointerId(0);
                 touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
                 touchedNode = (Waypoint) FlyPlanController.getInstance().obtainTouchedNode(touchCoordinate);
-                //FlyPlanController.getInstance().getFlyPlan().getPoints().addNode(touchedNode);
                 nodes.put(pointerId, touchedNode);
                 invalidate();
-
                 handled = true;
                 break;
 
@@ -130,11 +131,8 @@ public class FlyPlanView extends View {
                 pointerId = event.getPointerId(actionIndex);
                 touchCoordinate = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
                 touchedNode = (Waypoint) FlyPlanController.getInstance().obtainTouchedNode(touchCoordinate);
-                //touchedNode.getData().setId(pointerId);
-                //FlyPlanController.getInstance().getFlyPlan().getPoints().addNode(touchedNode);
                 nodes.put(pointerId, touchedNode);
-                //touchedNode.getDataY()= xTouch;
-                //touchedCircle.centerY = yTouch;
+                touchedNode.getShape().setCoordinate(touchCoordinate);
                 invalidate();
                 handled = true;
                 break;
@@ -143,15 +141,6 @@ public class FlyPlanView extends View {
                 final int pointerCount = event.getPointerCount();
 
                 for (actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
-                    pointerId = event.getPointerId(actionIndex);
-                    /*ListIterator iterator = FlyPlanController.getInstance().getFlyPlan().getPoints().getWaypoints().listIterator();
-                    while (iterator.hasNext()){
-                        Node node = (Waypoint) iterator.next();
-                        if(pointerId == node.getData().getId()) {
-                            touchedNode = node;
-                            break;
-                        }
-                    }*/
                     pointerId = event.getPointerId(actionIndex);
                     Coordinate coordinateTouched = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
                     touchedNode = nodes.get(pointerId);

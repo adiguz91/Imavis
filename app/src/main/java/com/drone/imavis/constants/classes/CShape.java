@@ -5,10 +5,10 @@ package com.drone.imavis.constants.classes;
  */
 
 public class CShape {       // PIXELS
-    public static final int WAYPOINT_CIRCLE_RADIUS = 25;
+    public static final int WAYPOINT_CIRCLE_RADIUS = 50;
     public static final int WAYPOINT_CIRCLE_BORDERSIZE = 20;
     public static final int WAYPOINT_DIRECTION_ANGLE_DISTANCE = 60;
-    public static final int WAYPOINT_DIRECTION_DISTANCE = 10;
+    public static final int WAYPOINT_DIRECTION_DISTANCE = 0;
     public static final int WAYPOINT_DIRECTION_HEIGHT = 24;
 
     public static final int POI_CIRCLE_RADIUS = 30;

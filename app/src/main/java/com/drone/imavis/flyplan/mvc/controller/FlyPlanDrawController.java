@@ -23,7 +23,7 @@ public class FlyPlanDrawController implements IFlyPlanDraw {
 
     @Override
     public void onAddText(Canvas canvas, Coordinate coordinate, String content) {
-        Text text = new Text<Waypoint>(coordinate, content);
+        Text text = new Text<Waypoint>(Waypoint.class, coordinate, content);
         text.draw(canvas);
     }
 

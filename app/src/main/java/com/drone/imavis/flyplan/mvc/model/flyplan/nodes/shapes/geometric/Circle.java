@@ -19,8 +19,6 @@ import java.lang.reflect.Type;
 
 public class Circle<T> extends GeometricShape {
 
-
-
     public Circle(Class<T> type, Coordinate coordinate, int radius) {
         super(type, coordinate);
         this.type = type;
@@ -39,20 +37,9 @@ public class Circle<T> extends GeometricShape {
 
     @Override
     public void draw(Canvas canvas) {
-        Coordinate centralCoordinate = centralizedCoordinate(getCoordinate());
-        Coordinate cartesianCoordinate = centralCoordinate.toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+        Coordinate cartesianCoordinate = getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
         canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle());
         canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder());
-    }
-
-    public Coordinate centralizedCoordinate(Coordinate coordinate) {
-        float centeredX = coordinate.getX() - radius/2;
-        float centeredY = coordinate.getY() - radius/2;
-        if(centeredX < 0)
-            centeredX = 0;
-        if(centeredY < 0)
-            centeredY = 0;
-        return new Coordinate(centeredX, centeredY);
     }
 
     public Paint getPaintCircle() {

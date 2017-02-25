@@ -85,7 +85,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
 
     @Override
     public void addText(Canvas canvas, String content) {
-        Text text = new Text<Waypoint>(getShape().getCoordinate(), content);
+        Text text = new Text<Waypoint>(Waypoint.class, getShape().getCoordinate(), content);
         text.draw(canvas);
     }
 
