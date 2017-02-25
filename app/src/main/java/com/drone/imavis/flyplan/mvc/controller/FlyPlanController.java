@@ -73,7 +73,7 @@ public class FlyPlanController implements IFlyPlan {
                 WaypointData nodeData = new WaypointData();
                 touchedNode = new Waypoint(shape, nodeData);
                 touchedNode.getShape().setCoordinate(touchCoordinate);
-                if (flyPlan.getPoints().getWaypoints().size() == CFlyPlan.MAX_NODES) {
+                if (flyPlan.getPoints().getWaypoints().size() == CFlyPlan.MAX_WAYPOINTS_SIZE) {
                     flyPlan.getPoints().getWaypoints().clear();
                 }
             }
@@ -82,7 +82,7 @@ public class FlyPlanController implements IFlyPlan {
                 PointOfInterestData nodeData = new PointOfInterestData();
                 touchedNode = new PointOfInterest(shape, nodeData);
                 touchedNode.getShape().setCoordinate(touchCoordinate);
-                if (flyPlan.getPoints().getPointOfInterests().size() == CFlyPlan.MAX_NODES) {
+                if (flyPlan.getPoints().getPointOfInterests().size() == CFlyPlan.MAX_POI_SIZE) {
                     flyPlan.getPoints().getPointOfInterests().clear();
                 }
             }
@@ -138,7 +138,7 @@ public class FlyPlanController implements IFlyPlan {
         if(touched != null) {
             touched.getShape().setCoordinate(touchCoordinate);
         }
-        
+
         touchedNodeGlobal = touched;
         return touched;
     }

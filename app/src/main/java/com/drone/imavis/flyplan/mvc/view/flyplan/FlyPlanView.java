@@ -35,7 +35,7 @@ public class FlyPlanView extends View {
     private GestureDetector gestureDetector;
     private Coordinate touchCoordinate = null;
 
-    private static SparseArray<Node> nodes = new SparseArray<Node>(CFlyPlan.MAX_NODES);
+    private static SparseArray<Node> nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
 
     private static PointOfInterest selectedPOI = null;
     private static Waypoint selectedWaypoint = null;
@@ -199,8 +199,8 @@ public class FlyPlanView extends View {
         }
 
         //return super.onTouchEvent(event);
-        return true;
-        //return super.onTouchEvent(event) || handled;
+        //return true;
+        return super.onTouchEvent(event) || handled;
     }
 
     @Override
