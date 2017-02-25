@@ -37,6 +37,7 @@
             android:value="@string/google_maps_key" />
         -->
 
+        <!-- LoginActivity -->
         <activity
             android:name=".view.LoginActivity"
             android:label="@string/app_name"

@@ -2,6 +2,7 @@ package com.drone.imavis.flyplan.mvc.view.flyplan;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CFlyPlan;
 import com.drone.imavis.constants.classes.CMap;
 import com.drone.imavis.draw.CopyNodesDrawingView;
@@ -100,7 +102,10 @@ public class FlyPlanView extends View {
             if(waypointLastNode != null)
                 waypoint.addLine(canvas, waypointLastNode, waypoint);
 
-            waypoint.getShape().draw(canvas);
+            if(waypoint != FlyPlanController.getTouchedNode()) {
+                waypoint.getShape().draw(canvas);
+            }
+
             waypoint.addText(canvas, String.valueOf(counter));
 
             if(waypointLastNode != null)
@@ -113,10 +118,22 @@ public class FlyPlanView extends View {
         counter = 1;
         for (PointOfInterest pointOfInterest : FlyPlanController.getInstance().getFlyPlan().getPoints().getPointOfInterests()) {
             poi = pointOfInterest;
-            poi.getShape().draw(canvas);
+
+            if(poi != FlyPlanController.getTouchedNode())
+            {
+                poi.getShape().draw(canvas);
+            }
+
             poi.addText(canvas, String.valueOf(counter));
             counter++;
         }
+
+        if(FlyPlanController.getTouchedNode() != null) {
+            // draw selected node!!!
+            //FlyPlanController.getTouchedNode().getShape().(Color.GREEN);
+            //FlyPlanController.getTouchedNode().getShape().draw(canvas);
+        }
+
         // END onDraw() ----------
 
         canvas.restore();
@@ -176,6 +193,9 @@ public class FlyPlanView extends View {
                     touchedNode = FlyPlanController.getTouchedNode();
                     if (touchedNode != null) {
                         touchedNode.getShape().setCoordinate(coordinateTouched);
+                    } else {
+                        // drag map
+                        handled = false;
                     }
                 }
                 invalidate();
