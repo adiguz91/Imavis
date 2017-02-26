@@ -5,7 +5,7 @@ import android.widget.Button;
 
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Text;
 
 import java.util.List;

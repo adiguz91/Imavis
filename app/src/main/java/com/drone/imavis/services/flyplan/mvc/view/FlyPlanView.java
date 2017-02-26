@@ -16,48 +16,40 @@ import com.drone.imavis.constants.classes.CMap;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterest;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.view.listener.GestureListener;
 import com.drone.imavis.services.flyplan.mvc.view.listener.ScaleListener;
 
-import java.util.ListIterator;
-
 public class FlyPlanView extends View {
 
-    private static final String TAG = "NodesDrawingView";
+    private GestureDetector gestureDetector;
+    private Coordinate touchCoordinate;
     private Rect viewRect;
 
+    private static final String TAG = "NodesDrawingView"; // FlyPlanDrawView
     private static ScaleGestureDetector scaleDetector;
-    private GestureDetector gestureDetector;
-    private Coordinate touchCoordinate = null;
-
-    private static SparseArray<Node> nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
-
-    private static PointOfInterest selectedPOI = null;
-    private static Waypoint selectedWaypoint = null;
-
-    public static PointOfInterest getSelectedPOI() {
-        return selectedPOI;
-    }
-
-    public static Waypoint getSelectedWaypoint() {
-        return selectedWaypoint;
+    private static SparseArray<Node> nodes;
+    public static SparseArray<Node> getNodes() {
+        return nodes;
     }
 
     public FlyPlanView(final Context context) {
         super(context);
         init(context);
     }
-
     public FlyPlanView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
-
     public FlyPlanView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
         init(context);
+    }
+
+    public void init(final Context context) {
+        nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
+        gestureDetector = new GestureDetector(context, new GestureListener());
+        scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        // FlyPlanController.getInstance().init(context);
     }
 
     public static float getScaleFactor() {
@@ -66,71 +58,13 @@ public class FlyPlanView extends View {
         return CMap.SCALE_FACTOR_DEFAULT;
     }
 
-    public static SparseArray<Node> getNodes() {
-        return nodes;
-    }
-
-    public void init(final Context context) {
-        gestureDetector = new GestureDetector(context, new GestureListener());
-        scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-        // FlyPlanController.getInstance().init(context);
-    }
-
     @Override
     public void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
-
         canvas.save();
+        // mainActivity.Zoom(mScaleFactor); // GoogleMap
         canvas.scale(getScaleFactor(), getScaleFactor());
-        //mainActivity.Zoom(mScaleFactor);
-
-        // BEGIN onDraw() ----------
-        int counter = 1;
-        Waypoint waypoint, waypointLastNode = null;
-        PointOfInterest poi;
-        ListIterator<Waypoint> iterator;
-
-        iterator = FlyPlanController.getInstance().getFlyPlan().getPoints().getWaypoints().listIterator();
-        while (iterator.hasNext()) {
-            waypoint = iterator.next();
-
-            if(waypointLastNode != null)
-                waypoint.addLine(canvas, waypointLastNode, waypoint);
-
-            if(waypoint != FlyPlanController.getTouchedNode()) {
-                waypoint.getShape().draw(canvas);
-            }
-
-            waypoint.addText(canvas, String.valueOf(counter));
-
-            if(waypointLastNode != null)
-                waypoint.addDirection(canvas, waypointLastNode, waypoint);
-
-            waypointLastNode = waypoint;
-            counter++;
-        }
-
-        counter = 1;
-        for (PointOfInterest pointOfInterest : FlyPlanController.getInstance().getFlyPlan().getPoints().getPointOfInterests()) {
-            poi = pointOfInterest;
-
-            if(poi != FlyPlanController.getTouchedNode())
-            {
-                poi.getShape().draw(canvas);
-            }
-
-            poi.addText(canvas, String.valueOf(counter));
-            counter++;
-        }
-
-        if(FlyPlanController.getTouchedNode() != null) {
-            // draw selected node!!!
-            //FlyPlanController.getTouchedNode().getShape().(Color.GREEN);
-            //FlyPlanController.getTouchedNode().getShape().draw(canvas);
-        }
-
-        // END onDraw() ----------
-
+        FlyPlanController.getInstance().draw(canvas);
         canvas.restore();
     }
 
@@ -139,10 +73,10 @@ public class FlyPlanView extends View {
         Log.w(TAG, "onTouchEvent: " + event);
         boolean handled = false;
         Node touchedNode;
+        int actionIndex; // event.getActionIndex()
         int pointerId;
-        int actionIndex = event.getActionIndex();
 
-        // trigger events
+        // onTouch trigger events
         handled = scaleDetector.onTouchEvent(event);
         handled = gestureDetector.onTouchEvent(event);
 
@@ -214,8 +148,8 @@ public class FlyPlanView extends View {
         }
 
         //return super.onTouchEvent(event);
-        //return true;
         return super.onTouchEvent(event) || handled;
+        //return true;
     }
 
     @Override
@@ -224,14 +158,9 @@ public class FlyPlanView extends View {
         viewRect = new Rect(0, 0, getMeasuredWidth(), getMeasuredHeight());
     }
 
-    private void clearCirclePointer() {
-        Log.w(TAG, "clearCirclePointer");
-        nodes.clear();
-    }
-
-
     /*
     private void initGestureListener(final Context context) {
+
         gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public void onLongPress(MotionEvent e) {
@@ -250,6 +179,7 @@ public class FlyPlanView extends View {
                 return true;
             }
         });
+
     }
     */
 }

@@ -1,4 +1,4 @@
-package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint;
+package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint;
 
 import android.graphics.Canvas;
 
@@ -10,4 +10,5 @@ public interface IWaypointDraw {
     void addText(Canvas canvas, String content);
     void addLine(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint);
     void addDirection(Canvas canvas, Waypoint currentWaypoint, Waypoint nextWaypoint);
+    void drawShape(Canvas canvas, String content, Waypoint lastWaypoint, Waypoint currentWaypoint);
 }

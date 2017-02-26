@@ -8,8 +8,8 @@ import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CText;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterest;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.IShape;
 
 /**

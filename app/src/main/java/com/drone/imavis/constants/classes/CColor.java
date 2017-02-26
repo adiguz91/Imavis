@@ -13,6 +13,12 @@ public class CColor {
 
     public static final String TITLE = "#FF000000";
 
+    public static final String NODE_SELECTED_CIRCLE = "#FFFFFFFF";
+    public static final String NODE_SELECTED_CIRCLE_BORDER = "#FF000000";
+    public static final String NODE_SELECTED_TEXT = "#FF000000";
+    public static final String NODE_SELECTED_DIRECTION = "#FF000000";
+    public static final String NODE_SELECTED_DIRECTION_BORDER = "#FF000000";
+
     public static final String WAYPOINT_CIRCLE = "#FFFFFFFF";
     public static final String WAYPOINT_CIRCLE_BORDER = "#805386E4";
     public static final String WAYPOINT_TEXT = "#FF000000";

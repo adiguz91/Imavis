@@ -1,8 +1,10 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 
@@ -12,14 +14,13 @@ import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordi
 
 public class Circle<T> extends GeometricShape {
 
-    public Circle(Class<T> type, Coordinate coordinate, int radius) {
-        super(type, coordinate);
-        this.type = type;
+    public Circle(Class<T> classT, Coordinate coordinate, int radius) {
+        super(classT, coordinate);
+        this.classT = classT;
         this.radius = radius;
     }
 
-    private Class<T> type;
-    public Class<T> getType() { return type; }
+    private Class<T> classT;
 
     /*
     private void setTypeAtRuntime() {
@@ -30,28 +31,46 @@ public class Circle<T> extends GeometricShape {
 
     @Override
     public void draw(Canvas canvas) {
-        Coordinate cartesianCoordinate = getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
-        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle());
-        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder());
+        draw(canvas, false);
     }
 
-    public Paint getPaintCircle() {
-        if(paintCircle == null) {
+    public void draw(Canvas canvas, boolean selected) {
+        Coordinate cartesianCoordinate = getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle(selected));
+        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder(selected));
+    }
+
+    public Paint getPaintCircle(boolean selected) {
+
+        if(selected) {
+            setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
+            setBorderColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE_BORDER));
+        } else {
+            this.initByType(classT);
+        }
+        //if(paintCircle == null) {
             paintCircle = new Paint();
             paintCircle.setStyle(Paint.Style.FILL);
             paintCircle.setAntiAlias(true);
             paintCircle.setColor(getBackgroundColor());
-        }
+        //}
         return paintCircle;
     }
 
-    public Paint getPaintCircleBorder() {
-        if(paintCircleBorder == null) {
+    public Paint getPaintCircleBorder(boolean selected) {
+
+        if(selected) {
+            setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
+            setBorderColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE_BORDER));
+        } else {
+            this.initByType(classT);
+        }
+        //if(paintCircleBorder == null) {
             paintCircleBorder = new Paint();
             paintCircleBorder.setStyle(Paint.Style.STROKE);
             paintCircleBorder.setColor(getBorderColor());
             paintCircleBorder.setStrokeWidth(getBorder());
-        }
+        //}
         return paintCircleBorder;
     }
 

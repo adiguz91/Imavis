@@ -1,7 +1,7 @@
-package com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.poi;
+package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi;
 
-import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.NodeData;
-import com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.waypoint.WaypointData;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.NodeData;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
 
 import java.util.ArrayList;
 import java.util.List;

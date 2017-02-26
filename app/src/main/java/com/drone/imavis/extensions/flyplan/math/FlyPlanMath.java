@@ -1,4 +1,4 @@
-package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint;
+package com.drone.imavis.extensions.flyplan.math;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,64 +10,30 @@ import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Square;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Line;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Text;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 
 /**
- * Created by adigu on 03.02.2017.
+ * Created by adigu on 26.02.2017.
  */
 
-public class Waypoint<T> extends Node implements IWaypointDraw {
+public class FlyPlanMath {
 
-    private GeometricShape shape;
+    private static FlyPlanMath flyPlanMath;
 
-    public Waypoint(GeometricShape shape, WaypointData data) {
-        super(shape, data);
+    public FlyPlanMath() {}
+
+    // SINGLETON PATTERN
+    public static FlyPlanMath getInstance() {
+        if (flyPlanMath == null)
+            flyPlanMath = new FlyPlanMath();
+        return flyPlanMath;
     }
 
-    /*
-    @Override
-    public GeometricShape getShape() {
-        return shape;
-    }
-    */
-
-    GeometricShape createShape(Class<T> classType, Coordinate coordinate) {
-        GeometricShape geometricShape = null;
-        if(classType == Circle.class)
-            geometricShape = new Circle(Waypoint.class, coordinate, CShape.WAYPOINT_CIRCLE_RADIUS);
-        if(classType == Square.class)
-            geometricShape =  new Square(Waypoint.class, coordinate);
-        return geometricShape;
-    }
-
-    // first and last waypoint have bigger size then the rest
-    public void addWaypointAutoSize() {
-
-    }
-
-    // first and last waypoint have bigger size then the rest
-    public void removeWaypointAutoSize() {
-
-    }
-
-    public Paint getPaint() {
-        if(paint == null) {
-            paint = new Paint();
-            paint.setAntiAlias(true);
-            paint.setColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
-            paint.setStyle(Paint.Style.FILL);
-        }
-        return paint;
-    }
-
-    private Paint paint;
-
-    private float angleBetweenPoints(GeometricShape nodeA, GeometricShape nodeB) {
+    /************************************
+     * begin: NODE MATH functions
+     */
+    public float angleBetweenPoints(GeometricShape nodeA, GeometricShape nodeB) {
         float angleInDegrees = (float) (Math.atan2(nodeB.getCoordinate().getY() - nodeA.getCoordinate().getY(),
                 nodeB.getCoordinate().getX() - nodeA.getCoordinate().getX()) * 180f / Math.PI);
         if(angleInDegrees < 0)
@@ -75,30 +41,13 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         return angleInDegrees;
     }
 
-    private Coordinate pointOnCircle(Coordinate coordinate, float radius, float angleInDegrees) {
+    public Coordinate pointOnCircle(Coordinate coordinate, float radius, float angleInDegrees) {
         // Convert from degrees to radians via multiplication by PI/180
         float x = (float)(radius * Math.cos(angleInDegrees * Math.PI / 180f)) + coordinate.getX();
         float y = (float)(radius * Math.sin(angleInDegrees * Math.PI / 180f)) + coordinate.getY();
         return new Coordinate(x, y);
     }
 
-    @Override
-    public void addText(Canvas canvas, String content) {
-        Text text = new Text<Waypoint>(Waypoint.class, getShape().getCoordinate(), content);
-        text.draw(canvas);
-    }
-
-    @Override
-    public void addLine(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint) {
-        Line line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate()) ;
-        line.draw(canvas);
-    }
-
-    private float toScaleFactor(float value, float scaleFactor) {
-        return value / scaleFactor;
-    }
-
-    @Override
     public void addDirection(Canvas canvas, Waypoint currentWaypoint, Waypoint nextWaypoint) {
         Paint paint = new Paint();
         final RectF rect = new RectF();
@@ -124,7 +73,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
 
         Coordinate scaledCurrentWaypoint;
         scaledCurrentWaypoint = currentWaypoint.getShape().getCoordinate().toScaleFactor(
-                                FlyPlanController.getInstance().getScaleFactor());
+                FlyPlanController.getInstance().getScaleFactor());
         //scaledCurrentWaypoint = currentWaypoint.getShape().getCoordinate();
 
         //currentWaypoint.getShape().setCoordinate(scaledCurrentWaypoint);
@@ -148,4 +97,8 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         //canvas.drawArc(rect, 240, 60, false, paint);
         canvas.drawPath(path, paint);
     }
+    /*
+     * end: NODE MATH functions
+     ************************************/
+
 }

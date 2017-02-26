@@ -1,4 +1,4 @@
-package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.poi;
+package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi;
 
 import android.graphics.Canvas;
 

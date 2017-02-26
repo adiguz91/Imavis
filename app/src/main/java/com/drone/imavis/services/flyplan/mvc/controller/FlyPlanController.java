@@ -1,5 +1,9 @@
 package com.drone.imavis.services.flyplan.mvc.controller;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+
+import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CFileDirectories;
 import com.drone.imavis.constants.classes.CFiles;
 import com.drone.imavis.constants.classes.CFlyPlan;
@@ -9,12 +13,9 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.map.Map;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.dimension.Size;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterest;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterestData;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint.WaypointData;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.view.FlyPlanView;
 import com.google.android.gms.maps.GoogleMap;
 
@@ -30,11 +31,8 @@ public class FlyPlanController implements IFlyPlan {
 
     private static FlyPlanController flyPlanController;
     private FlyPlan flyPlan;
-
     private static Node touchedNodeGlobal;
-    public static Node getTouchedNode() {
-        return touchedNodeGlobal;
-    }
+    public static Node getTouchedNode() { return touchedNodeGlobal; }
 
     // SINGLETON PATTERN
     public static FlyPlanController getInstance() {
@@ -49,7 +47,6 @@ public class FlyPlanController implements IFlyPlan {
         Map map = new Map<GoogleMap>(mapCoordinate, mapSize);
         this.flyPlan = new FlyPlan(map);
     }
-
     public FlyPlanController(Map map) {
         this.flyPlan = new FlyPlan(map);
     }
@@ -59,9 +56,7 @@ public class FlyPlanController implements IFlyPlan {
 
     /**
      * Search and creates new (if needed) node based on touch area
-     *
      * @param touchCoordinate
-     *
      * @return obtained {@link Node}
      */
     public boolean obtainTouchedNode(Class className, Coordinate touchCoordinate, Node touchedNode) {
@@ -69,19 +64,18 @@ public class FlyPlanController implements IFlyPlan {
 
         if (touchedNode == null) {
             if(className == Waypoint.class) {
-                GeometricShape shape = new Circle(Waypoint.class, touchCoordinate, CShape.WAYPOINT_CIRCLE_RADIUS);
-                WaypointData nodeData = new WaypointData();
-                touchedNode = new Waypoint(shape, nodeData);
-                touchedNode.getShape().setCoordinate(touchCoordinate);
+
+                touchedNode = new Waypoint(touchCoordinate);
+                //touchedNode.getShape().setCoordinate(touchCoordinate);
                 if (flyPlan.getPoints().getWaypoints().size() == CFlyPlan.MAX_WAYPOINTS_SIZE) {
                     flyPlan.getPoints().getWaypoints().clear();
                 }
             }
             if(className == PointOfInterest.class) {
-                GeometricShape shape = new Circle(PointOfInterest.class, touchCoordinate, CShape.POI_CIRCLE_RADIUS);
-                PointOfInterestData nodeData = new PointOfInterestData();
-                touchedNode = new PointOfInterest(shape, nodeData);
-                touchedNode.getShape().setCoordinate(touchCoordinate);
+                //GeometricShape shape = new Circle(PointOfInterest.class, touchCoordinate, CShape.POI_CIRCLE_RADIUS);
+                //PointOfInterestData nodeData = new PointOfInterestData();
+                touchedNode = new PointOfInterest(touchCoordinate);
+                //touchedNode.getShape().setCoordinate(touchCoordinate);
                 if (flyPlan.getPoints().getPointOfInterests().size() == CFlyPlan.MAX_POI_SIZE) {
                     flyPlan.getPoints().getPointOfInterests().clear();
                 }
@@ -91,15 +85,79 @@ public class FlyPlanController implements IFlyPlan {
             return true;
         }
         touchedNode.getShape().setCoordinate(touchCoordinate);
-        touchedNodeGlobal = touchedNode;
+        setTouchedNodeGlobal(touchedNode);
         return false;
+    }
+
+    private void setTouchedNodeGlobal(Node touchedNode) {
+        if(touchedNode != null) {
+            if(touchedNode.getClass() == Waypoint.class) {
+                getFlyPlan().getPoints().getWaypoints().setSelectedWaypoint((Waypoint) touchedNode);
+            }
+            if(touchedNode.getClass() == PointOfInterest.class) {
+                getFlyPlan().getPoints().getPointOfInterests().setSelectedPOI((PointOfInterest) touchedNode);
+            }
+        }
+        touchedNodeGlobal = touchedNode;
+    }
+
+    public void draw(Canvas canvas) {
+        int counter = 1;
+        int selectedId = 1;
+        Waypoint waypoint, waypointLastNode = null;
+        PointOfInterest poi;
+        ListIterator<Waypoint> iterator;
+
+        // draw waypoints
+        iterator = getFlyPlan().getPoints().getWaypoints().listIterator();
+        while (iterator.hasNext()) {
+            waypoint = iterator.next();
+            if(waypointLastNode != null)
+                waypoint.addLine(canvas, waypointLastNode, waypoint);
+            if(waypoint != FlyPlanController.getTouchedNode()) {
+                waypoint.getShape().draw(canvas);
+                waypoint.addText(canvas, String.valueOf(counter));
+            } else
+                selectedId = counter;
+
+            if(waypointLastNode != null)
+                waypoint.addDirection(canvas, waypointLastNode, waypoint);
+
+            waypointLastNode = waypoint;
+            counter++;
+        }
+
+        // draw POIs
+        counter = 1;
+        for (PointOfInterest pointOfInterest : getFlyPlan().getPoints().getPointOfInterests()) {
+            poi = pointOfInterest;
+            if(poi != FlyPlanController.getTouchedNode()) {
+                poi.getShape().draw(canvas);
+                poi.addText(canvas, String.valueOf(counter));
+            } else
+                selectedId = counter;
+            counter++;
+        }
+
+        // draw selectedNode
+        if(FlyPlanController.getTouchedNode() != null) {
+            // draw selected node!!!
+            if( FlyPlanController.getTouchedNode().getShape().getClass() == Circle.class) {
+                ((Circle) FlyPlanController.getTouchedNode().getShape()).draw(canvas, true);
+            } else {
+                FlyPlanController.getTouchedNode().getShape().draw(canvas);
+            }
+
+            if( FlyPlanController.getTouchedNode().getClass() == Waypoint.class)
+                ((Waypoint) FlyPlanController.getTouchedNode()).addText(canvas, String.valueOf(selectedId));
+            else if( FlyPlanController.getTouchedNode().getClass() == PointOfInterest.class)
+                ((PointOfInterest) FlyPlanController.getTouchedNode()).addText(canvas, String.valueOf(selectedId));
+        }
     }
 
     /**
      * Determines touched node
-     *
      * @param touchCoordinate
-     *
      * @return {@link Node} touched node or null if no node has been touched
      */
     public Node getTouchedNode(Coordinate touchCoordinate) {
@@ -138,8 +196,7 @@ public class FlyPlanController implements IFlyPlan {
         if(touched != null) {
             touched.getShape().setCoordinate(touchCoordinate);
         }
-
-        touchedNodeGlobal = touched;
+        setTouchedNodeGlobal(touched);
         return touched;
     }
 
@@ -162,14 +219,11 @@ public class FlyPlanController implements IFlyPlan {
 
     @Override
     public FlyPlan onPlanLoad(File file) {
-        try
-        {
+        try {
             return FlyPlan.loadFromJsonFile(FileExtension.readFile(file));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        return null;
+        }   return null;
     }
 
     @Override

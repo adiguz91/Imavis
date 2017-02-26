@@ -1,4 +1,4 @@
-package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint;
+package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint;
 
 import com.google.gson.Gson;
 import com.drone.imavis.extensions.doublelinkedlist.DoublyLinkedList;
@@ -10,6 +10,7 @@ import com.drone.imavis.extensions.doublelinkedlist.DoublyLinkedList;
 public class Waypoints extends DoublyLinkedList<Waypoint> {
 
     private static Gson gson = new Gson();
+    private Waypoint selectedWaypoint;
 
     public Waypoints() {}
 
@@ -19,6 +20,14 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
 
         Waypoints deserializedPOIs = gson.fromJson(waypointsJSON, Waypoints.class);
         this.addAll(deserializedPOIs);
+    }
+
+    public Waypoint getSelectedWaypoint() {
+        return selectedWaypoint;
+    }
+
+    public void setSelectedWaypoint(Waypoint selectedWaypoint) {
+        this.selectedWaypoint = selectedWaypoint;
     }
 
     public boolean Save() {

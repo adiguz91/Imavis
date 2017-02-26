@@ -1,9 +1,9 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes;
 
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterest;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterests;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoints;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterests;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoints;
 
 /**
  * Created by Adrian on 26.11.2016.

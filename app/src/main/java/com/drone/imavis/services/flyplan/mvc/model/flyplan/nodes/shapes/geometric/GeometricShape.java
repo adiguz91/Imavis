@@ -5,8 +5,8 @@ import android.graphics.Color;
 import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.poi.PointOfInterest;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.data.waypoint.Waypoint;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.IShape;
 
 /**
@@ -15,25 +15,35 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.IShape;
 
 public abstract class GeometricShape<T> implements IShape {
 
-    public GeometricShape(Class<T> type, Coordinate coordinate) {
-        this.type = type;
+    public GeometricShape(Class<T> classNode, Coordinate coordinate) {
+        this.classT = classNode;
         this.coordinate = coordinate;
-        initByType();
+        initByType(classNode);
     }
 
-    private void initByType() {
-        if(type == Waypoint.class)
+    /*
+    private T getInstance() {
+        try {
+            return classT.newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }   return null;
+    }
+    */
+
+    public void initByType(Class classNode) {
+        if(classNode.equals(Waypoint.class))
             initWaypoint();
-        if(type == PointOfInterest.class)
+        if(classNode.equals(PointOfInterest.class))
             initPOI();
     }
-
     private void initWaypoint() {
         setBackgroundColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
         setBorderColor(Color.parseColor(CColor.WAYPOINT_CIRCLE_BORDER));
         setBorder(CShape.WAYPOINT_CIRCLE_BORDERSIZE);
     }
-
     private void initPOI() {
         setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
         setBorderColor(Color.parseColor(CColor.POI_CIRCLE_BORDER));
@@ -72,9 +82,9 @@ public abstract class GeometricShape<T> implements IShape {
         this.borderColor = borderColor;
     }
 
-    private int border = 10;
-    private int backgroundColor = Color.WHITE;
-    private int borderColor = Color.GREEN;
+    private int border;
+    private int backgroundColor;
+    private int borderColor;
     private Coordinate coordinate;
-    private Class<T> type;
+    private Class<T> classT;
 }

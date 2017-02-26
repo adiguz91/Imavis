@@ -1,4 +1,4 @@
-package com.drone.imavis.flyplan.mvc.model.flyplan.nodes.data.waypoint;
+package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint;
 
 /**
  * Created by adigu on 03.02.2017.
