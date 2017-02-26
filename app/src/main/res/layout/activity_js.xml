@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".uav.control.activity.JSActivity"
+    tools:context=".services.dronecontrol.parrot.activity.JSActivity"
     android:id="@+id/piloting_view">
 
     <com.parrot.sdksample.view.JSVideoView

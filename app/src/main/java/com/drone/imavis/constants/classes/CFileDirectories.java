@@ -2,7 +2,7 @@ package com.drone.imavis.constants.classes;
 
 import android.os.Environment;
 
-import extensions.file.FileExtension;
+import com.drone.imavis.extensions.file.FileExtension;
 
 /**
  * Created by adigu on 23.02.2017.

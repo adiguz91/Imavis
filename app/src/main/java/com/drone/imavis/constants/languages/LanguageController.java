@@ -1,10 +1,7 @@
 package com.drone.imavis.constants.languages;
 
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
-import extensions.string.StringExtension;
 
 /**
  * Created by Adrian on 27.11.2016.

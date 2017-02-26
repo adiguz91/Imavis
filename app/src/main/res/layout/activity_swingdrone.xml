@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".uav.control.activity.MiniDroneActivity"
+    tools:context=".services.dronecontrol.parrot.activity.MiniDroneActivity"
     android:id="@+id/piloting_view">
 
     <Button
