@@ -1,7 +1,14 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint;
 
+import android.graphics.Canvas;
+
+import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.google.gson.Gson;
 import com.drone.imavis.extensions.doublelinkedlist.DoublyLinkedList;
+
+import java.util.ListIterator;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -22,12 +29,27 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         this.addAll(deserializedPOIs);
     }
 
-    public Waypoint getSelectedWaypoint() {
-        return selectedWaypoint;
-    }
+    public int draw(Canvas canvas) {
+        int counter = 1;
+        int selectedWaypointIndex = -1;
+        Waypoint waypoint, waypointLastNode = null;
+        ListIterator<Waypoint> iterator = this.listIterator();
 
-    public void setSelectedWaypoint(Waypoint selectedWaypoint) {
-        this.selectedWaypoint = selectedWaypoint;
+        while (iterator.hasNext()) {
+            waypoint = iterator.next();
+            if(waypointLastNode != null)
+                waypoint.addLine(canvas, waypointLastNode, waypoint);
+            if(waypoint != FlyPlanController.getSelectedWaypoint()) {
+                waypoint.getShape().draw(canvas);
+                waypoint.addText(canvas, String.valueOf(counter));
+            } else
+                selectedWaypointIndex = counter - 1;
+            if(waypointLastNode != null)
+                waypoint.addDirection(canvas, waypointLastNode, waypoint);
+            waypointLastNode = waypoint;
+            counter++;
+        }
+        return selectedWaypointIndex; // if -1 then notfound else found
     }
 
     public boolean Save() {

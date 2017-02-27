@@ -1,10 +1,19 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan;
 
+import android.graphics.Canvas;
+
 import com.drone.imavis.constants.classes.CFlyPlan;
 import com.drone.imavis.constants.classes.CFlyPlan.UnitOfLength;
+import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.map.Map;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Nodes;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
 import com.google.gson.Gson;
+
+import java.util.ListIterator;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -77,6 +86,30 @@ public class FlyPlan {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public void draw(Canvas canvas) {
+        int selectedWaypointIndex = this.getPoints().getWaypoints().draw(canvas);
+        int selectedPoiIndex = this.getPoints().getPointOfInterests().draw(canvas);
+        int selectedWaypointId = selectedWaypointIndex + 1;
+        int selectedPoiId = selectedPoiIndex + 1;
+
+        // draw selectedWaypoint
+        if(FlyPlanController.getSelectedWaypoint() != null) {
+            FlyPlanController.getSelectedWaypoint().draw(canvas, String.valueOf(selectedWaypointId), true); // selected : TRUE
+        }
+
+        if(FlyPlanController.getSelectedPOI() != null) {
+            // add POI to Waypoint
+            if(this.getPoints().getWaypoints().get(selectedWaypointIndex).getData() != null) {
+                if(selectedWaypointIndex > -1) {
+                    ((WaypointData) this.getPoints().getWaypoints().get(selectedWaypointIndex).getData()).
+                            setPoi((PointOfInterest) FlyPlanController.getSelectedPOI());
+                }
+            }
+            // draw selectedPOI
+            FlyPlanController.getSelectedPOI().draw(canvas, String.valueOf(selectedPoiId), true); // selected : TRUE
+        }
     }
 
     Map map;

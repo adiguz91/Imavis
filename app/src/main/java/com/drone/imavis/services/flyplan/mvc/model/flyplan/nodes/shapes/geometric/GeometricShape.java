@@ -1,6 +1,7 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric;
 
 import android.graphics.Color;
+import android.graphics.Paint;
 
 import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CShape;
@@ -45,6 +46,11 @@ public abstract class GeometricShape<T> implements IShape {
         setBorder(CShape.WAYPOINT_CIRCLE_BORDERSIZE);
     }
     private void initPOI() {
+        setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
+        setBorderColor(Color.parseColor(CColor.POI_CIRCLE_BORDER));
+        setBorder(CShape.POI_CIRCLE_BORDERSIZE);
+    }
+    private void initSelected() {
         setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
         setBorderColor(Color.parseColor(CColor.POI_CIRCLE_BORDER));
         setBorder(CShape.POI_CIRCLE_BORDERSIZE);

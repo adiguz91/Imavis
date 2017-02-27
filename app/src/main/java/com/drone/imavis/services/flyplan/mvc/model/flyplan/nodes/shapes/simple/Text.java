@@ -57,6 +57,11 @@ public class Text<T> implements IShape {
         canvas.drawText(content, scaledCoordinate.getX(), scaledCoordinate.getY(), getPaint());
     }
 
+    @Override
+    public void draw(Canvas canvas, boolean selected) {
+        draw(canvas);
+    }
+
     private Coordinate centralizedCoordinate() {
         //float textWidth = paint.measureText(content) / 2;
         float centeredHeight = getPaint().getTextSize()/2 - 6;

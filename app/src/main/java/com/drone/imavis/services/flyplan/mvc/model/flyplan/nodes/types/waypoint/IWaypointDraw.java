@@ -10,5 +10,5 @@ public interface IWaypointDraw {
     void addText(Canvas canvas, String content);
     void addLine(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint);
     void addDirection(Canvas canvas, Waypoint currentWaypoint, Waypoint nextWaypoint);
-    void drawShape(Canvas canvas, String content, Waypoint lastWaypoint, Waypoint currentWaypoint);
+    void draw(Canvas canvas, String content);
 }

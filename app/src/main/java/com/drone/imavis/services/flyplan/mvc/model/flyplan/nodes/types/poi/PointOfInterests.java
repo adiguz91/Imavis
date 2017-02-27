@@ -1,7 +1,11 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi;
 
+import android.graphics.Canvas;
+
 import java.util.ArrayList;
 
+import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.google.gson.Gson;
 
@@ -24,12 +28,18 @@ public class PointOfInterests extends ArrayList<PointOfInterest> {
         this.addAll(deserializedPOIs);
     }
 
-    public PointOfInterest getSelectedPOI() {
-        return selectedPOI;
-    }
-
-    public void setSelectedPOI(PointOfInterest selectedPOI) {
-        this.selectedPOI = selectedPOI;
+    public int draw(Canvas canvas) {
+        int counter = 1;
+        int selectedPoiIndex = -1;
+        for (PointOfInterest poi : this) {
+            if(poi != FlyPlanController.getSelectedPOI()) {
+                poi.getShape().draw(canvas);
+                poi.addText(canvas, String.valueOf(counter));
+            } else
+                selectedPoiIndex = counter - 1;
+            counter++;
+        }
+        return selectedPoiIndex;
     }
 
     public boolean Store() {

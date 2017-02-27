@@ -15,6 +15,11 @@ public class PointOfInterest<T> extends Node implements IPointOfInterestDraw {
         super(PointOfInterest.class, coordinateTouched);
     }
 
+    public void draw(Canvas canvas, String content, boolean selected) {
+        this.getShape().draw(canvas, selected);
+        addText(canvas, content);
+    }
+
     @Override
     public void addText(Canvas canvas, String content) {
         Text text = new Text<PointOfInterest>(PointOfInterest.class, getShape().getCoordinate(), content);

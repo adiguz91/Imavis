@@ -46,4 +46,9 @@ public class Line implements IShape {
         path.lineTo(toScaledCoordinate.getX(),toScaledCoordinate.getY());
         canvas.drawPath(path, getPaint());
     }
+
+    @Override
+    public void draw(Canvas canvas, boolean selected) {
+        draw(canvas);
+    }
 }

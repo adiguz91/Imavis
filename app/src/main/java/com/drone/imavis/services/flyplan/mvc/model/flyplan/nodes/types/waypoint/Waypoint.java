@@ -64,11 +64,14 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     }
 
     @Override
-    public void drawShape(Canvas canvas, String content, Waypoint lastWaypoint, Waypoint currentWaypoint) {
-        addLine(canvas, lastWaypoint, currentWaypoint);
+    public void draw(Canvas canvas, String content) {
         this.getShape().draw(canvas);
         addText(canvas, content);
-        addDirection(canvas, currentWaypoint, lastWaypoint);
+    }
+
+    public void draw(Canvas canvas, String content, boolean selected) {
+        this.getShape().draw(canvas, selected);
+        addText(canvas, content);
     }
 
 }

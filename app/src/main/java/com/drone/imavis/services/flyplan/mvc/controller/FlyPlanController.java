@@ -33,10 +33,11 @@ public class FlyPlanController implements IFlyPlan {
     private static FlyPlanController flyPlanController;
     private FlyPlan flyPlan;
 
-    private static Node touchedNodeGlobal;
+    private static Waypoint selectedWaypoint;
+    public static Waypoint getSelectedWaypoint() { return selectedWaypoint; }
+
     private static PointOfInterest selectedPOI;
-    public static Node getTouchedNode() { return touchedNodeGlobal; }
-    public static Node getSelectedPOI() { return selectedPOI; }
+    public static PointOfInterest getSelectedPOI() { return selectedPOI; }
 
     //private static Node touchedNodeGlobalLast;
     //public static Node getTouchedNodeLast() { return touchedNodeGlobalLast; }
@@ -71,138 +72,70 @@ public class FlyPlanController implements IFlyPlan {
 
         if (touchedNode == null) {
             if(className == Waypoint.class) {
-
                 touchedNode = new Waypoint(touchCoordinate);
-                //touchedNode.getShape().setCoordinate(touchCoordinate);
                 if (flyPlan.getPoints().getWaypoints().size() == CFlyPlan.MAX_WAYPOINTS_SIZE) {
                     flyPlan.getPoints().getWaypoints().clear();
                 }
             }
             if(className == PointOfInterest.class) {
-                //GeometricShape shape = new Circle(PointOfInterest.class, touchCoordinate, CShape.POI_CIRCLE_RADIUS);
-                //PointOfInterestData nodeData = new PointOfInterestData();
                 touchedNode = new PointOfInterest(touchCoordinate);
-                //touchedNode.getShape().setCoordinate(touchCoordinate);
                 if (flyPlan.getPoints().getPointOfInterests().size() == CFlyPlan.MAX_POI_SIZE) {
                     flyPlan.getPoints().getPointOfInterests().clear();
                 }
             }
             //Log.w(TAG, "Added node " + touchedNode);
             flyPlan.getPoints().addNode(touchedNode);
-            setTouchedNodeGlobal(touchedNode);
+            setSelectedNode(touchedNode);
             return true;
         }
         touchedNode.getShape().setCoordinate(touchCoordinate);
-        setTouchedNodeGlobal(touchedNode);
+        setSelectedNode(touchedNode);
         return false;
     }
 
-    private void setSelectedPOI(Node node) {
+    private static Node touchedNode;
+    public static Node getTouchedNode() {
+        return touchedNode;
+    }
+    private static void setTouchedNode(Node node) {
+        touchedNode = node;
+    }
 
+    private void setSelectedNode(Node touchedNode) {
+        setTouchedNode(touchedNode);
+        setSelectedPOI(touchedNode);
+        setSelectedWaypoint(touchedNode);
+    }
+
+    private void setSelectedWaypoint(Node touchedNode) {
+        if(touchedNode == null)
+            selectedWaypoint = null;
+        else {
+            if(touchedNode.getClass() == Waypoint.class) {
+                if(getSelectedWaypoint() == touchedNode)
+                    selectedWaypoint = null; // double de/selected node
+                else
+                    selectedWaypoint = (Waypoint) touchedNode;
+            }
+        }
+    }
+
+    private void setSelectedPOI(Node node) {
         if (node == null) {
             selectedPOI = null;
         } else {
             if (node.getClass() == PointOfInterest.class) {
                 if (selectedPOI == null) {
                     selectedPOI = (PointOfInterest) node;
-                } else if (selectedPOI == node)
-                        selectedPOI = null;
-                    //else
-                    //    selectedPOI = (PointOfInterest) node;
+                } else if (getSelectedPOI() == node)
+                    selectedPOI = null; // double de/selected node
+                    selectedWaypoint = null;
             }
-            //else {
-            //    if (node.getClass() == Waypoint.class) {
-            //    }
-            //}
         }
-    }
-
-    private void setTouchedNodeGlobal(Node touchedNode) {
-
-        setSelectedPOI(touchedNode);
-
-        if(touchedNodeGlobal == touchedNode)
-            touchedNode = null; // double de/selected node
-        touchedNodeGlobal = touchedNode;
     }
 
     public void draw(Canvas canvas) {
-        int counter = 1;
-        int selectedIdPOI = 0;
-        int selectedTouchedId = 0;
-        Waypoint waypoint, waypointLastNode = null;
-        PointOfInterest poi;
-        ListIterator<Waypoint> iterator;
-
-        // draw waypoints
-        iterator = getFlyPlan().getPoints().getWaypoints().listIterator();
-        while (iterator.hasNext()) {
-            waypoint = iterator.next();
-            if(waypointLastNode != null)
-                waypoint.addLine(canvas, waypointLastNode, waypoint);
-            if(waypoint != FlyPlanController.getTouchedNode()) {
-                waypoint.getShape().draw(canvas);
-                waypoint.addText(canvas, String.valueOf(counter));
-            } else
-                selectedTouchedId = counter;
-
-            if(waypointLastNode != null)
-                waypoint.addDirection(canvas, waypointLastNode, waypoint);
-
-            waypointLastNode = waypoint;
-            counter++;
-        }
-
-        // draw POIs
-        counter = 1;
-        for (PointOfInterest pointOfInterest : getFlyPlan().getPoints().getPointOfInterests()) {
-            poi = pointOfInterest;
-
-            if(poi != getSelectedPOI()) {
-                poi.getShape().draw(canvas);
-                poi.addText(canvas, String.valueOf(counter));
-            } else
-                selectedIdPOI = counter;
-
-            if(poi != FlyPlanController.getTouchedNode()) {
-                poi.getShape().draw(canvas);
-                poi.addText(canvas, String.valueOf(counter));
-            } else
-                selectedTouchedId = counter;
-
-            counter++;
-        }
-
-        // draw selectedNode
-        if(FlyPlanController.getTouchedNode() != null && FlyPlanController.getTouchedNode().getClass() == Waypoint.class) {
-
-            if( FlyPlanController.getTouchedNode().getShape().getClass() == Circle.class) {
-                ((Circle) FlyPlanController.getTouchedNode().getShape()).draw(canvas, true);
-            }
-            //else
-            //    FlyPlanController.getTouchedNode().getShape().draw(canvas);
-
-            if( FlyPlanController.getTouchedNode().getClass() == Waypoint.class)
-                ((Waypoint) FlyPlanController.getTouchedNode()).addText(canvas, String.valueOf(selectedTouchedId));
-            else if( FlyPlanController.getTouchedNode().getClass() == PointOfInterest.class)
-                ((PointOfInterest) FlyPlanController.getTouchedNode()).addText(canvas, String.valueOf(selectedTouchedId));
-        }
-
-        // add poi to waypoint
-        if(FlyPlanController.getSelectedPOI() != null) {
-
-            //if(flyPlan.getPoints().getWaypoints().get(selectedTouchedId).getData() == null) {
-                //flyPlan.getPoints().getWaypoints().get(selectedTouchedId).getData() = new WaypointData();
-            //}
-            if(selectedTouchedId != 0) {
-                ((WaypointData) flyPlan.getPoints().getWaypoints().get(selectedTouchedId).getData()).
-                        setPoi((PointOfInterest) getSelectedPOI());
-            }
-
-            // draw selectedPOI
-            ((Circle) FlyPlanController.getSelectedPOI().getShape()).draw(canvas, true);
-            ((PointOfInterest) FlyPlanController.getSelectedPOI()).addText(canvas, String.valueOf(selectedIdPOI));
-        }
+        flyPlan.draw(canvas);
     }
 
     /**
@@ -242,11 +175,9 @@ public class FlyPlanController implements IFlyPlan {
                 }
             }
         }
-
-        if(touched != null) {
+        if(touched != null)
             touched.getShape().setCoordinate(touchCoordinate);
-        }
-        setTouchedNodeGlobal(touched);
+        setSelectedNode(touched);
         return touched;
     }
 
