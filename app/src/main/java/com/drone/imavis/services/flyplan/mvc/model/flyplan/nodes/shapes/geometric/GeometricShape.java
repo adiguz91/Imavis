@@ -46,7 +46,7 @@ public abstract class GeometricShape<T> implements IShape {
         setBorder(CShape.WAYPOINT_CIRCLE_BORDERSIZE);
     }
     private void initPOI() {
-        setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
+        //setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
         setBorderColor(Color.parseColor(CColor.POI_CIRCLE_BORDER));
         setBorder(CShape.POI_CIRCLE_BORDERSIZE);
     }
@@ -81,7 +81,7 @@ public abstract class GeometricShape<T> implements IShape {
         this.backgroundColor = backgroundColor;
     }
 
-    private int higherBackgroundColor = 0;
+    private int higherBackgroundColor;
     public int getHigherBackgroundColor() {
         return higherBackgroundColor;
     }

@@ -8,6 +8,7 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Square;
+import com.google.android.gms.tagmanager.ContainerHolder;
 
 /**
  * Created by adigu on 03.02.2017.
@@ -39,10 +40,21 @@ public abstract class Node<T> {
 
     private GeometricShape createShape(Class classShape, Coordinate coordinate) {
         GeometricShape geometricShape = null;
-        if(classShape == Circle.class)
-            geometricShape = new Circle<T>(classT, coordinate, CShape.WAYPOINT_CIRCLE_RADIUS);
-        if(classShape == Square.class)
-            geometricShape =  new Square<T>(classT, coordinate);
+        if(classShape == Circle.class) {
+            if(classT == Waypoint.class) {
+                geometricShape = new Circle<T>(classT, coordinate, CShape.WAYPOINT_CIRCLE_RADIUS);
+            } else {
+                geometricShape = new Circle<T>(classT, coordinate, CShape.POI_CIRCLE_RADIUS);
+            }
+        }
+
+        if(classShape == Square.class) {
+            if(classT == Waypoint.class) {
+                geometricShape =  new Square<T>(classT, coordinate, CShape.WAYPOINT_CIRCLE_RADIUS);
+            } else {
+                geometricShape =  new Square<T>(classT, coordinate, CShape.POI_CIRCLE_RADIUS);
+            }
+        }
         return geometricShape;
     }
 

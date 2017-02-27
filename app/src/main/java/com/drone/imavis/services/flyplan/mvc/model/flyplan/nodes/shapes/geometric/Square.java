@@ -10,9 +10,12 @@ import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordi
 
 public class Square<T> extends GeometricShape {
 
-    public Square(Class<T> classT, Coordinate coordinate) {
+    private int radius;
+
+    public Square(Class<T> classT, Coordinate coordinate, int radius) {
         super(classT, coordinate);
         this.classT = classT;
+        this.radius = radius;
     }
 
     @Override

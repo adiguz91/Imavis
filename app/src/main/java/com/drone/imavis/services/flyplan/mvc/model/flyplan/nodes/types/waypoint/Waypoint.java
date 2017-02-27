@@ -23,28 +23,19 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.Point
 
 public class Waypoint<T> extends Node implements IWaypointDraw {
 
-    //private GeometricShape shape;
-    private Paint paint;
+    private Paint paintWaypoint;
 
     public Waypoint(Coordinate touchedCoordinate) {
         super(Waypoint.class, touchedCoordinate);
         //this.shape = createShape(CShape.WAYPOINT_SHAPE_TYPE, touchedCoordinate);
     }
 
-    /*
-    @Override
-    public GeometricShape getShape() {
-        return shape;
-    }
-    */
-
     public Paint getPaint() {
-        if(paint == null) {
-            paint = new Paint();
-            paint.setAntiAlias(true);
-            paint.setColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
-            paint.setStyle(Paint.Style.FILL);
-        }   return paint;
+        paintWaypoint = new Paint();
+        paintWaypoint.setAntiAlias(true);
+        paintWaypoint.setColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
+        paintWaypoint.setStyle(Paint.Style.FILL);
+        return paintWaypoint;
     }
 
     @Override
@@ -76,7 +67,6 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         } else {
             this.getShape().setHigherBackgroundColor(0);
         }
-
         this.getShape().draw(canvas, selected);
         addText(canvas, content);
     }
