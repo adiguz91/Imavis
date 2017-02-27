@@ -46,7 +46,10 @@ public class Circle<T> extends GeometricShape {
         paintCircle = new Paint();
         paintCircle.setStyle(Paint.Style.FILL);
         paintCircle.setAntiAlias(true);
-        paintCircle.setColor(getBackgroundColor());
+        if(getHigherBackgroundColor() != 0)
+            paintCircle.setColor(getHigherBackgroundColor());
+        else
+            paintCircle.setColor(getBackgroundColor());
         return paintCircle;
     }
 

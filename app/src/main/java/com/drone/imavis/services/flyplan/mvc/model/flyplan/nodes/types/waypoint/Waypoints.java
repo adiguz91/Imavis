@@ -33,6 +33,7 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         Waypoint waypoint, waypointLastNode = null;
         ListIterator<Waypoint> iterator;
 
+        // draw lines and directions
         iterator = this.listIterator();
         while (iterator.hasNext()) {
             waypoint = iterator.next();
@@ -43,6 +44,7 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
             waypointLastNode = waypoint;
         }
 
+        // draw shape with text
         int counter = 1;
         int selectedWaypointIndex = -1;
         iterator = this.listIterator();

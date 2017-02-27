@@ -31,10 +31,25 @@ public class FlyPlan {
         this.nodes = new Nodes();
     }
 
+    public void draw(Canvas canvas) {
+        int selectedWaypointIndex = this.getPoints().getWaypoints().draw(canvas);
+        int selectedPoiIndex = this.getPoints().getPointOfInterests().draw(canvas);
+        int selectedWaypointId = selectedWaypointIndex + 1;
+        int selectedPoiId = selectedPoiIndex + 1;
+
+        // draw selectedWaypoint
+        if(FlyPlanController.getSelectedWaypoint() != null)
+            FlyPlanController.getSelectedWaypoint().draw(canvas, String.valueOf(selectedWaypointId), true);
+
+        // draw selectedPOI
+        if(FlyPlanController.getSelectedPOI() != null)
+            FlyPlanController.getSelectedPOI().draw(canvas, String.valueOf(selectedPoiId), true);
+
+    }
+
     public static FlyPlan loadFromJsonFile(String jsonFileContent) {
         return new Gson().fromJson(jsonFileContent, FlyPlan.class);
     }
-
     public String saveToJsonFile() {
         return new Gson().toJson(this);
     }
@@ -42,7 +57,6 @@ public class FlyPlan {
     public Map getMap() {
         return map;
     }
-
     private void setMap(Map map) {
         this.map = map;
     }
@@ -50,7 +64,6 @@ public class FlyPlan {
     public Nodes getPoints() {
         return nodes;
     }
-
     private void setPoints(Nodes points) {
         this.nodes = nodes;
     }
@@ -58,7 +71,6 @@ public class FlyPlan {
     public int getMinFlyHeight() {
         return minFlyHeight;
     }
-
     public void setMinFlyHeight(int minFlyHeight) {
         this.minFlyHeight = minFlyHeight;
     }
@@ -66,7 +78,6 @@ public class FlyPlan {
     public int getMinSpeed() {
         return minSpeed;
     }
-
     public void setMinSpeed(int minSpeed) {
         this.minSpeed = minSpeed;
     }
@@ -74,7 +85,6 @@ public class FlyPlan {
     public UnitOfLength getUnitOfLength() {
         return unitOfLength;
     }
-
     public void setUnitOfLength(UnitOfLength unitOfLength) {
         this.unitOfLength = unitOfLength;
         // todo convert all unitOfLength values and reload
@@ -83,33 +93,8 @@ public class FlyPlan {
     public String getTitle() {
         return title;
     }
-
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void draw(Canvas canvas) {
-        int selectedWaypointIndex = this.getPoints().getWaypoints().draw(canvas);
-        int selectedPoiIndex = this.getPoints().getPointOfInterests().draw(canvas);
-        int selectedWaypointId = selectedWaypointIndex + 1;
-        int selectedPoiId = selectedPoiIndex + 1;
-
-        // draw selectedWaypoint
-        if(FlyPlanController.getSelectedWaypoint() != null) {
-            FlyPlanController.getSelectedWaypoint().draw(canvas, String.valueOf(selectedWaypointId), true); // selected : TRUE
-        }
-
-        if(FlyPlanController.getSelectedPOI() != null) {
-            // add POI to Waypoint
-            if(this.getPoints().getWaypoints().get(selectedWaypointIndex).getData() != null) {
-                if(selectedWaypointIndex > -1) {
-                    ((WaypointData) this.getPoints().getWaypoints().get(selectedWaypointIndex).getData()).
-                            setPoi((PointOfInterest) FlyPlanController.getSelectedPOI());
-                }
-            }
-            // draw selectedPOI
-            FlyPlanController.getSelectedPOI().draw(canvas, String.valueOf(selectedPoiId), true); // selected : TRUE
-        }
     }
 
     Map map;

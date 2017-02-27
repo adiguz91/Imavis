@@ -15,6 +15,7 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Line;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Text;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 
 /**
  * Created by adigu on 03.02.2017.
@@ -69,6 +70,13 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     }
 
     public void draw(Canvas canvas, String content, boolean selected) {
+        PointOfInterest poi = ((WaypointData) this.getData()).getPoi();
+        if(poi != null) {
+            this.getShape().setHigherBackgroundColor(poi.getShape().getBackgroundColor());
+        } else {
+            this.getShape().setHigherBackgroundColor(0);
+        }
+
         this.getShape().draw(canvas, selected);
         addText(canvas, content);
     }

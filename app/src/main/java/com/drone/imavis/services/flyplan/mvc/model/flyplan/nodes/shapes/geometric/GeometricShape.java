@@ -52,7 +52,7 @@ public abstract class GeometricShape<T> implements IShape {
     }
     public void initSelected(boolean selected) {
         if(selected) {
-            setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
+            //setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
             setBorderColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE_BORDER));
         }
     }
@@ -79,6 +79,14 @@ public abstract class GeometricShape<T> implements IShape {
 
     public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
+    }
+
+    private int higherBackgroundColor = 0;
+    public int getHigherBackgroundColor() {
+        return higherBackgroundColor;
+    }
+    public void setHigherBackgroundColor(int higherBackgroundColor) {
+        this.higherBackgroundColor = higherBackgroundColor;
     }
 
     public int getBorderColor() {
