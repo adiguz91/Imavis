@@ -50,10 +50,11 @@ public abstract class GeometricShape<T> implements IShape {
         setBorderColor(Color.parseColor(CColor.POI_CIRCLE_BORDER));
         setBorder(CShape.POI_CIRCLE_BORDERSIZE);
     }
-    private void initSelected() {
-        setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
-        setBorderColor(Color.parseColor(CColor.POI_CIRCLE_BORDER));
-        setBorder(CShape.POI_CIRCLE_BORDERSIZE);
+    public void initSelected(boolean selected) {
+        if(selected) {
+            setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
+            setBorderColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE_BORDER));
+        }
     }
 
     public Coordinate getCoordinate() {

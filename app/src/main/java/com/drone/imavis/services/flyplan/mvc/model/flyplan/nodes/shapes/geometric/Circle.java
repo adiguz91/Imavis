@@ -41,36 +41,22 @@ public class Circle<T> extends GeometricShape {
     }
 
     public Paint getPaintCircle(boolean selected) {
-
-        if(selected) {
-            setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
-            setBorderColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE_BORDER));
-        } else {
-            this.initByType(classT);
-        }
-        //if(paintCircle == null) {
-            paintCircle = new Paint();
-            paintCircle.setStyle(Paint.Style.FILL);
-            paintCircle.setAntiAlias(true);
-            paintCircle.setColor(getBackgroundColor());
-        //}
+        this.initByType(classT);
+        this.initSelected(selected);
+        paintCircle = new Paint();
+        paintCircle.setStyle(Paint.Style.FILL);
+        paintCircle.setAntiAlias(true);
+        paintCircle.setColor(getBackgroundColor());
         return paintCircle;
     }
 
     public Paint getPaintCircleBorder(boolean selected) {
-
-        if(selected) {
-            setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
-            setBorderColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE_BORDER));
-        } else {
-            this.initByType(classT);
-        }
-        //if(paintCircleBorder == null) {
-            paintCircleBorder = new Paint();
-            paintCircleBorder.setStyle(Paint.Style.STROKE);
-            paintCircleBorder.setColor(getBorderColor());
-            paintCircleBorder.setStrokeWidth(getBorder());
-        //}
+        this.initByType(classT);
+        this.initSelected(selected);
+        paintCircleBorder = new Paint();
+        paintCircleBorder.setStyle(Paint.Style.STROKE);
+        paintCircleBorder.setColor(getBorderColor());
+        paintCircleBorder.setStrokeWidth(getBorder());
         return paintCircleBorder;
     }
 
