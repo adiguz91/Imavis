@@ -7,5 +7,5 @@ import android.graphics.Canvas;
  */
 
 public interface IPointOfInterestDraw {
-    void addText(Canvas canvas, String content);
+
 }

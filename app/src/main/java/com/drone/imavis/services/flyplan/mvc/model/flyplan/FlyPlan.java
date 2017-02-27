@@ -36,15 +36,19 @@ public class FlyPlan {
         int selectedPoiIndex = this.getPoints().getPointOfInterests().draw(canvas);
         int selectedWaypointId = selectedWaypointIndex + 1;
         int selectedPoiId = selectedPoiIndex + 1;
+        Waypoint selectedWaypoint = FlyPlanController.getSelectedWaypoint();
+        PointOfInterest selectedPOI = FlyPlanController.getSelectedPOI();
 
         // draw selectedWaypoint
-        if(FlyPlanController.getSelectedWaypoint() != null)
-            FlyPlanController.getSelectedWaypoint().draw(canvas, String.valueOf(selectedWaypointId), true);
-
+        if(selectedWaypoint != null) {
+            selectedWaypoint.setShapeSelectedPaint();
+            selectedWaypoint.draw(canvas, String.valueOf(selectedWaypointId));
+        }
         // draw selectedPOI
-        if(FlyPlanController.getSelectedPOI() != null)
-            FlyPlanController.getSelectedPOI().draw(canvas, String.valueOf(selectedPoiId), true);
-
+        if(selectedPOI != null) {
+            selectedPOI.setShapeSelectedPaint();
+            selectedPOI.draw(canvas, String.valueOf(selectedPoiId));
+        }
     }
 
     public static FlyPlan loadFromJsonFile(String jsonFileContent) {
@@ -97,10 +101,10 @@ public class FlyPlan {
         this.title = title;
     }
 
-    Map map;
-    Nodes nodes;
-    int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
-    int minSpeed = CFlyPlan.MIN_SPEED;
-    UnitOfLength unitOfLength = CFlyPlan.UNIT_OF_LENGTH;
+    private Map map;
+    private Nodes nodes;
+    private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
+    private int minSpeed = CFlyPlan.MIN_SPEED;
+    private UnitOfLength unitOfLength = CFlyPlan.UNIT_OF_LENGTH;
     private String title;
 }

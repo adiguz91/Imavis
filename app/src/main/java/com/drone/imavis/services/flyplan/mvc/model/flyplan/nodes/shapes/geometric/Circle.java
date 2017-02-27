@@ -19,9 +19,6 @@ public class Circle<T> extends GeometricShape {
         this.classT = classT;
         this.radius = radius;
     }
-
-    private Class<T> classT;
-
     /*
     private void setTypeAtRuntime() {
         this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).
@@ -33,29 +30,21 @@ public class Circle<T> extends GeometricShape {
     public void draw(Canvas canvas) {
         draw(canvas, false);
     }
-
     public void draw(Canvas canvas, boolean selected) {
         Coordinate cartesianCoordinate = getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
-        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle(selected));
-        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder(selected));
+        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle());
+        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder());
     }
 
-    public Paint getPaintCircle(boolean selected) {
-        this.initByType(classT);
-        this.initSelected(selected);
+    public Paint getPaintCircle() {
         paintCircle = new Paint();
         paintCircle.setStyle(Paint.Style.FILL);
         paintCircle.setAntiAlias(true);
-        if(getHigherBackgroundColor() != 0)
-            paintCircle.setColor(getHigherBackgroundColor());
-        else
-            paintCircle.setColor(getBackgroundColor());
+        paintCircle.setColor(getBackgroundColor());
         return paintCircle;
     }
 
-    public Paint getPaintCircleBorder(boolean selected) {
-        this.initByType(classT);
-        this.initSelected(selected);
+    public Paint getPaintCircleBorder() {
         paintCircleBorder = new Paint();
         paintCircleBorder.setStyle(Paint.Style.STROKE);
         paintCircleBorder.setColor(getBorderColor());
@@ -66,11 +55,11 @@ public class Circle<T> extends GeometricShape {
     public float getRadius() {
         return radius;
     }
-
     protected void setRadius(float radius) {
         this.radius = radius;
     }
 
+    private Class<T> classT;
     private float radius;
     private Paint paintCircle;
     private Paint paintCircleBorder;

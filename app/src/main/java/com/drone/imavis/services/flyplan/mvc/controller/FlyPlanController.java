@@ -32,15 +32,34 @@ public class FlyPlanController implements IFlyPlan {
 
     private static FlyPlanController flyPlanController;
     private FlyPlan flyPlan;
-
     private static Waypoint selectedWaypoint;
-    public static Waypoint getSelectedWaypoint() { return selectedWaypoint; }
-
     private static PointOfInterest selectedPOI;
-    public static PointOfInterest getSelectedPOI() { return selectedPOI; }
+    private static Node touchedNode;
 
-    //private static Node touchedNodeGlobalLast;
-    //public static Node getTouchedNodeLast() { return touchedNodeGlobalLast; }
+    public static Waypoint getSelectedWaypoint() {
+        //if(selectedWaypoint != null)
+        //    selectedWaypoint.setShapeSelectedPaint();
+        return selectedWaypoint;
+    }
+    public static PointOfInterest getSelectedPOI() {
+        //if(selectedPOI != null)
+        //    selectedPOI.setShapeSelectedPaint();
+        return selectedPOI;
+    }
+    public static Node getTouchedNode() {
+        /*
+        if(touchedNode != null) {
+            if(touchedNode.getClass() == Waypoint.class)
+                ((Waypoint) touchedNode).setShapeSelectedPaint();
+            if(touchedNode.getClass() == PointOfInterest.class)
+                ((PointOfInterest) touchedNode).setShapeSelectedPaint();
+        }
+        */
+        return touchedNode;
+    }
+    private static void setTouchedNode(Node node) {
+        touchedNode = node;
+    }
 
     // SINGLETON PATTERN
     public static FlyPlanController getInstance() {
@@ -93,14 +112,6 @@ public class FlyPlanController implements IFlyPlan {
         return false;
     }
 
-    private static Node touchedNode;
-    public static Node getTouchedNode() {
-        return touchedNode;
-    }
-    private static void setTouchedNode(Node node) {
-        touchedNode = node;
-    }
-
     private void setSelectedNode(Node touchedNode) {
         setTouchedNode(touchedNode);
         setSelectedPOI(touchedNode);
@@ -116,15 +127,16 @@ public class FlyPlanController implements IFlyPlan {
                     removePoiFromWaypoint((Waypoint) touchedNode);
                     selectedWaypoint = null; // double de/selected node
                 }
-                else
+                else {
                     selectedWaypoint = (Waypoint) touchedNode;
-                addPoiToWaypoint((Waypoint) touchedNode);
+                    addPoiToWaypoint((Waypoint) touchedNode);
+                }
             }
         }
     }
 
     private void addPoiToWaypoint(Waypoint touchedWaypoint) {
-        if(getSelectedWaypoint() != null && touchedWaypoint != null) {
+        if(getSelectedPOI() != null) {
             int toucheWpIndex = flyPlan.getPoints().getWaypoints().indexOf(touchedWaypoint);
             Waypoint waypoint = flyPlan.getPoints().getWaypoints().get(toucheWpIndex);
             ((WaypointData)waypoint.getData()).setPoi(FlyPlanController.getSelectedPOI());
@@ -133,7 +145,7 @@ public class FlyPlanController implements IFlyPlan {
     }
 
     private void removePoiFromWaypoint(Waypoint touchedWaypoint) {
-        if(getSelectedWaypoint() != null && touchedWaypoint != null) {
+        if(getSelectedPOI() != null && touchedWaypoint != null) {
             int toucheWpIndex = flyPlan.getPoints().getWaypoints().indexOf(touchedWaypoint);
             Waypoint waypoint = flyPlan.getPoints().getWaypoints().get(toucheWpIndex);
             ((WaypointData)waypoint.getData()).setPoi(null);

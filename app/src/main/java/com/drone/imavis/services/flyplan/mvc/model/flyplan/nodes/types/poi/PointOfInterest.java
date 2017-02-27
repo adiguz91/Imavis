@@ -17,27 +17,25 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.T
 public class PointOfInterest<T> extends Node implements IPointOfInterestDraw {
     public PointOfInterest(Coordinate coordinateTouched) {
         super(PointOfInterest.class, coordinateTouched);
+        setShapePaint();
     }
 
     public void draw(Canvas canvas, String content) {
-        draw(canvas, content, false);
-    }
-
-    public void draw(Canvas canvas, String content, boolean selected) {
-        this.getShape().draw(canvas, selected);
+        this.getShape().draw(canvas);
         addText(canvas, content);
     }
 
-    public Paint getPaint() {
-        Paint poiPaint = new Paint();
-        poiPaint.setAntiAlias(true);
-        //poiPaint.setColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
-        poiPaint.setStyle(Paint.Style.FILL);
-        return poiPaint;
+    public void setShapeSelectedPaint() {
+        //this.getShape().setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
+        this.getShape().setBorderColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE_BORDER));
     }
 
-    @Override
-    public void addText(Canvas canvas, String content) {
+    public void setShapePaint() {
+        this.getShape().setBorderColor(Color.parseColor(CColor.POI_CIRCLE_BORDER));
+        this.getShape().setBorder(CShape.POI_CIRCLE_BORDERSIZE);
+    }
+
+    private void addText(Canvas canvas, String content) {
         Text text = new Text<PointOfInterest>(PointOfInterest.class, getShape().getCoordinate(), content);
         text.draw(canvas);
     }

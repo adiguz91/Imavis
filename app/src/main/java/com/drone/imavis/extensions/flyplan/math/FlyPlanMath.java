@@ -10,6 +10,7 @@ import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 
@@ -48,7 +49,7 @@ public class FlyPlanMath {
         return new Coordinate(x, y);
     }
 
-    public void addDirection(Canvas canvas, Waypoint currentWaypoint, Waypoint nextWaypoint) {
+    public void addDirection(Canvas canvas, Waypoint currentWaypoint, Node nextWaypoint) {
         Paint paint = new Paint();
         final RectF rect = new RectF();
         float angleDirection = angleBetweenPoints(currentWaypoint.getShape(), nextWaypoint.getShape());

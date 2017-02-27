@@ -23,22 +23,28 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.Point
 
 public class Waypoint<T> extends Node implements IWaypointDraw {
 
-    private Paint paintWaypoint;
-
     public Waypoint(Coordinate touchedCoordinate) {
         super(Waypoint.class, touchedCoordinate);
+        setShapePaint();
         //this.shape = createShape(CShape.WAYPOINT_SHAPE_TYPE, touchedCoordinate);
     }
 
-    public Paint getPaint() {
-        paintWaypoint = new Paint();
-        paintWaypoint.setAntiAlias(true);
-        paintWaypoint.setColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
-        paintWaypoint.setStyle(Paint.Style.FILL);
-        return paintWaypoint;
+    public void setShapePaint() {
+        this.getShape().setBackgroundColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
+        this.getShape().setBorderColor(Color.parseColor(CColor.WAYPOINT_CIRCLE_BORDER));
+        this.getShape().setBorder(CShape.WAYPOINT_CIRCLE_BORDERSIZE);
     }
 
-    @Override
+    private void setPoiShapePaint(PointOfInterest poi) {
+        poi.setShapePaint();
+        this.getShape().setBackgroundColor(poi.getShape().getBackgroundColor());
+    }
+
+    public void setShapeSelectedPaint() {
+        this.getShape().setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
+        this.getShape().setBorderColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE_BORDER));
+    }
+
     public void addText(Canvas canvas, String content) {
         Text<Waypoint> text = new Text<Waypoint>(Waypoint.class, getShape().getCoordinate(), content);
         text.draw(canvas);
@@ -51,23 +57,19 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     }
 
     @Override
-    public void addDirection(Canvas canvas, Waypoint currentWaypoint, Waypoint nextWaypoint) {
+    public void addDirection(Canvas canvas, Waypoint currentWaypoint, Node nextWaypoint) {
         FlyPlanMath.getInstance().addDirection(canvas, currentWaypoint, nextWaypoint);
     }
 
     @Override
     public void draw(Canvas canvas, String content) {
-        draw(canvas, content, false);
-    }
-
-    public void draw(Canvas canvas, String content, boolean selected) {
         PointOfInterest poi = ((WaypointData) this.getData()).getPoi();
-        if(poi != null) {
-            this.getShape().setHigherBackgroundColor(poi.getShape().getBackgroundColor());
-        } else {
-            this.getShape().setHigherBackgroundColor(0);
-        }
-        this.getShape().draw(canvas, selected);
+        if(poi != null)
+            this.setPoiShapePaint(poi);
+        //else
+        //    this.setShapePaint();
+
+        this.getShape().draw(canvas);
         addText(canvas, content);
     }
 

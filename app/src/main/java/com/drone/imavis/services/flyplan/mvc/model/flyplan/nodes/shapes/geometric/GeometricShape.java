@@ -19,8 +19,49 @@ public abstract class GeometricShape<T> implements IShape {
     public GeometricShape(Class<T> classNode, Coordinate coordinate) {
         this.classT = classNode;
         this.coordinate = coordinate;
-        initByType(classNode);
     }
+
+    public Coordinate getCoordinate() {
+        return coordinate;
+    }
+    public void setCoordinate(Coordinate coordinate) {
+        this.coordinate = coordinate;
+    }
+
+    public int getBorder() {
+        return border;
+    }
+    public void setBorder(int border) {
+        this.border = border;
+    }
+
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
+    public void setBackgroundColor(int backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public int getHigherBackgroundColor() {
+        return higherBackgroundColor;
+    }
+    public void setHigherBackgroundColor(int higherBackgroundColor) {
+        this.higherBackgroundColor = higherBackgroundColor;
+    }
+
+    public int getBorderColor() {
+        return borderColor;
+    }
+    public void setBorderColor(int borderColor) {
+        this.borderColor = borderColor;
+    }
+
+    private int border;
+    private int backgroundColor;
+    private int higherBackgroundColor;
+    private int borderColor;
+    private Coordinate coordinate;
+    private Class<T> classT;
 
     /*
     private T getInstance() {
@@ -33,73 +74,4 @@ public abstract class GeometricShape<T> implements IShape {
         }   return null;
     }
     */
-
-    public void initByType(Class classNode) {
-        if(classNode.equals(Waypoint.class))
-            initWaypoint();
-        if(classNode.equals(PointOfInterest.class))
-            initPOI();
-    }
-    private void initWaypoint() {
-        setBackgroundColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
-        setBorderColor(Color.parseColor(CColor.WAYPOINT_CIRCLE_BORDER));
-        setBorder(CShape.WAYPOINT_CIRCLE_BORDERSIZE);
-    }
-    private void initPOI() {
-        //setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
-        setBorderColor(Color.parseColor(CColor.POI_CIRCLE_BORDER));
-        setBorder(CShape.POI_CIRCLE_BORDERSIZE);
-    }
-    public void initSelected(boolean selected) {
-        if(selected) {
-            //setBackgroundColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE));
-            setBorderColor(Color.parseColor(CColor.NODE_SELECTED_CIRCLE_BORDER));
-        }
-    }
-
-    public Coordinate getCoordinate() {
-        return coordinate;
-    }
-
-    public void setCoordinate(Coordinate coordinate) {
-        this.coordinate = coordinate;
-    }
-
-    public int getBorder() {
-        return border;
-    }
-
-    public void setBorder(int border) {
-        this.border = border;
-    }
-
-    public int getBackgroundColor() {
-        return backgroundColor;
-    }
-
-    public void setBackgroundColor(int backgroundColor) {
-        this.backgroundColor = backgroundColor;
-    }
-
-    private int higherBackgroundColor;
-    public int getHigherBackgroundColor() {
-        return higherBackgroundColor;
-    }
-    public void setHigherBackgroundColor(int higherBackgroundColor) {
-        this.higherBackgroundColor = higherBackgroundColor;
-    }
-
-    public int getBorderColor() {
-        return borderColor;
-    }
-
-    public void setBorderColor(int borderColor) {
-        this.borderColor = borderColor;
-    }
-
-    private int border;
-    private int backgroundColor;
-    private int borderColor;
-    private Coordinate coordinate;
-    private Class<T> classT;
 }
