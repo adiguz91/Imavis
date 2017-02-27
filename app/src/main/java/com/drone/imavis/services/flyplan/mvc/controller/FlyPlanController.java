@@ -157,23 +157,24 @@ public class FlyPlanController implements IFlyPlan {
         counter = 1;
         for (PointOfInterest pointOfInterest : getFlyPlan().getPoints().getPointOfInterests()) {
             poi = pointOfInterest;
-            if(poi == getSelectedPOI())
+
+            if(poi != getSelectedPOI()) {
+                poi.getShape().draw(canvas);
+                poi.addText(canvas, String.valueOf(counter));
+            } else
                 selectedIdPOI = counter;
+
             if(poi != FlyPlanController.getTouchedNode()) {
-                if(poi != getSelectedPOI()) {
-                    poi.getShape().draw(canvas);
-                    poi.addText(canvas, String.valueOf(counter));
-                } else {
-                    selectedIdPOI = counter;
-                }
-            } else {
+                poi.getShape().draw(canvas);
+                poi.addText(canvas, String.valueOf(counter));
+            } else
                 selectedTouchedId = counter;
-            }
+
             counter++;
         }
 
         // draw selectedNode
-        if(FlyPlanController.getTouchedNode() != null && getSelectedPOI() != getTouchedNode()) {
+        if(FlyPlanController.getTouchedNode() != null && FlyPlanController.getTouchedNode().getClass() == Waypoint.class) {
 
             if( FlyPlanController.getTouchedNode().getShape().getClass() == Circle.class) {
                 ((Circle) FlyPlanController.getTouchedNode().getShape()).draw(canvas, true);
@@ -187,23 +188,21 @@ public class FlyPlanController implements IFlyPlan {
                 ((PointOfInterest) FlyPlanController.getTouchedNode()).addText(canvas, String.valueOf(selectedTouchedId));
         }
 
-        //if(FlyPlanController.getTouchedNode().getClass() == Waypoint.class) {
+        // add poi to waypoint
         if(FlyPlanController.getSelectedPOI() != null) {
-            // add waypoint to poi
 
-            /*
-            if(flyPlan.getPoints().getWaypoints().get(selectedTouchedId).getData() == null) {
+            //if(flyPlan.getPoints().getWaypoints().get(selectedTouchedId).getData() == null) {
                 //flyPlan.getPoints().getWaypoints().get(selectedTouchedId).getData() = new WaypointData();
+            //}
+            if(selectedTouchedId != 0) {
+                ((WaypointData) flyPlan.getPoints().getWaypoints().get(selectedTouchedId).getData()).
+                        setPoi((PointOfInterest) getSelectedPOI());
             }
-            ((WaypointData) flyPlan.getPoints().getWaypoints().get(selectedTouchedId).getData()).
-                    setPoi((PointOfInterest) getSelectedPOI());
-            */
 
             // draw selectedPOI
             ((Circle) FlyPlanController.getSelectedPOI().getShape()).draw(canvas, true);
             ((PointOfInterest) FlyPlanController.getSelectedPOI()).addText(canvas, String.valueOf(selectedIdPOI));
         }
-        //}
     }
 
     /**
