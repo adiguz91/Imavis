@@ -52,6 +52,12 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
                     waypoint.addDirection(canvas, waypointLastNode, waypoint);
             }
 
+            if(waypoint == this.getLast()) {
+                PointOfInterest poi = ((WaypointData) waypoint.getData()).getPoi();
+                if(poi != null)
+                    waypoint.addDirection(canvas, waypoint, poi);
+            }
+
             waypointLastNode = waypoint;
         }
 
