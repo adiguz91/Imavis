@@ -5,6 +5,7 @@ import android.graphics.Paint;
 
 import com.drone.imavis.constants.classes.CFlyPlan;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.NodeData;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterestData;
 
 /**
@@ -57,11 +58,11 @@ public class WaypointData extends NodeData {
         this.mode = mode;
     }
 
-    public PointOfInterestData getPoi() {
+    public PointOfInterest getPoi() {
         return poi;
     }
 
-    public void setPoi(PointOfInterestData poi) {
+    public void setPoi(PointOfInterest poi) {
         this.poi = poi;
     }
 
@@ -80,6 +81,6 @@ public class WaypointData extends NodeData {
     private int speedToNextNode = CFlyPlan.MIN_SPEED;
     private int flyHeight = CFlyPlan.MIN_FLY_HEIGHT;
     private WaypointMode mode = WaypointMode.Progressive;
-    private PointOfInterestData poi; // or id reference to POI
+    private PointOfInterest poi; // or id reference to POI
     private Paint paint;
 }
