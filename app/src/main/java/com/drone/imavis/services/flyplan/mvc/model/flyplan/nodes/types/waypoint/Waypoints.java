@@ -30,26 +30,31 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
     }
 
     public int draw(Canvas canvas) {
-        int counter = 1;
-        int selectedWaypointIndex = -1;
         Waypoint waypoint, waypointLastNode = null;
-        ListIterator<Waypoint> iterator = this.listIterator();
+        ListIterator<Waypoint> iterator;
 
+        iterator = this.listIterator();
         while (iterator.hasNext()) {
             waypoint = iterator.next();
             if(waypointLastNode != null)
                 waypoint.addLine(canvas, waypointLastNode, waypoint);
+            if(waypointLastNode != null)
+                waypoint.addDirection(canvas, waypointLastNode, waypoint);
+            waypointLastNode = waypoint;
+        }
 
+        int counter = 1;
+        int selectedWaypointIndex = -1;
+        iterator = this.listIterator();
+        while (iterator.hasNext()) {
+            waypoint = iterator.next();
             if(waypoint != FlyPlanController.getSelectedWaypoint())
                 waypoint.draw(canvas, String.valueOf(counter));
             else
                 selectedWaypointIndex = counter - 1;
-
-            if(waypointLastNode != null)
-                waypoint.addDirection(canvas, waypointLastNode, waypoint);
-            waypointLastNode = waypoint;
             counter++;
         }
+
         return selectedWaypointIndex; // if -1 then notfound else found
     }
 
