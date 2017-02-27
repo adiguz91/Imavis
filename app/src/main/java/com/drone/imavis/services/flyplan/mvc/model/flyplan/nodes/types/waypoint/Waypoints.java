@@ -39,11 +39,12 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
             waypoint = iterator.next();
             if(waypointLastNode != null)
                 waypoint.addLine(canvas, waypointLastNode, waypoint);
-            if(waypoint != FlyPlanController.getSelectedWaypoint()) {
-                waypoint.getShape().draw(canvas);
-                waypoint.addText(canvas, String.valueOf(counter));
-            } else
+
+            if(waypoint != FlyPlanController.getSelectedWaypoint())
+                waypoint.draw(canvas, String.valueOf(counter));
+            else
                 selectedWaypointIndex = counter - 1;
+
             if(waypointLastNode != null)
                 waypoint.addDirection(canvas, waypointLastNode, waypoint);
             waypointLastNode = waypoint;

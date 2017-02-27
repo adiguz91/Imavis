@@ -15,6 +15,10 @@ public class PointOfInterest<T> extends Node implements IPointOfInterestDraw {
         super(PointOfInterest.class, coordinateTouched);
     }
 
+    public void draw(Canvas canvas, String content) {
+        draw(canvas, content, false);
+    }
+
     public void draw(Canvas canvas, String content, boolean selected) {
         this.getShape().draw(canvas, selected);
         addText(canvas, content);

@@ -33,8 +33,7 @@ public class PointOfInterests extends ArrayList<PointOfInterest> {
         int selectedPoiIndex = -1;
         for (PointOfInterest poi : this) {
             if(poi != FlyPlanController.getSelectedPOI()) {
-                poi.getShape().draw(canvas);
-                poi.addText(canvas, String.valueOf(counter));
+                poi.draw(canvas, String.valueOf(counter));
             } else
                 selectedPoiIndex = counter - 1;
             counter++;
