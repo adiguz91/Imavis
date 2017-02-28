@@ -49,10 +49,19 @@ public class FlyPlanMath {
         return new Coordinate(x, y);
     }
 
-    public void addDirection(Canvas canvas, Waypoint currentWaypoint, Node nextWaypoint) {
+    public float distanceOfTwoPoints(Coordinate first, Coordinate second) {
+        int exponent= 2;
+        double basisFirst = first.getX() - second.getX();
+        double basisSecond = first.getY() - second.getY();
+        double distance = Math.sqrt(
+                            Math.pow(basisFirst, exponent) + Math.pow(basisSecond, exponent));
+        return (float) distance;
+    }
+
+    public void addDirection(Canvas canvas, GeometricShape currentWaypoint, GeometricShape nextWaypoint) {
         Paint paint = new Paint();
         final RectF rect = new RectF();
-        float angleDirection = angleBetweenPoints(currentWaypoint.getShape(), nextWaypoint.getShape());
+        float angleDirection = angleBetweenPoints(currentWaypoint, nextWaypoint);
         //angleDirection = toScaleFactor(angleDirection, FlyPlanController.getInstance().getScaleFactor());
         float angleDistance = CShape.WAYPOINT_DIRECTION_ANGLE_DISTANCE;
         //angleDistance = toScaleFactor(angleDistance, FlyPlanController.getInstance().getScaleFactor());
@@ -62,7 +71,7 @@ public class FlyPlanMath {
 
         float radius = CShape.WAYPOINT_CIRCLE_RADIUS; //currentWaypoint.getShape()<Waypoint>.getRadius();
         //radius = toScaleFactor(radius, FlyPlanController.getInstance().getScaleFactor());
-        float distance = radius + currentWaypoint.getShape().getBorder() + CShape.WAYPOINT_DIRECTION_DISTANCE;
+        float distance = radius + currentWaypoint.getBorder() + CShape.WAYPOINT_DIRECTION_DISTANCE;
         //distance = toScaleFactor(distance, FlyPlanController.getInstance().getScaleFactor());
 
         //paint.setStyle(Paint.Style.STROKE);
@@ -73,7 +82,7 @@ public class FlyPlanMath {
         paint.setColor(Color.parseColor(CColor.WAYPOINT_DIRECTION));
 
         Coordinate scaledCurrentWaypoint;
-        scaledCurrentWaypoint = currentWaypoint.getShape().getCoordinate().toScaleFactor(
+        scaledCurrentWaypoint = currentWaypoint.getCoordinate().toScaleFactor(
                 FlyPlanController.getInstance().getScaleFactor());
         //scaledCurrentWaypoint = currentWaypoint.getShape().getCoordinate();
 

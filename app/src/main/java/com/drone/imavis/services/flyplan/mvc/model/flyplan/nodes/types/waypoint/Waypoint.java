@@ -77,9 +77,37 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         line.draw(canvas);
     }
 
+    public void addLineWithProgressCircles(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint) {
+        Line line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate()) ;
+        line.draw(canvas);
+    }
+
+    public void drawProgressiveCircles(Canvas canvas, GeometricShape current, GeometricShape next) {
+        float numberOfProgressiveCircles = 2;
+        float angleOfNextPoint = FlyPlanMath.getInstance().angleBetweenPoints(current, next);
+        float distanceOfTwoPoints = FlyPlanMath.getInstance().distanceOfTwoPoints(current.getCoordinate(), next.getCoordinate());
+        float firstProgressiveCircleDistance = distanceOfTwoPoints / (numberOfProgressiveCircles + 1);
+        //float secondProgressiveCircleDistance = firstProgressiveCircleDistance * 2;
+
+        PointOfInterest poi = ((WaypointData)this.getData()).getPoi();
+        if(poi != null)
+            next = poi.getShape();
+
+        int radius = 0;
+        Coordinate progressivePoint;
+        for (int i = 0; i < numberOfProgressiveCircles; i++) {
+            radius += firstProgressiveCircleDistance;
+            progressivePoint = FlyPlanMath.getInstance().pointOnCircle(current.getCoordinate(), radius, angleOfNextPoint);
+            Circle progressiveCircle = new Circle(int.class, progressivePoint, 20);
+            progressiveCircle.setBackgroundColor(current.getBorderColor());
+            progressiveCircle.draw(canvas);
+            FlyPlanMath.getInstance().addDirection(canvas,progressiveCircle, next);
+        }
+    }
+
     @Override
     public void addDirection(Canvas canvas, Waypoint currentWaypoint, Node nextWaypoint) {
-        FlyPlanMath.getInstance().addDirection(canvas, currentWaypoint, nextWaypoint);
+        FlyPlanMath.getInstance().addDirection(canvas, currentWaypoint.getShape(), nextWaypoint.getShape());
     }
 
     @Override
