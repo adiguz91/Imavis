@@ -28,8 +28,12 @@ public class Text<T> implements IShape {
             this.color = Color.parseColor(CColor.WAYPOINT_TEXT);
         }
         if(type == PointOfInterest.class) {
-            this.size = CText.SIZE;;
+            this.size = CText.SIZE;
             this.color = Color.parseColor(CColor.POI_CIRCLE_TEXT);
+        }
+        if(type == int.class) {
+            this.size = CText.ID_SIZE;
+            this.color = Color.parseColor(CColor.WAYPOINT_TEXT);
         }
     }
 
@@ -55,11 +59,6 @@ public class Text<T> implements IShape {
     public void draw(Canvas canvas) {
         Coordinate scaledCoordinate = centralizedCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
         canvas.drawText(content, scaledCoordinate.getX(), scaledCoordinate.getY(), getPaint());
-    }
-
-    @Override
-    public void draw(Canvas canvas, boolean selected) {
-        draw(canvas);
     }
 
     private Coordinate centralizedCoordinate() {

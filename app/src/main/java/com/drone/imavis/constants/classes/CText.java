@@ -6,6 +6,7 @@ package com.drone.imavis.constants.classes;
 
 public class CText {
     public static final int SIZE = 50;
+    public static final int ID_SIZE = 8;
 
     //Typeface type = Typeface.createFromAsset(getAssets(),"fonts/Kokila.ttf");
     //txtyour.setTypeface(type);

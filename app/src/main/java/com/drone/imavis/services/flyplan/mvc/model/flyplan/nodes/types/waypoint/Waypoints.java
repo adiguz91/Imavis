@@ -68,8 +68,9 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         while (iterator.hasNext()) {
             waypoint = iterator.next();
             waypoint.setShapePaint();
-            if(waypoint != FlyPlanController.getSelectedWaypoint())
-                waypoint.draw(canvas, String.valueOf(counter));
+            if(waypoint != FlyPlanController.getSelectedWaypoint()) {
+                waypoint.draw(canvas, String.valueOf(counter), counter);
+            }
             else
                 selectedWaypointIndex = counter - 1;
             counter++;

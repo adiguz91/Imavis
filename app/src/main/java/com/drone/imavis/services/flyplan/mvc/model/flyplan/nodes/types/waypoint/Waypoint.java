@@ -12,6 +12,7 @@ import com.drone.imavis.extensions.flyplan.math.FlyPlanMath;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Line;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Text;
@@ -50,6 +51,26 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         text.draw(canvas);
     }
 
+    private void addIdShape(Canvas canvas, int id) {
+        Coordinate idCoordinate = new Coordinate(
+                                    getShape().getCoordinate().getX() + CShape.WAYPOINT_CIRCLE_ID_DISTANCE,
+                                    getShape().getCoordinate().getY() - CShape.WAYPOINT_CIRCLE_ID_DISTANCE);
+
+        int angleDirection = 45;
+        float distance = ((Circle)this.getShape()).getRadius() - CShape.WAYPOINT_CIRCLE_ID_DISTANCE;
+        //Coordinate idCoordinate = FlyPlanMath.getInstance().pointOnCircle(
+        //                            getShape().getCoordinate(), distance, angleDirection);
+
+        GeometricShape idCircle = new Circle(Integer.class, idCoordinate, CShape.WAYPOINT_CIRCLE_ID_RADIUS);
+        idCircle.setBackgroundColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
+        idCircle.setBorderColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
+        idCircle.setBorder(CShape.WAYPOINT_CIRCLE_ID_BORDERSIZE);
+        idCircle.draw(canvas);
+
+        Text<Waypoint> idText = new Text(Integer.TYPE, idCoordinate, String.valueOf(id));
+        idText.draw(canvas);
+    }
+
     @Override
     public void addLine(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint) {
         Line line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate()) ;
@@ -62,15 +83,15 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     }
 
     @Override
-    public void draw(Canvas canvas, String content) {
+    public void draw(Canvas canvas, String content, int id) {
         PointOfInterest poi = ((WaypointData) this.getData()).getPoi();
         if(poi != null)
             this.setPoiShapePaint(poi);
         //else
         //    this.setShapePaint();
-
         this.getShape().draw(canvas);
         addText(canvas, content);
+        //addIdShape(canvas, id);
     }
 
 }

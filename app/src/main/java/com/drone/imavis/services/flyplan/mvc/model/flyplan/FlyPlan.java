@@ -42,7 +42,7 @@ public class FlyPlan {
         // draw selectedWaypoint
         if(selectedWaypoint != null) {
             selectedWaypoint.setShapeSelectedPaint();
-            selectedWaypoint.draw(canvas, String.valueOf(selectedWaypointId));
+            selectedWaypoint.draw(canvas, String.valueOf(selectedWaypointId), selectedWaypointId);
         }
         // draw selectedPOI
         if(selectedPOI != null) {

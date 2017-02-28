@@ -9,10 +9,13 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometri
 public class CShape {
     public static final Class WAYPOINT_SHAPE_TYPE = Circle.class;
     public static final int WAYPOINT_CIRCLE_RADIUS = 50; // PIXELS
+    public static final int WAYPOINT_CIRCLE_ID_RADIUS = 20;
     public static final int WAYPOINT_CIRCLE_BORDERSIZE = 20;
+    public static final int WAYPOINT_CIRCLE_ID_BORDERSIZE = 10;
     public static final int WAYPOINT_DIRECTION_ANGLE_DISTANCE = 60;
     public static final int WAYPOINT_DIRECTION_DISTANCE = 0;
     public static final int WAYPOINT_DIRECTION_HEIGHT = 24;
+    public static final int WAYPOINT_CIRCLE_ID_DISTANCE = 30;
 
     public static final Class POI_SHAPE_TYPE = Circle.class;
     public static final int POI_CIRCLE_RADIUS = 60;

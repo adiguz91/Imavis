@@ -47,8 +47,4 @@ public class Line implements IShape {
         canvas.drawPath(path, getPaint());
     }
 
-    @Override
-    public void draw(Canvas canvas, boolean selected) {
-        draw(canvas);
-    }
 }

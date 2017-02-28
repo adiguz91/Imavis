@@ -28,12 +28,18 @@ public class Circle<T> extends GeometricShape {
 
     @Override
     public void draw(Canvas canvas) {
-        draw(canvas, false);
+        draw(canvas, true);
     }
-    public void draw(Canvas canvas, boolean selected) {
-        Coordinate cartesianCoordinate = getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
-        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle());
-        canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder());
+    public void draw(Canvas canvas, boolean scaled) {
+        if(scaled) {
+            Coordinate cartesianCoordinate = getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+            canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle());
+            canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder());
+        } else {
+            canvas.drawCircle(getCoordinate().getX(), getCoordinate().getY(), radius, getPaintCircle());
+            canvas.drawCircle(getCoordinate().getX(), getCoordinate().getY(), radius, getPaintCircleBorder());
+        }
+
     }
 
     public Paint getPaintCircle() {

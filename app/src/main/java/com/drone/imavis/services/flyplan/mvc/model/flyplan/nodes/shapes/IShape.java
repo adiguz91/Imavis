@@ -8,5 +8,4 @@ import android.graphics.Canvas;
 
 public interface IShape {
     void draw(Canvas canvas);
-    void draw(Canvas canvas, boolean selected);
 }
