@@ -11,6 +11,7 @@ import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.extensions.flyplan.math.FlyPlanMath;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.FlyPlan;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
@@ -52,23 +53,28 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     }
 
     private void addIdShape(Canvas canvas, int id) {
-        Coordinate idCoordinate = new Coordinate(
-                                    getShape().getCoordinate().getX() + CShape.WAYPOINT_CIRCLE_ID_DISTANCE,
-                                    getShape().getCoordinate().getY() - CShape.WAYPOINT_CIRCLE_ID_DISTANCE);
+        //Coordinate idCoordinate = new Coordinate(
+        //                            getShape().getCoordinate().getX() + CShape.WAYPOINT_CIRCLE_ID_DISTANCE,
+        //                            getShape().getCoordinate().getY() - CShape.WAYPOINT_CIRCLE_ID_DISTANCE);
 
         int angleDirection = 45;
-        float distance = ((Circle)this.getShape()).getRadius() - CShape.WAYPOINT_CIRCLE_ID_DISTANCE;
+        float distance = ((Circle)this.getShape()).getRadius() - 10; //  - CShape.WAYPOINT_CIRCLE_ID_DISTANCE
         //Coordinate idCoordinate = FlyPlanMath.getInstance().pointOnCircle(
         //                            getShape().getCoordinate(), distance, angleDirection);
+        Coordinate scaled = this.getShape().getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+        Coordinate coordinateOnCircly = FlyPlanMath.getInstance().
+                                            pointOnCircle(scaled, distance, 360 - 45);
 
-        GeometricShape idCircle = new Circle(Integer.class, idCoordinate, CShape.WAYPOINT_CIRCLE_ID_RADIUS);
-        idCircle.setBackgroundColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
-        idCircle.setBorderColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
-        idCircle.setBorder(CShape.WAYPOINT_CIRCLE_ID_BORDERSIZE);
-        idCircle.draw(canvas);
+        Circle idCircle = new Circle(Integer.class, coordinateOnCircly, CShape.WAYPOINT_CIRCLE_ID_RADIUS);
+        idCircle.setBackgroundColor(this.getShape().getBorderColor());
+        //idCircle.setBorderColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
+        //idCircle.setBorder(CShape.WAYPOINT_CIRCLE_ID_BORDERSIZE);
+        idCircle.draw(canvas, false);
 
-        Text<Waypoint> idText = new Text(Integer.TYPE, idCoordinate, String.valueOf(id));
-        idText.draw(canvas);
+        Text<Waypoint> idText = new Text(Integer.TYPE, coordinateOnCircly, String.valueOf(id));
+        idText.setTextColor(Color.WHITE);
+        idText.setTextSize(25);
+        idText.draw(canvas, false);
     }
 
     @Override
@@ -119,7 +125,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         //    this.setShapePaint();
         this.getShape().draw(canvas);
         addText(canvas, content);
-        //addIdShape(canvas, id);
+        addIdShape(canvas, id);
     }
 
 }

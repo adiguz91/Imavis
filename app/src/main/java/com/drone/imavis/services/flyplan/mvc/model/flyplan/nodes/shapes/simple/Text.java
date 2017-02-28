@@ -22,6 +22,7 @@ public class Text<T> implements IShape {
         this.coordinate = coordinate;
         this.content = content;
         this.type = type;
+        this.size = CText.SIZE;
 
         if(type == Waypoint.class) {
             this.size = CText.SIZE;
@@ -37,12 +38,20 @@ public class Text<T> implements IShape {
         }
     }
 
+    public void setTextColor(int color) {
+        this.color = color;
+    }
+
+    public void setTextSize(int size) {
+        this.size = size;
+    }
+
     private Paint getPaint() {
         if(paint == null) {
             paint = new Paint();
             paint.setAntiAlias(true);
             paint.setColor(color);
-            paint.setTextSize(CText.SIZE);
+            paint.setTextSize(size);
             paint.setTextAlign(Paint.Align.CENTER);
         }
         return paint;
@@ -59,6 +68,15 @@ public class Text<T> implements IShape {
     public void draw(Canvas canvas) {
         Coordinate scaledCoordinate = centralizedCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
         canvas.drawText(content, scaledCoordinate.getX(), scaledCoordinate.getY(), getPaint());
+    }
+
+    public void draw(Canvas canvas, boolean scaled) {
+        Coordinate coordinate;
+        if(scaled)
+            coordinate = centralizedCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+        else
+            coordinate = centralizedCoordinate();
+        canvas.drawText(content, coordinate.getX(), coordinate.getY(), getPaint());
     }
 
     private Coordinate centralizedCoordinate() {
