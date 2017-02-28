@@ -2,6 +2,9 @@ package com.drone.imavis.services.flyplan.mvc.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -10,14 +13,23 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
+import com.drone.imavis.R;
 import com.drone.imavis.constants.classes.CFlyPlan;
 import com.drone.imavis.constants.classes.CMap;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
+import com.drone.imavis.services.flyplan.mvc.model.extensions.dimension.Size;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.services.flyplan.mvc.view.listener.GestureListener;
 import com.drone.imavis.services.flyplan.mvc.view.listener.ScaleListener;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
 public class FlyPlanView extends View {
 
@@ -46,6 +58,7 @@ public class FlyPlanView extends View {
     }
 
     public void init(final Context context) {
+        initListOfActionNodes();
         nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
         gestureDetector = new GestureDetector(context, new GestureListener());
         scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
@@ -66,6 +79,108 @@ public class FlyPlanView extends View {
         canvas.scale(getScaleFactor(), getScaleFactor());
         FlyPlanController.getInstance().draw(canvas);
         canvas.restore();
+    }
+
+    public void addActionButtons(Coordinate coordinate) {
+        Coordinate correctCoordinate = getCheckedActionButtonCoordinate(coordinate);
+        List<Button> buttons = new ArrayList<>();
+        buttons.add(getNodeDeleteButton(correctCoordinate));
+        //buttons.add(getClosingWaypoint(coordinate))
+        // set buttons on view+
+
+        /*
+        RelativeLayout child = (RelativeLayout) findViewById(R.layout.content_main);
+        for (Button actionButton : buttons) {
+            child.addView(actionButton);
+        }
+        */
+    }
+
+    List<String> listOfActionNodes = new ArrayList<>();
+    private void initListOfActionNodes() {
+        String nodeDeleteText = "Delete";
+        String waypointCloseText = "Close Circle";
+        listOfActionNodes.add(nodeDeleteText);
+        listOfActionNodes.add(waypointCloseText);
+    }
+
+    // coordinate is the center of the buttons
+    private Coordinate getCheckedActionButtonCoordinate(Coordinate coordinateTouched) {
+        int screenPadding = 20;
+        int buttonPadding = 10;
+        int buttonTextSize = 16;
+
+        int actionButtonWidth = 0;
+        int actionButtonHeight = 0;
+        for (String actionButtonName : listOfActionNodes) {
+            actionButtonWidth += getPointOfText(actionButtonName, buttonTextSize).getWidth() + buttonPadding*2;
+            actionButtonHeight += getPointOfText(actionButtonName, buttonTextSize).getHeight() + buttonPadding*2;
+        }
+        Size actionButtonSize = new Size(actionButtonWidth, actionButtonHeight);
+        Size screenSize = new Size(this.getWidth(), this.getHeight());
+        Coordinate correctedCoordinate = getCorrectCoordinatesOfActionButtons(coordinateTouched, actionButtonSize, screenSize, screenPadding);
+        return correctedCoordinate;
+    }
+
+    private Coordinate getCorrectCoordinatesOfActionButtons(Coordinate coordinateElement, Size element, Size screenSize, int padding) {
+        int elementBottom = (int) coordinateElement.getY() + element.getHeight()/2;
+        int elementTop = (int) coordinateElement.getY() - element.getHeight()/2;
+        int elementLeft = (int) coordinateElement.getX() - element.getWidth()/2;
+        int elementRight = (int) coordinateElement.getX() - element.getWidth()/2;
+
+        boolean isInsideTheScreen = true;
+        if(elementLeft < 0+padding) {
+            isInsideTheScreen &= false;
+            elementLeft = 0+padding;
+            elementRight = elementLeft + element.getWidth();
+        }
+        if(elementTop < 0+padding) {
+            isInsideTheScreen &= false;
+            elementTop = 0+padding;
+            elementBottom = elementTop + element.getHeight();
+        }
+        if(elementRight > screenSize.getWidth()-padding) {
+            isInsideTheScreen &= false;
+            elementRight = screenSize.getHeight()-padding;
+            elementLeft = elementRight - element.getWidth();
+        }
+        if(elementBottom > screenSize.getHeight()-padding) {
+            isInsideTheScreen &= false;
+            elementBottom = screenSize.getHeight()-padding;
+            elementTop = elementBottom - element.getHeight();
+        }
+
+        if(!isInsideTheScreen)
+            return new Coordinate(elementLeft, elementTop);
+        // change the centered coordinateElement to left,top coordinate
+        return LeftTop(coordinateElement, element);
+    }
+
+    private Coordinate LeftTop(Coordinate centeredCoordinate, Size element) {
+        int elementLeft = (int) centeredCoordinate.getX() - element.getWidth()/2;
+        int elementTop = (int) centeredCoordinate.getY() - element.getHeight()/2;
+        return new Coordinate(elementLeft, elementTop);
+    }
+
+    private Size getPointOfText(String content, int textSize) {
+        Paint paint = new Paint();
+        paint.setTextSize(textSize);
+        //width =  paint.measureText(content, 0, content.length());
+        Rect bounds = new Rect();
+        paint.getTextBounds(content,0,content.length(),bounds);
+        return new Size(bounds.width(), bounds.height());
+    }
+
+    private Button getNodeDeleteButton(Coordinate coordinate) {
+        Button nodeDeleteButton = new Button(getContext());
+        nodeDeleteButton.setX(coordinate.getX());
+        nodeDeleteButton.setY(coordinate.getY());
+        nodeDeleteButton.setBackgroundColor(Color.YELLOW);
+        nodeDeleteButton.setPadding(10, 10, 10, 10);
+        nodeDeleteButton.setTextColor(Color.BLACK);
+        nodeDeleteButton.setTextSize(16);
+        nodeDeleteButton.setText("Delete");
+        return nodeDeleteButton;
     }
 
     @Override
@@ -122,6 +237,7 @@ public class FlyPlanView extends View {
                     touchedNode = FlyPlanController.getTouchedNode();
                     if (touchedNode != null) {
                         touchedNode.getShape().setCoordinate(coordinateTouched);
+                        addActionButtons(touchedNode.getShape().getCoordinate());
                     } else {
                         // drag map
                         handled = false;
