@@ -38,7 +38,7 @@ public class PointOfInterests extends ArrayList<PointOfInterest> {
         return selectedPoiIndex;
     }
 
-    private int getPoiColorById(int id) {
+    public int getPoiColorById(int id) {
         return Color.parseColor(CColor.POI_CIRCLES.get(id));
     }
 

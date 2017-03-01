@@ -47,8 +47,7 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
                 if(waypointLastNode == FlyPlanController.getSelectedWaypoint()) {
                     waypointLastNode.addRectWithTextOnLine(canvas, waypointLastNode, waypoint, "10m/s");
                 }
-
-
+                
                 PointOfInterest poi = ((WaypointData)waypointLastNode.getData()).getPoi();
                 if(poi != null)
                     waypoint.addDirection(canvas, waypointLastNode, poi);
