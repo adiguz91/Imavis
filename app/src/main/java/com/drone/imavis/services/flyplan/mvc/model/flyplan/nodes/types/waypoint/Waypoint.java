@@ -15,6 +15,7 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.FlyPlan;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Rectangle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Line;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Text;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
@@ -84,7 +85,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     }
 
     public void addLineWithProgressCircles(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint) {
-        Line line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate()) ;
+        Line line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate());
         line.draw(canvas);
     }
 
@@ -112,6 +113,28 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
             progressiveCircle.draw(canvas);
             FlyPlanMath.getInstance().addDirection(canvas,progressiveCircle, next, CShape.WAYPOINT_CIRCLE_ID_RADIUS+6);
         }
+    }
+
+    public void addRectWithTextOnLine(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint, String content) {
+
+        float angleOfNextPoint = FlyPlanMath.getInstance().angleBetweenPoints(lastWaypoint.getShape(), currentWaypoint.getShape());
+        Coordinate pointOnCircle = FlyPlanMath.getInstance().pointOnCircle(lastWaypoint.getShape().getCoordinate(),
+                                                                            ((Circle)lastWaypoint.getShape()).getRadius(), angleOfNextPoint);
+
+        //Coordinate scaled = pointOnCircle.toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+
+        float distanceOfTwoPoints = FlyPlanMath.getInstance().distanceOfTwoPoints(pointOnCircle, currentWaypoint.getShape().getCoordinate());
+        distanceOfTwoPoints = distanceOfTwoPoints - ((Circle)currentWaypoint.getShape()).getRadius();
+        distanceOfTwoPoints /= 2;
+        Coordinate pointOnLine = FlyPlanMath.getInstance().pointOnCircle(pointOnCircle, distanceOfTwoPoints, angleOfNextPoint);
+        Rectangle rect = new Rectangle(Waypoint.class, pointOnLine, FlyPlanMath.getInstance().getPointOfText(content, 28), 10);
+        rect.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+        rect.draw(canvas);
+
+        Text text = new Text(Waypoint.class, pointOnLine, content);
+        text.setTextSize(28);
+        text.setTextColor(Color.BLACK);
+        text.draw(canvas);
     }
 
     @Override

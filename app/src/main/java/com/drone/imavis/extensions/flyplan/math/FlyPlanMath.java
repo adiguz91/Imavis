@@ -4,12 +4,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 
 import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
+import com.drone.imavis.services.flyplan.mvc.model.extensions.dimension.Size;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
@@ -40,6 +42,15 @@ public class FlyPlanMath {
         if(angleInDegrees < 0)
             angleInDegrees += 360;
         return angleInDegrees;
+    }
+
+    public Size getPointOfText(String content, int textSize) {
+        Paint paint = new Paint();
+        paint.setTextSize(textSize);
+        //width =  paint.measureText(content, 0, content.length());
+        Rect bounds = new Rect();
+        paint.getTextBounds(content,0,content.length(),bounds);
+        return new Size(bounds.width(), bounds.height());
     }
 
     public Coordinate pointOnCircle(Coordinate coordinate, float radius, float angleInDegrees) {

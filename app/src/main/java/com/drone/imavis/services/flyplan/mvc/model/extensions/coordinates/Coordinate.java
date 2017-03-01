@@ -1,5 +1,7 @@
 package com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates;
 
+import com.drone.imavis.services.flyplan.mvc.model.extensions.dimension.Size;
+
 /**
  * Created by Adrian on 26.11.2016.
  */
@@ -40,6 +42,12 @@ public class Coordinate {
         return new Coordinate(
                 getX() / scaleFactor,
                 getY() / scaleFactor);
+    }
+
+    public Coordinate toLeftTop(Size element) {
+        int elementLeft = (int) this.getX() - element.getWidth()/2;
+        int elementTop = (int) this.getY() - element.getHeight()/2;
+        return new Coordinate(elementLeft, elementTop);
     }
 
     public void setCoordinate(float x, float y) {

@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 import com.drone.imavis.R;
 import com.drone.imavis.constants.classes.CFlyPlan;
 import com.drone.imavis.constants.classes.CMap;
+import com.drone.imavis.extensions.flyplan.math.FlyPlanMath;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.dimension.Size;
@@ -113,8 +114,8 @@ public class FlyPlanView extends View {
         int actionButtonWidth = 0;
         int actionButtonHeight = 0;
         for (String actionButtonName : listOfActionNodes) {
-            actionButtonWidth += getPointOfText(actionButtonName, buttonTextSize).getWidth() + buttonPadding*2;
-            actionButtonHeight += getPointOfText(actionButtonName, buttonTextSize).getHeight() + buttonPadding*2;
+            actionButtonWidth += FlyPlanMath.getInstance().getPointOfText(actionButtonName, buttonTextSize).getWidth() + buttonPadding*2;
+            actionButtonHeight += FlyPlanMath.getInstance().getPointOfText(actionButtonName, buttonTextSize).getHeight() + buttonPadding*2;
         }
         Size actionButtonSize = new Size(actionButtonWidth, actionButtonHeight);
         Size screenSize = new Size(this.getWidth(), this.getHeight());
@@ -153,23 +154,10 @@ public class FlyPlanView extends View {
         if(!isInsideTheScreen)
             return new Coordinate(elementLeft, elementTop);
         // change the centered coordinateElement to left,top coordinate
-        return LeftTop(coordinateElement, element);
+        return coordinateElement.toLeftTop(element);
     }
 
-    private Coordinate LeftTop(Coordinate centeredCoordinate, Size element) {
-        int elementLeft = (int) centeredCoordinate.getX() - element.getWidth()/2;
-        int elementTop = (int) centeredCoordinate.getY() - element.getHeight()/2;
-        return new Coordinate(elementLeft, elementTop);
-    }
 
-    private Size getPointOfText(String content, int textSize) {
-        Paint paint = new Paint();
-        paint.setTextSize(textSize);
-        //width =  paint.measureText(content, 0, content.length());
-        Rect bounds = new Rect();
-        paint.getTextBounds(content,0,content.length(),bounds);
-        return new Size(bounds.width(), bounds.height());
-    }
 
     private Button getNodeDeleteButton(Coordinate coordinate) {
         Button nodeDeleteButton = new Button(getContext());

@@ -44,6 +44,10 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
             if(waypointLastNode != null) {
                 waypoint.addLine(canvas, waypointLastNode, waypoint);
                 waypoint.drawProgressiveCircles(canvas, waypointLastNode.getShape(), waypoint.getShape());
+                if(waypointLastNode == FlyPlanController.getSelectedWaypoint()) {
+                    waypointLastNode.addRectWithTextOnLine(canvas, waypointLastNode, waypoint, "10m/s");
+                }
+
 
                 PointOfInterest poi = ((WaypointData)waypointLastNode.getData()).getPoi();
                 if(poi != null)
