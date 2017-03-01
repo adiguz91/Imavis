@@ -58,7 +58,7 @@ public class FlyPlanMath {
         return (float) distance;
     }
 
-    public void addDirection(Canvas canvas, GeometricShape currentWaypoint, GeometricShape nextWaypoint) {
+    public void addDirection(Canvas canvas, GeometricShape currentWaypoint, GeometricShape nextWaypoint, float radius) {
         Paint paint = new Paint();
         final RectF rect = new RectF();
         float angleDirection = angleBetweenPoints(currentWaypoint, nextWaypoint);
@@ -69,7 +69,7 @@ public class FlyPlanMath {
         //anglePoint1 = toScaleFactor(anglePoint1, FlyPlanController.getInstance().getScaleFactor());
         //float anglePoint2 = angleDirection + (angleDistance/2);
 
-        float radius = CShape.WAYPOINT_CIRCLE_RADIUS; //currentWaypoint.getShape()<Waypoint>.getRadius();
+        // radius = CShape.WAYPOINT_CIRCLE_RADIUS; //currentWaypoint.getShape()<Waypoint>.getRadius();
         //radius = toScaleFactor(radius, FlyPlanController.getInstance().getScaleFactor());
         float distance = radius + currentWaypoint.getBorder() + CShape.WAYPOINT_DIRECTION_DISTANCE;
         //distance = toScaleFactor(distance, FlyPlanController.getInstance().getScaleFactor());
