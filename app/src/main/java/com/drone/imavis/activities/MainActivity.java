@@ -22,8 +22,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.drone.imavis.R;
+import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
+import com.drone.imavis.services.flyplan.mvc.view.ActionButtons;
+import com.drone.imavis.services.flyplan.mvc.view.listener.GpsListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -37,24 +44,50 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
+    private static RelativeLayout layout;
+    private static ActionButtons actionButtons;
     private Toolbar toolbar;
     private GoogleMap googleMap;
     private LatLng location;
     private LocationManager locationManager;
     private Marker currLocationMarker;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupWindowAnimations();
+        layout = (RelativeLayout) findViewById(R.id.content_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        actionButtons = new ActionButtons(layout);
         setSupportActionBar(toolbar);
         Load();
+    }
+
+    private static List<Button> buttons = new ArrayList<Button>() {};
+    public static void addActionButtons(Coordinate coordinate) {
+        //Button actionButton = new Button(layout.getContext());
+        //actionButton.setText("Push Me");
+        buttons = actionButtons.getActionButtons(coordinate);
+        //DrawerLayout.LayoutParams lp = new DrawerLayout.LayoutParams(DrawerLayout.LayoutParams.MATCH_PARENT, DrawerLayout.LayoutParams.WRAP_CONTENT);
+        for (Button button : buttons) {
+            layout.removeView(button);
+            layout.addView(button);
+        }
+    }
+
+    public static void removeActionButtons() {
+        for (Button button : buttons) {
+            layout.removeView(button);
+        }
     }
 
     private void setupWindowAnimations() {
@@ -118,20 +151,22 @@ public class MainActivity extends AppCompatActivity
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-
-
-
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
-                LOCATION_REFRESH_DISTANCE, locationListener);
+        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
+        //        LOCATION_REFRESH_DISTANCE, locationListener);
 
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000); //5 seconds
-        locationRequest.setFastestInterval(3000); //3 seconds
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        //LocationRequest locationRequest = new LocationRequest();
+        //locationRequest.setInterval(5000); //5 seconds
+        //locationRequest.setFastestInterval(3000); //3 seconds
+        //locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         //mLocationRequest.setSmallestDisplacement(0.1F); //1/10 meter
 
+        LocationListener locationListener = new GpsListener();
+        locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE, locationListener);
+
+        Toast.makeText(this, GpsListener.getGPSLocation().toString(), Toast.LENGTH_SHORT).show();
     }
 
     private final LocationListener locationListener = new LocationListener() {

@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.drone.imavis.R;
+import com.drone.imavis.activities.MainActivity;
 import com.drone.imavis.constants.classes.CFlyPlan;
 import com.drone.imavis.constants.classes.CMap;
 import com.drone.imavis.extensions.flyplan.math.FlyPlanMath;
@@ -38,7 +39,7 @@ public class FlyPlanView extends View {
     private Coordinate touchCoordinate;
     private Rect viewRect;
 
-    private static final String TAG = "NodesDrawingView"; // FlyPlanDrawView
+    private static final String TAG = "FlyPlanView";
     private static ScaleGestureDetector scaleDetector;
     private static SparseArray<Node> nodes;
     public static SparseArray<Node> getNodes() {
@@ -59,7 +60,6 @@ public class FlyPlanView extends View {
     }
 
     public void init(final Context context) {
-        initListOfActionNodes();
         nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
         gestureDetector = new GestureDetector(context, new GestureListener());
         scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
@@ -80,95 +80,6 @@ public class FlyPlanView extends View {
         canvas.scale(getScaleFactor(), getScaleFactor());
         FlyPlanController.getInstance().draw(canvas);
         canvas.restore();
-    }
-
-    public void addActionButtons(Coordinate coordinate) {
-        Coordinate correctCoordinate = getCheckedActionButtonCoordinate(coordinate);
-        List<Button> buttons = new ArrayList<>();
-        buttons.add(getNodeDeleteButton(correctCoordinate));
-        //buttons.add(getClosingWaypoint(coordinate))
-        // set buttons on view+
-
-        /*
-        RelativeLayout child = (RelativeLayout) findViewById(R.layout.content_main);
-        for (Button actionButton : buttons) {
-            child.addView(actionButton);
-        }
-        */
-    }
-
-    List<String> listOfActionNodes = new ArrayList<>();
-    private void initListOfActionNodes() {
-        String nodeDeleteText = "Delete";
-        String waypointCloseText = "Close Circle";
-        listOfActionNodes.add(nodeDeleteText);
-        listOfActionNodes.add(waypointCloseText);
-    }
-
-    // coordinate is the center of the buttons
-    private Coordinate getCheckedActionButtonCoordinate(Coordinate coordinateTouched) {
-        int screenPadding = 20;
-        int buttonPadding = 10;
-        int buttonTextSize = 16;
-
-        int actionButtonWidth = 0;
-        int actionButtonHeight = 0;
-        for (String actionButtonName : listOfActionNodes) {
-            actionButtonWidth += FlyPlanMath.getInstance().getPointOfText(actionButtonName, buttonTextSize).getWidth() + buttonPadding*2;
-            actionButtonHeight += FlyPlanMath.getInstance().getPointOfText(actionButtonName, buttonTextSize).getHeight() + buttonPadding*2;
-        }
-        Size actionButtonSize = new Size(actionButtonWidth, actionButtonHeight);
-        Size screenSize = new Size(this.getWidth(), this.getHeight());
-        Coordinate correctedCoordinate = getCorrectCoordinatesOfActionButtons(coordinateTouched, actionButtonSize, screenSize, screenPadding);
-        return correctedCoordinate;
-    }
-
-    private Coordinate getCorrectCoordinatesOfActionButtons(Coordinate coordinateElement, Size element, Size screenSize, int padding) {
-        int elementBottom = (int) coordinateElement.getY() + element.getHeight()/2;
-        int elementTop = (int) coordinateElement.getY() - element.getHeight()/2;
-        int elementLeft = (int) coordinateElement.getX() - element.getWidth()/2;
-        int elementRight = (int) coordinateElement.getX() - element.getWidth()/2;
-
-        boolean isInsideTheScreen = true;
-        if(elementLeft < 0+padding) {
-            isInsideTheScreen &= false;
-            elementLeft = 0+padding;
-            elementRight = elementLeft + element.getWidth();
-        }
-        if(elementTop < 0+padding) {
-            isInsideTheScreen &= false;
-            elementTop = 0+padding;
-            elementBottom = elementTop + element.getHeight();
-        }
-        if(elementRight > screenSize.getWidth()-padding) {
-            isInsideTheScreen &= false;
-            elementRight = screenSize.getHeight()-padding;
-            elementLeft = elementRight - element.getWidth();
-        }
-        if(elementBottom > screenSize.getHeight()-padding) {
-            isInsideTheScreen &= false;
-            elementBottom = screenSize.getHeight()-padding;
-            elementTop = elementBottom - element.getHeight();
-        }
-
-        if(!isInsideTheScreen)
-            return new Coordinate(elementLeft, elementTop);
-        // change the centered coordinateElement to left,top coordinate
-        return coordinateElement.toLeftTop(element);
-    }
-
-
-
-    private Button getNodeDeleteButton(Coordinate coordinate) {
-        Button nodeDeleteButton = new Button(getContext());
-        nodeDeleteButton.setX(coordinate.getX());
-        nodeDeleteButton.setY(coordinate.getY());
-        nodeDeleteButton.setBackgroundColor(Color.YELLOW);
-        nodeDeleteButton.setPadding(10, 10, 10, 10);
-        nodeDeleteButton.setTextColor(Color.BLACK);
-        nodeDeleteButton.setTextSize(16);
-        nodeDeleteButton.setText("Delete");
-        return nodeDeleteButton;
     }
 
     @Override
@@ -225,11 +136,11 @@ public class FlyPlanView extends View {
                     touchedNode = FlyPlanController.getTouchedNode();
                     if (touchedNode != null) {
                         touchedNode.getShape().setCoordinate(coordinateTouched);
-                        addActionButtons(touchedNode.getShape().getCoordinate());
                     } else {
                         // drag map
                         handled = false;
                     }
+                    MainActivity.removeActionButtons();
                 }
                 invalidate();
                 handled = true;
