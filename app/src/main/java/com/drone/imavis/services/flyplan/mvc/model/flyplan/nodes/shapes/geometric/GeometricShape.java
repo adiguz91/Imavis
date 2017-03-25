@@ -3,12 +3,14 @@ package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometr
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.drone.imavis.activities.MainActivity;
 import com.drone.imavis.constants.classes.CColor;
 import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.IShape;
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Created by adigu on 03.02.2017.
@@ -27,7 +29,11 @@ public abstract class GeometricShape<T> implements IShape {
     public void setCoordinate(Coordinate coordinate) {
         this.coordinate = coordinate;
     }
-
+/*
+    public LatLng getCoordinateGPS() {
+        return MainActivity.getGPSfromScreen(getCoordinate());
+    }
+*/
     public int getBorder() {
         return border;
     }

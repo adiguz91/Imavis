@@ -33,12 +33,14 @@ public class Rectangle extends GeometricShape  {
 
     @Override
     public void draw(Canvas canvas) {
+        canvas.drawRect(getRect(), getPaint());
+    }
 
+    public Rect getRect() {
         Coordinate scaledCoordinate = centralizedCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
-        Rect rect = new Rect((int)scaledCoordinate.getX()-size.getWidth()/2-padding,(int)scaledCoordinate.getY()-size.getHeight()/2-padding,
-                             (int)scaledCoordinate.getX()+size.getWidth()/2+padding,
-                             (int)scaledCoordinate.getY()+size.getHeight()/2+padding);
-        canvas.drawRect(rect, getPaint());
+        return new Rect((int)scaledCoordinate.getX()-size.getWidth()/2-padding,(int)scaledCoordinate.getY()-size.getHeight()/2-padding,
+                (int)scaledCoordinate.getX()+size.getWidth()/2+padding,
+                (int)scaledCoordinate.getY()+size.getHeight()/2+padding);
     }
 
     private Coordinate centralizedCoordinate() {

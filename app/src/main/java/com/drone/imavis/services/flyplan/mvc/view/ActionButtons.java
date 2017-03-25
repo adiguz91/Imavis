@@ -2,6 +2,7 @@ package com.drone.imavis.services.flyplan.mvc.view;
 
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
@@ -105,6 +106,13 @@ public class ActionButtons {
         nodeDeleteButton.setTextColor(Color.BLACK);
         nodeDeleteButton.setTextSize(16);
         nodeDeleteButton.setText("Delete");
+        nodeDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         return nodeDeleteButton;
     }
 }

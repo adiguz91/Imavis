@@ -6,49 +6,13 @@
     android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.drone.imavis.activities.MainActivity"
     tools:showIn="@layout/app_bar_main">
-
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:map="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/googlemapfragment"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!--<com.drone.imavis.services.flyplan.mvc.view.GoogleMapView
-        android:id="@+id/googlemap"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        class="com.google.android.gms.maps.SupportMapFragment"
-        />-->
 <!--
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        class="com.google.android.gms.maps.SupportMapFragment"/>
--->
-
-    <com.drone.imavis.services.flyplan.mvc.view.FlyPlanView
-        android:id="@+id/flypan"
+    <include
+        layout="@layout/activity_main_flyplanner"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <!--<com.melnykov.fab.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_my_location_black_24dp"
-         />
-
-    fab:fab_colorNormal="@color/primary"
-        fab:fab_colorPressed="@color/primary_pressed"
-        fab:fab_colorRipple="@color/ripple"-->
-
+-->
 </RelativeLayout>

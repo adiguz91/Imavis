@@ -3,6 +3,8 @@
     package="com.drone.imavis">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -18,16 +20,15 @@
             android:protectionLevel="signature" />
 
         <uses-permission android:name="your.package.name.permission.MAPS_RECEIVE" />
+        <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+        <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
         <uses-permission android:name="android.permission.INTERNET" />
         <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
         <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-        <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-        <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
         <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
         <uses-feature android:name="android.hardware.location.gps" />
-
-        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
@@ -38,6 +39,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
         -->
+
 
         <!-- LoginActivity -->
         <activity
@@ -50,6 +52,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".services.flyplan.mvc.view.listener.GPSTracker" />
 
         <!--
         <activity
@@ -80,10 +84,15 @@
             android:screenOrientation="landscape"/>
         -->
 
-        <activity android:name=".activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activities.PlanCreateActivity" />
-        <activity android:name=".activities.PlanWaypointsActivity"></activity>
+        <activity android:name=".activities.PlanWaypointsActivity" />
+        <activity
+            android:name=".activities.MainFlyplanner"
+            android:label="@string/title_activity_main_flyplanner"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

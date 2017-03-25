@@ -1,6 +1,7 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan;
 
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
 import com.drone.imavis.constants.classes.CFlyPlan;
 import com.drone.imavis.constants.classes.CFlyPlan.UnitOfLength;

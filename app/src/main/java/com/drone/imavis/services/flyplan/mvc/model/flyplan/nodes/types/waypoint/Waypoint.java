@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 
 import com.drone.imavis.constants.classes.CColor;
@@ -26,11 +27,17 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.Point
 
 public class Waypoint<T> extends Node implements IWaypointDraw {
 
+    private Rect lineTextRect;
+    private Line line;
+
     public Waypoint(Coordinate touchedCoordinate) {
         super(Waypoint.class, touchedCoordinate);
         setShapePaint();
         //this.shape = createShape(CShape.WAYPOINT_SHAPE_TYPE, touchedCoordinate);
     }
+
+    public Line getLine() { return line; }
+    public Rect getLineTextRect() { return lineTextRect;}
 
     public void setShapePaint() {
         this.getShape().setBackgroundColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
@@ -80,14 +87,16 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
 
     @Override
     public void addLine(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint) {
-        Line line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate()) ;
+        line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate()) ;
         line.draw(canvas);
     }
 
+    /*
     public void addLineWithProgressCircles(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint) {
         Line line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate());
         line.draw(canvas);
     }
+    */
 
     public void drawProgressiveCircles(Canvas canvas, GeometricShape current, GeometricShape next) {
         float numberOfProgressiveCircles = 2;
@@ -121,13 +130,12 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         Coordinate pointOnCircle = FlyPlanMath.getInstance().pointOnCircle(lastWaypoint.getShape().getCoordinate(),
                                                                             ((Circle)lastWaypoint.getShape()).getRadius(), angleOfNextPoint);
 
-        //Coordinate scaled = pointOnCircle.toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
-
         float distanceOfTwoPoints = FlyPlanMath.getInstance().distanceOfTwoPoints(pointOnCircle, currentWaypoint.getShape().getCoordinate());
         distanceOfTwoPoints = distanceOfTwoPoints - ((Circle)currentWaypoint.getShape()).getRadius();
         distanceOfTwoPoints /= 2;
         Coordinate pointOnLine = FlyPlanMath.getInstance().pointOnCircle(pointOnCircle, distanceOfTwoPoints, angleOfNextPoint);
         Rectangle rect = new Rectangle(Waypoint.class, pointOnLine, FlyPlanMath.getInstance().getPointOfText(content, 28), 10);
+        lineTextRect = rect.getRect();
         rect.setBackgroundColor(Color.parseColor("#80FFFFFF"));
         rect.draw(canvas);
 
