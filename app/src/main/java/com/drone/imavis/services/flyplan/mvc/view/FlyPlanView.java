@@ -79,7 +79,6 @@ public class FlyPlanView extends View {
     public boolean onTouchEvent(final MotionEvent event) {
         Log.w(TAG, "onTouchEvent: " + event);
         int actionIndex; // event.getActionIndex()
-        isHandledTouch = false;
 
         // onTouch trigger events
         isHandledTouch = scaleDetector.onTouchEvent(event);
@@ -98,32 +97,33 @@ public class FlyPlanView extends View {
                 break;
         }
 
-        if(isHandledTouch)
-            return super.onTouchEvent(event);
-        else
-            return false;
+        return isHandledTouch;
+        //if(isHandledTouch)
+        //    return true;//super.onTouchEvent(event);
+        //else
+        //    return false;
         //return super.dispatchTouchEvent(event);
         //return super.onTouchEvent(event);
-        //return true;
     }
 
     public static boolean actionMove(MotionEvent event) {
         int pointerCount = event.getPointerCount();
-        boolean isHandled = false;
+        boolean isHandled = true;
         for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
             //pointerId = event.getPointerId(actionIndex);
             Coordinate coordinateTouched = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
             Node touchedNode = FlyPlanController.getTouchedNode();
             if (touchedNode != null) {
                 touchedNode.getShape().setCoordinate(coordinateTouched);
-                isHandled = true;
+                //isHandled = true;
+                break;
             } else {
                 // drag map
-                isHandled = false;
+                isHandled &= false;
                 break;
             }
-            MainFlyplanner.removeActionButtons();
         }
+        MainFlyplanner.removeActionButtons();
         return isHandled;
     }
 

@@ -73,9 +73,7 @@ public class MainFlyplanner extends AppCompatActivity implements OnMapReadyCallb
     private MarkerOptions markerOptions;
     private Marker marker;
     private boolean showMap;
-
-    private GestureDetector gestureDetector;
-    private ScaleGestureDetector scaleGestureDetector;
+    private View flyplan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,40 +95,19 @@ public class MainFlyplanner extends AppCompatActivity implements OnMapReadyCallb
             startService(i);
         }
 
-        init();
+        flyplan = findViewById(R.id.flypan);
     }
 
-    public void init() {
-        gestureDetector = new GestureDetector(this, new GestureListener());
-        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
-    }
+
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        boolean isHandled = false;
-        /*
-        switch (event.getActionMasked())
-        {
-            // find Node or Line
-            case MotionEvent.ACTION_MOVE:
-                isHandledTouch = FlyPlanView.actionMove(event);
-                //invalidate();
-                break;
-
-            // do nothing
-            default:
-                break;
-        }
-        */
-
-        View flyplan = findViewById(R.id.flypan);
-        isHandled = flyplan.onTouchEvent(event);
-
+        //googleMap.getUiSettings().setScrollGesturesEnabled(false);
+        boolean isHandled = flyplan.onTouchEvent(event);
         if(!isHandled)
             return super.dispatchTouchEvent(event);
         else
             return false;
-
     }
 
     private boolean runtimePermissions() {
