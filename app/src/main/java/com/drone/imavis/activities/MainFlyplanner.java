@@ -102,12 +102,17 @@ public class MainFlyplanner extends AppCompatActivity implements OnMapReadyCallb
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        //googleMap.getUiSettings().setScrollGesturesEnabled(false);
-        boolean isHandled = flyplan.onTouchEvent(event);
-        if(!isHandled)
-            return super.dispatchTouchEvent(event);
-        else
-            return false;
+
+        //boolean isHandled = flyplan.onTouchEvent(event);
+        //isHandled = FlyPlanView.getIsHandledTouch();
+        boolean isHandled = super.dispatchTouchEvent(event);
+        if(!isHandled) {
+            googleMap.getUiSettings().setScrollGesturesEnabled(true);
+        }
+        else {
+            googleMap.getUiSettings().setScrollGesturesEnabled(false);
+        }
+        return isHandled;
     }
 
     private boolean runtimePermissions() {
@@ -212,7 +217,7 @@ public class MainFlyplanner extends AppCompatActivity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         MapsInitializer.initialize(this);
 
-        LocationEnable();
+        //LocationEnable();
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         googleMap.setTrafficEnabled(true);
         googleMap.setIndoorEnabled(true);

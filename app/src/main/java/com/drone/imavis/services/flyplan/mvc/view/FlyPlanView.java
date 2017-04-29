@@ -18,6 +18,7 @@ import com.drone.imavis.constants.classes.CMap;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
+import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.view.listener.GestureListener;
 import com.drone.imavis.services.flyplan.mvc.view.listener.ScaleListener;
 import com.google.android.gms.maps.GoogleMap;
@@ -75,6 +76,23 @@ public class FlyPlanView extends View {
         canvas.restore();
     }
 
+    private Node touchedNode;
+
+    private boolean onDown(MotionEvent event) {
+        //FlyPlanView.getNodes().clear();
+        int pointerId = event.getPointerId(0);
+        Coordinate touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
+        touchedNode = FlyPlanController.getInstance().getTouchedNode(touchCoordinate);
+        if(touchedNode == null)
+            return false;
+        return true;
+    }
+
+    private static boolean isDown = false;
+    public static boolean isDown() {
+        return isDown;
+    }
+
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         Log.w(TAG, "onTouchEvent: " + event);
@@ -84,8 +102,13 @@ public class FlyPlanView extends View {
         isHandledTouch = scaleDetector.onTouchEvent(event);
         isHandledTouch = gestureDetector.onTouchEvent(event);
 
+        //isDown = false;
         switch (event.getActionMasked())
         {
+            case MotionEvent.ACTION_DOWN:
+                isDown = onDown(event);
+                invalidate();
+                break;
             // find Node or Line
             case MotionEvent.ACTION_MOVE:
                 isHandledTouch = actionMove(event);
@@ -95,8 +118,11 @@ public class FlyPlanView extends View {
             // do nothing
             default:
                 break;
+
         }
 
+        if(!isHandledTouch)
+            super.onTouchEvent(event);
         return isHandledTouch;
         //if(isHandledTouch)
         //    return true;//super.onTouchEvent(event);
@@ -105,6 +131,7 @@ public class FlyPlanView extends View {
         //return super.dispatchTouchEvent(event);
         //return super.onTouchEvent(event);
     }
+
 
     public static boolean actionMove(MotionEvent event) {
         int pointerCount = event.getPointerCount();

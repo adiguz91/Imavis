@@ -29,8 +29,8 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
         touchedNode = FlyPlanController.getInstance().getTouchedNode(touchCoordinate);
-        if(touchedNode == null)
-            return false;
+        //if(touchedNode == null)
+        //    return false;
         return true;
     }
     
@@ -44,13 +44,13 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
         boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(Waypoint.class, touchCoordinate, touchedNode);
         if(touchedNode != null) {
-            if(isObtained)
+            if(isObtained) {
                 FlyPlanView.getNodes().put(pointerId, touchedNode);
-            //else
-                //checkSelected(touchedNode.getClass());
+            }
+            return true;
+            //else checkSelected(touchedNode.getClass());
         } else
             return false;
-        return true;
     }
 
     @Override
