@@ -1,21 +1,16 @@
 package com.drone.imavis.services.flyplan.mvc.controller;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.RectF;
 
-import com.drone.imavis.constants.classes.CColor;
-import com.drone.imavis.constants.classes.CFileDirectories;
-import com.drone.imavis.constants.classes.CFiles;
-import com.drone.imavis.constants.classes.CFlyPlan;
-import com.drone.imavis.constants.classes.CShape;
+import com.drone.imavis.util.constants.classes.CFileDirectories;
+import com.drone.imavis.util.constants.classes.CFiles;
+import com.drone.imavis.util.constants.classes.CFlyPlan;
+import com.drone.imavis.util.constants.classes.CShape;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.FlyPlan;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.map.Map;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.dimension.Size;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
@@ -25,7 +20,7 @@ import com.google.android.gms.maps.GoogleMap;
 import java.io.File;
 import java.util.ListIterator;
 
-import com.drone.imavis.extensions.file.FileExtension;
+import com.drone.imavis.util.helper.file.FileExtension;
 
 /**
  * Created by adigu on 23.02.2017.

@@ -1,20 +1,15 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan;
 
 import android.graphics.Canvas;
-import android.graphics.Rect;
 
-import com.drone.imavis.constants.classes.CFlyPlan;
-import com.drone.imavis.constants.classes.CFlyPlan.UnitOfLength;
+import com.drone.imavis.util.constants.classes.CFlyPlan;
+import com.drone.imavis.util.constants.classes.CFlyPlan.UnitOfLength;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.map.Map;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Nodes;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
 import com.google.gson.Gson;
-
-import java.util.ListIterator;
 
 /**
  * Created by Adrian on 26.11.2016.

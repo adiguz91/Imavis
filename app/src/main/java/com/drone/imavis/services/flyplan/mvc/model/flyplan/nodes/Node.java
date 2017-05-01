@@ -1,6 +1,6 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes;
 
-import com.drone.imavis.constants.classes.CShape;
+import com.drone.imavis.util.constants.classes.CShape;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterestData;
@@ -9,7 +9,6 @@ import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Square;
-import com.google.android.gms.tagmanager.ContainerHolder;
 
 /**
  * Created by adigu on 03.02.2017.

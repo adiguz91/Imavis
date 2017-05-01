@@ -5,11 +5,8 @@ import android.graphics.Color;
 
 import java.util.ArrayList;
 
-import com.drone.imavis.constants.classes.CColor;
-import com.drone.imavis.constants.classes.CShape;
+import com.drone.imavis.util.constants.classes.CColor;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.google.gson.Gson;
 
 /**

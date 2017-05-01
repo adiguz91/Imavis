@@ -1,16 +1,11 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 
-import com.drone.imavis.constants.classes.CColor;
-import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.google.gson.Gson;
-import com.drone.imavis.extensions.doublelinkedlist.DoublyLinkedList;
+import com.drone.imavis.util.helper.doublelinkedlist.DoublyLinkedList;
 
 import java.util.ListIterator;
 

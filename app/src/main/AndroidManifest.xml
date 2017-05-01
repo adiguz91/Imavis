@@ -43,7 +43,7 @@
 
         <!-- LoginActivity -->
         <activity
-            android:name=".activities.LoginActivity"
+            android:name=".ui.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -85,12 +85,12 @@
         -->
 
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".ui.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.PlanCreateActivity" />
-        <activity android:name=".activities.PlanWaypointsActivity" />
+        <activity android:name=".ui.PlanCreateActivity" />
+        <activity android:name=".ui.PlanWaypointsActivity" />
         <activity
-            android:name=".activities.MainFlyplanner"
+            android:name=".ui.MainFlyplanner"
             android:label="@string/title_activity_main_flyplanner"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>

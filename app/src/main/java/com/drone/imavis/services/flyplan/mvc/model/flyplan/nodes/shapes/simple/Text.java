@@ -4,8 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import com.drone.imavis.constants.classes.CColor;
-import com.drone.imavis.constants.classes.CText;
+import com.drone.imavis.util.constants.classes.CColor;
+import com.drone.imavis.util.constants.classes.CText;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;

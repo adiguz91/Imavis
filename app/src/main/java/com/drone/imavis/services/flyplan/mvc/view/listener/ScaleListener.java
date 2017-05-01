@@ -2,7 +2,7 @@ package com.drone.imavis.services.flyplan.mvc.view.listener;
 
 import android.view.ScaleGestureDetector;
 
-import com.drone.imavis.constants.classes.CMap;
+import com.drone.imavis.util.constants.classes.CMap;
 
 /**
  * Created by adigu on 05.02.2017.

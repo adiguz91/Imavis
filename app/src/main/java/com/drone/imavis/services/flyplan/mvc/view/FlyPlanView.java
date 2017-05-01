@@ -11,17 +11,14 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import com.drone.imavis.activities.MainActivity;
-import com.drone.imavis.activities.MainFlyplanner;
-import com.drone.imavis.constants.classes.CFlyPlan;
-import com.drone.imavis.constants.classes.CMap;
+import com.drone.imavis.ui.MainFlyplanner;
+import com.drone.imavis.util.constants.classes.CFlyPlan;
+import com.drone.imavis.util.constants.classes.CMap;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.view.listener.GestureListener;
 import com.drone.imavis.services.flyplan.mvc.view.listener.ScaleListener;
-import com.google.android.gms.maps.GoogleMap;
 
 public class FlyPlanView extends View {
 

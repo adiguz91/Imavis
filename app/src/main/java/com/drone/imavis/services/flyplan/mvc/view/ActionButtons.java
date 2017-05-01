@@ -1,12 +1,11 @@
 package com.drone.imavis.services.flyplan.mvc.view;
 
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.drone.imavis.extensions.flyplan.math.FlyPlanMath;
+import com.drone.imavis.services.flyplan.mvc.util.FlyPlanMath;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.dimension.Size;
 

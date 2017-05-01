@@ -3,10 +3,9 @@ package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import com.drone.imavis.constants.classes.CFlyPlan;
+import com.drone.imavis.util.constants.classes.CFlyPlan;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.NodeData;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterestData;
 
 /**
  * Created by Adrian on 26.11.2016.

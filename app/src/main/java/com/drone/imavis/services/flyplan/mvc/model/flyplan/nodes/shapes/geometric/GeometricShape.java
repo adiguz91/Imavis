@@ -1,16 +1,7 @@
 package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric;
 
-import android.graphics.Color;
-import android.graphics.Paint;
-
-import com.drone.imavis.activities.MainActivity;
-import com.drone.imavis.constants.classes.CColor;
-import com.drone.imavis.constants.classes.CShape;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.IShape;
-import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Created by adigu on 03.02.2017.

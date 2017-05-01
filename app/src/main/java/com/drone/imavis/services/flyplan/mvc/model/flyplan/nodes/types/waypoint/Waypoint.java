@@ -2,17 +2,13 @@ package com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.types.waypoint
 
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
-import android.graphics.RectF;
 
-import com.drone.imavis.constants.classes.CColor;
-import com.drone.imavis.constants.classes.CShape;
-import com.drone.imavis.extensions.flyplan.math.FlyPlanMath;
+import com.drone.imavis.util.constants.classes.CColor;
+import com.drone.imavis.util.constants.classes.CShape;
+import com.drone.imavis.services.flyplan.mvc.util.FlyPlanMath;
 import com.drone.imavis.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
-import com.drone.imavis.services.flyplan.mvc.model.flyplan.FlyPlan;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.imavis.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
