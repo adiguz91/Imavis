@@ -58,6 +58,7 @@ dependencies {
     // Logger standard
     // Logger Timber
     // Picasso: image loading and manipulation
+    // Aescrypt: password en/decrypt
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
     compile 'com.squareup.retrofit2:converter-gson:2.2.0'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.2.0'
@@ -75,6 +76,7 @@ dependencies {
     compile 'com.jakewharton.timber:timber:4.5.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
+    compile 'com.scottyab:aescrypt:0.0.1'
 
     // design & layout
     compile 'com.getbase:floatingactionbutton:1.10.1'

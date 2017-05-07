@@ -7,7 +7,9 @@ import java.util.Collection;
 import java.util.List;
 
 import io.reactivex.Observable;
+import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.Path;
 
 /**
@@ -17,6 +19,10 @@ import retrofit2.http.Path;
 public interface IWebOdmApiEndpoint {
 
     String ENDPOINT = "http://192.168.99.100:8000/api/";
+
+    @Headers("@: NoAuth")
+    @GET("token-auth")
+    Call<String> authentication(@Path("username") String username, @Path("password") String password);
 
     @GET("projects")
     Observable<List<Project>> getProjects();
