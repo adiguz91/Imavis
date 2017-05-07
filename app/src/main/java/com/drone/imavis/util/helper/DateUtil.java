@@ -1,5 +1,8 @@
 package com.drone.imavis.util.helper;
 
+import com.drone.imavis.util.constants.Constants;
+import com.drone.imavis.util.constants.classes.CDate;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -12,13 +15,9 @@ import java.util.Locale;
 
 public class DateUtil {
 
-    private static Locale locale = Locale.GERMANY;
-    private static String dateFormat = "dd.MM.yyyy";
-    private static SimpleDateFormat simpleDateFormat;
-
     public static Date getDateNow() {
         Calendar calendar = Calendar.getInstance();
-        simpleDateFormat = new SimpleDateFormat(dateFormat, locale);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(CDate.DATE_FORMAT, CDate.DATE_LOCALE);
         try {
             return simpleDateFormat.parse(calendar.getTime().toString());
         }

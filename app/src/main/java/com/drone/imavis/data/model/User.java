@@ -2,6 +2,8 @@ package com.drone.imavis.data.model;
 
 import com.drone.imavis.data.local.BaseEntity;
 
+import java.util.List;
+
 /**
  * Created by adigu on 06.05.2017.
  */
@@ -10,8 +12,9 @@ public class User extends BaseEntity {
 
     private String firstname;
     private String lastname;
-    private String eMail;
+    private String email;
     //private String passwordHash;
+    private List<Project> projectList;
 
     public User() {}
 
@@ -31,11 +34,19 @@ public class User extends BaseEntity {
         this.lastname = lastname;
     }
 
-    public String geteMail() {
-        return eMail;
+    public String getEmail() {
+        return email;
     }
 
-    public void seteMail(String eMail) {
-        this.eMail = eMail;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public List<Project> getProjectList() {
+        return projectList;
+    }
+
+    public void setProjectList(List<Project> projectList) {
+        this.projectList = projectList;
     }
 }
