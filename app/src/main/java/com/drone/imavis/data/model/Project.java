@@ -1,5 +1,7 @@
 package com.drone.imavis.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 import java.util.List;
 
@@ -9,10 +11,15 @@ import java.util.List;
 
 public class Project {
 
+    @SerializedName("id")
     private int id;
+    @SerializedName("tasks")
     private List<Integer> tasks;
+    @SerializedName("created_at")
     private Date createdAt;
+    @SerializedName("name")
     private String name;
+    @SerializedName("description")
     private String description;
 
     public Project() {}

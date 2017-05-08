@@ -11,6 +11,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by adigu on 06.05.2017.
@@ -22,7 +23,7 @@ public interface IWebOdmApiEndpoint {
 
     @Headers("@: NoAuth")
     @GET("token-auth")
-    Call<String> authentication(@Path("username") String username, @Path("password") String password);
+    Call<String> authentication(@Query("username") String username, @Query("password") String password);
 
     @GET("projects")
     Observable<List<Project>> getProjects();

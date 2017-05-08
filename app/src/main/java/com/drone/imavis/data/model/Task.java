@@ -1,5 +1,8 @@
 package com.drone.imavis.data.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONArray;
 
 import java.util.Date;
@@ -42,21 +45,37 @@ public class Task {
 //            "pending_action": null
 //    }
 
+    @SerializedName("id")
     private int  id;
+    @SerializedName("project")
     private int  project;
+    @SerializedName("processing_node")
     private int processingNode;
+    @SerializedName("images_count")
     private int imagesCount;
+    @Expose(serialize = false, deserialize = false)
     private List<String> images; // url
+    @SerializedName("available_assets")
     private List<String> availableAssets;
+    @SerializedName("uuid")
     private UUID uuid;
+    @SerializedName("name")
     private String name;
+    @SerializedName("processing_time")
     private int processingTime; // milliseconds
+    @SerializedName("auto_processing_node")
     private boolean autoProcessingNode;
+    @SerializedName("status")
     private TaskStatus status;
+    @SerializedName("last_error")
     private String lastError;
+    @SerializedName("options")
     private JSONArray options;
+    @SerializedName("ground_control_points")
     private String groundControlPoints;
+    @SerializedName("created_at")
     private Date createdAt;
+    @SerializedName("pending_action")
     private TaskPendingAction pendingAction;
 
     public Task() {

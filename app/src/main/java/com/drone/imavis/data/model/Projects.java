@@ -1,5 +1,7 @@
 package com.drone.imavis.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -10,29 +12,14 @@ import java.util.PriorityQueue;
 
 public class Projects {
 
-//    {
-//        "count": 1,
-//            "next": null,
-//            "previous": null,
-//            "results": [
-//            {
-//                "id": 2,
-//                    "tasks": [
-//                7,
-//                        6,
-//                        5
-//                ],
-//                "created_at": "2016-12-07T02:09:28.515319Z",
-//                    "name": "Test",
-//                    "description": ""
-//            }
-//        ]
-//    }
-
+    @SerializedName("count")
     private int count;
+    @SerializedName("next")
     private int next;
+    @SerializedName("previous")
     private int previous;
-    private List<Project> results;
+    @SerializedName("results")
+    private List<Project> projectList;
 
     private Projects() {}
 
@@ -60,11 +47,11 @@ public class Projects {
         this.previous = previous;
     }
 
-    public List<Project> getResults() {
-        return results;
+    public List<Project> getProjectList() {
+        return projectList;
     }
 
-    private void setResults(List<Project> results) {
-        this.results = results;
+    private void setProjectList(List<Project> projectList) {
+        this.projectList = projectList;
     }
 }
