@@ -16,7 +16,7 @@ public class ProjectsPresenter {
     private IRepository<Project> projectsRepo = null;
     private final ProjectsView view;
     private final CompositeSubscription compositeSubscription = new CompositeSubscription();
-    
+
     public ProjectsPresenter(ProjectsView view, ProjectRepository projectsRepo) {
         this.view = view;
         this.projectsRepo = projectsRepo;
