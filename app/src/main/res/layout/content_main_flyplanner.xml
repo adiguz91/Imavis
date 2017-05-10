@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.drone.imavis.ui.MainFlyplanner">
+    tools:context="com.drone.imavis.mvp.ui.MainFlyplanner">
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.drone.imavis.services.flyplan.mvc.view.FlyPlanView
+    <com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView
         android:id="@+id/flypan"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
