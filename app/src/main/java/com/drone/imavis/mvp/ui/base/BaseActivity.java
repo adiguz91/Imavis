@@ -7,9 +7,14 @@ package com.drone.imavis.mvp.ui.base;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.drone.imavis.mvp.AppStartup;
 import com.drone.imavis.mvp.di.component.ActivityComponent;
+import com.drone.imavis.mvp.di.component.ConfigPersistentComponent;
+import com.drone.imavis.mvp.di.component.DaggerConfigPersistentComponent;
+import com.drone.imavis.mvp.di.module.ActivityModule;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import timber.log.Timber;
@@ -23,7 +28,7 @@ public class BaseActivity extends AppCompatActivity {
 
     private static final String KEY_ACTIVITY_ID = "KEY_ACTIVITY_ID";
     private static final AtomicLong NEXT_ID = new AtomicLong(0);
-    //private static final Map<Long, ConfigPersistentComponent> sComponentsMap = new HashMap<>();
+    private static final Map<Long, ConfigPersistentComponent> sComponentsMap = new HashMap<>();
 
     private ActivityComponent mActivityComponent;
     private long mActivityId;
@@ -32,7 +37,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /*
+
         // Create the ActivityComponent and reuses cached ConfigPersistentComponent if this is
         // being called after a configuration change.
         mActivityId = savedInstanceState != null ?
@@ -41,7 +46,7 @@ public class BaseActivity extends AppCompatActivity {
         if (!sComponentsMap.containsKey(mActivityId)) {
             Timber.i("Creating new ConfigPersistentComponent id=%d", mActivityId);
             configPersistentComponent = DaggerConfigPersistentComponent.builder()
-                    .applicationComponent(BoilerplateApplication.get(this).getComponent())
+                    .applicationComponent(AppStartup.get(this).getComponent())
                     .build();
             sComponentsMap.put(mActivityId, configPersistentComponent);
         } else {
@@ -49,7 +54,7 @@ public class BaseActivity extends AppCompatActivity {
             configPersistentComponent = sComponentsMap.get(mActivityId);
         }
         mActivityComponent = configPersistentComponent.activityComponent(new ActivityModule(this));
-        */
+
     }
 
     @Override
@@ -62,7 +67,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         if (!isChangingConfigurations()) {
             Timber.i("Clearing ConfigPersistentComponent id=%d", mActivityId);
-            //sComponentsMap.remove(mActivityId);
+            sComponentsMap.remove(mActivityId);
         }
         super.onDestroy();
     }

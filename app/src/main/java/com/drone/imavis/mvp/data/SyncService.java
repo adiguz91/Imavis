@@ -4,14 +4,17 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import javax.inject.Inject;
+
 /**
  * Created by adigu on 10.05.2017.
  */
 
 public class SyncService extends Service {
 
-    /*
     @Inject DataManager mDataManager;
+    /*
+
     private rx.Subscription mSubscription;
 
     public static Intent getStartIntent(Context context) {

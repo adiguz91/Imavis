@@ -21,7 +21,7 @@ import butterknife.ButterKnife;
 public class ProjectsActivity  extends BaseActivity implements ProjectsMvpView {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
-            "com.drone.imavis.mvp.ui.main.ProjectsActivity.EXTRA_TRIGGER_SYNC_FLAG";
+            "com.drone.imavis.mvp.ui.projects.ProjectsActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
     @Inject ProjectsPresenter projectsPresenter;
     //@Inject RibotsAdapter mRibotsAdapter;
