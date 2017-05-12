@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.flyplans.FlyplansActivity;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
@@ -80,7 +81,7 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ((SwipeLayout)(mListView.getChildAt(position - mListView.getFirstVisiblePosition()))).open(true);
-                goToActivity(context, FlyplansActivity.class, new Bundle());
+                //goToActivity(context, FlyplansActivity.class, new Bundle());
             }
         });
         mListView.setOnTouchListener(new View.OnTouchListener() {
@@ -126,7 +127,19 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         projectsPresenter.detachView();
+    }
+
+    @Override
+    public void showProjects(Projects projects) {
+        //DialogFactory.createGenericErrorDialog(this, getString(R.string.error_loading_ribots))
+        //        .show();
+    }
+
+    @Override
+    public void showProjectsEmpty() {
+        //mRibotsAdapter.setRibots(Collections.<Ribot>emptyList());
+        //mRibotsAdapter.notifyDataSetChanged();
+        //Toast.makeText(this, R.string.empty_ribots, Toast.LENGTH_LONG).show();
     }
 }

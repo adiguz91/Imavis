@@ -13,6 +13,8 @@ import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.data.model.Projects;
 
 /**
  * Created by adigu on 08.05.2017.
@@ -21,9 +23,15 @@ import com.drone.imavis.mvp.R;
 public class ProjectListViewAdapter extends BaseSwipeAdapter {
 
     private Context mContext;
+    private Projects projects;
 
     public ProjectListViewAdapter(Context mContext) {
         this.mContext = mContext;
+        //this.projects = projects;
+    }
+
+    public void setProjects(Projects projects) {
+        this.projects = projects;
     }
 
     @Override

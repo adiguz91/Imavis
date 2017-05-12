@@ -1,5 +1,6 @@
 package com.drone.imavis.mvp.ui.projects;
 
+import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.base.IMvpView;
 
 /**
@@ -8,9 +9,9 @@ import com.drone.imavis.mvp.ui.base.IMvpView;
 
 public interface IProjectsMvpView extends IMvpView {
 
-    //void showRibots(List<Ribot> ribots);
+    void showProjects(Projects projects);
 
-    //void showRibotsEmpty();
+    void showProjectsEmpty();
 
     //void showError();
 

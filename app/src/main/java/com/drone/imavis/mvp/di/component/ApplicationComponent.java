@@ -5,6 +5,8 @@ import android.content.Context;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.SyncService;
+import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
+import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
 import com.drone.imavis.mvp.di.ApplicationContext;
 import com.drone.imavis.mvp.di.module.ApplicationModule;
 
@@ -24,7 +26,7 @@ public interface ApplicationComponent {
 
     @ApplicationContext Context context();
     Application application();
-    //RibotsService ribotsService();
+    IWebOdmApiEndpoint webOdmService();
     //PreferencesHelper preferencesHelper();
     //DatabaseHelper databaseHelper();
     DataManager dataManager();

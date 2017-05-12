@@ -1,12 +1,16 @@
 package com.drone.imavis.mvp.ui.projects;
 
 import com.drone.imavis.mvp.data.DataManager;
+import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
+import com.drone.imavis.mvp.util.RxUtil;
 
 import javax.inject.Inject;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import rx.Subscription;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by adigu on 08.05.2017.
@@ -35,33 +39,14 @@ public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
     }
 
     public void loadRibots() {
-        /*
         checkViewAttached();
-        RxUtil.unsubscribe(mSubscription);
-        mSubscription = mDataManager.getRibots()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Subscriber<List<Ribot>>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Timber.e(e, "There was an error loading the ribots.");
-                        getMvpView().showError();
-                    }
-
-                    @Override
-                    public void onNext(List<Ribot> ribots) {
-                        if (ribots.isEmpty()) {
-                            getMvpView().showRibotsEmpty();
-                        } else {
-                            getMvpView().showRibots(ribots);
-                        }
-                    }
-                });
-                */
+        //RxUtil.unsubscribe(mSubscription);
+        Projects projects = (Projects) mDataManager.syncProjects();
+        if (projects == null) {
+            getMvpView().showProjectsEmpty();
+        } else {
+            getMvpView().showProjects(projects);
+        }
     }
 
 }

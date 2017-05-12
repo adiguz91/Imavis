@@ -1,11 +1,13 @@
 package com.drone.imavis.mvp.data.remote.webodm;
 
 import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.data.model.Task;
 
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.SingleObserver;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
@@ -25,16 +27,16 @@ public interface IWebOdmApiEndpoint {
     Call<String> authentication(@Query("username") String username, @Query("password") String password);
 
     @GET("projects")
-    Observable<List<Project>> getProjects();
+    SingleObserver<Projects> getProjects();
 
     @GET("projects/{id}")
     Observable<Project> getProject(@Path("id") String projectId);
 
     @GET("projects/{project_pk}/tasks")
-    Observable<List<Task>> getTasks(@Path("project_pk") String projectId);
+    Observable<Task> getTasks(@Path("project_pk") String projectId);
 
     @GET("projects/{project_pk}/tasks/{id}")
-    Observable<Task> getTasks(@Path("project_pk") String projectId, @Path("id") String taskId);
+    SingleObserver<Task> getTask(@Path("project_pk") String projectId, @Path("id") String taskId);
 
     // and more ...
 }

@@ -32,7 +32,7 @@ import timber.log.Timber;
 
 public class WebOdmService {
 
-    private WebOdmService webOdmService;
+    private IWebOdmApiEndpoint webOdmService;
     private Context context;
     private String authorizationToken;
 
@@ -41,13 +41,13 @@ public class WebOdmService {
         this.authorizationToken = authorizationToken;
     }
 
-    public WebOdmService getWebOdmService() {
+    public IWebOdmApiEndpoint getWebOdmService() {
         if(webOdmService == null)
             webOdmService = CreateService();
         return webOdmService;
     }
 
-    private WebOdmService CreateService() {
+    private IWebOdmApiEndpoint CreateService() {
 
         // Logging
         Timber.plant(new Timber.DebugTree());
@@ -94,7 +94,7 @@ public class WebOdmService {
                 .baseUrl(IWebOdmApiEndpoint.ENDPOINT)
                 .build();
 
-        return webOdmService.create(WebOdmService.class);
+        return webOdmService.create(IWebOdmApiEndpoint.class);
     }
 
     private Interceptor CreateRequestInterceptor() {

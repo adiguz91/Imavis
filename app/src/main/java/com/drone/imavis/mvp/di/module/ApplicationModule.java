@@ -7,6 +7,8 @@ package com.drone.imavis.mvp.di.module;
 import android.app.Application;
 import android.content.Context;
 
+import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
+import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
 import com.drone.imavis.mvp.di.ApplicationContext;
 
 import javax.inject.Singleton;
@@ -36,11 +38,10 @@ public class ApplicationModule {
         return mApplication;
     }
 
-    /*
     @Provides
     @Singleton
-    RibotsService provideRibotsService() {
-        return RibotsService.Creator.newRibotsService();
+    IWebOdmApiEndpoint provideWebOdmService() {
+        return new WebOdmService(mApplication, "authorizationToken").getWebOdmService();
     }
-    */
+
 }
