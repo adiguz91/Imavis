@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui;
+package com.drone.imavis.mvp.ui.main;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;

@@ -1,26 +1,19 @@
 package com.drone.imavis.mvp.ui.projects;
 
 import com.drone.imavis.mvp.data.DataManager;
-import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.repository.IRepository;
-import com.drone.imavis.mvp.data.repository.ProjectRepository;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
-import com.drone.imavis.mvp.util.RxUtil;
 
 import javax.inject.Inject;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import rx.Subscription;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by adigu on 08.05.2017.
  */
 
 @ConfigPersistent
-public class ProjectsPresenter extends BasePresenter<ProjectsMvpView> {
+public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
 
     private final DataManager mDataManager;
     private Subscription mSubscription;
@@ -31,7 +24,7 @@ public class ProjectsPresenter extends BasePresenter<ProjectsMvpView> {
     }
 
     @Override
-    public void attachView(ProjectsMvpView mvpView) {
+    public void attachView(IProjectsMvpView mvpView) {
         super.attachView(mvpView);
     }
 

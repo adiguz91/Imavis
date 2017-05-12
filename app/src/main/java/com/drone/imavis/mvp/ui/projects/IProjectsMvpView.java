@@ -1,12 +1,12 @@
 package com.drone.imavis.mvp.ui.projects;
 
-import com.drone.imavis.mvp.ui.base.MvpView;
+import com.drone.imavis.mvp.ui.base.IMvpView;
 
 /**
  * Created by adigu on 10.05.2017.
  */
 
-public interface ProjectsMvpView extends MvpView {
+public interface IProjectsMvpView extends IMvpView {
 
     //void showRibots(List<Ribot> ribots);
 

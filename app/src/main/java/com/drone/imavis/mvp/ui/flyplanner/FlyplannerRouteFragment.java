@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui;
+package com.drone.imavis.mvp.ui.flyplanner;
 
 import android.content.Context;
 import android.net.Uri;

@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui;
+package com.drone.imavis.mvp.ui.login;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -33,6 +33,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.ui.main.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;

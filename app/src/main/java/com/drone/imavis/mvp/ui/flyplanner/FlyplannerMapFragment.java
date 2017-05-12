@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui;
+package com.drone.imavis.mvp.ui.flyplanner;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

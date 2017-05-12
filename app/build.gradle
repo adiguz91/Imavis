@@ -93,10 +93,15 @@ dependencies {
     compile 'com.afollestad.material-dialogs:core:0.9.4.4'
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
 
+    // androidanimations
+    compile 'com.daimajia.easing:library:2.0@aar'
+    compile 'com.daimajia.androidanimations:library:2.2@aar'
+
     // drone sdk
     compile 'com.parrot:arsdk:3.10.1'
 
     // default
+    compile 'com.android.support:support-compat:24.1.1'
     compile 'com.android.support:recyclerview-v7:24.1.1'
     compile 'com.android.support:cardview-v7:24.2.1'
     compile 'com.android.support:appcompat-v7:24.2.1'

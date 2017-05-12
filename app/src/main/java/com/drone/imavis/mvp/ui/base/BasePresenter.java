@@ -9,7 +9,7 @@ package com.drone.imavis.mvp.ui.base;
  * attachView() and detachView(). It also handles keeping a reference to the mvpView that
  * can be accessed from the children classes by calling getMvpView().
  */
-public class BasePresenter<T extends MvpView> implements Presenter<T> {
+public class BasePresenter<T extends IMvpView> implements IPresenter<T> {
 
     private T mMvpView;
 

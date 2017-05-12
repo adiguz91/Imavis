@@ -3,7 +3,7 @@ package com.drone.imavis.mvp.services.flyplan.mvc.view.listener;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import com.drone.imavis.mvp.ui.MainFlyplanner;
+import com.drone.imavis.mvp.ui.main.MainFlyplanner;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
