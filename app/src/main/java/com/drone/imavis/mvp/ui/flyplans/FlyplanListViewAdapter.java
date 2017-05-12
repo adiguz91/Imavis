@@ -1,10 +1,9 @@
-package com.drone.imavis.mvp.ui.projects;
+package com.drone.imavis.mvp.ui.flyplans;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
@@ -18,11 +17,11 @@ import com.drone.imavis.mvp.R;
  * Created by adigu on 08.05.2017.
  */
 
-public class ProjectListViewAdapter extends BaseSwipeAdapter {
+public class FlyplanListViewAdapter extends BaseSwipeAdapter {
 
     private Context mContext;
 
-    public ProjectListViewAdapter(Context mContext) {
+    public FlyplanListViewAdapter(Context mContext) {
         this.mContext = mContext;
     }
 

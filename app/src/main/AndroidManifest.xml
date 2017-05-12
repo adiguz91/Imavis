@@ -77,6 +77,10 @@
             android:name=".ui.main.MainFlyplanner"
             android:label="@string/title_activity_main_flyplanner"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name="com.drone.imavis.mvp.ui.flyplans.FlyplansActivity"
+            android:label="Flyplans">
+        </activity>
     </application>
 
 </manifest>

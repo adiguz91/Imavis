@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.projects;
+package com.drone.imavis.mvp.ui.flyplans;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +14,8 @@ import android.widget.Toast;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.ui.flyplans.FlyplansActivity;
-import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
+import com.drone.imavis.mvp.ui.main.MainActivity;
 
 import javax.inject.Inject;
 
@@ -27,18 +26,19 @@ import butterknife.ButterKnife;
  * Created by adigu on 08.05.2017.
  */
 
-public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
+public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
-            "com.drone.imavis.mvp.ui.projects.ProjectsActivity.EXTRA_TRIGGER_SYNC_FLAG";
+            "com.drone.imavis.mvp.ui.flyplans.FlyplansActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
     @BindView(R.id.projectSwipeListView)
     ListView mListView;
 
-    private ProjectListViewAdapter mAdapter;
+    private FlyplanListViewAdapter mAdapter;
     private Context context = this;
 
-    @Inject ProjectsPresenter projectsPresenter;
+    @Inject
+    FlyplansPresenter projectsPresenter;
     //@Inject RibotsAdapter mRibotsAdapter;
     //@BindView(R.id.recycler_view) RecyclerView mRecyclerView;
 
@@ -73,14 +73,13 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
     }
 
     private void loadSwipeLayout() {
-        mAdapter = new ProjectListViewAdapter(this);
+        mAdapter = new FlyplanListViewAdapter(this);
         mListView.setAdapter(mAdapter);
         mAdapter.setMode(Attributes.Mode.Single);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ((SwipeLayout)(mListView.getChildAt(position - mListView.getFirstVisiblePosition()))).open(true);
-                goToActivity(context, FlyplansActivity.class, new Bundle());
             }
         });
         mListView.setOnTouchListener(new View.OnTouchListener() {

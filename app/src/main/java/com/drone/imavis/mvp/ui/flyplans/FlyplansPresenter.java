@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.projects;
+package com.drone.imavis.mvp.ui.flyplans;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.di.ConfigPersistent;
@@ -13,18 +13,18 @@ import rx.Subscription;
  */
 
 @ConfigPersistent
-public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
+public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
 
     private final DataManager mDataManager;
     private Subscription mSubscription;
 
     @Inject
-    public ProjectsPresenter(DataManager dataManager) {
+    public FlyplansPresenter(DataManager dataManager) {
         mDataManager = dataManager;
     }
 
     @Override
-    public void attachView(IProjectsMvpView mvpView) {
+    public void attachView(IFlyplansMvpView mvpView) {
         super.attachView(mvpView);
     }
 
@@ -63,5 +63,4 @@ public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
                 });
                 */
     }
-
 }

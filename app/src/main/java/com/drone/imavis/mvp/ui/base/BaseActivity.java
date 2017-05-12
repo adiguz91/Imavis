@@ -4,6 +4,9 @@ package com.drone.imavis.mvp.ui.base;
  * Created by adigu on 10.05.2017.
  */
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -13,6 +16,7 @@ import com.drone.imavis.mvp.di.component.ConfigPersistentComponent;
 import com.drone.imavis.mvp.di.component.DaggerConfigPersistentComponent;
 import com.drone.imavis.mvp.di.module.ActivityModule;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -74,6 +78,16 @@ public class BaseActivity extends AppCompatActivity {
 
     public ActivityComponent activityComponent() {
         return mActivityComponent;
+    }
+
+    public void goToActivity(Context activity, Class nextActivity, Bundle bundleData) {
+        Intent intent = new Intent(activity, nextActivity);
+        intent.putExtras(bundleData); //Put your data to your next Intent
+        activity.startActivity(intent);
+    }
+
+    public void goBack(Context activity) {
+        ((Activity)activity).finish();
     }
 
 }
