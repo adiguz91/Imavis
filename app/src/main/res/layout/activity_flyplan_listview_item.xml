@@ -2,7 +2,7 @@
 <com.daimajia.swipe.SwipeLayout
     xmlns:swipe="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/projectItemSwipe"
+    android:id="@+id/flyplanItemSwipe"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     swipe:leftEdgeSwipeOffset="0dp"
@@ -15,24 +15,8 @@
         android:gravity="center"
         android:weightSum="10">
 
-        <!--
-        <ImageView
-            android:id="@+id/trash"
-            android:layout_width="27dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:src="@drawable/trash" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:text="Delete"
-            android:textColor="#fff"
-            android:textSize="17sp" />
-        -->
-
         <com.joanzapata.iconify.widget.IconTextView
-            android:id="@+id/iconTextViewProjectListViewItemEdit"
+            android:id="@+id/iconTextViewFlyplanListViewItemEdit"
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
             android:padding="10dp"
@@ -44,7 +28,7 @@
             android:gravity="center_vertical" />
 
         <com.joanzapata.iconify.widget.IconTextView
-            android:id="@+id/iconTextViewProjectListViewItemDelete"
+            android:id="@+id/iconTextViewFlyplanListViewItemDelete"
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
             android:text="{fa-trash-o}"
@@ -65,7 +49,7 @@
         android:orientation="horizontal">
 
         <com.joanzapata.iconify.widget.IconTextView
-            android:id="@+id/iconTextViewProjectListViewItemShowProjectIcon"
+            android:id="@+id/iconTextViewFlyplanListViewItemShowProjectIcon"
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
             android:text="{fa-paper-plane-o}"
@@ -84,19 +68,18 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/position"
+                android:id="@+id/textViewFlyplanListViewItemName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Projectname"
+                android:text="Flyplanname"
                 android:textSize="20dp"
                 android:textStyle="bold" />
 
-            <!-- id=text_data -->
             <TextView
-                android:id="@+id/textViewProjectListViewItemDescription"
+                android:id="@+id/textViewFlyplanListViewItemDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Project description ..."
+                android:text="Flyplan description ..."
                 android:textSize="16dp"
                 android:textStyle="normal"/>
         </LinearLayout>

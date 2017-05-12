@@ -6,6 +6,8 @@ import android.content.Context;
 import com.drone.imavis.mvp.di.component.ApplicationComponent;
 import com.drone.imavis.mvp.di.component.DaggerApplicationComponent;
 import com.drone.imavis.mvp.di.module.ApplicationModule;
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeModule;
 
 import timber.log.Timber;
 
@@ -20,6 +22,8 @@ public class AppStartup extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Iconify.with(new FontAwesomeModule());
 
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
