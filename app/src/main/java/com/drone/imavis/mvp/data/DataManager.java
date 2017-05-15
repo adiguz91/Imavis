@@ -2,17 +2,27 @@ package com.drone.imavis.mvp.data;
 
 import android.util.Log;
 
+import com.drone.imavis.mvp.data.local.DatabaseHelper;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
+import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
+import com.drone.imavis.mvp.data.remote.webodm.model.Token;
+
+import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.SingleObserver;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import rx.SingleSubscriber;
+import rx.Subscription;
 import rx.functions.Func1;
 
 /**
@@ -23,7 +33,7 @@ import rx.functions.Func1;
 public class DataManager {
 
     private final IWebOdmApiEndpoint webOdmService;
-    //private final DatabaseHelper mDatabaseHelper;
+    //private final DatabaseHelper databaseHelper;
     //private final PreferencesHelper mPreferencesHelper;
 
     /*
@@ -40,42 +50,22 @@ public class DataManager {
     */
 
     @Inject
-    public DataManager(IWebOdmApiEndpoint webOdmService) {
+    public DataManager(IWebOdmApiEndpoint webOdmService) { // , DatabaseHelper databaseHelper
         this.webOdmService = webOdmService;
+        //this.databaseHelper = databaseHelper;
     }
 
-    public SingleObserver<Projects> syncProjects() {
+    public Single<Projects> syncProjects() {
         return webOdmService.getProjects();
     }
 
-    /*
-    private SingleObserver<Projects> getProjectsObserver() {
-        return new SingleObserver<Projects>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                //Log.d(TAG, " onSubscribe : " + d.isDisposed());
-            }
-
-            @Override
-            public void onSuccess(Projects value) {
-                //textView.append(" onNext : value : " + value);
-                //textView.append(AppConstant.LINE_SEPARATOR);
-                //Log.d(TAG, " onNext value : " + value);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                //textView.append(" onError : " + e.getMessage());
-                //textView.append(AppConstant.LINE_SEPARATOR);
-                //Log.d(TAG, " onError : " + e.getMessage());
-            }
-        };
+    public Single<Token> authorize(Authentication authentication) {
+        return webOdmService.authentication(authentication);
     }
-    */
 
     /*
-    public Observable<List<Ribot>> getRibots() {
-        return mDatabaseHelper.getRibots().distinct();
+    public Observable<List<Projects>> getRibots() {
+        return databaseHelper.getProjects().distinct();
     }
     */
 }

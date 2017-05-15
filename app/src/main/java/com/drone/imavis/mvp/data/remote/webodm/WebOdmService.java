@@ -2,11 +2,14 @@ package com.drone.imavis.mvp.data.remote.webodm;
 
 import android.content.Context;
 
+import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
+import com.drone.imavis.mvp.data.remote.webodm.model.Token;
 import com.drone.imavis.mvp.util.constants.classes.CAll;
 import com.drone.imavis.mvp.util.constants.classes.CFiles;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.picasso.OkHttp3Downloader;
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -14,6 +17,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import okhttp3.Cache;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -45,6 +52,14 @@ public class WebOdmService {
         if(webOdmService == null)
             webOdmService = CreateService();
         return webOdmService;
+    }
+
+    public String getAuthorizationToken() {
+        return authorizationToken;
+    }
+
+    public void setAuthorizationToken(String authorizationToken) {
+        this.authorizationToken = authorizationToken;
     }
 
     private IWebOdmApiEndpoint CreateService() {
@@ -85,16 +100,39 @@ public class WebOdmService {
                 .create();
 
         //RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.create();
-        RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
+        //RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
 
         Retrofit webOdmService = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(rxAdapter)
                 .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .baseUrl(IWebOdmApiEndpoint.ENDPOINT)
                 .build();
 
-        return webOdmService.create(IWebOdmApiEndpoint.class);
+        this.webOdmService = webOdmService.create(IWebOdmApiEndpoint.class);
+        getAuthenticationToken(new Authentication("admin", "admin"));
+        return this.webOdmService;
+    }
+
+    public void getAuthenticationToken(Authentication userCredentials) {
+        this.webOdmService.authentication(userCredentials)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+        .subscribe(new SingleObserver<Token>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+            }
+
+            @Override
+            public void onSuccess(@NonNull Token token) {
+                authorizationToken = token.getToken();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                authorizationToken = null;
+            }
+        });
     }
 
     private Interceptor CreateRequestInterceptor() {
@@ -108,9 +146,12 @@ public class WebOdmService {
 
                 // http://stackoverflow.com/questions/37757520/retrofit-2-elegant-way-of-adding-headers-in-the-api-level
                 List<String> customAnnotations = original.headers().values("@");
-                if(customAnnotations.contains("@: NoAuth")) {
+                if(customAnnotations.contains("NoAuth")) {
                     requestBuilder = original.newBuilder().removeHeader("@").removeHeader("Authorization");
                     //requestBuilder = original.newBuilder().removeHeader("Authorization");
+                }
+                else {
+                    requestBuilder = original.newBuilder().addHeader("Authorization", "JWT " + authorizationToken);
                 }
 
                 Request request = requestBuilder.build();

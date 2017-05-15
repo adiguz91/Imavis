@@ -80,22 +80,23 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ((SwipeLayout)(mListView.getChildAt(position - mListView.getFirstVisiblePosition()))).open(true);
-                //goToActivity(context, FlyplansActivity.class, new Bundle());
+            ((SwipeLayout)(mListView.getChildAt(position - mListView.getFirstVisiblePosition()))).open(true);
+            //goToActivity(context, FlyplansActivity.class, new Bundle());
+            projectsPresenter.loadProjects();
             }
         });
         mListView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.e("ListView", "OnTouch");
-                return false;
+            Log.e("ListView", "OnTouch");
+            return false;
             }
         });
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(context, "OnItemLongClickListener", Toast.LENGTH_SHORT).show();
-                return true;
+            Toast.makeText(context, "OnItemLongClickListener", Toast.LENGTH_SHORT).show();
+            return true;
             }
         });
         mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -105,9 +106,7 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
             }
 
             @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-            }
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {}
         });
 
         mListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -121,7 +120,6 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
                 Log.e("ListView", "onNothingSelected:");
             }
         });
-
     }
 
     @Override
@@ -132,14 +130,19 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
 
     @Override
     public void showProjects(Projects projects) {
-        //DialogFactory.createGenericErrorDialog(this, getString(R.string.error_loading_ribots))
-        //        .show();
+        // TODO
     }
 
     @Override
     public void showProjectsEmpty() {
+        // TODO
         //mRibotsAdapter.setRibots(Collections.<Ribot>emptyList());
         //mRibotsAdapter.notifyDataSetChanged();
         //Toast.makeText(this, R.string.empty_ribots, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void showError() {
+        // TODO
     }
 }

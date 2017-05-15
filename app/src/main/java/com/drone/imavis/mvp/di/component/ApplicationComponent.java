@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.SyncService;
+import com.drone.imavis.mvp.data.local.DatabaseHelper;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
 import com.drone.imavis.mvp.di.ApplicationContext;

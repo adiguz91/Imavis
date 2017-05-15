@@ -7,7 +7,7 @@ package com.drone.imavis.mvp.util.constants.classes;
 public class CAll {
 
     // NETWORK
-    public static final int NETWORK_TIMEOUT_CONNECTION = 60; // Seconds
-    public static final int NETWORK_TIMEOUT_READ = 60; // Seconds
-    public static final int NETWORK_TIMEOUT_WRITE = 60; // Seconds
+    public static final int NETWORK_TIMEOUT_CONNECTION = 10; // Seconds
+    public static final int NETWORK_TIMEOUT_READ = 10; // Seconds
+    public static final int NETWORK_TIMEOUT_WRITE = 10; // Seconds
 }

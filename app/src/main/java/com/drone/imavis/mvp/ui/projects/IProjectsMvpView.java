@@ -13,6 +13,6 @@ public interface IProjectsMvpView extends IMvpView {
 
     void showProjectsEmpty();
 
-    //void showError();
+    void showError();
 
 }
