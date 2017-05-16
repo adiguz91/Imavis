@@ -32,12 +32,12 @@ import timber.log.Timber;
 @ConfigPersistent
 public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
 
-    private final DataManager mDataManager;
-    private Subscription mSubscription;
+    private final DataManager dataManager;
+    private Subscription subscription;
 
     @Inject
     public ProjectsPresenter(DataManager dataManager) {
-        mDataManager = dataManager;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -48,17 +48,16 @@ public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
     @Override
     public void detachView() {
         super.detachView();
-        if (mSubscription != null) mSubscription.unsubscribe();
+        if (subscription != null) subscription.unsubscribe();
     }
 
     public void loadProjects() {
-
         checkViewAttached();
-        RxUtil.unsubscribe(mSubscription);
-
-        mDataManager.syncProjects()
+        RxUtil.unsubscribe(subscription);
+        dataManager.syncProjects()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+            .retry() // authorization token is not finished
             .subscribe(new SingleObserver<Projects>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {}
@@ -77,32 +76,5 @@ public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
                 getMvpView().showError();
             }
         });
-
-        /*
-        mSubscription = mDataManager.syncProjects()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-                .subscribe(new Subscriber<Projects>() {
-
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Timber.e(e, "There was an error loading the ribots.");
-                        getMvpView().showError();
-                    }
-
-                    @Override
-                    public void onNext(Projects projects) {
-                        if (projects == null) {
-                            getMvpView().showProjectsEmpty();
-                        } else {
-                            getMvpView().showProjects(projects);
-                        }
-                    }
-                });*/
     }
-
 }

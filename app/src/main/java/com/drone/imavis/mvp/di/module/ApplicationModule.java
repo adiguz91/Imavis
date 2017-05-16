@@ -41,7 +41,7 @@ public class ApplicationModule {
     @Provides
     @Singleton
     IWebOdmApiEndpoint provideWebOdmService() {
-        return new WebOdmService(mApplication, "authorizationToken").getWebOdmService();
+        return new WebOdmService(mApplication, "").getWebOdmService();
     }
 
 }

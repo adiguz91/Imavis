@@ -130,7 +130,7 @@ public class WebOdmService {
 
             @Override
             public void onError(@NonNull Throwable e) {
-                authorizationToken = null;
+                authorizationToken = "";
             }
         });
     }

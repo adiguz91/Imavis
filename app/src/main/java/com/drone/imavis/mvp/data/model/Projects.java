@@ -19,7 +19,11 @@ public class Projects {
     @SerializedName("results")
     private List<Project> projectList;
 
-    private Projects() {}
+    public Projects() {}
+
+    public Projects(List<Project> projectList) {
+        this.projectList = projectList;
+    }
 
     public int getCount() {
         return count;

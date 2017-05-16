@@ -14,10 +14,16 @@ import android.widget.Toast;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.SyncService;
+import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.flyplans.FlyplansActivity;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -33,15 +39,11 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.projects.ProjectsActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
-    @BindView(R.id.projectSwipeListView)
-    ListView mListView;
-
-    private ProjectListViewAdapter mAdapter;
-    private Context context = this;
-
     @Inject ProjectsPresenter projectsPresenter;
-    //@Inject RibotsAdapter mRibotsAdapter;
-    //@BindView(R.id.recycler_view) RecyclerView mRecyclerView;
+    private ProjectListViewAdapter projectsListViewAdapter;
+    //@Inject ProjectListViewAdapter projectsListViewAdapter;
+
+    @BindView(R.id.projectSwipeListView) ListView projectsListView;
 
     /**
      * Return an Intent to start this Activity.
@@ -61,45 +63,45 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
         setContentView(R.layout.activity_projects);
         ButterKnife.bind(this);
 
-        //mRecyclerView.setAdapter(mRibotsAdapter);
-        //mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        projectsListViewAdapter = new ProjectListViewAdapter(this);
+        projectsListView.setAdapter(projectsListViewAdapter);
+        projectsListViewAdapter.setMode(Attributes.Mode.Single);
+        //projectsListView.setLayoutManager(new LinearLayoutManager(this));
+        loadListViewEvents();
+
         projectsPresenter.attachView(this);
-        //projectsPresenter.loadRibots();
+        projectsPresenter.loadProjects();
 
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
-
-        loadSwipeLayout();
     }
 
-    private void loadSwipeLayout() {
-        mAdapter = new ProjectListViewAdapter(this);
-        mListView.setAdapter(mAdapter);
-        mAdapter.setMode(Attributes.Mode.Single);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private void loadListViewEvents() {
+
+        projectsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            ((SwipeLayout)(mListView.getChildAt(position - mListView.getFirstVisiblePosition()))).open(true);
+            ((SwipeLayout)(projectsListView.getChildAt(position - projectsListView.getFirstVisiblePosition()))).open(true);
             //goToActivity(context, FlyplansActivity.class, new Bundle());
-            projectsPresenter.loadProjects();
+            //projectsPresenter.loadProjects();
             }
         });
-        mListView.setOnTouchListener(new View.OnTouchListener() {
+        projectsListView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
             Log.e("ListView", "OnTouch");
             return false;
             }
         });
-        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        projectsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            Toast.makeText(context, "OnItemLongClickListener", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "OnItemLongClickListener", Toast.LENGTH_SHORT).show();
             return true;
             }
         });
-        mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+        projectsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 Log.e("ListView", "onScrollStateChanged");
@@ -109,7 +111,7 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {}
         });
 
-        mListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        projectsListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.e("ListView", "onItemSelected:" + position);
@@ -131,18 +133,23 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
     @Override
     public void showProjects(Projects projects) {
         // TODO
+        projectsListViewAdapter.setProjects(projects.getProjectList());
+        projectsListViewAdapter.notifyDataSetChanged();
+        Toast.makeText(this, "projects sync successfully", Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void showProjectsEmpty() {
         // TODO
-        //mRibotsAdapter.setRibots(Collections.<Ribot>emptyList());
-        //mRibotsAdapter.notifyDataSetChanged();
-        //Toast.makeText(this, R.string.empty_ribots, Toast.LENGTH_LONG).show();
+        List<Project> projectList = new ArrayList<>();
+        projectsListViewAdapter.setProjects(projectList);
+        projectsListViewAdapter.notifyDataSetChanged();
+        Toast.makeText(this, "projects empty", Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void showError() {
         // TODO
+        showProjectsEmpty();
     }
 }

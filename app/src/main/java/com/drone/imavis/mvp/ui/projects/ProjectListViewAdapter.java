@@ -16,22 +16,35 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by adigu on 08.05.2017.
  */
 
 public class ProjectListViewAdapter extends BaseSwipeAdapter {
 
-    private Context mContext;
-    private Projects projects;
+    //@Inject Context mContext;
+    private Context context;
+    private List<Project> projectList;
 
-    public ProjectListViewAdapter(Context mContext) {
-        this.mContext = mContext;
-        //this.projects = projects;
+    //@BindView(R.id.textViewProjectListViewItemProjectname) TextView textViewProjectname;
+    //@BindView(R.id.textViewProjectListViewItemDescription) TextView textViewDescription;
+
+    //@Inject
+    public ProjectListViewAdapter(Context context) {
+        this.context = context;
+        this.projectList = new ArrayList<>();
     }
 
-    public void setProjects(Projects projects) {
-        this.projects = projects;
+    public void setProjects(List<Project> projectList) {
+        this.projectList = projectList;
     }
 
     @Override
@@ -41,8 +54,8 @@ public class ProjectListViewAdapter extends BaseSwipeAdapter {
 
     @Override
     public View generateView(int position, ViewGroup parent) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.activity_project_listview_item, null);
-        SwipeLayout swipeLayout = (SwipeLayout) v.findViewById(getSwipeLayoutResourceId(position));
+        View view = LayoutInflater.from(context).inflate(R.layout.activity_project_listview_item, null);
+        SwipeLayout swipeLayout = (SwipeLayout) view.findViewById(getSwipeLayoutResourceId(position));
         swipeLayout.addSwipeListener(new SimpleSwipeListener() {
             @Override
             public void onOpen(SwipeLayout layout) {
@@ -52,34 +65,36 @@ public class ProjectListViewAdapter extends BaseSwipeAdapter {
         swipeLayout.setOnDoubleClickListener(new SwipeLayout.DoubleClickListener() {
             @Override
             public void onDoubleClick(SwipeLayout layout, boolean surface) {
-                Toast.makeText(mContext, "DoubleClick", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "DoubleClick", Toast.LENGTH_SHORT).show();
             }
         });
-        v.findViewById(R.id.iconTextViewProjectListViewItemDelete).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.iconTextViewProjectListViewItemDelete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "click delete", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "click delete", Toast.LENGTH_SHORT).show();
             }
         });
-        return v;
+        return view;
     }
 
     @Override
     public void fillValues(int position, View convertView) {
-        //TextView t = (TextView)convertView.findViewById(R.id.position);
-        //t.setText((position + 1) + ".");
+        Project project = projectList.get(position);
+        //ButterKnife.bind(context, convertView);
+        TextView textViewProjectname = (TextView)convertView.findViewById(R.id.textViewProjectListViewItemProjectname);
+        TextView textViewDescription = (TextView)convertView.findViewById(R.id.textViewProjectListViewItemDescription);
+        textViewProjectname.setText(project.getName());
+        textViewDescription.setText(project.getDescription());
     }
-
 
     @Override
     public int getCount() {
-        return 2;
+        return projectList.size();
     }
 
-
     @Override
-    public Object getItem(int position) {
-        return null;
+    public Project getItem(int position) {
+        return projectList.get(position);
     }
 
     @Override

@@ -84,10 +84,10 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/position"
+                android:id="@+id/textViewProjectListViewItemProjectname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Projectname"
+                android:text=""
                 android:textSize="20dp"
                 android:textStyle="bold" />
 
@@ -96,7 +96,7 @@
                 android:id="@+id/textViewProjectListViewItemDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Project description ..."
+                android:text=""
                 android:textSize="16dp"
                 android:textStyle="normal"/>
         </LinearLayout>
