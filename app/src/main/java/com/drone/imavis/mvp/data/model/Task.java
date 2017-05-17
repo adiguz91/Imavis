@@ -70,7 +70,7 @@ public class Task {
     @SerializedName("last_error")
     private String lastError;
     @SerializedName("options")
-    private JSONArray options;
+    private List<TaskOption> options;
     @SerializedName("ground_control_points")
     private String groundControlPoints;
     @SerializedName("created_at")
@@ -178,11 +178,11 @@ public class Task {
         this.lastError = lastError;
     }
 
-    public JSONArray getOptions() {
+    public List<TaskOption> getOptions() {
         return options;
     }
 
-    public void setOptions(JSONArray options) {
+    public void setOptions(List<TaskOption> options) {
         this.options = options;
     }
 

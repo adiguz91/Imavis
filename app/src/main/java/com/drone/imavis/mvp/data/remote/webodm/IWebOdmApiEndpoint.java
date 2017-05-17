@@ -38,7 +38,7 @@ public interface IWebOdmApiEndpoint {
     Observable<Project> getProject(@Path("id") String projectId);
 
     @GET("projects/{project_pk}/tasks")
-    Observable<Task> getTasks(@Path("project_pk") String projectId);
+    Observable<List<Task>> getTasks(@Path("project_pk") String projectId);
 
     @GET("projects/{project_pk}/tasks/{id}")
     Observable<Task> getTask(@Path("project_pk") String projectId, @Path("id") String taskId);

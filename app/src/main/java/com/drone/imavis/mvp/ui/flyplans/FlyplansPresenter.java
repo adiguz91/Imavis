@@ -1,11 +1,24 @@
 package com.drone.imavis.mvp.ui.flyplans;
 
 import com.drone.imavis.mvp.data.DataManager;
+import com.drone.imavis.mvp.data.model.Flyplan;
+import com.drone.imavis.mvp.data.model.Projects;
+import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
+import com.drone.imavis.mvp.ui.projects.IProjectsMvpView;
+import com.drone.imavis.mvp.util.RxUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observer;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import rx.Subscription;
 
 /**
@@ -15,12 +28,12 @@ import rx.Subscription;
 @ConfigPersistent
 public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
 
-    private final DataManager mDataManager;
-    private Subscription mSubscription;
+    private final DataManager dataManager;
+    private Subscription subscription;
 
     @Inject
     public FlyplansPresenter(DataManager dataManager) {
-        mDataManager = dataManager;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -31,36 +44,45 @@ public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
     @Override
     public void detachView() {
         super.detachView();
-        if (mSubscription != null) mSubscription.unsubscribe();
+        if (subscription != null) subscription.unsubscribe();
     }
 
-    public void loadRibots() {
-        /*
+    public void loadFlyplans(int projectId) {
         checkViewAttached();
-        RxUtil.unsubscribe(mSubscription);
-        mSubscription = mDataManager.getRibots()
+        RxUtil.unsubscribe(subscription);
+        dataManager.syncFlyplans(String.valueOf(projectId))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Subscriber<List<Ribot>>() {
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                //.retry() // authorization token is not finished
+                .subscribe(new Observer<List<Task>>() {
                     @Override
-                    public void onCompleted() {
+                    public void onSubscribe(@NonNull Disposable d) {}
+
+                    @Override
+                    public void onNext(@NonNull List<Task> taskList) {
+                        if (taskList == null || taskList.size() == 0) {
+                            getMvpView().showFlyplansEmpty();
+                        } else {
+                            // transformation wrapper
+                            List<Flyplan> flyplanList = new ArrayList<Flyplan>();
+                            for(Task task : taskList) {
+                                Flyplan flyplan = new Flyplan();
+                                flyplan.setTask(task);
+                                flyplanList.add(flyplan);
+                            }
+                            getMvpView().showFlyplans(flyplanList);
+                        }
                     }
 
                     @Override
-                    public void onError(Throwable e) {
-                        Timber.e(e, "There was an error loading the ribots.");
+                    public void onError(@NonNull Throwable e) {
                         getMvpView().showError();
                     }
 
                     @Override
-                    public void onNext(List<Ribot> ribots) {
-                        if (ribots.isEmpty()) {
-                            getMvpView().showRibotsEmpty();
-                        } else {
-                            getMvpView().showRibots(ribots);
-                        }
+                    public void onComplete() {
+
                     }
                 });
-                */
     }
 }

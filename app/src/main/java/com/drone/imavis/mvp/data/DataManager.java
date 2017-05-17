@@ -5,6 +5,7 @@ import android.util.Log;
 import com.drone.imavis.mvp.data.local.DatabaseHelper;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
+import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
 import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
@@ -58,6 +59,8 @@ public class DataManager {
     public Single<Projects> syncProjects() {
         return webOdmService.getProjects();
     }
+
+    public Observable<List<Task>> syncFlyplans(String projectId) { return webOdmService.getTasks(projectId); }
 
     public Single<Token> authorize(Authentication authentication) {
         return webOdmService.authentication(authentication);

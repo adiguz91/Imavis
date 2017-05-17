@@ -45,6 +45,8 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
 
     @BindView(R.id.projectSwipeListView) ListView projectsListView;
 
+    private Context context;
+
     /**
      * Return an Intent to start this Activity.
      * triggerDataSyncOnCreate allows disabling the background sync service onCreate. Should
@@ -62,6 +64,7 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
         activityComponent().inject(this);
         setContentView(R.layout.activity_projects);
         ButterKnife.bind(this);
+        context = this;
 
         projectsListViewAdapter = new ProjectListViewAdapter(this);
         projectsListView.setAdapter(projectsListViewAdapter);
@@ -83,8 +86,7 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             ((SwipeLayout)(projectsListView.getChildAt(position - projectsListView.getFirstVisiblePosition()))).open(true);
-            //goToActivity(context, FlyplansActivity.class, new Bundle());
-            //projectsPresenter.loadProjects();
+            goToActivity(context, FlyplansActivity.class, new Bundle());
             }
         });
         projectsListView.setOnTouchListener(new View.OnTouchListener() {

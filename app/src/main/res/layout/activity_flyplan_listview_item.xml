@@ -39,7 +39,6 @@
             android:textColor="#FF500D00"
             android:gravity="center_vertical" />
 
-
     </LinearLayout>
 
     <LinearLayout
@@ -49,7 +48,7 @@
         android:orientation="horizontal">
 
         <com.joanzapata.iconify.widget.IconTextView
-            android:id="@+id/iconTextViewFlyplanListViewItemShowProjectIcon"
+            android:id="@+id/iconTextViewFlyplanListViewItemShowFlyplanIcon"
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
             android:text="{fa-paper-plane-o}"
@@ -68,10 +67,10 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textViewFlyplanListViewItemName"
+                android:id="@+id/textViewFlyplanListViewItemFlyplanname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Flyplanname"
+                android:text=""
                 android:textSize="20dp"
                 android:textStyle="bold" />
 
@@ -79,9 +78,10 @@
                 android:id="@+id/textViewFlyplanListViewItemDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Flyplan description ..."
+                android:text=""
                 android:textSize="16dp"
                 android:textStyle="normal"/>
+
         </LinearLayout>
     </LinearLayout>
 </com.daimajia.swipe.SwipeLayout>

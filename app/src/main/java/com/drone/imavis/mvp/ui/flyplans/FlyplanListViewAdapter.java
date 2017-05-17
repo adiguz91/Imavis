@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
@@ -12,6 +13,11 @@ import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.Flyplan;
+import com.drone.imavis.mvp.data.model.Project;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by adigu on 08.05.2017.
@@ -19,58 +25,68 @@ import com.drone.imavis.mvp.R;
 
 public class FlyplanListViewAdapter extends BaseSwipeAdapter {
 
-    private Context mContext;
+    //@Inject Context mContext;
+    private Context context;
+    private List<Flyplan> flyplanList;
 
-    public FlyplanListViewAdapter(Context mContext) {
-        this.mContext = mContext;
+    //@Inject
+    public FlyplanListViewAdapter(Context context) {
+        this.context = context;
+        this.flyplanList = new ArrayList<>();
+    }
+
+    public void setFlyplans(List<Flyplan> flyplanList) {
+        this.flyplanList = flyplanList;
     }
 
     @Override
     public int getSwipeLayoutResourceId(int position) {
-        return R.id.projectItemSwipe;
+        return R.id.flyplanItemSwipe;
     }
 
     @Override
     public View generateView(int position, ViewGroup parent) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.activity_project_listview_item, null);
-        SwipeLayout swipeLayout = (SwipeLayout) v.findViewById(getSwipeLayoutResourceId(position));
+        View view = LayoutInflater.from(context).inflate(R.layout.activity_flyplan_listview_item, null);
+        SwipeLayout swipeLayout = (SwipeLayout) view.findViewById(getSwipeLayoutResourceId(position));
         swipeLayout.addSwipeListener(new SimpleSwipeListener() {
             @Override
             public void onOpen(SwipeLayout layout) {
-                YoYo.with(Techniques.Tada).duration(500).delay(100).playOn(layout.findViewById(R.id.iconTextViewProjectListViewItemDelete));
+                YoYo.with(Techniques.Tada).duration(500).delay(100).playOn(layout.findViewById(R.id.iconTextViewFlyplanListViewItemDelete));
             }
         });
         swipeLayout.setOnDoubleClickListener(new SwipeLayout.DoubleClickListener() {
             @Override
             public void onDoubleClick(SwipeLayout layout, boolean surface) {
-                Toast.makeText(mContext, "DoubleClick", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "DoubleClick", Toast.LENGTH_SHORT).show();
             }
         });
-        v.findViewById(R.id.iconTextViewProjectListViewItemDelete).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.iconTextViewFlyplanListViewItemDelete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "click delete", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "click delete", Toast.LENGTH_SHORT).show();
             }
         });
-        return v;
+        return view;
     }
 
     @Override
     public void fillValues(int position, View convertView) {
-        //TextView t = (TextView)convertView.findViewById(R.id.position);
-        //t.setText((position + 1) + ".");
+        Flyplan flyplan = flyplanList.get(position);
+        //ButterKnife.bind(context, convertView);
+        TextView textViewFlyplanname = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemFlyplanname);
+        //TextView textViewDescription = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemDescription);
+        textViewFlyplanname.setText(flyplan.getName());
+        //textViewDescription.setText(project.getDescription());
     }
-
 
     @Override
     public int getCount() {
-        return 2;
+        return flyplanList.size();
     }
 
-
     @Override
-    public Object getItem(int position) {
-        return null;
+    public Flyplan getItem(int position) {
+        return flyplanList.get(position);
     }
 
     @Override

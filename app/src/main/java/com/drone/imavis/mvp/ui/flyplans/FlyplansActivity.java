@@ -14,8 +14,16 @@ import android.widget.Toast;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.Flyplan;
+import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.main.MainActivity;
+import com.drone.imavis.mvp.ui.projects.ProjectListViewAdapter;
+import com.drone.imavis.mvp.ui.projects.ProjectsPresenter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -31,16 +39,14 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.flyplans.FlyplansActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
-    @BindView(R.id.projectSwipeListView)
-    ListView mListView;
-
-    private FlyplanListViewAdapter mAdapter;
-    private Context context = this;
-
     @Inject
-    FlyplansPresenter projectsPresenter;
-    //@Inject RibotsAdapter mRibotsAdapter;
-    //@BindView(R.id.recycler_view) RecyclerView mRecyclerView;
+    FlyplansPresenter flyplansPresenter;
+    private FlyplanListViewAdapter flyplanListViewAdapter;
+    //@Inject FlyplanListViewAdapter flyplanListViewAdapter;
+
+    private int projectId;
+
+    @BindView(R.id.projectSwipeListView) ListView flyplansListView;
 
     /**
      * Return an Intent to start this Activity.
@@ -60,55 +66,57 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
         setContentView(R.layout.activity_projects);
         ButterKnife.bind(this);
 
-        //mRecyclerView.setAdapter(mRibotsAdapter);
-        //mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        projectsPresenter.attachView(this);
-        //projectsPresenter.loadRibots();
+        flyplanListViewAdapter = new FlyplanListViewAdapter(this);
+        flyplansListView.setAdapter(flyplanListViewAdapter);
+        flyplanListViewAdapter.setMode(Attributes.Mode.Single);
+        //projectsListView.setLayoutManager(new LinearLayoutManager(this));
+        loadListViewEvents();
+
+        // getParameter PROJECT_ID from other activity
+        projectId = 1;
+
+        flyplansPresenter.attachView(this);
+        flyplansPresenter.loadFlyplans(projectId);
 
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
-
-        loadSwipeLayout();
     }
 
-    private void loadSwipeLayout() {
-        mAdapter = new FlyplanListViewAdapter(this);
-        mListView.setAdapter(mAdapter);
-        mAdapter.setMode(Attributes.Mode.Single);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private void loadListViewEvents() {
+
+        flyplansListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ((SwipeLayout)(mListView.getChildAt(position - mListView.getFirstVisiblePosition()))).open(true);
+                ((SwipeLayout)(flyplansListView.getChildAt(position - flyplansListView.getFirstVisiblePosition()))).open(true);
+                //goToActivity(context, FlyplansActivity.class, new Bundle());
+                //projectsPresenter.loadProjects();
             }
         });
-        mListView.setOnTouchListener(new View.OnTouchListener() {
+        flyplansListView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.e("ListView", "OnTouch");
                 return false;
             }
         });
-        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        flyplansListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(context, "OnItemLongClickListener", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "OnItemLongClickListener", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
-        mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+        flyplansListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 Log.e("ListView", "onScrollStateChanged");
             }
 
             @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-            }
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {}
         });
-
-        mListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        flyplansListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.e("ListView", "onItemSelected:" + position);
@@ -119,13 +127,34 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
                 Log.e("ListView", "onNothingSelected:");
             }
         });
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        flyplansPresenter.detachView();
+    }
 
-        projectsPresenter.detachView();
+    @Override
+    public void showFlyplans(List<Flyplan> flyplanList) {
+        // TODO
+        flyplanListViewAdapter.setFlyplans(flyplanList);
+        flyplanListViewAdapter.notifyDataSetChanged();
+        Toast.makeText(this, "projects sync successfully", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void showFlyplansEmpty() {
+        // TODO
+        List<Flyplan> flyplanList = new ArrayList<>();
+        flyplanListViewAdapter.setFlyplans(flyplanList);
+        flyplanListViewAdapter.notifyDataSetChanged();
+        Toast.makeText(this, "projects empty", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void showError() {
+        // TODO
+        showFlyplansEmpty();
     }
 }

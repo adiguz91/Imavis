@@ -1,6 +1,10 @@
 package com.drone.imavis.mvp.ui.flyplans;
 
+import com.drone.imavis.mvp.data.model.Flyplan;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.FlyPlan;
 import com.drone.imavis.mvp.ui.base.IMvpView;
+
+import java.util.List;
 
 /**
  * Created by adigu on 10.05.2017.
@@ -8,10 +12,10 @@ import com.drone.imavis.mvp.ui.base.IMvpView;
 
 public interface IFlyplansMvpView extends IMvpView {
 
-    //void showRibots(List<Ribot> ribots);
+    void showFlyplans(List<Flyplan> flyplanList);
 
-    //void showRibotsEmpty();
+    void showFlyplansEmpty();
 
-    //void showError();
+    void showError();
 
 }
