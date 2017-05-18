@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.data.local;
+package com.drone.imavis.mvp.data.local.db;
 
 import com.drone.imavis.mvp.util.DateUtil;
 

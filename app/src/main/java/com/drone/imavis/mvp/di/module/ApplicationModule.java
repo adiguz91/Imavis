@@ -7,10 +7,12 @@ package com.drone.imavis.mvp.di.module;
 import android.app.Application;
 import android.content.Context;
 
+import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
 import com.drone.imavis.mvp.di.ApplicationContext;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -40,8 +42,7 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    IWebOdmApiEndpoint provideWebOdmService() {
-        return new WebOdmService(mApplication, "").getWebOdmService();
+    IWebOdmApiEndpoint provideWebOdmService(WebOdmService webOdmService) {
+        return webOdmService.getWebOdmService();
     }
-
 }

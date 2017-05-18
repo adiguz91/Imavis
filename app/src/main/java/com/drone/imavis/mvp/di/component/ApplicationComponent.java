@@ -5,9 +5,8 @@ import android.content.Context;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.SyncService;
-import com.drone.imavis.mvp.data.local.DatabaseHelper;
+import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
-import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
 import com.drone.imavis.mvp.di.ApplicationContext;
 import com.drone.imavis.mvp.di.module.ApplicationModule;
 
@@ -28,7 +27,7 @@ public interface ApplicationComponent {
     @ApplicationContext Context context();
     Application application();
     IWebOdmApiEndpoint webOdmService();
-    //PreferencesHelper preferencesHelper();
+    PreferencesHelper preferencesHelper();
     //DatabaseHelper databaseHelper();
     DataManager dataManager();
     //RxEventBus eventBus();

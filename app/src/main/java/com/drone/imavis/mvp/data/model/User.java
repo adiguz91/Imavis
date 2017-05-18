@@ -1,6 +1,6 @@
 package com.drone.imavis.mvp.data.model;
 
-import com.drone.imavis.mvp.data.local.BaseEntity;
+import com.drone.imavis.mvp.data.local.db.BaseEntity;
 
 import java.util.List;
 

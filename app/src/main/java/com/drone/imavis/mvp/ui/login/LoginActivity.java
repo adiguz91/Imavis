@@ -70,7 +70,7 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView {
 
     @Override
     public void onLoginSuccess() {
-        goToActivity(this, ProjectsActivity.class, null);
+        goToActivity(this, ProjectsActivity.class, new Bundle());
     }
 
     @Override
