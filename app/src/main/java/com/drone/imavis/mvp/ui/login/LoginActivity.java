@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
+import com.dd.morphingbutton.MorphingButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
@@ -25,14 +27,11 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView {
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.login.LoginActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
-    @Inject
-    LoginPresenter loginPresenter;
-    //private ProjectListViewAdapter projectsListViewAdapter;
-    //@Inject ProjectListViewAdapter projectsListViewAdapter;
-
-    //@BindView(R.id.projectSwipeListView) ListView projectsListView;
-
+    @Inject LoginPresenter loginPresenter;
+    @BindView(R.id.buttonLogin) MorphingButton buttonLogin;
     private Context context;
+
+    private int loginToggleClick = 1;
 
     /**
      * Return an Intent to start this Activity.
@@ -53,8 +52,13 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView {
         ButterKnife.bind(this);
         context = this;
 
+        buttonLogin.setOnClickListener(onClick -> {
+            onLoginButtonClicked(buttonLogin);
+        });
+
+        loginButtonDefault(buttonLogin, 0);
+
         loginPresenter.attachView(this);
-        loginPresenter.login();
 
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
@@ -67,6 +71,52 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView {
         loginPresenter.detachView();
     }
 
+    private void onLoginButtonClicked(MorphingButton buttonMorph) {
+        if (loginToggleClick == 0) {
+            loginToggleClick++;
+            loginButtonDefault(buttonMorph, 400);
+        } else if (loginToggleClick == 1) {
+            loginToggleClick = 0;
+            buttonLoginSuccess(buttonMorph);
+            loginPresenter.login();
+        }
+    }
+
+    private void loginButtonDefault(final MorphingButton btnMorph, int duration) {
+        MorphingButton.Params square = MorphingButton.Params.create()
+                .duration(duration)
+                .cornerRadius(56)
+                .width(200)
+                .height(56)
+                .color(R.color.mb_blue)
+                .colorPressed(R.color.mb_blue_dark)
+                .text("Login");
+        buttonLogin.morph(square);
+    }
+
+    private void buttonLoginSuccess(MorphingButton btnMorph) {
+        MorphingButton.Params circle = MorphingButton.Params.create()
+            .duration(500)
+            .cornerRadius(56) // 56 dp
+            .width(200) // 56 dp
+            .height(56) // 56 dp
+            .color(R.color.green) // normal state color
+            .colorPressed(R.color.red) // pressed state color
+            .text("Success"); // icon
+        buttonLogin.morph(circle);
+    }
+
+    private void buttonLoginFailure() {
+        MorphingButton.Params circle = MorphingButton.Params.create()
+                .duration(500)
+                .cornerRadius(56) // 56 dp
+                .width(200) // 56 dp
+                .height(56) // 56 dp
+                .color(R.color.green) // normal state color
+                .colorPressed(R.color.red) // pressed state color
+                .text("Failure"); // icon
+        buttonLogin.morph(circle);
+    }
 
     @Override
     public void onLoginSuccess() {

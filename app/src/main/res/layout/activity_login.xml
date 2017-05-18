@@ -8,19 +8,46 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
+        <com.joanzapata.iconify.widget.IconTextView
+            android:layout_margin="20dp"
+            android:id="@+id/iconTextViewLoginAppIcon"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="{fa-paper-plane-o}"
+            android:padding="10dp"
+            android:shadowRadius="0"
+            android:textSize="40sp"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"/>
 
         <com.rengwuxian.materialedittext.MaterialEditText
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:id="@+id/editTextLoginUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Username"/>
 
         <com.rengwuxian.materialedittext.MaterialEditText
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:id="@+id/editTextLoginPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"/>
+
+        <com.dd.morphingbutton.MorphingButton
+            android:layout_margin="20dp"
+            android:id="@+id/buttonLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"/>
 
     </LinearLayout>
 
