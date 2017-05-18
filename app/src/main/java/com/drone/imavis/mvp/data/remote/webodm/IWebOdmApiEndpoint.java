@@ -29,7 +29,7 @@ public interface IWebOdmApiEndpoint {
 
     @Headers("@: NoAuth")
     @POST("token-auth/")
-    Single<Token> authentication(@Body Authentication authentication);
+    Observable<Token> authentication(@Body Authentication authentication);
 
     @GET("projects")
     Single<Projects> getProjects();

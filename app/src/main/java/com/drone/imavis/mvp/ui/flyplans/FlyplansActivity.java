@@ -88,9 +88,8 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
         flyplansListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ((SwipeLayout)(flyplansListView.getChildAt(position - flyplansListView.getFirstVisiblePosition()))).open(true);
+                //((SwipeLayout)(flyplansListView.getChildAt(position - flyplansListView.getFirstVisiblePosition()))).open(true);
                 //goToActivity(context, FlyplansActivity.class, new Bundle());
-                //projectsPresenter.loadProjects();
             }
         });
         flyplansListView.setOnTouchListener(new View.OnTouchListener() {

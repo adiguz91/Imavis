@@ -2,14 +2,19 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.3"
+    buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "com.drone.imavis"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        jackOptions {
+            enabled true
+            additionalParameters('jack.incremental': 'true')
+        }
     }
     buildTypes {
         release {
@@ -30,6 +35,15 @@ android {
         exclude 'META-INF/LGPL2.1'
         exclude 'META-INF/rxjava.properties'
     }
+    compileOptions {
+        incremental true
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
+
+    dexOptions {
+        javaMaxHeapSize '4096m'
+    }
 }
 
 dependencies {
@@ -37,15 +51,6 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
-    // libs: jars
-    // Database OrmLite
-    compile files('libs/ormlite-android-5.0.jar')
-    compile files('libs/ormlite-core-5.0.jar')
-    //compile files('libs/doc/ormlite-android-5.0-javadoc.jar')
-    //compile files('libs/doc/ormlite-core-5.0-javadoc.jar')
-    //compile files('libs/src/ormlite-android-5.0-sources.jar')
-    //compile files('libs/src/ormlite-core-5.0-sources.jar')
 
     // Retrofit2: type-safe REST client for Android
     // Okhttp3: networking
@@ -81,6 +86,7 @@ dependencies {
 
     // design & layout
     compile 'com.getbase:floatingactionbutton:1.10.1'
+    compile 'com.rengwuxian.materialedittext:library:2.1.4'
 
     compile "com.daimajia.swipelayout:library:1.2.0@aar"
     compile 'com.baoyz.pullrefreshlayout:library:1.2.0'
@@ -113,5 +119,13 @@ dependencies {
     compile 'com.android.support:support-v4:24.2.1'
     testCompile 'junit:junit:4.12'
 
+    // libs: jars
+    // Database OrmLite
+    //compile files('libs/ormlite-android-5.0.jar')
+    //compile files('libs/ormlite-core-5.0.jar')
 
+    //compile files('libs/doc/ormlite-android-5.0-javadoc.jar')
+    //compile files('libs/doc/ormlite-core-5.0-javadoc.jar')
+    //compile files('libs/src/ormlite-android-5.0-sources.jar')
+    //compile files('libs/src/ormlite-core-5.0-sources.jar')
 }

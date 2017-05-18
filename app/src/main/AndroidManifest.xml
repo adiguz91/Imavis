@@ -34,7 +34,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="com.drone.imavis.mvp.ui.projects.ProjectsActivity"
+            android:name="com.drone.imavis.mvp.ui.login.LoginActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -80,6 +80,10 @@
         <activity
             android:name="com.drone.imavis.mvp.ui.flyplans.FlyplansActivity"
             android:label="Flyplans">
+        </activity>
+        <activity
+            android:name="com.drone.imavis.mvp.ui.projects.ProjectsActivity"
+            android:label="Projects">
         </activity>
     </application>
 

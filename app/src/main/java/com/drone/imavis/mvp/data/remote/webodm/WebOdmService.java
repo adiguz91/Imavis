@@ -109,11 +109,12 @@ public class WebOdmService {
                 .baseUrl(IWebOdmApiEndpoint.ENDPOINT)
                 .build();
 
-        this.webOdmService = webOdmService.create(IWebOdmApiEndpoint.class);
-        getAuthenticationToken(new Authentication("admin", "admin"));
-        return this.webOdmService;
+        //this.webOdmService = webOdmService.create(IWebOdmApiEndpoint.class);
+        //getAuthenticationToken(new Authentication("admin", "admin"));
+        return webOdmService.create(IWebOdmApiEndpoint.class);
     }
 
+    /*
     public void getAuthenticationToken(Authentication userCredentials) {
         this.webOdmService.authentication(userCredentials)
         .observeOn(AndroidSchedulers.mainThread())
@@ -134,6 +135,7 @@ public class WebOdmService {
             }
         });
     }
+    */
 
     private Interceptor CreateRequestInterceptor() {
         return new Interceptor() {

@@ -72,8 +72,8 @@
             android:padding="10dp"
             android:shadowRadius="0"
             android:textSize="40sp"
-            android:background="@color/green"
-            android:textColor="#FF053D00"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
             android:gravity="center_vertical" />
 
         <LinearLayout

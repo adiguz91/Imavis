@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">#8466AA</color>
+    <color name="colorPrimaryDark">#664F84</color>
     <color name="colorAccent">#FF4081</color>
 
     <color name="primary">#3F51B5</color>
     <color name="primary_dark">#303F9F</color>
-    <color name="primary_light">#C5C5C5</color>
+    <color name="primary_light">#ffffff</color>
     <color name="accent">#009688</color>
-    <color name="primary_text">#212121</color>
+    <color name="primary_text">#FFFFFF</color>
     <color name="secondary_text">#727272</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
@@ -16,7 +16,7 @@
     <color name="selected_tab_color">#AAAAAA</color>
     <color name="unselected_tab_color">#CCCCCC</color>
 
-    <color name="backgroundColor">#E8E8E0</color>
+    <color name="backgroundColor">#f5f5f5</color>
     <color name="backgroundColorPress">#DBDBD3</color>
     <color name="red">#FF3B00</color>
     <color name="red_press">#990000</color>

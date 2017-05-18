@@ -10,6 +10,7 @@ import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
 import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
 import com.drone.imavis.mvp.data.remote.webodm.model.Token;
+import com.drone.imavis.mvp.util.RxUtil;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,8 +21,11 @@ import javax.inject.Singleton;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.util.ConnectConsumer;
+import io.reactivex.schedulers.Schedulers;
 import rx.SingleSubscriber;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -36,6 +40,8 @@ public class DataManager {
     private final IWebOdmApiEndpoint webOdmService;
     //private final DatabaseHelper databaseHelper;
     //private final PreferencesHelper mPreferencesHelper;
+
+    private Subscription loginSubscription;
 
     /*
     @Inject
@@ -62,8 +68,14 @@ public class DataManager {
 
     public Observable<List<Task>> syncFlyplans(String projectId) { return webOdmService.getTasks(projectId); }
 
-    public Single<Token> authorize(Authentication authentication) {
-        return webOdmService.authentication(authentication);
+    public Observable<Boolean> login(Authentication authentication) {
+        return webOdmService.authentication(authentication)
+        .doOnNext(token ->
+                ((WebOdmService)webOdmService).setAuthorizationToken(token.getToken()))
+        .map(token -> true )
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread());
+        //.subscribeOn(io.reactivex.schedulers.Schedulers.io());
     }
 
     /*
