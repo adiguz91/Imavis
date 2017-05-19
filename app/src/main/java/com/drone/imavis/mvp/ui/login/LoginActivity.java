@@ -10,10 +10,13 @@ import android.widget.Toast;
 
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.projects.ProjectsActivity;
 import com.drone.imavis.mvp.util.ProgressGenerator;
+import com.drone.imavis.mvp.util.StringUtil;
+import com.drone.imavis.mvp.util.constants.classes.CAll;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import javax.inject.Inject;
@@ -31,13 +34,12 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
             "com.drone.imavis.mvp.ui.login.LoginActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
     @Inject LoginPresenter loginPresenter;
-    ProgressGenerator progressGenerator = new ProgressGenerator(this);
+    private ProgressGenerator progressGenerator = new ProgressGenerator(this);
+    private Context context;
 
     @BindView(R.id.buttonLogin) ActionProcessButton buttonLogin;
     @BindView(R.id.editTextLoginUsername) MaterialEditText textUsername;
     @BindView(R.id.editTextLoginPassword) MaterialEditText textPassword;
-
-    private Context context;
 
     /**
      * Return an Intent to start this Activity.
@@ -58,6 +60,7 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
         ButterKnife.bind(this);
         context = this;
 
+        buttonLogin.setProgress(0);
         buttonLogin.setMode(ActionProcessButton.Mode.ENDLESS);
         buttonLogin.setOnClickListener(onClick -> login() );
         loginPresenter.attachView(this);
@@ -74,30 +77,40 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
     }
 
     private void login() {
-        progressGenerator.start(buttonLogin);
-        buttonLogin.setEnabled(false);
-        textUsername.setEnabled(false);
-        textPassword.setEnabled(false);
-        loginPresenter.login();
+
+        if (StringUtil.isNullOrEmpty(textUsername.getEditableText().toString()) &&
+            StringUtil.isNullOrEmpty(textPassword.getEditableText().toString()) ) {
+
+            Authentication authentication =
+                    new Authentication(textUsername.getEditableText().toString(),
+                                       textPassword.getEditableText().toString());
+
+            buttonLogin.setProgress(1);
+            buttonLogin.setEnabled(false);
+            textUsername.setEnabled(false);
+            textPassword.setEnabled(false);
+            loginPresenter.login();
+        }
     }
 
     @Override
     public void onLoginSuccess() {
+        buttonLogin.setProgress(100); // 100 : Success
+        onComplete();
         goToActivity(this, ProjectsActivity.class, new Bundle());
     }
 
     @Override
     public void onLoginFailed() {
-        Log.i("logginFailed", "todo");
+        buttonLogin.setProgress(-1); // -1 : Failed
+        onComplete();
     }
 
     @Override
     public void onComplete() {
-        // TODO: button clicked completed
+        // after button click timeout is reached!
         buttonLogin.setEnabled(true);
         textUsername.setEnabled(true);
         textPassword.setEnabled(true);
-
-
     }
 }

@@ -10,7 +10,8 @@
 
     <string name="activity_login_button_default">Login</string>
     <string name="activity_login_button_success">Success</string>
-    <string name="activity_login_button_loading">Loading..</string>
+    <string name="activity_login_button_loading">Loading...</string>
+    <string name="activity_login_button_error">Failed</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

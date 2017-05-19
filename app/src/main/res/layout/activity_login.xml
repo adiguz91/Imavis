@@ -31,6 +31,8 @@
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
             android:id="@+id/editTextLoginUsername"
+            android:minLines="1"
+            android:inputType="textAutoComplete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Username"/>
@@ -38,6 +40,8 @@
         <com.rengwuxian.materialedittext.MaterialEditText
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
+            android:minLines="1"
+            android:inputType="textPassword"
             android:id="@+id/editTextLoginPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -56,7 +60,8 @@
             custom:pb_colorPressed="@color/colorPrimaryDark"
             custom:pb_colorProgress="@color/purple_progress"
             custom:pb_textComplete="@string/activity_login_button_success"
-            custom:pb_textProgress="@string/activity_login_button_loading"/>
+            custom:pb_textProgress="@string/activity_login_button_loading"
+            custom:pb_textError="@string/activity_login_button_error"/>
 
     </LinearLayout>
 
