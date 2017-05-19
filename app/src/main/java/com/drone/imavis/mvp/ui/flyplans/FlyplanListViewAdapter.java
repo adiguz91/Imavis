@@ -1,6 +1,8 @@
 package com.drone.imavis.mvp.ui.flyplans;
 
 import android.content.Context;
+import android.text.SpannableString;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,8 @@ import com.drone.imavis.mvp.data.model.Project;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.nekocode.badge.BadgeDrawable;
+
 /**
  * Created by adigu on 08.05.2017.
  */
@@ -28,6 +32,24 @@ public class FlyplanListViewAdapter extends BaseSwipeAdapter {
     //@Inject Context mContext;
     private Context context;
     private List<Flyplan> flyplanList;
+
+
+
+    final BadgeDrawable badgeStatus = new BadgeDrawable.Builder()
+            .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
+            .badgeColor(0xff336699)
+            .text1("UNKNOWN")
+            .build();
+
+    final BadgeDrawable badgeImageCount =
+            new BadgeDrawable.Builder()
+                    .type(BadgeDrawable.TYPE_WITH_TWO_TEXT_COMPLEMENTARY)
+                    .badgeColor(0xffCC9933)
+                    .text1("IMAGES")
+                    .text2("593")
+                    .padding(4, 4, 4, 4, 4)
+                    .strokeWidth(2)
+                    .build();
 
     //@Inject
     public FlyplanListViewAdapter(Context context) {
@@ -71,12 +93,26 @@ public class FlyplanListViewAdapter extends BaseSwipeAdapter {
 
     @Override
     public void fillValues(int position, View convertView) {
+
         Flyplan flyplan = flyplanList.get(position);
         //ButterKnife.bind(context, convertView);
+
+        TextView textViewStatus = (TextView) convertView.findViewById(R.id.textViewFlyplanListViewItemStatus);
+        //TextView textViewCreationDate = (TextView) convertView.findViewById(R.id.textViewFlyplanListViewItemCreatedDate);
         TextView textViewFlyplanname = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemFlyplanname);
-        //TextView textViewDescription = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemDescription);
+
         textViewFlyplanname.setText(flyplan.getName());
-        //textViewDescription.setText(project.getDescription());
+
+        badgeStatus.setText1("COMPLETED"); // flyplan.getTask().getStatus().name()
+        badgeImageCount.setText1("IMAGES");
+        badgeImageCount.setText2(String.valueOf(flyplan.getTask().getImagesCount()));
+        SpannableString spannableString =
+                new SpannableString(TextUtils.concat( badgeStatus.toSpannable(), " ",
+                                    badgeImageCount.toSpannable() ));
+
+        if (textViewStatus != null) {
+            textViewStatus.setText(spannableString);
+        }
     }
 
     @Override

@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "com.drone.imavis"
-        minSdkVersion 24
+        minSdkVersion 23
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
@@ -13,7 +13,7 @@ android {
         multiDexEnabled true
         jackOptions {
             enabled true
-            //additionalParameters('jack.incremental': 'true')
+            additionalParameters('jack.incremental': 'true')
         }
     }
     buildTypes {
@@ -42,7 +42,8 @@ android {
     }
 
     dexOptions {
-        javaMaxHeapSize '4096m'
+        //incremental true
+        javaMaxHeapSize '4g'
     }
 }
 
@@ -122,7 +123,9 @@ dependencies {
     compile 'com.google.android.gms:play-services:9.6.1' //compile 'com.google.android.gms:play-services-maps:10.0.1'
 
     // v1.0.0
-    compile 'com.github.dmytrodanylyk:android-morphing-button:98a4986e56' // commit hash
+    //compile 'com.github.dmytrodanylyk:android-morphing-button:98a4986e56' // commit hash
+    compile 'com.github.dmytrodanylyk.android-process-button:library:1.0.4'
+    compile 'com.github.nekocode:Badge:2.0'
 
     testCompile 'junit:junit:4.12'
 

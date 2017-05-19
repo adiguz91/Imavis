@@ -2,16 +2,19 @@ package com.drone.imavis.mvp.ui.login;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.dd.morphingbutton.MorphingButton;
+import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.projects.ProjectsActivity;
+import com.drone.imavis.mvp.util.ProgressGenerator;
+import com.rengwuxian.materialedittext.MaterialEditText;
 
 import javax.inject.Inject;
 
@@ -22,16 +25,19 @@ import butterknife.ButterKnife;
  * Created by adigu on 08.05.2017.
  */
 
-public class LoginActivity extends BaseActivity implements ILoginMvpView {
+public class LoginActivity extends BaseActivity implements ILoginMvpView, ProgressGenerator.OnCompleteListener {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.login.LoginActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
     @Inject LoginPresenter loginPresenter;
-    @BindView(R.id.buttonLogin) MorphingButton buttonLogin;
-    private Context context;
+    ProgressGenerator progressGenerator = new ProgressGenerator(this);
 
-    private int loginToggleClick = 1;
+    @BindView(R.id.buttonLogin) ActionProcessButton buttonLogin;
+    @BindView(R.id.editTextLoginUsername) MaterialEditText textUsername;
+    @BindView(R.id.editTextLoginPassword) MaterialEditText textPassword;
+
+    private Context context;
 
     /**
      * Return an Intent to start this Activity.
@@ -52,12 +58,8 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView {
         ButterKnife.bind(this);
         context = this;
 
-        buttonLogin.setOnClickListener(onClick -> {
-            onLoginButtonClicked(buttonLogin);
-        });
-
-        loginButtonDefault(buttonLogin, 0);
-
+        buttonLogin.setMode(ActionProcessButton.Mode.ENDLESS);
+        buttonLogin.setOnClickListener(onClick -> login() );
         loginPresenter.attachView(this);
 
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
@@ -71,51 +73,12 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView {
         loginPresenter.detachView();
     }
 
-    private void onLoginButtonClicked(MorphingButton buttonMorph) {
-        if (loginToggleClick == 0) {
-            loginToggleClick++;
-            loginButtonDefault(buttonMorph, 400);
-        } else if (loginToggleClick == 1) {
-            loginToggleClick = 0;
-            buttonLoginSuccess(buttonMorph);
-            loginPresenter.login();
-        }
-    }
-
-    private void loginButtonDefault(final MorphingButton btnMorph, int duration) {
-        MorphingButton.Params square = MorphingButton.Params.create()
-                .duration(duration)
-                .cornerRadius(56)
-                .width(200)
-                .height(56)
-                .color(R.color.mb_blue)
-                .colorPressed(R.color.mb_blue_dark)
-                .text("Login");
-        buttonLogin.morph(square);
-    }
-
-    private void buttonLoginSuccess(MorphingButton btnMorph) {
-        MorphingButton.Params circle = MorphingButton.Params.create()
-            .duration(500)
-            .cornerRadius(56) // 56 dp
-            .width(200) // 56 dp
-            .height(56) // 56 dp
-            .color(R.color.green) // normal state color
-            .colorPressed(R.color.red) // pressed state color
-            .text("Success"); // icon
-        buttonLogin.morph(circle);
-    }
-
-    private void buttonLoginFailure() {
-        MorphingButton.Params circle = MorphingButton.Params.create()
-                .duration(500)
-                .cornerRadius(56) // 56 dp
-                .width(200) // 56 dp
-                .height(56) // 56 dp
-                .color(R.color.green) // normal state color
-                .colorPressed(R.color.red) // pressed state color
-                .text("Failure"); // icon
-        buttonLogin.morph(circle);
+    private void login() {
+        progressGenerator.start(buttonLogin);
+        buttonLogin.setEnabled(false);
+        textUsername.setEnabled(false);
+        textPassword.setEnabled(false);
+        loginPresenter.login();
     }
 
     @Override
@@ -126,5 +89,15 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView {
     @Override
     public void onLoginFailed() {
         Log.i("logginFailed", "todo");
+    }
+
+    @Override
+    public void onComplete() {
+        // TODO: button clicked completed
+        buttonLogin.setEnabled(true);
+        textUsername.setEnabled(true);
+        textPassword.setEnabled(true);
+
+
     }
 }

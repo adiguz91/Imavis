@@ -29,6 +29,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.nekocode.badge.BadgeDrawable;
 
 /**
  * Created by adigu on 08.05.2017.
