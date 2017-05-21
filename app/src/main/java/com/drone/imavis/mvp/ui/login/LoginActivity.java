@@ -3,6 +3,7 @@ package com.drone.imavis.mvp.ui.login;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +18,9 @@ import com.drone.imavis.mvp.ui.projects.ProjectsActivity;
 import com.drone.imavis.mvp.util.ProgressGenerator;
 import com.drone.imavis.mvp.util.StringUtil;
 import com.drone.imavis.mvp.util.constants.classes.CAll;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.joanzapata.iconify.widget.IconTextView;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import javax.inject.Inject;
@@ -37,6 +41,7 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
     private ProgressGenerator progressGenerator = new ProgressGenerator(this);
     private Context context;
 
+    @BindView(R.id.iconTextViewLoginAppIcon) IconTextView iconTextViewAppLogo;
     @BindView(R.id.buttonLogin) ActionProcessButton buttonLogin;
     @BindView(R.id.editTextLoginUsername) MaterialEditText textUsername;
     @BindView(R.id.editTextLoginPassword) MaterialEditText textPassword;
@@ -59,6 +64,14 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
         context = this;
+
+        Typeface fontLobster = Typeface.createFromAsset(getAssets(),  "fonts/Lobster_1.3.ttf");
+        iconTextViewAppLogo.setTypeface(fontLobster);
+
+        IconDrawable iconDrawableUsername = new IconDrawable(this, FontAwesomeIcons.fa_user).actionBarSize();
+        IconDrawable iconDrawablePassword = new IconDrawable(this, FontAwesomeIcons.fa_lock).actionBarSize();
+        textUsername.setIconLeft(iconDrawableUsername);
+        textPassword.setIconLeft(iconDrawablePassword);
 
         buttonLogin.setProgress(0);
         buttonLogin.setMode(ActionProcessButton.Mode.ENDLESS);

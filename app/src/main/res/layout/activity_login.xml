@@ -3,10 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="com.drone.imavis.mvp.ui.login.LoginActivity">
 
     <LinearLayout
         xmlns:custom="http://schemas.android.com/apk/res-auto"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
@@ -20,32 +22,45 @@
             android:id="@+id/iconTextViewLoginAppIcon"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:text="{fa-paper-plane-o}"
+            android:text="{fa-paper-plane-o} Imavis"
             android:padding="10dp"
             android:shadowRadius="0"
             android:textSize="40sp"
             android:background="@color/colorPrimary"
-            android:textColor="@color/colorPrimaryDark"/>
+            android:textColor="#ffffff"/>
 
         <com.rengwuxian.materialedittext.MaterialEditText
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
             android:id="@+id/editTextLoginUsername"
-            android:minLines="1"
-            android:inputType="textAutoComplete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"/>
+            android:hint="Username"
+            android:minLines="1"
+            android:inputType="textAutoComplete"
+            app:met_iconPadding="2dp"
+            app:met_minCharacters="6"
+            app:met_maxCharacters="16"
+            app:met_floatingLabelText="Username"
+            app:met_floatingLabel="none"
+            app:met_baseColor="#ffffff"
+            app:met_primaryColor="#ffffff"
+            app:met_errorColor="#FFA0AC"
+            />
 
         <com.rengwuxian.materialedittext.MaterialEditText
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:minLines="1"
-            android:inputType="textPassword"
             android:id="@+id/editTextLoginPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"/>
+            android:hint="Password"
+            android:minLines="1"
+            android:inputType="textPassword"
+            app:met_iconPadding="2dp"
+            app:met_minCharacters="6"
+            app:met_maxCharacters="16"
+            app:met_floatingLabelText="Password"
+            app:met_floatingLabel="none"
+            app:met_baseColor="#ffffff"
+            app:met_primaryColor="#ffffff"
+            app:met_errorColor="#FFA0AC"/>
 
         <com.dd.processbutton.iml.ActionProcessButton
             android:id="@+id/buttonLogin"
@@ -56,8 +71,8 @@
             android:textColor="@android:color/white"
             android:textSize="18sp"
             custom:pb_colorComplete="@color/green_complete"
-            custom:pb_colorNormal="@color/colorPrimary"
-            custom:pb_colorPressed="@color/colorPrimaryDark"
+            custom:pb_colorNormal="@color/colorPrimaryDark"
+            custom:pb_colorPressed="@color/colorPrimary"
             custom:pb_colorProgress="@color/purple_progress"
             custom:pb_textComplete="@string/activity_login_button_success"
             custom:pb_textProgress="@string/activity_login_button_loading"

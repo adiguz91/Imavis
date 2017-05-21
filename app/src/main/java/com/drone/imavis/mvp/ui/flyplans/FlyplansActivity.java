@@ -67,6 +67,9 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
         setContentView(R.layout.activity_projects);
         ButterKnife.bind(this);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         flyplanListViewAdapter = new FlyplanListViewAdapter(this);
         flyplansListView.setAdapter(flyplanListViewAdapter);
         flyplanListViewAdapter.setMode(Attributes.Mode.Single);

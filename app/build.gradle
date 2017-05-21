@@ -90,7 +90,7 @@ dependencies {
     // design & layout
     compile 'com.getbase:floatingactionbutton:1.10.1'
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
-
+    compile 'com.ogaclejapan.smarttablayout:library:1.6.1@aar'
 
     compile "com.daimajia.swipelayout:library:1.2.0@aar"
     compile 'com.baoyz.pullrefreshlayout:library:1.2.0'

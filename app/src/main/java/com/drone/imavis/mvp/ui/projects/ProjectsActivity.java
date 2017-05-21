@@ -66,6 +66,9 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
         ButterKnife.bind(this);
         context = this;
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         projectsListViewAdapter = new ProjectListViewAdapter(this);
         projectsListView.setAdapter(projectsListViewAdapter);
         projectsListViewAdapter.setMode(Attributes.Mode.Single);
