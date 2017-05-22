@@ -17,8 +17,10 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Flyplan;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
+import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.main.MainActivity;
+import com.drone.imavis.mvp.ui.main.MainFlyplanner;
 import com.drone.imavis.mvp.ui.projects.ProjectListViewAdapter;
 import com.drone.imavis.mvp.ui.projects.ProjectsPresenter;
 
@@ -46,6 +48,7 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
     //@Inject FlyplanListViewAdapter flyplanListViewAdapter;
 
     private int projectId;
+    private Context context;
 
     @BindView(R.id.projectSwipeListView) ListView flyplansListView;
 
@@ -66,6 +69,7 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
         activityComponent().inject(this);
         setContentView(R.layout.activity_projects);
         ButterKnife.bind(this);
+        context = this;
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -93,7 +97,7 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //((SwipeLayout)(flyplansListView.getChildAt(position - flyplansListView.getFirstVisiblePosition()))).open(true);
-                //goToActivity(context, FlyplansActivity.class, new Bundle());
+                goToActivity(context, MainFlyplanner.class, new Bundle());
             }
         });
         flyplansListView.setOnTouchListener(new View.OnTouchListener() {

@@ -71,7 +71,8 @@ public class LoginPresenter extends BasePresenter<ILoginMvpView> {
             @Override
             public void onError(@NonNull Throwable e) {
                 // todo
-                getMvpView().onLoginFailed();
+                if(getMvpView() != null)
+                    getMvpView().onLoginFailed();
             }
             @Override
             public void onComplete() {}

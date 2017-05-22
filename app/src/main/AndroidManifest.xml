@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.drone.imavis.mvp">
+    package="com.drone.imavis.mvp"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <permission
         android:name="your.package.name.permission.MAPS_RECEIVE"
@@ -13,7 +14,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="your.package.name.permission.MAPS_RECEIVE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
@@ -22,8 +22,9 @@
     <uses-feature android:name="android.hardware.location.gps" />
 
     <application
-        android:name=".AppStartup"
-        android:allowBackup="true"
+        android:name="com.drone.imavis.mvp.AppStartup"
+        android:allowBackup="false"
+        tools:replace="android:allowBackup"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
@@ -42,7 +43,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".data.SyncService"/>
+        <service android:name="com.drone.imavis.mvp.data.SyncService"/>
 
         <!--<receiver
             android:name=".mvp.data.SyncService$SyncOnConnectionAvailable"
@@ -64,7 +65,7 @@
             </intent-filter>
         </activity>-->
 
-        <service android:name=".services.flyplan.mvc.view.listener.GPSTracker" />
+        <service android:name="com.drone.imavis.mvp.services.flyplan.mvc.view.listener.GPSTracker" />
 
         <!--
         <activity
@@ -75,7 +76,7 @@
             android:name=".ui.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ui.main.MainFlyplanner"
+            android:name="com.drone.imavis.mvp.ui.main.MainFlyplanner"
             android:label="@string/title_activity_main_flyplanner"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
