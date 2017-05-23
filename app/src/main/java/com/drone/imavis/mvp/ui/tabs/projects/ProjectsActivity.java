@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.projects;
+package com.drone.imavis.mvp.ui.tabs.projects;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +17,7 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.SyncService;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
-import com.drone.imavis.mvp.ui.flyplans.FlyplansActivity;
+import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 

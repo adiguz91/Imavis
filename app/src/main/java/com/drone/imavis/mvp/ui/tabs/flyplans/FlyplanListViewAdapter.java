@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.flyplans;
+package com.drone.imavis.mvp.ui.tabs.flyplans;
 
 import android.content.Context;
 import android.text.SpannableString;

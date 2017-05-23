@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.flyplans;
+package com.drone.imavis.mvp.ui.tabs.flyplans;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,18 +11,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Flyplan;
-import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.Projects;
-import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.main.MainFlyplanner;
-import com.drone.imavis.mvp.ui.projects.ProjectListViewAdapter;
-import com.drone.imavis.mvp.ui.projects.ProjectsPresenter;
 
 import java.util.ArrayList;
 import java.util.List;

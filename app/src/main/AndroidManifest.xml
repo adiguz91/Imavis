@@ -80,11 +80,15 @@
             android:label="@string/title_activity_main_flyplanner"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name="com.drone.imavis.mvp.ui.flyplans.FlyplansActivity"
+            android:name="com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity"
+            android:label="Imavis">
+        </activity>
+        <activity
+            android:name="com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity"
             android:label="Flyplans">
         </activity>
         <activity
-            android:name="com.drone.imavis.mvp.ui.projects.ProjectsActivity"
+            android:name="com.drone.imavis.mvp.ui.tabs.projects.ProjectsActivity"
             android:label="Projects">
         </activity>
     </application>

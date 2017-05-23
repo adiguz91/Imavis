@@ -1,12 +1,10 @@
-package com.drone.imavis.mvp.ui.flyplans;
+package com.drone.imavis.mvp.ui.tabs.flyplans;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.model.Flyplan;
-import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
-import com.drone.imavis.mvp.ui.projects.IProjectsMvpView;
 import com.drone.imavis.mvp.util.RxUtil;
 
 import java.util.ArrayList;
@@ -15,7 +13,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.reactivex.Observer;
-import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;

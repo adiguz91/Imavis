@@ -1,29 +1,19 @@
-package com.drone.imavis.mvp.ui.projects;
+package com.drone.imavis.mvp.ui.tabs.projects;
 
 import com.drone.imavis.mvp.data.DataManager;
-import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
-import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
-import com.drone.imavis.mvp.data.remote.webodm.model.Token;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
 import com.drone.imavis.mvp.util.RxUtil;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import rx.SingleSubscriber;
-import rx.Subscriber;
 import rx.Subscription;
-import timber.log.Timber;
 
 /**
  * Created by adigu on 08.05.2017.

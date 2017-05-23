@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.projects;
+package com.drone.imavis.mvp.ui.tabs.projects;
 
 import android.content.Context;
 import android.view.LayoutInflater;

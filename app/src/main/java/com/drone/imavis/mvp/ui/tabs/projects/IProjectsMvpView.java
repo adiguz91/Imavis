@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.projects;
+package com.drone.imavis.mvp.ui.tabs.projects;
 
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.base.IMvpView;
