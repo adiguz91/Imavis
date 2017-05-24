@@ -17,7 +17,6 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.SyncService;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
-import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 
@@ -89,7 +88,7 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             //((SwipeLayout)(projectsListView.getChildAt(position - projectsListView.getFirstVisiblePosition()))).open(true);
-            goToActivity(context, FlyplansActivity.class, new Bundle());
+            //goToActivity(context, FlyplansActivity2.class, new Bundle());
             }
         });
         projectsListView.setOnTouchListener(new View.OnTouchListener() {

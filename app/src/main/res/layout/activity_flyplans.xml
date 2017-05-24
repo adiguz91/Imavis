@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity">
+    android:paddingTop="48dp">
 
     <ListView
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -15,4 +15,4 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="10.0sp"/>
 
-</RelativeLayout>
+</LinearLayout>

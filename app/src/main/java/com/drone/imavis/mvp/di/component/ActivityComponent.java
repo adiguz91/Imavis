@@ -7,8 +7,9 @@ package com.drone.imavis.mvp.di.component;
 import com.drone.imavis.mvp.di.PerActivity;
 import com.drone.imavis.mvp.di.module.ActivityModule;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
-import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity;
 import com.drone.imavis.mvp.ui.login.LoginActivity;
+import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity;
+import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsActivity;
 
 import dagger.Subcomponent;
@@ -24,6 +25,7 @@ public interface ActivityComponent {
 
     void inject(ProjectsFlyplansActivity projectsFlyplansActivity);
     void inject(ProjectsActivity projectsActivity);
-    void inject(FlyplansActivity flyPlansActivity);
+    void inject(FlyplansActivity flyPlansActivity); //
+    void inject(FlyplansFragment flyplansFragment);
 
 }

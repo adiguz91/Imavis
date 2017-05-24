@@ -21,7 +21,7 @@ import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.DemoFragment;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.main.MainActivity;
-import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity;
+import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
 import com.drone.imavis.mvp.ui.tabs.projects.IProjectsMvpView;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectListViewAdapter;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsActivity;
@@ -84,7 +84,7 @@ public class ProjectsFlyplansActivity extends BaseActivity {
 
         FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
                 getSupportFragmentManager(), FragmentPagerItems.with(this)
-                .add("Projects", DemoFragment.class)
+                .add("Projects", FlyplansFragment.class)
                 .add("Flyplans", DemoFragment.class)
                 .create());
 
