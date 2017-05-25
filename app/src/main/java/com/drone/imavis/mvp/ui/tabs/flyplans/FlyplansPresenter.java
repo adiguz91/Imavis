@@ -45,6 +45,9 @@ public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
     }
 
     public void loadFlyplans(int projectId) {
+        if(projectId < 0) // show empty list
+            return;
+
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
         dataManager.syncFlyplans(String.valueOf(projectId))

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context="com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity">
 
-    <android.support.v4.view.ViewPager
+    <com.drone.imavis.mvp.ui.tabs.CustomViewPager
     android:id="@+id/viewpager"
     android:layout_width="match_parent"
     android:layout_height="match_parent" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:paddingBottom="4dp"
-        app:stl_defaultTabTextColor="#ffffff"
+        app:stl_defaultTabTextColor="@color/custom_color_tab"
         app:stl_distributeEvenly="true"
         app:stl_indicatorColor="@color/accent"
         app:stl_indicatorCornerRadius="1.5dp"

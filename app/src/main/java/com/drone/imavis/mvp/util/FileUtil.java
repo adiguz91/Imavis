@@ -1,5 +1,7 @@
 package com.drone.imavis.mvp.util;
 
+import android.content.Context;
+import android.content.res.AssetManager;
 import android.os.Environment;
 import android.util.Log;
 
@@ -9,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 /**
@@ -54,6 +58,27 @@ public class FileUtil {
 
     private static boolean checkFile(String absoluteFileName) {
         return checkFileDirectory(absoluteFileName);
+    }
+
+    public static String readAssetFile(Context context, String path) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(context.getAssets().open(path)));
+            String mLine;
+            while ((mLine = reader.readLine()) != null) {}
+            return mLine;
+        } catch (IOException e) {
+            //log the exception
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    //log the exception
+                }
+            }
+        }
+        return null;
     }
 
     public static String readFile(File file) throws Exception {

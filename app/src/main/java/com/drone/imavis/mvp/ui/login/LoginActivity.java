@@ -14,6 +14,7 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
+import com.drone.imavis.mvp.ui.main.MainFlyplanner;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsActivity;
 import com.drone.imavis.mvp.util.ProgressGenerator;
@@ -104,6 +105,8 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
             textUsername.setEnabled(false);
             textPassword.setEnabled(false);
             loginPresenter.login();
+        } else {
+            goToActivity(this, MainFlyplanner.class, new Bundle());
         }
     }
 
@@ -111,7 +114,8 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
     public void onLoginSuccess() {
         buttonLogin.setProgress(100); // 100 : Success
         onComplete();
-        goToActivity(this, ProjectsFlyplansActivity.class, new Bundle());
+        //goToActivity(this, ProjectsFlyplansActivity.class, new Bundle());
+
     }
 
     @Override

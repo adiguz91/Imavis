@@ -3,47 +3,28 @@ package com.drone.imavis.mvp.ui.tabs;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
 
-import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.Projects;
-import com.drone.imavis.mvp.ui.DemoFragment;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
-import com.drone.imavis.mvp.ui.tabs.projects.IProjectsMvpView;
-import com.drone.imavis.mvp.ui.tabs.projects.ProjectListViewAdapter;
-import com.drone.imavis.mvp.ui.tabs.projects.ProjectsActivity;
-import com.drone.imavis.mvp.ui.tabs.projects.ProjectsPresenter;
+import com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
-import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItem;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
  * Created by adigu on 23.05.2017.
  */
 
-public class ProjectsFlyplansActivity extends BaseActivity {
+public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFragment.ProjectSelected {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.projects.ProjectsFlyplansActivity.EXTRA_TRIGGER_SYNC_FLAG";
@@ -57,6 +38,9 @@ public class ProjectsFlyplansActivity extends BaseActivity {
     //ListView projectsListView;
 
     private Context context;
+    private CustomViewPager viewPager;
+    private SmartTabLayout viewPagerTab;
+    private FragmentPagerItemAdapter fragmentAdapter;
 
     /**
      * Return an Intent to start this Activity.
@@ -80,26 +64,47 @@ public class ProjectsFlyplansActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        /*
+        Toolbar toolbar = (Toolbar) findViewById(R.id.apptoolbar);
+        TextView mTitle = (TextView) toolbar.findViewById(R.id.apptoolbar_title);
+        setSupportActionBar(toolbar);
+        mTitle.setText(toolbar.getTitle());
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        */
         // do stuff
 
-        FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
+        fragmentAdapter = new FragmentPagerItemAdapter(
                 getSupportFragmentManager(), FragmentPagerItems.with(this)
-                .add("Projects", FlyplansFragment.class)
-                .add("Flyplans", DemoFragment.class)
+                .add("Projects", ProjectsFragment.class)
+                .add("Flyplans", FlyplansFragment.class)
                 .create());
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(adapter);
+        viewPager = (CustomViewPager) findViewById(R.id.viewpager);
+        viewPager.setAdapter(fragmentAdapter);
 
-        SmartTabLayout viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
+        viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
         viewPagerTab.setViewPager(viewPager);
 
-        //projectsPresenter.attachView(this);
-        //projectsPresenter.loadProjects();
+        onSelectProjectsFragment();
+        //viewPager.setPagingEnabled(false);
+        //viewPagerTab.getTabAt(1).setClickable(false);
 
-        if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
-            //startService(SyncService.getStartIntent(this));
-        }
+        viewPagerTab.setOnPageChangeListener(new CustomViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if(position == 0) {
+                    // projects
+                    onSelectProjectsFragment();
+                }
+            }
+        });
+    }
+
+    private void onSelectProjectsFragment() {
+        viewPager.setPagingEnabled(false);
+        viewPagerTab.getTabAt(1).setClickable(false);
+        // change tab color disabled
     }
 
     @Override
@@ -108,4 +113,16 @@ public class ProjectsFlyplansActivity extends BaseActivity {
         //projectsPresenter.detachView();
     }
 
+    @Override
+    public void onSendProject(Project project) {
+
+        FlyplansFragment flyplansFragment = (FlyplansFragment) fragmentAdapter.getPage(1);
+        if(flyplansFragment != null)
+            flyplansFragment.loadFlyplans(project);
+
+        viewPager.setPagingEnabled(true);
+        viewPagerTab.getTabAt(1).setClickable(true);
+        viewPagerTab.getTabAt(1).performClick();
+
+    }
 }

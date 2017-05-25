@@ -1,0 +1,24 @@
+{
+    "id": 1,
+    "project": 1,
+    "processing_node": 1,
+    "images_count": 25,
+    "available_assets": [
+        "all",
+        "geotiff",
+        "texturedmodel",
+        "las",
+        "csv",
+        "ply"
+    ],
+    "uuid": "84bd2f62-895e-4e3d-aa14-535943c7c62f",
+    "name": "First Flyplan",
+    "processing_time": 1748557,
+    "auto_processing_node": true,
+    "status": 40,
+    "last_error": null,
+    "options": [],
+    "ground_control_points": null,
+    "created_at": "2017-05-17T17:16:23.270260Z",
+    "pending_action": null
+}

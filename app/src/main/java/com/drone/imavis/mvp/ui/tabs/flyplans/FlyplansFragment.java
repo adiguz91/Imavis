@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Flyplan;
+import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
 import com.drone.imavis.mvp.ui.main.MainActivity;
@@ -38,6 +39,8 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.flyplans.FlyplansActivity.EXTRA_TRIGGER_SYNC_FLAG";
+
+    public static final String TAG = "FlyplansFragment";
 
     @Inject
     FlyplansPresenter flyplansPresenter;
@@ -84,18 +87,17 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView {
         flyplanListViewAdapter = new FlyplanListViewAdapter(getContext());
         flyplansListView.setAdapter(flyplanListViewAdapter);
         flyplanListViewAdapter.setMode(Attributes.Mode.Single);
-        //projectsListView.setLayoutManager(new LinearLayoutManager(this));
         loadListViewEvents();
 
-        // getParameter PROJECT_ID from other activity
-        projectId = 1;
-
         flyplansPresenter.attachView(this);
-        flyplansPresenter.loadFlyplans(projectId);
+        loadFlyplans(null);
+    }
 
-        //if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
-        //    //startService(SyncService.getStartIntent(this));
-        //}
+    public void loadFlyplans(Project project) {
+        if(project == null) {
+            showFlyplansEmpty(); return;
+        }
+        flyplansPresenter.loadFlyplans(project.getId());
     }
 
     private void loadListViewEvents() {

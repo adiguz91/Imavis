@@ -11,6 +11,7 @@ import com.drone.imavis.mvp.ui.login.LoginActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsActivity;
+import com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment;
 
 import dagger.Subcomponent;
 
@@ -27,5 +28,5 @@ public interface ActivityComponent {
     void inject(ProjectsActivity projectsActivity);
     void inject(FlyplansActivity flyPlansActivity); //
     void inject(FlyplansFragment flyplansFragment);
-
+    void inject(ProjectsFragment projectsFragment);
 }

@@ -23,5 +23,8 @@
     <color name="dark_gray">#4C535B</color>
     <color name="dark_gray_press">#ff7e8a97</color>
 
+    <color name="text_enabled">#FFFFFFFF</color>
+    <color name="text_disabled">#a1a1a1</color>
+
     <color name="transparent">#00000000</color>
 </resources>
