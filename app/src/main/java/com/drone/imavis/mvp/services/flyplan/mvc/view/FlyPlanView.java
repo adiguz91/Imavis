@@ -95,6 +95,8 @@ public class FlyPlanView extends View {
         Log.w(TAG, "onTouchEvent: " + event);
         int actionIndex; // event.getActionIndex()
 
+        isHandledTouch = false;
+
         // onTouch trigger events
         isHandledTouch = scaleDetector.onTouchEvent(event);
         isHandledTouch = gestureDetector.onTouchEvent(event);
@@ -103,8 +105,8 @@ public class FlyPlanView extends View {
         switch (event.getActionMasked())
         {
             case MotionEvent.ACTION_DOWN:
-                isDown = onDown(event);
-                invalidate();
+                //isDown = onDown(event);
+                //invalidate();
                 break;
             // find Node or Line
             case MotionEvent.ACTION_MOVE:
@@ -118,9 +120,13 @@ public class FlyPlanView extends View {
 
         }
 
+
         if(!isHandledTouch)
             super.onTouchEvent(event);
         return isHandledTouch;
+
+
+        //return super.onTouchEvent(event); //super.onTouchEvent(event);
         //if(isHandledTouch)
         //    return true;//super.onTouchEvent(event);
         //else

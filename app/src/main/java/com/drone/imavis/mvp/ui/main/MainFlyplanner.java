@@ -86,18 +86,20 @@ public class MainFlyplanner extends AppCompatActivity implements OnMapReadyCallb
 
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(MotionEvent event) { //dispatchTouchEvent
 
+        boolean isHandled = false;
+        isHandled = super.onTouchEvent(event);
         //boolean isHandled = flyplan.onTouchEvent(event);
         //isHandled = FlyPlanView.getIsHandledTouch();
-        boolean isHandled = super.dispatchTouchEvent(event);
         if(!isHandled) {
             googleMap.getUiSettings().setScrollGesturesEnabled(true);
         }
         else {
             googleMap.getUiSettings().setScrollGesturesEnabled(false);
         }
-        return isHandled;
+        return !isHandled;
+        //return true;
     }
 
     private boolean runtimePermissions() {
