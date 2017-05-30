@@ -12,14 +12,10 @@ import android.widget.Toast;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
-import com.drone.imavis.mvp.ui.main.MainActivity;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
-import com.drone.imavis.mvp.ui.main.MainFlyplanner;
-import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
-import com.drone.imavis.mvp.ui.tabs.projects.ProjectsActivity;
 import com.drone.imavis.mvp.util.ProgressGenerator;
 import com.drone.imavis.mvp.util.StringUtil;
-import com.drone.imavis.mvp.util.constants.classes.CAll;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.joanzapata.iconify.widget.IconTextView;
@@ -54,7 +50,7 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
      * only be set to false during testing.
      */
     public static Intent getStartIntent(Context context, boolean triggerDataSyncOnCreate) {
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, FlyplannerActivity.class);
         intent.putExtra(EXTRA_TRIGGER_SYNC_FLAG, triggerDataSyncOnCreate);
         return intent;
     }
@@ -106,7 +102,7 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
             textPassword.setEnabled(false);
             loginPresenter.login();
         } else {
-            goToActivity(this, MainFlyplanner.class, new Bundle());
+            goToActivity(this, FlyplannerActivity.class, new Bundle());
         }
     }
 

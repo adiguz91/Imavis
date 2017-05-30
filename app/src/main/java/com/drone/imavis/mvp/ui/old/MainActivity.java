@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.main;
+package com.drone.imavis.mvp.ui.old;
 
 import android.content.Intent;
 import android.os.Bundle;

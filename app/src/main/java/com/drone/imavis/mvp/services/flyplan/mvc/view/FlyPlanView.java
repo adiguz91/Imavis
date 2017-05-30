@@ -1,5 +1,7 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.view;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -11,7 +13,9 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import com.drone.imavis.mvp.ui.main.MainFlyplanner;
+import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
+import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CMap;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
@@ -37,6 +41,8 @@ public class FlyPlanView extends View {
         return isHandledTouch;
     }
 
+    //private GoogleMapFragment googleMapFragment;
+
     public FlyPlanView(final Context context) {
         super(context);
         init(context);
@@ -55,6 +61,9 @@ public class FlyPlanView extends View {
         gestureDetector = new GestureDetector(context, new GestureListener());
         scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         // FlyPlanController.getInstance().init(context);
+
+        //final Activity activity = (Activity) context;
+        //GoogleMapFragment googleMapFragment = (GoogleMapFragment) activity.fra.findFragmentById(R.id.flyplannerMapView);
     }
 
     public static float getScaleFactor() {
@@ -92,6 +101,7 @@ public class FlyPlanView extends View {
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
+        //super.onTouchEvent(event);
         Log.w(TAG, "onTouchEvent: " + event);
         int actionIndex; // event.getActionIndex()
 
@@ -120,11 +130,29 @@ public class FlyPlanView extends View {
 
         }
 
+        if(event.getActionMasked() == MotionEvent.ACTION_DOWN)
+            isHandledTouch = true;
 
-        if(!isHandledTouch)
-            super.onTouchEvent(event);
+
+        Log.i("LogFlyplan", "isHandled: " + isHandledTouch + " | event: " + event.getActionMasked());
+
+        //flyplannerListener.onCompleteHandling(isHandledTouch);
+
+        /*
+        if(googleMapFragment != null) {
+            if(!isHandledTouch)
+                googleMapFragment.getMap().getUiSettings().setScrollGesturesEnabled(true);
+            else
+                googleMapFragment.getMap().getUiSettings().setScrollGesturesEnabled(false);
+        }
+*/
+        //return super.onTouchEvent(event);
         return isHandledTouch;
-
+        /*
+        if(!isHandledTouch)
+            return super.onTouchEvent(event);
+        return isHandledTouch;
+*/
 
         //return super.onTouchEvent(event); //super.onTouchEvent(event);
         //if(isHandledTouch)
@@ -153,7 +181,7 @@ public class FlyPlanView extends View {
                 break;
             }
         }
-        MainFlyplanner.removeActionButtons();
+        //MainFlyplanner.removeActionButtons(); #### !!!! IMPORTANT UUUUSEEEEEE, callback!?=!=
         return isHandled;
     }
 
@@ -162,4 +190,14 @@ public class FlyPlanView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         viewRect = new Rect(0, 0, getMeasuredWidth(), getMeasuredHeight());
     }
+
+    public void setFlyplannerListener(OnCompleteDrawHandling flyplannerListener) {
+        this.flyplannerListener = flyplannerListener;
+    }
+
+    public interface OnCompleteDrawHandling {
+        public void onCompleteHandling(boolean result);
+    }
+
+    private OnCompleteDrawHandling flyplannerListener;
 }

@@ -15,8 +15,7 @@ import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Flyplan;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
-import com.drone.imavis.mvp.ui.main.MainActivity;
-import com.drone.imavis.mvp.ui.main.MainFlyplanner;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cn.nekocode.badge.BadgeDrawable;
 
 /**
  * Created by adigu on 08.05.2017.
@@ -46,16 +44,6 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
 
     @BindView(R.id.projectSwipeListView) ListView flyplansListView;
 
-    /**
-     * Return an Intent to start this Activity.
-     * triggerDataSyncOnCreate allows disabling the background sync service onCreate. Should
-     * only be set to false during testing.
-     */
-    public static Intent getStartIntent(Context context, boolean triggerDataSyncOnCreate) {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(EXTRA_TRIGGER_SYNC_FLAG, triggerDataSyncOnCreate);
-        return intent;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +79,7 @@ public class FlyplansActivity extends BaseActivity implements IFlyplansMvpView {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //((SwipeLayout)(flyplansListView.getChildAt(position - flyplansListView.getFirstVisiblePosition()))).open(true);
-                goToActivity(context, MainFlyplanner.class, new Bundle());
+                goToActivity(context, FlyplannerActivity.class, new Bundle());
             }
         });
         flyplansListView.setOnTouchListener(new View.OnTouchListener() {

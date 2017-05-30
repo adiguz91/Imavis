@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
-import com.drone.imavis.mvp.ui.main.MainActivity;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
@@ -48,7 +48,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
      * only be set to false during testing.
      */
     public static Intent getStartIntent(Context context, boolean triggerDataSyncOnCreate) {
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, FlyplannerActivity.class);
         intent.putExtra(EXTRA_TRIGGER_SYNC_FLAG, triggerDataSyncOnCreate);
         return intent;
     }

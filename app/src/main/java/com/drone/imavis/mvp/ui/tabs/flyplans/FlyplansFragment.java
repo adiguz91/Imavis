@@ -20,8 +20,7 @@ import com.drone.imavis.mvp.data.model.Flyplan;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
-import com.drone.imavis.mvp.ui.main.MainActivity;
-import com.drone.imavis.mvp.ui.main.MainFlyplanner;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +58,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView {
      * only be set to false during testing.
      */
     public static Intent getStartIntent(Context context, boolean triggerDataSyncOnCreate) {
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, FlyplannerActivity.class);
         intent.putExtra(EXTRA_TRIGGER_SYNC_FLAG, triggerDataSyncOnCreate);
         return intent;
     }
@@ -106,7 +105,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //((SwipeLayout)(flyplansListView.getChildAt(position - flyplansListView.getFirstVisiblePosition()))).open(true);
-                goToActivity(context, MainFlyplanner.class, new Bundle());
+                goToActivity(context, FlyplannerActivity.class, new Bundle());
             }
         });
         flyplansListView.setOnTouchListener(new View.OnTouchListener() {

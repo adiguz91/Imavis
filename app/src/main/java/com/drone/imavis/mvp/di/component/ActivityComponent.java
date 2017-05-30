@@ -6,6 +6,7 @@ package com.drone.imavis.mvp.di.component;
 
 import com.drone.imavis.mvp.di.PerActivity;
 import com.drone.imavis.mvp.di.module.ActivityModule;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.ui.login.LoginActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity;
@@ -29,4 +30,5 @@ public interface ActivityComponent {
     void inject(FlyplansActivity flyPlansActivity); //
     void inject(FlyplansFragment flyplansFragment);
     void inject(ProjectsFragment projectsFragment);
+    void inject(FlyplannerActivity flyplannerActivity);
 }

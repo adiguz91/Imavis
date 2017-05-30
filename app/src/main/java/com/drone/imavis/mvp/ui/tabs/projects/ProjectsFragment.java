@@ -19,22 +19,12 @@ import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
-import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
-import com.drone.imavis.mvp.ui.main.MainActivity;
-import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplanListViewAdapter;
-import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity;
-import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
-import com.drone.imavis.mvp.util.FileUtil;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by adigu on 08.05.2017.
@@ -57,20 +47,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
 
     //@BindView(R.id.projectSwipeListView) ListView projectsListView;
     private ListView projectsListView;
-
     private Context context;
-
-    /**
-     * Return an Intent to start this Activity.
-     * triggerDataSyncOnCreate allows disabling the background sync service onCreate. Should
-     * only be set to false during testing.
-     */
-    public static Intent getStartIntent(Context context, boolean triggerDataSyncOnCreate) {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(EXTRA_TRIGGER_SYNC_FLAG, triggerDataSyncOnCreate);
-        return intent;
-    }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

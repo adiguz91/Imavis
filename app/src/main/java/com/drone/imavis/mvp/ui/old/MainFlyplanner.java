@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.main;
+package com.drone.imavis.mvp.ui.old;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -28,6 +28,7 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.ActionButtons;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.GPSTracker;
+import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -43,7 +44,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainFlyplanner extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnCameraChangeListener {
+public class MainFlyplanner extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnCameraChangeListener {
 
     private static final String TAG = "MainPlyplanner";
     private static RelativeLayout layout;
@@ -58,7 +59,7 @@ public class MainFlyplanner extends AppCompatActivity implements OnMapReadyCallb
     private MarkerOptions markerOptions;
     private Marker marker;
     private boolean showMap;
-    private View flyplan;
+    //private View flyplan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,18 +81,18 @@ public class MainFlyplanner extends AppCompatActivity implements OnMapReadyCallb
             startService(i);
         }
 
-        flyplan = findViewById(R.id.flypan);
+        //flyplan = findViewById(R.id.flypan);
     }
 
-
-
     @Override
-    public boolean onTouchEvent(MotionEvent event) { //dispatchTouchEvent
+    public boolean dispatchTouchEvent(MotionEvent event) { //onTouchEvent
 
         boolean isHandled = false;
-        isHandled = super.onTouchEvent(event);
+        isHandled = super.dispatchTouchEvent(event);
+        Log.i("LogMap", "isHandled: " + !isHandled);
         //boolean isHandled = flyplan.onTouchEvent(event);
         //isHandled = FlyPlanView.getIsHandledTouch();
+
         if(!isHandled) {
             googleMap.getUiSettings().setScrollGesturesEnabled(true);
         }
@@ -99,7 +100,6 @@ public class MainFlyplanner extends AppCompatActivity implements OnMapReadyCallb
             googleMap.getUiSettings().setScrollGesturesEnabled(false);
         }
         return !isHandled;
-        //return true;
     }
 
     private boolean runtimePermissions() {

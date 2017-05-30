@@ -71,18 +71,20 @@
         <activity
             android:name=".uav.control.activity.BebopActivity"
             android:screenOrientation="landscape"/>
-        -->
+
         <activity
             android:name=".ui.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+            -->
         <activity
-            android:name="com.drone.imavis.mvp.ui.main.MainFlyplanner"
+            android:name="com.drone.imavis.mvp.ui.old.MainFlyplanner"
             android:label="@string/title_activity_main_flyplanner"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name="com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity"
             android:label="Imavis">
         </activity>
+
         <activity
             android:name="com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity"
             android:label="Flyplans">
@@ -91,6 +93,12 @@
             android:name="com.drone.imavis.mvp.ui.tabs.projects.ProjectsActivity"
             android:label="Projects">
         </activity>
+
+        <activity
+            android:name="com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity"
+            android:label="Flyplanner">
+        </activity>
+
     </application>
 
 </manifest>

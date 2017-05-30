@@ -17,7 +17,6 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.SyncService;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
-import com.drone.imavis.mvp.ui.main.MainActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 
 import java.util.ArrayList;
@@ -45,17 +44,6 @@ public class ProjectsActivity extends BaseActivity implements IProjectsMvpView {
     @BindView(R.id.projectSwipeListView) ListView projectsListView;
 
     private Context context;
-
-    /**
-     * Return an Intent to start this Activity.
-     * triggerDataSyncOnCreate allows disabling the background sync service onCreate. Should
-     * only be set to false during testing.
-     */
-    public static Intent getStartIntent(Context context, boolean triggerDataSyncOnCreate) {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(EXTRA_TRIGGER_SYNC_FLAG, triggerDataSyncOnCreate);
-        return intent;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
