@@ -57,15 +57,7 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_flyplanner, container, false);
-
         //flyplannerDrawer = (FlyPlanView) view.findViewById(R.id.flyplanner);
-
-        // Gets the MapView from the XML layout and creates it
-        //mapView = (MapView) view.findViewById(R.id.flyplannerMapView);
-        //mapView.onCreate(savedInstanceState);
-        //mapView.getMapAsync(this);
-
-
 
         //mapView.setOnTouchListener(new View.OnTouchListener() {
         //    @Override

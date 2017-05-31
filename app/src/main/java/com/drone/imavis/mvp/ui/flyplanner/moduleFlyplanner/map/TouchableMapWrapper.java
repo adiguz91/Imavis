@@ -17,6 +17,8 @@ public class TouchableMapWrapper extends FrameLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
+        //boolean test = super.onTouchEvent(event);
+
         switch (event.getAction()) {
 
             case MotionEvent.ACTION_DOWN:
@@ -27,6 +29,6 @@ public class TouchableMapWrapper extends FrameLayout {
                 //MainActivity.mMapIsTouched = false;
                 break;
         }
-        return super.dispatchTouchEvent(event);
+        return super.onTouchEvent(event);
     }
 }

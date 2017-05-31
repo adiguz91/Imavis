@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
+import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.FlyplannerMap;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.TouchableMapWrapper;
 import com.drone.imavis.mvp.util.ProgressGenerator;
@@ -27,9 +28,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallback, FlyPlanView.OnCompleteDrawHandling {
 
-    MapView mapView;
+    //MapView mapView;
+    FlyplannerMap flyplannerMap;
     private GoogleMap googleMap;
     FlyPlanView flyplannerDrawer;
+    Context context;
 
     private LatLng location;
     private MarkerOptions markerOptions;
@@ -56,10 +59,15 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
 
         flyplannerDrawer = (FlyPlanView) view.findViewById(R.id.flyplannerDraw);
 
+        flyplannerMap = (FlyplannerMap) getChildFragmentManager().findFragmentById(R.id.flyplannerMapFragment);
+
+        //flyplannerMap.onCreate(savedInstanceState);
+        flyplannerMap.getMapAsync(this);
+
         // Gets the MapView from the XML layout and creates it
-        mapView = (MapView) view.findViewById(R.id.flyplannerMapView);
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
+        //mapView = (MapView) view.findViewById(R.id.flyplannerMapView);
+        //mapView.onCreate(savedInstanceState);
+        //mapView.getMapAsync(this);
 
         //touchableMapWrapper = new TouchableMapWrapper(getActivity());
         //touchableMapWrapper.addView(view);
@@ -90,20 +98,6 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         //flyplannerDrawer.setMapFragment(googleMapFragment);
     }
 
-    public void updateMarker(LatLng location) {
-        if(marker != null)
-            marker.remove();
-
-        //googleMap.setMinZoomPreference(0.5f);
-        //googleMap.setMaxZoomPreference(2.0f);
-        markerOptions = new MarkerOptions().position(getLocation()).title("Marker in Villach");
-        marker = googleMap.addMarker(markerOptions);
-        marker.setPosition(getLocation());
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(getLocation()));
-        // Zoom in the Google Map
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-    }
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
@@ -124,17 +118,9 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         flyplannerDrawer.setFlyplannerListener(this);
     }
 
-    public LatLng getLocation() {
-        if(location == null)
-            location = new LatLng(46.61028, 13.85583);
-        return location;
-    }
-    public Marker getMarker() {
-        return marker;
-    }
-
     @Override
     public void onAttach(Context context) {
+        this.context = context;
         super.onAttach(context);
         //
     }
@@ -148,27 +134,51 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     @Override
     public void onResume() {
         super.onResume();
-        mapView.onResume();
+        flyplannerMap.onResume();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mapView.onDestroy();
+        flyplannerMap.onDestroy();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mapView.onPause();
+        flyplannerMap.onPause();
     }
 
     @Override
     public void onCompleteHandling(boolean result, MotionEvent event) {
-        mapView.onTouchEvent(event);
+        //flyplannerMap.onTouchEvent(event);
         //if(!result)
         //    googleMap.getUiSettings().setScrollGesturesEnabled(true);
         //else
         //    googleMap.getUiSettings().setScrollGesturesEnabled(false);
+    }
+
+
+    public LatLng getLocation() {
+        if(location == null)
+            location = new LatLng(46.61028, 13.85583);
+        return location;
+    }
+    public Marker getMarker() {
+        return marker;
+    }
+
+    public void updateMarker(LatLng location) {
+        if(marker != null)
+            marker.remove();
+
+        //googleMap.setMinZoomPreference(0.5f);
+        //googleMap.setMaxZoomPreference(2.0f);
+        markerOptions = new MarkerOptions().position(getLocation()).title("Marker in Villach");
+        marker = googleMap.addMarker(markerOptions);
+        marker.setPosition(getLocation());
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(getLocation()));
+        // Zoom in the Google Map
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
     }
 }
