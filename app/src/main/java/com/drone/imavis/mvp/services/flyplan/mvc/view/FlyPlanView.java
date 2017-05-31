@@ -101,6 +101,7 @@ public class FlyPlanView extends View {
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
+
         //super.onTouchEvent(event);
         Log.w(TAG, "onTouchEvent: " + event);
         int actionIndex; // event.getActionIndex()
@@ -136,23 +137,15 @@ public class FlyPlanView extends View {
 
         Log.i("LogFlyplan", "isHandled: " + isHandledTouch + " | event: " + event.getActionMasked());
 
-        //flyplannerListener.onCompleteHandling(isHandledTouch);
+        flyplannerListener.onCompleteHandling(isHandledTouch, event);
 
-        /*
-        if(googleMapFragment != null) {
-            if(!isHandledTouch)
-                googleMapFragment.getMap().getUiSettings().setScrollGesturesEnabled(true);
-            else
-                googleMapFragment.getMap().getUiSettings().setScrollGesturesEnabled(false);
-        }
-*/
-        //return super.onTouchEvent(event);
-        return isHandledTouch;
-        /*
+        //return true;
+        //return isHandledTouch;
+
         if(!isHandledTouch)
             return super.onTouchEvent(event);
         return isHandledTouch;
-*/
+
 
         //return super.onTouchEvent(event); //super.onTouchEvent(event);
         //if(isHandledTouch)
@@ -196,7 +189,7 @@ public class FlyPlanView extends View {
     }
 
     public interface OnCompleteDrawHandling {
-        public void onCompleteHandling(boolean result);
+        public void onCompleteHandling(boolean result, MotionEvent event);
     }
 
     private OnCompleteDrawHandling flyplannerListener;

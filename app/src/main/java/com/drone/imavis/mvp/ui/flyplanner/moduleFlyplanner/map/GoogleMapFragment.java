@@ -49,12 +49,6 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
     private boolean showMap;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        //onMapReadyCallback = (OnMapReadyCallback) getFragmentManager().findFragmentById(R.id.flyplanner);
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //activityComponent().inject(this);
@@ -67,9 +61,12 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
         //flyplannerDrawer = (FlyPlanView) view.findViewById(R.id.flyplanner);
 
         // Gets the MapView from the XML layout and creates it
-        mapView = (MapView) view.findViewById(R.id.flyplannerMapView);
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
+        //mapView = (MapView) view.findViewById(R.id.flyplannerMapView);
+        //mapView.onCreate(savedInstanceState);
+        //mapView.getMapAsync(this);
+
+
+
         //mapView.setOnTouchListener(new View.OnTouchListener() {
         //    @Override
         //    public boolean onTouch(View v, MotionEvent event) {
