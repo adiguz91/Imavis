@@ -4,25 +4,42 @@
     android:layout_height="match_parent"
     tools:context="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment">
 
-
-
     <!--
     <com.google.android.gms.maps.MapView
         android:id="@+id/flyplannerMapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />-->
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    <!-- xmlns:android="http://schemas.android.com/apk/res/android" -->
+    <fragment
+        android:layout_weight="0"
         android:id="@+id/flyplannerMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.FlyplannerMap"
-        />
+        class="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.FlyplannerMap" />
 
     <!-- draw nodes -->
     <com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView
+        android:layout_weight="0"
         android:id="@+id/flyplannerDraw"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+        <com.appyvet.rangebar.RangeBar
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/flyplannerRangebarSpeed"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            custom:tickStart="5"
+            custom:tickInterval="1"
+            custom:tickEnd="20"
+            custom:rangeBarColor="@color/accent"
+            custom:barWeight="5px"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/layout_background_round"
+            custom:pinMaxFont="15sp"
+            android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

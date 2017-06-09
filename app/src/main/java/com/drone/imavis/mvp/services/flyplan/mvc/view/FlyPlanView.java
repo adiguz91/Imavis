@@ -99,9 +99,7 @@ public class FlyPlanView extends View {
         return isDown;
     }
 
-    @Override
-    public boolean onTouchEvent(final MotionEvent event) {
-
+    public boolean doOnTouch(MotionEvent event) {
         //super.onTouchEvent(event);
         Log.w(TAG, "onTouchEvent: " + event);
         int actionIndex; // event.getActionIndex()
@@ -115,45 +113,31 @@ public class FlyPlanView extends View {
         //isDown = false;
         switch (event.getActionMasked())
         {
-            case MotionEvent.ACTION_DOWN:
-                //isDown = onDown(event);
-                //invalidate();
-                break;
             // find Node or Line
             case MotionEvent.ACTION_MOVE:
                 isHandledTouch = actionMove(event);
                 invalidate();
                 break;
-
             // do nothing
             default:
                 break;
-
         }
 
         if(event.getActionMasked() == MotionEvent.ACTION_DOWN)
             isHandledTouch = true;
-
-
         Log.i("LogFlyplan", "isHandled: " + isHandledTouch + " | event: " + event.getActionMasked());
 
-        flyplannerListener.onCompleteHandling(isHandledTouch, event);
-
-        //return true;
-        //return isHandledTouch;
+        //flyplannerListener.onCompleteHandling(isHandledTouch, event);
 
         if(!isHandledTouch)
-            return super.onTouchEvent(event);
+            return false; //return super.onTouchEvent(event);
         return isHandledTouch;
+    }
 
 
-        //return super.onTouchEvent(event); //super.onTouchEvent(event);
-        //if(isHandledTouch)
-        //    return true;//super.onTouchEvent(event);
-        //else
-        //    return false;
-        //return super.dispatchTouchEvent(event);
-        //return super.onTouchEvent(event);
+    @Override
+    public boolean onTouchEvent(final MotionEvent event) {
+        return doOnTouch(event);
     }
 
 
@@ -184,13 +168,5 @@ public class FlyPlanView extends View {
         viewRect = new Rect(0, 0, getMeasuredWidth(), getMeasuredHeight());
     }
 
-    public void setFlyplannerListener(OnCompleteDrawHandling flyplannerListener) {
-        this.flyplannerListener = flyplannerListener;
-    }
 
-    public interface OnCompleteDrawHandling {
-        public void onCompleteHandling(boolean result, MotionEvent event);
-    }
-
-    private OnCompleteDrawHandling flyplannerListener;
 }

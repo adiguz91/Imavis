@@ -13,19 +13,19 @@ import com.google.android.gms.maps.SupportMapFragment;
 
 public class FlyplannerMap extends SupportMapFragment {
 
-    public View mOriginalContentView;
-    public TouchableMapWrapper mTouchView;
+    public View originalView;
+    public TouchableMapWrapper mapTouchView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        mOriginalContentView = super.onCreateView(inflater, parent, savedInstanceState);
-        mTouchView = new TouchableMapWrapper(getActivity());
-        mTouchView.addView(mOriginalContentView);
-        return mTouchView;
+        originalView = super.onCreateView(inflater, parent, savedInstanceState);
+        mapTouchView = new TouchableMapWrapper(getActivity());
+        mapTouchView.addView(originalView);
+        return mapTouchView;
     }
 
     @Override
     public View getView() {
-        return mOriginalContentView;
+        return originalView;
     }
 }

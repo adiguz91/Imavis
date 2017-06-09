@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.view.MotionEvent;
 
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
@@ -39,6 +40,11 @@ public class FlyplannerActivity extends BaseActivity { // FragmentActivity
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
     }
 
     @Override

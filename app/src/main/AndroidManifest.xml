@@ -100,7 +100,8 @@
 
         <activity
             android:name="com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity"
-            android:label="Flyplanner">
+            android:label="Flyplanner"
+            > <!-- android:screenOrientation="landscape" -->
         </activity>
 
     </application>

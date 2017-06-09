@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
+import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
+
 /**
  * Created by adigu on 31.05.2017.
  */
@@ -15,20 +17,22 @@ public class TouchableMapWrapper extends FrameLayout {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean dispatchTouchEvent (MotionEvent event) {
 
-        //boolean test = super.onTouchEvent(event);
+        boolean result = super.onTouchEvent(event);
 
-        switch (event.getAction()) {
-
-            case MotionEvent.ACTION_DOWN:
-                //MainActivity.mMapIsTouched = true;
-                break;
-
-            case MotionEvent.ACTION_UP:
-                //MainActivity.mMapIsTouched = false;
-                break;
-        }
-        return super.onTouchEvent(event);
+        if (flyplannerListener != null)
+            flyplannerListener.onMapTouchReceive(result, event);
+        return !result;
     }
+
+    public void setFlyplannerMapListener(OnMapTouchListener flyplannerListener) {
+        this.flyplannerListener = flyplannerListener;
+    }
+
+    public interface OnMapTouchListener {
+        public void onMapTouchReceive(boolean result, MotionEvent event);
+    }
+
+    private OnMapTouchListener flyplannerListener;
 }

@@ -26,7 +26,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallback, FlyPlanView.OnCompleteDrawHandling {
+public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallback, TouchableMapWrapper.OnMapTouchListener {
 
     //MapView mapView;
     FlyplannerMap flyplannerMap;
@@ -63,14 +63,6 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
 
         //flyplannerMap.onCreate(savedInstanceState);
         flyplannerMap.getMapAsync(this);
-
-        // Gets the MapView from the XML layout and creates it
-        //mapView = (MapView) view.findViewById(R.id.flyplannerMapView);
-        //mapView.onCreate(savedInstanceState);
-        //mapView.getMapAsync(this);
-
-        //touchableMapWrapper = new TouchableMapWrapper(getActivity());
-        //touchableMapWrapper.addView(view);
 
         return view;
     }
@@ -115,7 +107,7 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         this.googleMap = googleMap;
         updateMarker(getLocation());
 
-        flyplannerDrawer.setFlyplannerListener(this);
+        flyplannerMap.mapTouchView.setFlyplannerMapListener(this);
     }
 
     @Override
@@ -149,16 +141,6 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         flyplannerMap.onPause();
     }
 
-    @Override
-    public void onCompleteHandling(boolean result, MotionEvent event) {
-        //flyplannerMap.onTouchEvent(event);
-        //if(!result)
-        //    googleMap.getUiSettings().setScrollGesturesEnabled(true);
-        //else
-        //    googleMap.getUiSettings().setScrollGesturesEnabled(false);
-    }
-
-
     public LatLng getLocation() {
         if(location == null)
             location = new LatLng(46.61028, 13.85583);
@@ -180,5 +162,14 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(getLocation()));
         // Zoom in the Google Map
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+    }
+
+    @Override
+    public void onMapTouchReceive(boolean result, MotionEvent event) {
+        //boolean result = flyplannerDrawer.onTouchEvent(event);
+        if(!result)
+            googleMap.getUiSettings().setScrollGesturesEnabled(true);
+        else
+            googleMap.getUiSettings().setScrollGesturesEnabled(false);
     }
 }
