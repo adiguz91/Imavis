@@ -7,13 +7,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.appyvet.rangebar.IRangeBarFormatter;
+import com.appyvet.rangebar.RangeBar;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
+import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
@@ -42,6 +46,8 @@ public class FlyplannerActivity extends BaseActivity { // FragmentActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+
+
         // todo: init flyplanner fragment instance
 
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
@@ -57,6 +63,27 @@ public class FlyplannerActivity extends BaseActivity { // FragmentActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        menu.findItem(R.id.menu_flyplanner_action_maptype).setIcon(
+                new IconDrawable(this, FontAwesomeIcons.fa_map)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
+        menu.findItem(R.id.menu_flyplanner_action_findgps).setIcon(
+                new IconDrawable(this, FontAwesomeIcons.fa_crosshairs)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
+        menu.findItem(R.id.menu_flyplanner_action_lock).setIcon(
+                new IconDrawable(this, FontAwesomeIcons.fa_lock)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -64,14 +91,27 @@ public class FlyplannerActivity extends BaseActivity { // FragmentActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        //if (id == R.id.action_settings) {
+        //    return true;
+        //}
+        if (id == R.id.menu_flyplanner_action_maptype){
+            //Toast.makeText(FlyplannerActivity.this, "Refresh App", Toast.LENGTH_LONG).show();
         }
-        if(id == R.id.action_refresh){
-            Toast.makeText(FlyplannerActivity.this, "Refresh App", Toast.LENGTH_LONG).show();
+        if (id == R.id.menu_flyplanner_action_findgps){
+            //Toast.makeText(FlyplannerActivity.this, "Create Text", Toast.LENGTH_LONG).show();
         }
-        if(id == R.id.action_new){
-            Toast.makeText(FlyplannerActivity.this, "Create Text", Toast.LENGTH_LONG).show();
+        if (id == R.id.menu_flyplanner_action_lock) {
+            if (item.getTitle().equals("Lock")) {
+                item.setTitle("Unlock");
+                item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_unlock_alt)
+                            .colorRes(R.color.icons)
+                            .actionBarSize());
+            } else {
+                item.setTitle("Lock");
+                item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_lock)
+                            .colorRes(R.color.icons)
+                            .actionBarSize());
+            }
         }
         return super.onOptionsItemSelected(item);
     }

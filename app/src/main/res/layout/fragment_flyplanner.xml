@@ -25,21 +25,35 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-        <com.appyvet.rangebar.RangeBar
-            xmlns:custom="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/flyplannerRangebarSpeed"
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            custom:tickStart="5"
-            custom:tickInterval="1"
-            custom:tickEnd="20"
-            custom:rangeBarColor="@color/accent"
-            custom:barWeight="5px"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/layout_background_round"
-            custom:pinMaxFont="15sp"
-            android:layout_alignParentBottom="true"/>
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="horizontal"
+        android:background="@drawable/layout_background_round">
+
+        <SeekBar
+            android:id="@+id/flyplannerSeekBarHeight"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:progress="20"
+            android:secondaryProgress="20"
+            android:layout_gravity="center_vertical"/>
+
+        <com.joanzapata.iconify.widget.IconTextView
+            android:padding="5dp"
+            android:layout_margin="5dp"
+            android:id="@+id/iconTextViewLoginAppIcon"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="{fa-i-cursor}"
+            android:shadowRadius="0"
+            android:textSize="16sp"
+            android:background="@color/colorPrimary"
+            android:textColor="#ffffff"/>
+
+    </LinearLayout>
+
 
 </RelativeLayout>

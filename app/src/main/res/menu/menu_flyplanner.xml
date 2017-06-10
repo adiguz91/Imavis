@@ -2,22 +2,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
-tools:context=".MainActivity">
+tools:context="com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity">
+<!--
 <item android:id="@+id/action_settings"
     android:title="@string/action_settings"
     android:orderInCategory="100"
     app:showAsAction="never" />
+-->
 
-<item android:id="@+id/action_refresh"
-    android:title="Refresh"
-    android:icon="@drawable/star"
+<item android:id="@+id/menu_flyplanner_action_lock"
+    android:title="Lock"
     android:orderInCategory="200"
     app:showAsAction="ifRoom" />
 
-<item android:id="@+id/action_new"
-    android:title="New"
-    android:icon="@drawable/ic_plusone_medium_off_client"
+<item android:id="@+id/menu_flyplanner_action_findgps"
+    android:title="Find GPS"
     android:orderInCategory="300"
     app:showAsAction="ifRoom" />
-    
+
+<item android:id="@+id/menu_flyplanner_action_maptype"
+    android:title="Map type"
+    android:orderInCategory="400"
+    app:showAsAction="ifRoom" />
+
+
 </menu>
