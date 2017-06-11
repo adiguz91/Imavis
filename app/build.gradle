@@ -88,6 +88,7 @@ dependencies {
     compile 'com.getbase:floatingactionbutton:1.10.1'
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
     compile 'com.ogaclejapan.smarttablayout:library:1.6.1@aar'
+    compile 'com.github.jorgecastilloprz:fabprogresscircle:1.01@aar'
     //Optional: see how to use the utility.
     compile 'com.ogaclejapan.smarttablayout:utils-v4:1.6.1@aar'
     compile 'com.appyvet:materialrangebar:1.3'

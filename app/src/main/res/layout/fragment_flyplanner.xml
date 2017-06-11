@@ -25,33 +25,65 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+
+
     <LinearLayout
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:orientation="horizontal"
-        android:background="@drawable/layout_background_round">
+        android:orientation="horizontal">
 
-        <SeekBar
-            android:id="@+id/flyplannerSeekBarHeight"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:progress="20"
-            android:secondaryProgress="20"
-            android:layout_gravity="center_vertical"/>
-
-        <com.joanzapata.iconify.widget.IconTextView
-            android:padding="5dp"
-            android:layout_margin="5dp"
-            android:id="@+id/iconTextViewLoginAppIcon"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:layout_alignParentBottom="true"
             android:layout_width="wrap_content"
-            android:text="{fa-i-cursor}"
-            android:shadowRadius="0"
-            android:textSize="16sp"
-            android:background="@color/colorPrimary"
-            android:textColor="#ffffff"/>
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_vertical"
+            android:orientation="horizontal"
+            android:background="@drawable/layout_background_round">
+
+            <SeekBar
+                android:id="@+id/flyplannerSeekBarHeight"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:progress="20"
+                android:secondaryProgress="20"
+                android:layout_gravity="center_vertical"/>
+
+            <com.joanzapata.iconify.widget.IconTextView
+                android:padding="5dp"
+                android:layout_margin="5dp"
+                android:id="@+id/iconTextViewLoginAppIcon"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="{fa-i-cursor}"
+                android:shadowRadius="0"
+                android:textSize="16sp"
+                android:background="@color/colorPrimary"
+                android:textColor="#ffffff"/>
+
+
+
+        </LinearLayout>
+
+        <com.github.jorgecastilloprz.FABProgressCircle
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/flyplanner_fab_pc_start"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right">
+
+            <!-- You can change it with the fab from the library you want to use -->
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/flyplanner_fab_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:rippleColor="#ffffff"
+                app:elevation="4dp"
+                app:borderWidth="0dp" />
+        </com.github.jorgecastilloprz.FABProgressCircle>
+
 
     </LinearLayout>
 

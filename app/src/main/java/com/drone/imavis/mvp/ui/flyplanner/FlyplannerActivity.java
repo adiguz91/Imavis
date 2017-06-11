@@ -3,10 +3,13 @@ package com.drone.imavis.mvp.ui.flyplanner;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -17,6 +20,8 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
+import com.github.jorgecastilloprz.FABProgressCircle;
+import com.github.jorgecastilloprz.listeners.FABProgressListener;
 import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
@@ -46,7 +51,33 @@ public class FlyplannerActivity extends BaseActivity { // FragmentActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        FABProgressCircle fabProgressCircleStart = (FABProgressCircle) findViewById(R.id.flyplanner_fab_pc_start);
+        fabProgressCircleStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabProgressCircleStart.show();
+                // todo start the drone to fly
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        // Actions to do after 10 seconds
+                        fabProgressCircleStart.beginFinalAnimation();
+                    }
+                }, 5 * 1000);
+            }
+        });
 
+        FloatingActionButton fabStart = (FloatingActionButton) findViewById(R.id.flyplanner_fab_start);
+        fabStart.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_play)
+                .colorRes(R.color.icons)
+                .actionBarSize());
+
+        fabProgressCircleStart.attachListener(new FABProgressListener() {
+            @Override
+            public void onFABProgressAnimationEnd() {
+                Toast.makeText(FlyplannerActivity.this, "Finished Drone", Toast.LENGTH_LONG).show();
+            }
+        });
 
         // todo: init flyplanner fragment instance
 
