@@ -63,8 +63,6 @@
                 android:background="@color/colorPrimary"
                 android:textColor="#ffffff"/>
 
-
-
         </LinearLayout>
 
         <com.github.jorgecastilloprz.FABProgressCircle
