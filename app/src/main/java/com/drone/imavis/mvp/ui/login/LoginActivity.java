@@ -14,6 +14,7 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
+import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.util.ProgressGenerator;
 import com.drone.imavis.mvp.util.StringUtil;
 import com.joanzapata.iconify.IconDrawable;
@@ -89,8 +90,8 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
 
     private void login() {
 
-        if (StringUtil.isNullOrEmpty(textUsername.getEditableText().toString()) &&
-            StringUtil.isNullOrEmpty(textPassword.getEditableText().toString()) ) {
+        if (!StringUtil.isNullOrEmpty(textUsername.getEditableText().toString()) &&
+            !StringUtil.isNullOrEmpty(textPassword.getEditableText().toString()) ) {
 
             Authentication authentication =
                     new Authentication(textUsername.getEditableText().toString(),
@@ -110,7 +111,7 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
     public void onLoginSuccess() {
         buttonLogin.setProgress(100); // 100 : Success
         onComplete();
-        //goToActivity(this, ProjectsFlyplansActivity.class, new Bundle());
+        goToActivity(this, ProjectsFlyplansActivity.class, new Bundle());
 
     }
 
