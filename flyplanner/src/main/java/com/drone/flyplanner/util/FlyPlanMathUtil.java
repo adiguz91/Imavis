@@ -12,7 +12,6 @@ import com.drone.flyplanner.util.constants.classes.CColor;
 import com.drone.flyplanner.util.constants.classes.CShape;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
 import com.drone.flyplanner.util.models.dimension.Size;
-import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 
 /**
  * Created by adigu on 26.02.2017.
@@ -67,7 +66,7 @@ public class FlyPlanMathUtil {
         return (float) distance;
     }
 
-    public void addDirection(Canvas canvas, GeometricShape currentWaypoint, GeometricShape nextWaypoint, float radius) {
+    public void addDirection(Canvas canvas, GeometricShape currentWaypoint, GeometricShape nextWaypoint, float radius, float scaleFactor) {
         Paint paint = new Paint();
         final RectF rect = new RectF();
         float angleDirection = angleBetweenPoints(currentWaypoint, nextWaypoint);
@@ -91,8 +90,7 @@ public class FlyPlanMathUtil {
         paint.setColor(Color.parseColor(CColor.WAYPOINT_DIRECTION));
 
         Coordinate scaledCurrentWaypoint;
-        scaledCurrentWaypoint = currentWaypoint.getCoordinate().toScaleFactor(
-                FlyPlanController.getInstance().getScaleFactor());
+        scaledCurrentWaypoint = currentWaypoint.getCoordinate().toScaleFactor(scaleFactor);
         //scaledCurrentWaypoint = currentWaypoint.getShape().getCoordinate();
 
         //currentWaypoint.getShape().setCoordinate(scaledCurrentWaypoint);

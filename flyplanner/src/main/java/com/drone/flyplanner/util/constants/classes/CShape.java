@@ -1,6 +1,6 @@
 package com.drone.flyplanner.util.constants.classes;
 
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
+import com.drone.flyplanner.data.model.flyplan.nodes.shapes.geometric.Circle;
 
 /**
  * Created by adigu on 03.02.2017.

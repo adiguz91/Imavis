@@ -7,9 +7,9 @@ import android.graphics.Path;
 
 import com.drone.flyplanner.data.model.flyplan.nodes.shapes.IShape;
 import com.drone.flyplanner.util.constants.classes.CColor;
+import com.drone.flyplanner.util.constants.classes.CMap;
 import com.drone.flyplanner.util.constants.classes.CShape;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
-import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 
 /**
  * Created by adigu on 03.02.2017.
@@ -39,8 +39,16 @@ public class Line implements IShape {
 
     @Override
     public void draw(Canvas canvas) {
-        Coordinate fromScaledCoordinate = startCoordinate.toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
-        Coordinate toScaledCoordinate = endCoordinate.toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+        draw(canvas, CMap.SCALE_FACTOR_DEFAULT);
+    }
+
+    @Override
+    public void draw(Canvas canvas, float scaleFactor) {
+        if(scaleFactor == Float.MIN_VALUE)
+            scaleFactor = CMap.SCALE_FACTOR_DEFAULT;
+
+        Coordinate fromScaledCoordinate = startCoordinate.toScaleFactor(scaleFactor);
+        Coordinate toScaledCoordinate = endCoordinate.toScaleFactor(scaleFactor);
         Path path = new Path();
         path.moveTo(fromScaledCoordinate.getX(), fromScaledCoordinate.getY());
         path.lineTo(toScaledCoordinate.getX(),toScaledCoordinate.getY());

@@ -4,9 +4,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import com.drone.flyplanner.util.constants.classes.CMap;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
 import com.drone.flyplanner.util.models.dimension.Size;
-import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 
 /**
  * Created by adigu on 01.03.2017.
@@ -33,11 +33,19 @@ public class Rectangle extends GeometricShape  {
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawRect(getRect(), getPaint());
+        canvas.drawRect(getRect(CMap.SCALE_FACTOR_DEFAULT), getPaint());
     }
 
-    public Rect getRect() {
-        Coordinate scaledCoordinate = centralizedCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+    @Override
+    public void draw(Canvas canvas, float scaleFactor) {
+        canvas.drawRect(getRect(scaleFactor), getPaint());
+    }
+
+    public Rect getRect(float scaleFactor) {
+        if(scaleFactor == Float.MIN_VALUE)
+            scaleFactor = CMap.SCALE_FACTOR_DEFAULT;
+
+        Coordinate scaledCoordinate = centralizedCoordinate().toScaleFactor(scaleFactor);
         return new Rect((int)scaledCoordinate.getX()-size.getWidth()/2-padding,(int)scaledCoordinate.getY()-size.getHeight()/2-padding,
                 (int)scaledCoordinate.getX()+size.getWidth()/2+padding,
                 (int)scaledCoordinate.getY()+size.getHeight()/2+padding);

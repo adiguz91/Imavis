@@ -3,6 +3,8 @@ package com.drone.flyplanner.data.model.flyplan.nodes.shapes.geometric;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
+import com.drone.flyplanner.util.constants.classes.CFlyPlan;
+import com.drone.flyplanner.util.constants.classes.CMap;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
 
 
@@ -17,6 +19,7 @@ public class Circle<T> extends GeometricShape {
         this.classT = classT;
         this.radius = radius;
     }
+
     /*
     private void setTypeAtRuntime() {
         this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).
@@ -26,11 +29,11 @@ public class Circle<T> extends GeometricShape {
 
     @Override
     public void draw(Canvas canvas) {
-        draw(canvas, true);
+        draw(canvas, CMap.SCALE_FACTOR_DEFAULT);
     }
-    public void draw(Canvas canvas, boolean scaled) {
-        if(scaled) {
-            Coordinate cartesianCoordinate = getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+    public void draw(Canvas canvas, float scaleFactor) {
+        if(scaleFactor == Float.MIN_VALUE) {
+            Coordinate cartesianCoordinate = getCoordinate().toScaleFactor(scaleFactor);
             canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle());
             canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder());
         } else {

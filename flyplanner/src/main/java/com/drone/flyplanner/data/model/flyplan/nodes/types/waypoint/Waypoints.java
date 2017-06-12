@@ -2,18 +2,24 @@ package com.drone.flyplanner.data.model.flyplan.nodes.types.waypoint;
 
 import android.graphics.Canvas;
 
+import com.drone.flyplanner.data.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.flyplanner.util.doublelinkedlist.DoublyLinkedList;
-import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
+
+import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.google.gson.Gson;
 
 import java.util.ListIterator;
+
+import javax.inject.Inject;
 
 /**
  * Created by Adrian on 26.11.2016.
  */
 
 public class Waypoints extends DoublyLinkedList<Waypoint> {
+
+    @Inject
+    IFlyPlanUtil flyPlanUtil;
 
     private static Gson gson = new Gson();
     private Waypoint selectedWaypoint;
@@ -39,7 +45,7 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
             if(waypointLastNode != null) {
                 waypoint.addLine(canvas, waypointLastNode, waypoint);
                 waypoint.drawProgressiveCircles(canvas, waypointLastNode.getShape(), waypoint.getShape());
-                if(waypointLastNode == FlyPlanController.getSelectedWaypoint()) {
+                if(waypointLastNode == flyPlanUtil.getSelectedWaypoint()) {
                     waypointLastNode.addRectWithTextOnLine(canvas, waypointLastNode, waypoint, "10m/s");
                 }
                 
@@ -65,7 +71,7 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         while (iterator.hasNext()) {
             waypoint = iterator.next();
             waypoint.setShapePaint();
-            if(waypoint != FlyPlanController.getSelectedWaypoint()) {
+            if(waypoint != flyPlanUtil.getSelectedWaypoint()) {
                 waypoint.draw(canvas, String.valueOf(counter), counter);
             }
             else

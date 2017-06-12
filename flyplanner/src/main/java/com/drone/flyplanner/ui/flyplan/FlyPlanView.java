@@ -16,22 +16,28 @@ import com.drone.flyplanner.ui.flyplan.listener.GestureListener;
 import com.drone.flyplanner.ui.flyplan.listener.ScaleListener;
 import com.drone.flyplanner.util.constants.classes.CFlyPlan;
 import com.drone.flyplanner.util.constants.classes.CMap;
+import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
+
+import javax.inject.Inject;
 
 public class FlyPlanView extends View {
 
     private GestureDetector gestureDetector;
     private Rect viewRect;
 
-    private static final String TAG = "FlyPlanView";
-    private static ScaleGestureDetector scaleDetector;
-    private static SparseArray<Node> nodes;
-    public static SparseArray<Node> getNodes() {
+    @Inject
+    IFlyPlanUtil flyPlanUtil;
+
+    private final String TAG = "FlyPlanView";
+    private ScaleGestureDetector scaleDetector;
+    private SparseArray<Node> nodes;
+    public SparseArray<Node> getNodes() {
         return nodes;
     }
 
-    private static boolean isHandledTouch;
-    public static boolean getIsHandledTouch() {
+    private boolean isHandledTouch;
+    public boolean getIsHandledTouch() {
         return isHandledTouch;
     }
 
@@ -60,7 +66,7 @@ public class FlyPlanView extends View {
         //GoogleMapFragment googleMapFragment = (GoogleMapFragment) activity.fra.findFragmentById(R.id.flyplannerMapView);
     }
 
-    public static float getScaleFactor() {
+    public float getScaleFactor() {
         if(scaleDetector != null)
             return ScaleListener.getScaleFactor();
         return CMap.SCALE_FACTOR_DEFAULT;
@@ -72,7 +78,7 @@ public class FlyPlanView extends View {
         canvas.save();
         // mainActivity.Zoom(mScaleFactor); // GoogleMap
         canvas.scale(getScaleFactor(), getScaleFactor());
-        FlyPlanController.getInstance().draw(canvas);
+        flyPlanUtil.draw(canvas);
         canvas.restore();
     }
 
@@ -82,14 +88,14 @@ public class FlyPlanView extends View {
         //FlyPlanView.getNodes().clear();
         int pointerId = event.getPointerId(0);
         Coordinate touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
-        touchedNode = FlyPlanController.getInstance().getTouchedNode(touchCoordinate);
+        touchedNode = flyPlanUtil.getTouchedNode(touchCoordinate);
         if(touchedNode == null)
             return false;
         return true;
     }
 
-    private static boolean isDown = false;
-    public static boolean isDown() {
+    private boolean isDown = false;
+    public boolean isDown() {
         return isDown;
     }
 
@@ -134,14 +140,13 @@ public class FlyPlanView extends View {
         return doOnTouch(event);
     }
 
-
-    public static boolean actionMove(MotionEvent event) {
+    public boolean actionMove(MotionEvent event) {
         int pointerCount = event.getPointerCount();
         boolean isHandled = true;
         for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
             //pointerId = event.getPointerId(actionIndex);
             Coordinate coordinateTouched = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
-            Node touchedNode = FlyPlanController.getTouchedNode();
+            Node touchedNode = flyPlanUtil.getTouchedNode();
             if (touchedNode != null) {
                 touchedNode.getShape().setCoordinate(coordinateTouched);
                 //isHandled = true;

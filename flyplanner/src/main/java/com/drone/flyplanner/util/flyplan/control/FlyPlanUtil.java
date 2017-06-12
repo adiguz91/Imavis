@@ -1,6 +1,7 @@
 package com.drone.flyplanner.util.flyplan.control;
 
 import android.graphics.Canvas;
+import android.os.FileUriExposedException;
 
 import com.drone.flyplanner.data.model.flyplan.FlyPlan;
 import com.drone.flyplanner.data.model.flyplan.map.Map;
@@ -8,39 +9,44 @@ import com.drone.flyplanner.data.model.flyplan.nodes.Node;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.waypoint.WaypointData;
+import com.drone.flyplanner.ui.flyplan.FlyPlanView;
+import com.drone.flyplanner.util.FileUtil;
+import com.drone.flyplanner.util.constants.classes.CFileDirectories;
 import com.drone.flyplanner.util.constants.classes.CFiles;
 import com.drone.flyplanner.util.constants.classes.CFlyPlan;
 import com.drone.flyplanner.util.constants.classes.CShape;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
 import com.drone.flyplanner.util.models.dimension.Size;
+import com.google.android.gms.maps.GoogleMap;
 
 import java.io.File;
 import java.util.ListIterator;
+
+import javax.inject.Inject;
 
 /**
  * Created by adigu on 23.02.2017.
  */
 public class FlyPlanUtil implements IFlyPlanUtil {
 
-    private FlyPlan flyPlan;
-    private static FlyPlanUtil flyPlanController;
-    private static Node touchedNode;
-    private static Waypoint selectedWaypoint;
-    private static PointOfInterest selectedPOI;
+    @Inject
+    FileUtil fileUtil;
 
-    private static void setTouchedNode(Node node) {
+    @Inject
+    FlyPlanView flyPlanView;
+
+    private FlyPlan flyPlan;
+    private Node touchedNode;
+    private Waypoint selectedWaypoint;
+    private PointOfInterest selectedPOI;
+
+    private void setTouchedNode(Node node) {
         touchedNode = node;
     }
-    public static Waypoint getSelectedWaypoint() { return selectedWaypoint; }
-    public static PointOfInterest getSelectedPOI() { return selectedPOI; }
-    public static Node getTouchedNode() { return touchedNode; }
+    public Waypoint getSelectedWaypoint() { return selectedWaypoint; }
+    public PointOfInterest getSelectedPOI() { return selectedPOI; }
+    public Node getTouchedNode() { return touchedNode; }
 
-    // SINGLETON PATTERN
-    public static FlyPlanUtil getInstance() {
-        if (flyPlanController == null)
-            flyPlanController = new FlyPlanController();
-        return flyPlanController;
-    }
 
     public FlyPlanUtil() {
         Coordinate mapCoordinate = new Coordinate(0,0);
@@ -48,6 +54,7 @@ public class FlyPlanUtil implements IFlyPlanUtil {
         Map map = new Map<GoogleMap>(mapCoordinate, mapSize);
         this.flyPlan = new FlyPlan(map);
     }
+
     public FlyPlanUtil(Map map) {
         this.flyPlan = new FlyPlan(map);
     }
@@ -113,7 +120,7 @@ public class FlyPlanUtil implements IFlyPlanUtil {
         if(getSelectedPOI() != null) {
             int toucheWpIndex = flyPlan.getPoints().getWaypoints().indexOf(touchedWaypoint);
             Waypoint waypoint = flyPlan.getPoints().getWaypoints().get(toucheWpIndex);
-            ((WaypointData)waypoint.getData()).setPoi(FlyPlanController.getSelectedPOI());
+            ((WaypointData)waypoint.getData()).setPoi(getSelectedPOI());
             flyPlan.getPoints().getWaypoints().set(toucheWpIndex, waypoint);
         }
     }
@@ -209,7 +216,7 @@ public class FlyPlanUtil implements IFlyPlanUtil {
     }
 
     public float getScaleFactor() {
-        return FlyPlanView.getScaleFactor();
+        return flyPlanView.getScaleFactor();
     }
 
     @Override
@@ -228,7 +235,7 @@ public class FlyPlanUtil implements IFlyPlanUtil {
     @Override
     public FlyPlan onPlanLoad(File file) {
         try {
-            return FlyPlan.loadFromJsonFile(FileUtil.readFile(file));
+            return FlyPlan.loadFromJsonFile(fileUtil.readFile(file));
         } catch (Exception e) {
             e.printStackTrace();
         }   return null;
@@ -237,8 +244,8 @@ public class FlyPlanUtil implements IFlyPlanUtil {
     @Override
     public boolean onPlanSave() {
         String filenameWithExtension = flyPlan.getTitle() + CFiles.SAVE_DATATYPE;
-        String absoluteFlyPlanFilePath = FileUtil.FilePathCombine(CFileDirectories.FLYPLAN_ABSOLUTE, filenameWithExtension);
-        return FileUtil.writeToFile(absoluteFlyPlanFilePath, flyPlan.saveToJsonFile());
+        String absoluteFlyPlanFilePath = fileUtil.FilePathCombine(CFileDirectories.FLYPLAN_ABSOLUTE, filenameWithExtension);
+        return fileUtil.writeToFile(absoluteFlyPlanFilePath, flyPlan.saveToJsonFile());
     }
 
     @Override

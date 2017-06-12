@@ -23,6 +23,11 @@ public class Square<T> extends GeometricShape {
         // todo
     }
 
+    @Override
+    public void draw(Canvas canvas, float scaleFactor) {
+        // TODO
+    }
+
 
     private Class<T> classT;
 }

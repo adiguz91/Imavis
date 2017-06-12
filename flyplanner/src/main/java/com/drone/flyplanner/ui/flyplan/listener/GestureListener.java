@@ -7,7 +7,10 @@ import com.drone.flyplanner.data.model.flyplan.nodes.Node;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.flyplanner.ui.flyplan.FlyPlanView;
+import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
+
+import javax.inject.Inject;
 
 /**
  * Created by adigu on 23.02.2017.
@@ -15,16 +18,22 @@ import com.drone.flyplanner.util.models.coordinates.Coordinate;
 
 public class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
+    @Inject
+    FlyPlanView flyPlanView;
+
+    @Inject
+    IFlyPlanUtil flyPlanUtil;
+
     private Coordinate touchCoordinate;
     private Node touchedNode;
     private int pointerId;
 
     @Override
     public boolean onDown(MotionEvent event) {
-        FlyPlanView.getNodes().clear();
+        flyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
-        touchedNode = FlyPlanController.getInstance().getTouchedNode(touchCoordinate);
+        touchedNode = flyPlanUtil.getTouchedNode(touchCoordinate);
         //if(touchedNode == null)
         //    return false;
         return true;
@@ -35,13 +44,13 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         //FlyPlanView.getNodes().clear();
         //return true;
 
-        FlyPlanView.getNodes().clear();
+        flyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
-        boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(Waypoint.class, touchCoordinate, touchedNode);
+        boolean isObtained = flyPlanUtil.obtainTouchedNode(Waypoint.class, touchCoordinate, touchedNode);
         if(touchedNode != null) {
             if(isObtained) {
-                FlyPlanView.getNodes().put(pointerId, touchedNode);
+                flyPlanView.getNodes().put(pointerId, touchedNode);
             }
             return true;
             //else checkSelected(touchedNode.getClass());
@@ -52,13 +61,13 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
     @Override
     public void onLongPress(MotionEvent event) {
         //super.onLongPress(event);
-        FlyPlanView.getNodes().clear();
+        flyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
 
         // checkIfLongPressLineText
         //if(FlyPlanController.getSelectedWaypoint() != null) {
-        Coordinate textLineRectCoor = FlyPlanController.getInstance().isTouchedTextRect(touchCoordinate);
+        Coordinate textLineRectCoor = flyPlanUtil.isTouchedTextRect(touchCoordinate);
 
         if(textLineRectCoor != null) {
             // ##################################################
@@ -66,10 +75,10 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
             // ##################################################
         }
         else {
-            boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(PointOfInterest.class, touchCoordinate, touchedNode);
+            boolean isObtained = flyPlanUtil.obtainTouchedNode(PointOfInterest.class, touchCoordinate, touchedNode);
             if(touchedNode != null) {
                 if(isObtained) {
-                    FlyPlanView.getNodes().put(pointerId, touchedNode);
+                    flyPlanView.getNodes().put(pointerId, touchedNode);
                 } else {
                     //checkSelected(touchedNode.getClass());
                     // ##################################################

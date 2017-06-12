@@ -6,13 +6,20 @@ import android.graphics.Color;
 import java.util.ArrayList;
 
 import com.drone.flyplanner.util.constants.classes.CColor;
+import com.drone.flyplanner.util.flyplan.control.FlyPlanUtil;
+import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.google.gson.Gson;
+
+import javax.inject.Inject;
 
 /**
  * Created by Adrian on 26.11.2016.
  */
 
 public class PointOfInterests extends ArrayList<PointOfInterest> {
+
+    @Inject
+    IFlyPlanUtil flyPlanUtil;
 
     private static Gson gson = new Gson();
     private PointOfInterest selectedPOI;
@@ -24,7 +31,7 @@ public class PointOfInterests extends ArrayList<PointOfInterest> {
         int selectedPoiIndex = -1;
         for (PointOfInterest poi : this) {
             poi.setShapePaint();
-            if(poi != FlyPlanController.getSelectedPOI()) {
+            if(poi != flyPlanUtil.getSelectedPOI()) {
                 poi.getShape().setBackgroundColor(getPoiColorById(counter - 1));
                 poi.draw(canvas, String.valueOf(counter));
             } else

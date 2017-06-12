@@ -6,6 +6,7 @@ import android.graphics.Color;
 import com.drone.flyplanner.data.model.flyplan.nodes.Node;
 import com.drone.flyplanner.data.model.flyplan.nodes.shapes.simple.Text;
 import com.drone.flyplanner.util.constants.classes.CColor;
+import com.drone.flyplanner.util.constants.classes.CShape;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
 
 

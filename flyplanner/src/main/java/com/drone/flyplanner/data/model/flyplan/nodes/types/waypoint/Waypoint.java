@@ -13,8 +13,12 @@ import com.drone.flyplanner.data.model.flyplan.nodes.shapes.simple.Text;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.flyplanner.util.FlyPlanMathUtil;
 import com.drone.flyplanner.util.constants.classes.CColor;
+import com.drone.flyplanner.util.constants.classes.CMap;
 import com.drone.flyplanner.util.constants.classes.CShape;
+import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
+
+import javax.inject.Inject;
 
 
 /**
@@ -22,6 +26,9 @@ import com.drone.flyplanner.util.models.coordinates.Coordinate;
  */
 
 public class Waypoint<T> extends Node implements IWaypointDraw {
+
+    @Inject
+    IFlyPlanUtil flyPlanUtil;
 
     private Rect lineTextRect;
     private Line line;
@@ -65,7 +72,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         float distance = ((Circle)this.getShape()).getRadius() - 10; //  - CShape.WAYPOINT_CIRCLE_ID_DISTANCE
         //Coordinate idCoordinate = FlyPlanMath.getInstance().pointOnCircle(
         //                            getShape().getCoordinate(), distance, angleDirection);
-        Coordinate scaled = this.getShape().getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
+        Coordinate scaled = this.getShape().getCoordinate().toScaleFactor(flyPlanUtil.getScaleFactor());
         Coordinate coordinateOnCircly = FlyPlanMathUtil.getInstance().
                                             pointOnCircle(scaled, distance, 360 - 45);
 
@@ -73,12 +80,12 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         idCircle.setBackgroundColor(this.getShape().getBorderColor());
         //idCircle.setBorderColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
         //idCircle.setBorder(CShape.WAYPOINT_CIRCLE_ID_BORDERSIZE);
-        idCircle.draw(canvas, false);
+        idCircle.draw(canvas);
 
         Text<Waypoint> idText = new Text(Integer.TYPE, coordinateOnCircly, String.valueOf(id));
         idText.setTextColor(Color.WHITE);
         idText.setTextSize(25);
-        idText.draw(canvas, false);
+        idText.draw(canvas, flyPlanUtil.getScaleFactor());
     }
 
     @Override
@@ -116,7 +123,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
             Circle progressiveCircle = new Circle(int.class, progressivePoint, 20);
             progressiveCircle.setBackgroundColor(current.getBorderColor());
             progressiveCircle.draw(canvas);
-            FlyPlanMathUtil.getInstance().addDirection(canvas,progressiveCircle, next, CShape.WAYPOINT_CIRCLE_ID_RADIUS+6);
+            FlyPlanMathUtil.getInstance().addDirection(canvas,progressiveCircle, next, CShape.WAYPOINT_CIRCLE_ID_RADIUS+6, flyPlanUtil.getScaleFactor());
         }
     }
 
@@ -131,7 +138,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         distanceOfTwoPoints /= 2;
         Coordinate pointOnLine = FlyPlanMathUtil.getInstance().pointOnCircle(pointOnCircle, distanceOfTwoPoints, angleOfNextPoint);
         Rectangle rect = new Rectangle(Waypoint.class, pointOnLine, FlyPlanMathUtil.getInstance().getPointOfText(content, 28), 10);
-        lineTextRect = rect.getRect();
+        lineTextRect = rect.getRect(flyPlanUtil.getScaleFactor());
         rect.setBackgroundColor(Color.parseColor("#80FFFFFF"));
         rect.draw(canvas);
 
@@ -143,7 +150,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
 
     @Override
     public void addDirection(Canvas canvas, Waypoint currentWaypoint, Node nextWaypoint) {
-        FlyPlanMathUtil.getInstance().addDirection(canvas, currentWaypoint.getShape(), nextWaypoint.getShape(), CShape.WAYPOINT_CIRCLE_RADIUS);
+        FlyPlanMathUtil.getInstance().addDirection(canvas, currentWaypoint.getShape(), nextWaypoint.getShape(), CShape.WAYPOINT_CIRCLE_RADIUS, flyPlanUtil.getScaleFactor());
     }
 
     @Override

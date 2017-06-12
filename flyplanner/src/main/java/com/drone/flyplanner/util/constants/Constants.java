@@ -1,9 +1,8 @@
 package com.drone.flyplanner.util.constants;
 
-import com.drone.imavis.mvp.util.constants.classes.CDate;
-import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
-import com.drone.imavis.mvp.util.constants.classes.CMap;
-import com.drone.imavis.mvp.util.constants.languages.LanguageController;
+import com.drone.flyplanner.util.constants.classes.CFlyPlan;
+import com.drone.flyplanner.util.constants.classes.CMap;
+import com.drone.flyplanner.util.constants.languages.LanguageController;
 
 /**
  * Created by Adrian on 27.11.2016.
@@ -14,7 +13,6 @@ public class Constants {
     private LanguageController language;
     private CFlyPlan flyPlan;
     private CMap map;
-    private CDate date;
 
     public Constants() {}
 
@@ -33,6 +31,4 @@ public class Constants {
     public CMap getMap() {
         return map;
     }
-
-    public CDate getDate() {return date; }
 }

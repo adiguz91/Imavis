@@ -9,13 +9,19 @@ import com.drone.flyplanner.data.model.flyplan.nodes.types.waypoint.Waypoint;
 
 import com.drone.flyplanner.util.constants.classes.CFlyPlan;
 
+import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.google.gson.Gson;
+
+import javax.inject.Inject;
 
 /**
  * Created by Adrian on 26.11.2016.
  */
 
 public class FlyPlan {
+
+    @Inject
+    IFlyPlanUtil flyPlanUtil;
 
     public FlyPlan(Map map) {
         this.map = map;
@@ -32,8 +38,8 @@ public class FlyPlan {
         int selectedPoiIndex = this.getPoints().getPointOfInterests().draw(canvas);
         int selectedWaypointId = selectedWaypointIndex + 1;
         int selectedPoiId = selectedPoiIndex + 1;
-        Waypoint selectedWaypoint = FlyPlanController.getSelectedWaypoint();
-        PointOfInterest selectedPOI = FlyPlanController.getSelectedPOI();
+        Waypoint selectedWaypoint = flyPlanUtil.getSelectedWaypoint();
+        PointOfInterest selectedPOI = flyPlanUtil.getSelectedPOI();
 
         // draw selectedWaypoint
         if(selectedWaypoint != null) {
