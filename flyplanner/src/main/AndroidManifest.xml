@@ -1,12 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:replace="android:25.3.1"
     package="com.drone.flyplanner">
 
     <application
-        tools:node="replace"
-
-        android:allowBackup="true"
+        android:allowBackup="false"
+        tools:replace="android:allowBackup"
         android:supportsRtl="true">
 
     </application>
