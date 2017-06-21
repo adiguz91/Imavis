@@ -19,7 +19,7 @@ import dagger.Component;
  */
 
 @Singleton
-@Component(modules = ApplicationModule.class)
+@Component(modules = {ApplicationModule.class})
 public interface ApplicationComponent {
 
     void inject(SyncService syncService);
@@ -31,5 +31,8 @@ public interface ApplicationComponent {
     //DatabaseHelper databaseHelper();
     DataManager dataManager();
     //RxEventBus eventBus();
+
+    //IFlyPlanUtil flyPlanUtil();
+    //FileUtil fileUtil();
 
 }

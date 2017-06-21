@@ -2,9 +2,11 @@ package com.drone.flyplanner.data.model.flyplan.nodes.types.waypoint;
 
 import android.graphics.Canvas;
 
+import com.drone.flyplanner.DaggerFlyplanner;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.flyplanner.util.doublelinkedlist.DoublyLinkedList;
 
+import com.drone.flyplanner.util.flyplan.control.FlyPlanUtil;
 import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.google.gson.Gson;
 
@@ -18,8 +20,8 @@ import javax.inject.Inject;
 
 public class Waypoints extends DoublyLinkedList<Waypoint> {
 
-    @Inject
-    IFlyPlanUtil flyPlanUtil;
+    //@Inject
+    IFlyPlanUtil flyPlanUtil = FlyPlanUtil.getInstance();
 
     private static Gson gson = new Gson();
     private Waypoint selectedWaypoint;

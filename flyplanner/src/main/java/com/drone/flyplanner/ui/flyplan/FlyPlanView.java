@@ -11,11 +11,13 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.drone.flyplanner.DaggerFlyplanner;
 import com.drone.flyplanner.data.model.flyplan.nodes.Node;
 import com.drone.flyplanner.ui.flyplan.listener.GestureListener;
 import com.drone.flyplanner.ui.flyplan.listener.ScaleListener;
 import com.drone.flyplanner.util.constants.classes.CFlyPlan;
 import com.drone.flyplanner.util.constants.classes.CMap;
+import com.drone.flyplanner.util.flyplan.control.FlyPlanUtil;
 import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
 
@@ -26,11 +28,11 @@ public class FlyPlanView extends View {
     private GestureDetector gestureDetector;
     private Rect viewRect;
 
-    @Inject
-    IFlyPlanUtil flyPlanUtil;
+    //@Inject
+    IFlyPlanUtil flyPlanUtil = FlyPlanUtil.getInstance();
 
     private final String TAG = "FlyPlanView";
-    private ScaleGestureDetector scaleDetector;
+    private static ScaleGestureDetector scaleDetector;
     private SparseArray<Node> nodes;
     public SparseArray<Node> getNodes() {
         return nodes;
@@ -58,7 +60,7 @@ public class FlyPlanView extends View {
 
     public void init(final Context context) {
         nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
-        gestureDetector = new GestureDetector(context, new GestureListener());
+        gestureDetector = new GestureDetector(context, new GestureListener(this));
         scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         // FlyPlanController.getInstance().init(context);
 
@@ -66,7 +68,7 @@ public class FlyPlanView extends View {
         //GoogleMapFragment googleMapFragment = (GoogleMapFragment) activity.fra.findFragmentById(R.id.flyplannerMapView);
     }
 
-    public float getScaleFactor() {
+    public static float getScaleFactor() {
         if(scaleDetector != null)
             return ScaleListener.getScaleFactor();
         return CMap.SCALE_FACTOR_DEFAULT;

@@ -21,8 +21,6 @@ public class FlyPlanMathUtil {
 
     private static FlyPlanMathUtil flyPlanMath;
 
-    public FlyPlanMathUtil() {}
-
     // SINGLETON PATTERN
     public static FlyPlanMathUtil getInstance() {
         if (flyPlanMath == null)

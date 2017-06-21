@@ -3,10 +3,12 @@ package com.drone.flyplanner.ui.flyplan.listener;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
+import com.drone.flyplanner.DaggerFlyplanner;
 import com.drone.flyplanner.data.model.flyplan.nodes.Node;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.flyplanner.ui.flyplan.FlyPlanView;
+import com.drone.flyplanner.util.flyplan.control.FlyPlanUtil;
 import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
 
@@ -18,15 +20,19 @@ import javax.inject.Inject;
 
 public class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
-    @Inject
+    //@Inject
     FlyPlanView flyPlanView;
 
-    @Inject
-    IFlyPlanUtil flyPlanUtil;
+    //@Inject
+    IFlyPlanUtil flyPlanUtil = FlyPlanUtil.getInstance();
 
     private Coordinate touchCoordinate;
     private Node touchedNode;
     private int pointerId;
+
+    public GestureListener(FlyPlanView flyPlanView) {
+        this.flyPlanView = flyPlanView;
+    }
 
     @Override
     public boolean onDown(MotionEvent event) {

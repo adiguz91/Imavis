@@ -3,6 +3,7 @@ package com.drone.flyplanner.util.flyplan.control;
 import android.graphics.Canvas;
 import android.os.FileUriExposedException;
 
+import com.drone.flyplanner.DaggerFlyplanner;
 import com.drone.flyplanner.data.model.flyplan.FlyPlan;
 import com.drone.flyplanner.data.model.flyplan.map.Map;
 import com.drone.flyplanner.data.model.flyplan.nodes.Node;
@@ -14,6 +15,7 @@ import com.drone.flyplanner.util.FileUtil;
 import com.drone.flyplanner.util.constants.classes.CFileDirectories;
 import com.drone.flyplanner.util.constants.classes.CFiles;
 import com.drone.flyplanner.util.constants.classes.CFlyPlan;
+import com.drone.flyplanner.util.constants.classes.CMap;
 import com.drone.flyplanner.util.constants.classes.CShape;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
 import com.drone.flyplanner.util.models.dimension.Size;
@@ -22,17 +24,14 @@ import com.google.android.gms.maps.GoogleMap;
 import java.io.File;
 import java.util.ListIterator;
 
-import javax.inject.Inject;
-
 /**
  * Created by adigu on 23.02.2017.
  */
 public class FlyPlanUtil implements IFlyPlanUtil {
 
-    @Inject
-    FileUtil fileUtil;
-
-    @Inject
+    //@Inject
+    FileUtil fileUtil = FileUtil.getInstance();
+    //@Inject
     FlyPlanView flyPlanView;
 
     private FlyPlan flyPlan;
@@ -47,6 +46,13 @@ public class FlyPlanUtil implements IFlyPlanUtil {
     public PointOfInterest getSelectedPOI() { return selectedPOI; }
     public Node getTouchedNode() { return touchedNode; }
 
+    private static FlyPlanUtil flyPlanUtil;
+
+    public static FlyPlanUtil getInstance() {
+        if(flyPlanUtil == null)
+            flyPlanUtil = new FlyPlanUtil();
+        return flyPlanUtil;
+    }
 
     public FlyPlanUtil() {
         Coordinate mapCoordinate = new Coordinate(0,0);
@@ -216,7 +222,7 @@ public class FlyPlanUtil implements IFlyPlanUtil {
     }
 
     public float getScaleFactor() {
-        return flyPlanView.getScaleFactor();
+        return FlyPlanView.getScaleFactor();
     }
 
     @Override

@@ -17,6 +17,6 @@ import dagger.Subcomponent;
 @Subcomponent(modules = ActivityModule.class)
 public interface ActivityComponent {
 
-    void inject(FlyPlanView flyPlanView);
+    //void inject(FlyPlanView flyPlanView);
 
 }

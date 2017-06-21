@@ -4,9 +4,6 @@ import android.os.Environment;
 
 import com.drone.flyplanner.util.FileUtil;
 
-import javax.inject.Inject;
-
-
 /**
  * Created by adigu on 23.02.2017.
  */

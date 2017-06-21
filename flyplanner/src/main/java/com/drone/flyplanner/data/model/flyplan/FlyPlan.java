@@ -2,6 +2,7 @@ package com.drone.flyplanner.data.model.flyplan;
 
 import android.graphics.Canvas;
 
+import com.drone.flyplanner.DaggerFlyplanner;
 import com.drone.flyplanner.data.model.flyplan.map.Map;
 import com.drone.flyplanner.data.model.flyplan.nodes.Nodes;
 import com.drone.flyplanner.data.model.flyplan.nodes.types.poi.PointOfInterest;
@@ -9,6 +10,7 @@ import com.drone.flyplanner.data.model.flyplan.nodes.types.waypoint.Waypoint;
 
 import com.drone.flyplanner.util.constants.classes.CFlyPlan;
 
+import com.drone.flyplanner.util.flyplan.control.FlyPlanUtil;
 import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.google.gson.Gson;
 
@@ -20,8 +22,8 @@ import javax.inject.Inject;
 
 public class FlyPlan {
 
-    @Inject
-    IFlyPlanUtil flyPlanUtil;
+    //@Inject
+    IFlyPlanUtil flyPlanUtil = FlyPlanUtil.getInstance();
 
     public FlyPlan(Map map) {
         this.map = map;

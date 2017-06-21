@@ -7,7 +7,6 @@ package com.drone.imavis.mvp.di.module;
 import android.app.Application;
 import android.content.Context;
 
-import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
 import com.drone.imavis.mvp.di.ApplicationContext;
@@ -45,4 +44,17 @@ public class ApplicationModule {
     IWebOdmApiEndpoint provideWebOdmService(WebOdmService webOdmService) {
         return webOdmService.getWebOdmService();
     }
+/*
+    @Provides
+    @Singleton
+    IFlyPlanUtil provideFlyPlanUtil() {
+        return new FlyPlanUtil();
+    }
+
+    @Provides
+    @Singleton
+    FileUtil provideFileUtil() {
+        return new FileUtil();
+    }
+    */
 }

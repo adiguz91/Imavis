@@ -19,6 +19,14 @@ import java.io.OutputStreamWriter;
 
 public class FileUtil {
 
+    private static FileUtil fileUtil;
+
+    public static FileUtil getInstance() {
+        if(fileUtil == null)
+            fileUtil = new FileUtil();
+        return fileUtil;
+    }
+
     private String getAbsoluteFolderPath(String absoluteFilePath) {
         File file = new File(absoluteFilePath);
         if(file != null && file.isAbsolute()) {

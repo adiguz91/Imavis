@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 
 /**
  * Created by adigu on 31.05.2017.

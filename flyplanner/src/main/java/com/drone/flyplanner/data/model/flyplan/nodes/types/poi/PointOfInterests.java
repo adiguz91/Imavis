@@ -5,6 +5,7 @@ import android.graphics.Color;
 
 import java.util.ArrayList;
 
+import com.drone.flyplanner.DaggerFlyplanner;
 import com.drone.flyplanner.util.constants.classes.CColor;
 import com.drone.flyplanner.util.flyplan.control.FlyPlanUtil;
 import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
@@ -18,8 +19,8 @@ import javax.inject.Inject;
 
 public class PointOfInterests extends ArrayList<PointOfInterest> {
 
-    @Inject
-    IFlyPlanUtil flyPlanUtil;
+    //@Inject
+    IFlyPlanUtil flyPlanUtil = FlyPlanUtil.getInstance();
 
     private static Gson gson = new Gson();
     private PointOfInterest selectedPOI;

@@ -69,7 +69,7 @@
             </intent-filter>
         </activity>-->
 
-        <service android:name="com.drone.imavis.mvp.services.flyplan.mvc.view.listener.GPSTracker" />
+        <service android:name="com.drone.flyplanner.ui.flyplan.listener.GPSTracker" />
 
         <!--
         <activity

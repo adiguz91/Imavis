@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 
+import com.drone.flyplanner.DaggerFlyplanner;
 import com.drone.flyplanner.data.model.flyplan.nodes.Node;
 import com.drone.flyplanner.data.model.flyplan.nodes.shapes.geometric.Circle;
 import com.drone.flyplanner.data.model.flyplan.nodes.shapes.geometric.GeometricShape;
@@ -15,6 +16,7 @@ import com.drone.flyplanner.util.FlyPlanMathUtil;
 import com.drone.flyplanner.util.constants.classes.CColor;
 import com.drone.flyplanner.util.constants.classes.CMap;
 import com.drone.flyplanner.util.constants.classes.CShape;
+import com.drone.flyplanner.util.flyplan.control.FlyPlanUtil;
 import com.drone.flyplanner.util.flyplan.control.IFlyPlanUtil;
 import com.drone.flyplanner.util.models.coordinates.Coordinate;
 
@@ -27,8 +29,8 @@ import javax.inject.Inject;
 
 public class Waypoint<T> extends Node implements IWaypointDraw {
 
-    @Inject
-    IFlyPlanUtil flyPlanUtil;
+    //@Inject
+    IFlyPlanUtil flyPlanUtil = FlyPlanUtil.getInstance();
 
     private Rect lineTextRect;
     private Line line;

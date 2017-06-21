@@ -1,5 +1,6 @@
 package com.drone.imavis.mvp.util.constants.classes;
 
+
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
 
 /**

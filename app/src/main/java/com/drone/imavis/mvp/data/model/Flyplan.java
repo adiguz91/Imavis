@@ -1,11 +1,6 @@
 package com.drone.imavis.mvp.data.model;
 
-import android.media.Image;
-
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.FlyPlan;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Nodes;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoints;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 
 import java.util.List;

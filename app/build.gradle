@@ -109,7 +109,7 @@ dependencies {
     compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.2.2'
     // (v4.5)
     // drone sdk
-    compile 'com.parrot:arsdk:3.10.1'
+    compile 'com.parrot:arsdk:3.12.6'
     // default
     compile 'com.android.support:support-compat:24.2.1'
     compile 'com.android.support:recyclerview-v7:24.2.1'
@@ -125,7 +125,7 @@ dependencies {
     compile 'com.github.dmytrodanylyk.android-process-button:library:1.0.4'
     compile 'com.github.nekocode:Badge:2.0'
 
-    compile project(":flyplanner")
+    //compile project(":flyplanner")
 
     testCompile 'junit:junit:4.12'
     // libs: jars

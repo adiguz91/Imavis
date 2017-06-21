@@ -20,12 +20,15 @@ import dagger.Component;
 @Component(modules = ApplicationModule.class)
 public interface ApplicationComponent {
 
-    //void inject(SyncService syncService);
+    //void inject(IFlyPlanUtil flyPlanUtil);
+    //void inject(FileUtil fileUtil);
 
-    @ApplicationContext Context context();
-    Application application();
     IFlyPlanUtil flyPlanUtil();
     FileUtil fileUtil();
+
+    //void inject(SyncService syncService);
+    //@ApplicationContext Context context();
+    //Application application();
     //PreferencesHelper preferencesHelper();
     //DatabaseHelper databaseHelper();
     //DataManager dataManager();
