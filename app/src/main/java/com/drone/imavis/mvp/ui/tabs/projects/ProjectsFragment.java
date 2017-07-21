@@ -1,10 +1,16 @@
 package com.drone.imavis.mvp.ui.tabs.projects;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -20,11 +26,18 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
+import com.drone.imavis.mvp.ui.tabs.projectsAdd.ProjectAdd;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by adigu on 08.05.2017.
@@ -48,6 +61,10 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
     //@BindView(R.id.projectSwipeListView) ListView projectsListView;
     private ListView projectsListView;
     private Context context;
+    private Activity activity;
+
+    @BindView(R.id.fabProjects)
+    FloatingActionButton fabProjects;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,14 +83,22 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_projects, container, false);
+        View view = inflater.inflate(R.layout.activity_projects, container, false);
+        ButterKnife.bind(this, view); //ButterKnife.bind(this);
+        return view;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //setContentView(R.layout.activity_projects);
         context = this.getContext();
-        //ButterKnife.bind(getContext(), view);
+        activity = this.getActivity();
+
+        fabProjects.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_plus)
+                .colorRes(R.color.icons)
+                .actionBarSize());
+
         projectsListView = (ListView) view.findViewById(R.id.projectSwipeListView);
 
         projectsListViewAdapter = new ProjectListViewAdapter(getContext());
@@ -88,6 +113,21 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
         //if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
         //    //startService(SyncService.getStartIntent(this));
         //}
+    }
+
+    @OnClick(R.id.fabProjects)
+    public void onFabClicked() {
+        startContactActivity();
+    }
+
+    private void startContactActivity() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions options =
+                    ActivityOptions.makeSceneTransitionAnimation(activity, fabProjects, fabProjects.getTransitionName());
+            startActivity(new Intent(activity, ProjectAdd.class), options.toBundle());
+        } else {
+            startActivity(new Intent(activity, ProjectAdd.class));
+        }
     }
 
     private void loadListViewEvents() {

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.drone.imavis.mvp"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.drone.imavis.mvp">
 
     <permission
         android:name="your.package.name.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
+
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -22,42 +23,46 @@
     <uses-feature android:name="android.hardware.location.gps" />
 
     <application
-        android:name="com.drone.imavis.mvp.AppStartup"
+        android:name=".AppStartup"
         android:allowBackup="false"
-        tools:replace="android:allowBackup"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:supportsRtl="true">
-
-        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
-
+        tools:replace="android:allowBackup">
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="com.drone.imavis.mvp.ui.login.LoginActivity"
+            android:name=".ui.login.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.drone.imavis.mvp.data.SyncService"/>
 
+        <service android:name=".data.SyncService" />
 
-
-        <!--<receiver
+        <!--
+        <receiver
             android:name=".mvp.data.SyncService$SyncOnConnectionAvailable"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
-        </receiver>-->
+        </receiver>
+        -->
 
-        <!--LoginActivity
+
+        <!--
+        LoginActivity
         <activity
             android:name=".ui.LoginActivity"
             android:label="@string/app_name"
@@ -67,7 +72,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>-->
+        </activity>
+        -->
 
         <service android:name="com.drone.flyplanner.ui.flyplan.listener.GPSTracker" />
 
@@ -83,27 +89,25 @@
         <activity
             android:name="com.drone.imavis.mvp.ui.old.MainFlyplanner"
             android:label="@string/title_activity_main_flyplanner"
-            android:theme="@style/AppTheme.NoActionBar"></activity>-->
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        -->
         <activity
-            android:name="com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity"
-            android:label="Imavis">
-        </activity>
-
+            android:name=".ui.tabs.ProjectsFlyplansActivity"
+            android:label="Imavis"></activity>
         <activity
-            android:name="com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansActivity"
-            android:label="Flyplans">
+            android:name=".ui.tabs.flyplans.FlyplansActivity"
+            android:label="Flyplans"></activity>
+        <activity
+            android:name=".ui.tabs.projects.ProjectsActivity"
+            android:label="Projects"></activity>
+        <activity
+            android:name=".ui.flyplanner.FlyplannerActivity"
+            android:label="Flyplanner"> <!-- android:screenOrientation="landscape" -->
         </activity>
         <activity
-            android:name="com.drone.imavis.mvp.ui.tabs.projects.ProjectsActivity"
-            android:label="Projects">
+            android:name=".ui.tabs.projectsAdd.ProjectAdd"
+            android:label="Add Project">
         </activity>
-
-        <activity
-            android:name="com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity"
-            android:label="Flyplanner"
-            > <!-- android:screenOrientation="landscape" -->
-        </activity>
-
     </application>
 
 </manifest>
