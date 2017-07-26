@@ -106,7 +106,7 @@
         </activity>
         <activity
             android:name=".ui.tabs.projectsAdd.ProjectAdd"
-            android:label="Add Project">
+            android:label="Add Project"> <!-- android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" -->
         </activity>
     </application>
 
