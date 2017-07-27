@@ -19,8 +19,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.util.GUIUtils;
 import com.drone.imavis.mvp.util.OnRevealAnimationListener;
 import com.joanzapata.iconify.IconDrawable;
@@ -37,22 +39,24 @@ public class ProjectAdd extends AppCompatActivity {
     @BindView(R.id.projectAdd_fab_close)
     FloatingActionButton fabClose;
 
+    @BindView(R.id.projectAddTitle)
+    TextView title;
+
+    private Project project;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // remove title
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        //                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-
         setContentView(R.layout.activity_projects_add);
 
-        //getActionBar().setDisplayShowTitleEnabled(false);
+        // hide app title
         getSupportActionBar().hide();
 
         ButterKnife.bind(this);
+
+        title.setText(getSupportActionBar().getTitle());
+
+        project = new Project();
 
         fabClose.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_close)
                 .colorRes(R.color.icons)
@@ -66,6 +70,19 @@ public class ProjectAdd extends AppCompatActivity {
         }
     }
 
+    @OnClick(R.id.projectAdd_fab_close)
+    public void onFabClicked() {
+        addProject(project);
+    }
+
+    private void addProject(Project project) {
+        // TODO
+        // 1. presave check. project name not null
+        // 2. save over network to db
+        // 3. add button change
+        // 4. close this action if success
+        //      - and update project list (automatic observable)
+    }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setupEnterAnimation() {
@@ -74,30 +91,18 @@ public class ProjectAdd extends AppCompatActivity {
         getWindow().setSharedElementEnterTransition(transition);
         transition.addListener(new Transition.TransitionListener() {
             @Override
-            public void onTransitionStart(Transition transition) {
-
-            }
-
+            public void onTransitionStart(Transition transition) {}
             @Override
             public void onTransitionEnd(Transition transition) {
                 transition.removeListener(this);
                 animateRevealShow(container);
             }
-
             @Override
-            public void onTransitionCancel(Transition transition) {
-
-            }
-
+            public void onTransitionCancel(Transition transition) {}
             @Override
-            public void onTransitionPause(Transition transition) {
-
-            }
-
+            public void onTransitionPause(Transition transition) {}
             @Override
-            public void onTransitionResume(Transition transition) {
-
-            }
+            public void onTransitionResume(Transition transition) {}
         });
     }
 
@@ -107,10 +112,7 @@ public class ProjectAdd extends AppCompatActivity {
         GUIUtils.animateRevealShow(this, container, fabClose.getWidth() / 2, R.color.colorPrimary,
                 cx, cy, new OnRevealAnimationListener() {
                     @Override
-                    public void onRevealHide() {
-
-                    }
-
+                    public void onRevealHide() {}
                     @Override
                     public void onRevealShow() {
                         initViews();
@@ -137,11 +139,8 @@ public class ProjectAdd extends AppCompatActivity {
                     public void onRevealHide() {
                         backPressed();
                     }
-
                     @Override
-                    public void onRevealShow() {
-
-                    }
+                    public void onRevealShow() {}
                 });
     }
 

@@ -26,6 +26,14 @@
             app:elevation="0dp"
             app:backgroundTint="@color/primary_dark"/>
 
+        <TextView
+            android:id="@+id/projectAddTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24dp"
+            android:gravity="center"
+            />
+
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/projectsAddEditTextName"
             android:layout_width="match_parent"

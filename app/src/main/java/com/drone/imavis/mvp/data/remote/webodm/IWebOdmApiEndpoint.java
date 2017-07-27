@@ -13,8 +13,10 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -31,11 +33,24 @@ public interface IWebOdmApiEndpoint {
     @POST("token-auth/")
     Observable<Token> authentication(@Body Authentication authentication);
 
+    /* PROJECT */
+
     @GET("projects")
     Single<Projects> getProjects();
 
     @GET("projects/{id}")
-    Observable<Project> getProject(@Path("id") String projectId);
+    Observable<Project> getProject(@Path("id") String id);
+
+    @POST("projects")
+    Call<Project> addProject(@Body Project project);
+
+    @PATCH("projects/{id}")
+    Call<Project> updateProject(@Path("id") String id);
+
+    @DELETE("projects/{id}")
+    Call<Project> deleteProject(@Path("id") String id);
+
+    /* TASK */
 
     @GET("projects/{project_pk}/tasks")
     Observable<List<Task>> getTasks(@Path("project_pk") String projectId);

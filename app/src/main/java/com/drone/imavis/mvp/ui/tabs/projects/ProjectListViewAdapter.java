@@ -74,6 +74,12 @@ public class ProjectListViewAdapter extends BaseSwipeAdapter {
                 Toast.makeText(context, "click delete", Toast.LENGTH_SHORT).show();
             }
         });
+        view.findViewById(R.id.iconTextViewProjectListViewItemEdit).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context, "click edit", Toast.LENGTH_SHORT).show();
+            }
+        });
         return view;
     }
 

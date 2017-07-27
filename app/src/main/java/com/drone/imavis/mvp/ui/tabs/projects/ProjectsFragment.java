@@ -117,10 +117,10 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
 
     @OnClick(R.id.fabProjects)
     public void onFabClicked() {
-        startContactActivity();
+        startProjectAddActivity();
     }
 
-    private void startContactActivity() {
+    private void startProjectAddActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ActivityOptions options =
                     ActivityOptions.makeSceneTransitionAnimation(activity, fabProjects, fabProjects.getTransitionName());
