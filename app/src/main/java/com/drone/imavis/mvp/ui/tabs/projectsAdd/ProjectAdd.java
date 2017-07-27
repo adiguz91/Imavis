@@ -23,12 +23,14 @@ import android.widget.RelativeLayout;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.util.GUIUtils;
 import com.drone.imavis.mvp.util.OnRevealAnimationListener;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ProjectAdd extends Activity {
+public class ProjectAdd extends AppCompatActivity {
 
     @BindView(R.id.activity_project_add_container)
     RelativeLayout container;
@@ -40,12 +42,22 @@ public class ProjectAdd extends Activity {
         super.onCreate(savedInstanceState);
 
         // remove title
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                             WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        //                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         setContentView(R.layout.activity_projects_add);
 
+        //getActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().hide();
+
         ButterKnife.bind(this);
+
+        fabClose.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_close)
+                .colorRes(R.color.icons)
+                .actionBarSize());
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setupEnterAnimation();
             setupExitAnimation();

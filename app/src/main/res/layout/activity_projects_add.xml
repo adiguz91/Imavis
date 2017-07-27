@@ -12,8 +12,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_margin="20dp"
         android:orientation="vertical">
 
         <android.support.design.widget.FloatingActionButton
@@ -25,13 +24,13 @@
             app:fabSize="normal"
             app:pressedTranslationZ="8dp"
             app:elevation="0dp"
-            app:backgroundTint="@color/white"/>
+            app:backgroundTint="@color/primary_dark"/>
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/projectsAddEditTextName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
+            android:hint="Projectname"
             android:minLines="1"
             android:inputType="textAutoComplete"
             app:met_iconPadding="2dp"
@@ -47,7 +46,7 @@
             android:id="@+id/projectsAddEditTextDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
+            android:hint="Description"
             android:minLines="1"
             android:inputType="textAutoComplete"
             app:met_iconPadding="2dp"
@@ -64,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="16dp"
-            android:text="@string/activity_login_button_default"
+            android:text="Add"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             custom:pb_colorComplete="@color/green_complete"
