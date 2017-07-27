@@ -2,6 +2,7 @@ package com.drone.imavis.mvp.ui.tabs.projectsAdd;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,18 +22,32 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.ui.base.BaseActivity;
+import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
+import com.drone.imavis.mvp.ui.tabs.projects.ProjectsPresenter;
 import com.drone.imavis.mvp.util.GUIUtils;
 import com.drone.imavis.mvp.util.OnRevealAnimationListener;
+import com.drone.imavis.mvp.util.StringUtil;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.rengwuxian.materialedittext.MaterialEditText;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ProjectAdd extends AppCompatActivity {
+public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpView {
+
+    private static final String EXTRA_TRIGGER_SYNC_FLAG =
+            "com.drone.imavis.mvp.ui.projects.ProjectsActivity.EXTRA_TRIGGER_SYNC_FLAG";
+
+    @Inject
+    ProjectAddPresenter projectAddPresenter;
 
     @BindView(R.id.activity_project_add_container)
     RelativeLayout container;
@@ -42,21 +57,31 @@ public class ProjectAdd extends AppCompatActivity {
     @BindView(R.id.projectAddTitle)
     TextView title;
 
-    private Project project;
+    @BindView(R.id.projectsAddEditTextName)
+    MaterialEditText projectName;
+
+    @BindView(R.id.projectsAddEditTextDescription)
+    MaterialEditText projectDescription;
+
+    private Context context;
+
+    @BindView(R.id.buttonProjectAdd) ActionProcessButton buttonAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activityComponent().inject(this);
         setContentView(R.layout.activity_projects_add);
 
         // hide app title
         getSupportActionBar().hide();
-
         ButterKnife.bind(this);
+        context = this;
 
         title.setText(getSupportActionBar().getTitle());
-
-        project = new Project();
+        buttonAdd.setProgress(0);
+        buttonAdd.setMode(ActionProcessButton.Mode.ENDLESS);
+        buttonAdd.setOnClickListener(onClick -> addProject() );
 
         fabClose.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_close)
                 .colorRes(R.color.icons)
@@ -68,20 +93,54 @@ public class ProjectAdd extends AppCompatActivity {
         } else {
             initViews();
         }
+
+        projectAddPresenter.attachView(this);
     }
 
     @OnClick(R.id.projectAdd_fab_close)
     public void onFabClicked() {
-        addProject(project);
+        onIvCloseClicked();
     }
 
-    private void addProject(Project project) {
+    public void addProject() {
+        if(projectName.validate()) {
+            Project project = new Project();
+            project.setName(projectName.getEditableText().toString());
+            project.setDescription(projectDescription.getEditableText().toString());
+
+            buttonAdd.setProgress(1);
+            buttonAdd.setEnabled(false);
+            projectName.setEnabled(false);
+            projectDescription.setEnabled(false);
+
+            projectAddPresenter.addProject(project);
+        }
+    }
+
+    @Override
+    public void onAddSuccess(Project project) {
+        buttonAdd.setProgress(100); // 100 : Success
+        onComplete();
+
         // TODO
-        // 1. presave check. project name not null
-        // 2. save over network to db
-        // 3. add button change
         // 4. close this action if success
         //      - and update project list (automatic observable)
+        //goToActivity(this, ProjectsFlyplansActivity.class, new Bundle());
+
+    }
+
+    @Override
+    public void onAddFailed() {
+        buttonAdd.setProgress(-1); // -1 : Failed
+        onComplete();
+    }
+
+    @Override
+    public void onComplete() {
+        // after button click timeout is reached!
+        buttonAdd.setEnabled(true);
+        projectName.setEnabled(true);
+        projectDescription.setEnabled(true);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

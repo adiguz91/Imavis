@@ -42,13 +42,13 @@ public interface IWebOdmApiEndpoint {
     Observable<Project> getProject(@Path("id") String id);
 
     @POST("projects")
-    Call<Project> addProject(@Body Project project);
+    Single<Project> addProject(@Body Project project);
 
     @PATCH("projects/{id}")
-    Call<Project> updateProject(@Path("id") String id);
+    Observable<Project> updateProject(@Path("id") String id);
 
     @DELETE("projects/{id}")
-    Call<Project> deleteProject(@Path("id") String id);
+    Observable<Project> deleteProject(@Path("id") String id);
 
     /* TASK */
 

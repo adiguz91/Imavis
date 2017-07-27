@@ -12,7 +12,7 @@ public interface IRepository<T>{
 
     // create
     void add(T item);
-    void add(Iterable<T> items);
+    //void add(Iterable<T> items);
 
     // read
     T get(long id);

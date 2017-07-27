@@ -1,6 +1,7 @@
 package com.drone.imavis.mvp.data;
 
 import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
+import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
@@ -15,6 +16,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
 import rx.Subscription;
 
 /**
@@ -70,6 +72,10 @@ public class DataManager {
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread());
         //.subscribeOn(io.reactivex.schedulers.Schedulers.io());
+    }
+
+    public Single<Project> addProject(Project project) {
+        return webOdmService.addProject(project);
     }
 
     /*

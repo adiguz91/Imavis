@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -26,7 +24,7 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
-import com.drone.imavis.mvp.ui.tabs.projectsAdd.ProjectAdd;
+import com.drone.imavis.mvp.ui.tabs.projectsAdd.ProjectAddActivity;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
@@ -124,9 +122,9 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ActivityOptions options =
                     ActivityOptions.makeSceneTransitionAnimation(activity, fabProjects, fabProjects.getTransitionName());
-            startActivity(new Intent(activity, ProjectAdd.class), options.toBundle());
+            startActivity(new Intent(activity, ProjectAddActivity.class), options.toBundle());
         } else {
-            startActivity(new Intent(activity, ProjectAdd.class));
+            startActivity(new Intent(activity, ProjectAddActivity.class));
         }
     }
 

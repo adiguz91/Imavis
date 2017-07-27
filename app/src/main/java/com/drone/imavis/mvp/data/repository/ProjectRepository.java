@@ -14,11 +14,6 @@ public class ProjectRepository implements IRepository<Project> {
     }
 
     @Override
-    public void add(Iterable<Project> items) {
-
-    }
-
-    @Override
     public Project get(long id) {
         return null;
     }
