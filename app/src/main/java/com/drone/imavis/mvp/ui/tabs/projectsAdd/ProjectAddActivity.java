@@ -3,6 +3,7 @@ package com.drone.imavis.mvp.ui.tabs.projectsAdd;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsPresenter;
@@ -99,12 +101,12 @@ public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpVi
 
     @OnClick(R.id.projectAdd_fab_close)
     public void onFabClicked() {
-        onIvCloseClicked();
+        onCloseClicked();
     }
 
     public void addProject() {
         if(projectName.validate()) {
-            Project project = new Project();
+            ProjectShort project = new ProjectShort();
             project.setName(projectName.getEditableText().toString());
             project.setDescription(projectDescription.getEditableText().toString());
 
@@ -121,12 +123,15 @@ public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpVi
     public void onAddSuccess(Project project) {
         buttonAdd.setProgress(100); // 100 : Success
         onComplete();
+        passDataBack(project);
+        onCloseClicked();
+    }
 
-        // TODO
-        // 4. close this action if success
-        //      - and update project list (automatic observable)
-        //goToActivity(this, ProjectsFlyplansActivity.class, new Bundle());
-
+    private void passDataBack(Project project) {
+        Intent intent = new Intent();
+        intent.putExtra("project", project);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     @Override
@@ -169,14 +174,14 @@ public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpVi
         int cx = (viewRoot.getLeft() + viewRoot.getRight()) / 2;
         int cy = (viewRoot.getTop() + viewRoot.getBottom()) / 2;
         GUIUtils.animateRevealShow(this, container, fabClose.getWidth() / 2, R.color.colorPrimary,
-                cx, cy, new OnRevealAnimationListener() {
-                    @Override
-                    public void onRevealHide() {}
-                    @Override
-                    public void onRevealShow() {
-                        initViews();
-                    }
-                });
+            cx, cy, new OnRevealAnimationListener() {
+                @Override
+                public void onRevealHide() {}
+                @Override
+                public void onRevealShow() {
+                    initViews();
+                }
+            });
     }
 
     private void initViews() {
@@ -204,7 +209,7 @@ public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpVi
     }
 
     @OnClick(R.id.projectAdd_fab_close)
-    public void onIvCloseClicked() {
+    public void onCloseClicked() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             onBackPressed();
         } else {

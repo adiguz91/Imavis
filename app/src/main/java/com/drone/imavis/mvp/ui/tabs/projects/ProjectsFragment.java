@@ -119,12 +119,25 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
     }
 
     private void startProjectAddActivity() {
+        int requestCode = 1;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ActivityOptions options =
                     ActivityOptions.makeSceneTransitionAnimation(activity, fabProjects, fabProjects.getTransitionName());
-            startActivity(new Intent(activity, ProjectAddActivity.class), options.toBundle());
+            startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode, options.toBundle());
         } else {
-            startActivity(new Intent(activity, ProjectAddActivity.class));
+            startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode);
+        }
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if(resultCode == Activity.RESULT_OK) {
+                Project project = (Project) data.getParcelableExtra("project"); // get json project added
+                projectsListViewAdapter.addItem(project);
+                //projectsListViewAdapter.notifyDataSetChanged();
+
+            }
         }
     }
 

@@ -1,5 +1,8 @@
 package com.drone.imavis.mvp.data.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
@@ -9,7 +12,7 @@ import java.util.List;
  * Created by adigu on 06.05.2017.
  */
 
-public class Project {
+public class Project implements Parcelable {
 
     @SerializedName("id")
     private int id;
@@ -63,4 +66,47 @@ public class Project {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    /* PARCELABLE PART */
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(description);
+        dest.writeList(tasks);
+        dest.writeLong(createdAt.getTime());
+    }
+
+    /**
+     * Constructs a Project from a Parcel
+     * @param parcelIn Source Parcel
+     */
+    public Project (Parcel parcelIn) {
+        this.id = parcelIn.readInt();
+        this.name = parcelIn.readString();
+        this.description = parcelIn.readString();
+        this.tasks = parcelIn.readArrayList(null);
+        this.createdAt = new Date(parcelIn.readLong());
+    }
+
+    // Method to recreate a Question from a Parcel
+    public static Creator<Project> CREATOR = new Creator<Project>() {
+
+        @Override
+        public Project createFromParcel(Parcel source) {
+            return new Project(source);
+        }
+
+        @Override
+        public Project[] newArray(int size) {
+            return new Project[size];
+        }
+
+    };
 }

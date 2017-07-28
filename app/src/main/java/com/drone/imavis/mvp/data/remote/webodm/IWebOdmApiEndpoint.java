@@ -1,6 +1,7 @@
 package com.drone.imavis.mvp.data.remote.webodm;
 
 import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
@@ -41,11 +42,11 @@ public interface IWebOdmApiEndpoint {
     @GET("projects/{id}")
     Observable<Project> getProject(@Path("id") String id);
 
-    @POST("projects")
-    Single<Project> addProject(@Body Project project);
+    @POST("projects/") // POST requests needs the ending slash!
+    Single<Project> addProject(@Body ProjectShort project);
 
     @PATCH("projects/{id}")
-    Observable<Project> updateProject(@Path("id") String id);
+    Observable<Project> updateProject(@Path("id") String id, @Body Project project);
 
     @DELETE("projects/{id}")
     Observable<Project> deleteProject(@Path("id") String id);

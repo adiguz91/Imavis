@@ -2,6 +2,7 @@ package com.drone.imavis.mvp.data;
 
 import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
@@ -74,7 +75,7 @@ public class DataManager {
         //.subscribeOn(io.reactivex.schedulers.Schedulers.io());
     }
 
-    public Single<Project> addProject(Project project) {
+    public Single<Project> addProject(ProjectShort project) {
         return webOdmService.addProject(project);
     }
 

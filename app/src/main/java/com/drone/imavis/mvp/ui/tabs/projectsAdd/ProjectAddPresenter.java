@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
@@ -49,7 +50,7 @@ public class ProjectAddPresenter extends BasePresenter<IProjectAddMvpView> {
         if (subscription != null) subscription.unsubscribe();
     }
 
-    public void addProject(Project project) {
+    public void addProject(ProjectShort project) {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
         dataManager.addProject(project)

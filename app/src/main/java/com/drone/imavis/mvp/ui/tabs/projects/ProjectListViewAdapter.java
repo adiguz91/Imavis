@@ -107,4 +107,13 @@ public class ProjectListViewAdapter extends BaseSwipeAdapter {
     public long getItemId(int position) {
         return position;
     }
+
+    public void addItem(Project project) {
+        if(project != null) {
+            projectList.add(project);
+            this.notifyDataSetChanged();
+        }
+    }
+
+
 }
