@@ -1,6 +1,7 @@
 package com.drone.imavis.mvp.ui.tabs.projects;
 
 import com.drone.imavis.mvp.data.DataManager;
+import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
@@ -12,11 +13,14 @@ import java.io.File;
 
 import javax.inject.Inject;
 
+import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.CompletableSubject;
+import rx.CompletableSubscriber;
 import rx.Subscription;
 
 /**
@@ -45,13 +49,36 @@ public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
         if (subscription != null) subscription.unsubscribe();
     }
 
+    public void deleteProject(Project project) {
+        checkViewAttached();
+        RxUtil.unsubscribe(subscription);
+        dataManager.deleteProject(project.getId())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        getMvpView().onDeleteSuccess(project);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        getMvpView().onDeleteFailed();
+                    }
+                });
+    }
+
     public void loadProjects() {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
         dataManager.syncProjects()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .retry() // authorization token is not finished
             .subscribe(new SingleObserver<Projects>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {}

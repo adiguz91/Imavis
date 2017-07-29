@@ -1,5 +1,6 @@
 package com.drone.imavis.mvp.ui.tabs.projects;
 
+import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.base.IMvpView;
 
@@ -14,5 +15,9 @@ public interface IProjectsMvpView extends IMvpView {
     void showProjectsEmpty();
 
     void showError();
+
+    void onDeleteSuccess(Project project);
+
+    void onDeleteFailed();
 
 }

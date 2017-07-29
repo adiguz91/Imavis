@@ -13,6 +13,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -77,6 +78,10 @@ public class DataManager {
 
     public Single<Project> addProject(ProjectShort project) {
         return webOdmService.addProject(project);
+    }
+
+    public Completable deleteProject(int id) {
+        return webOdmService.deleteProject(Integer.toString(id));
     }
 
     /*

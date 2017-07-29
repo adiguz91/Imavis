@@ -3,12 +3,14 @@ package com.drone.imavis.mvp.ui.tabs.projects;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
@@ -27,6 +30,7 @@ import com.drone.imavis.mvp.ui.base.BaseFragment;
 import com.drone.imavis.mvp.ui.tabs.projectsAdd.ProjectAddActivity;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.joanzapata.iconify.widget.IconTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +45,36 @@ import butterknife.OnClick;
  * Created by adigu on 08.05.2017.
  */
 
-public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
+public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, SwipeItemOnClickListener<Project> {
 
     ProjectSelected projectSelectedCallback;
+
+    @Override
+    public void onCallback(SwipeActionButtons action, int position, Project item) {
+        switch (action) {
+            case Delete:
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                projectsPresenter.deleteProject(item);
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                break;
+                        }
+                    }
+                };
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setMessage("Wollen Sie das Project wirklich löschen?").setPositiveButton("Ja", dialogClickListener)
+                        .setNegativeButton("Nein", dialogClickListener).show();
+                break;
+            case Edit:
+                // TODO start simple transition for edit project
+                break;
+        }
+    }
 
     public interface ProjectSelected{
         void onSendProject(Project project);
@@ -53,10 +84,8 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
             "com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment.EXTRA_TRIGGER_SYNC_FLAG";
 
     @Inject ProjectsPresenter projectsPresenter;
-    private ProjectListViewAdapter projectsListViewAdapter;
-    //@Inject ProjectListViewAdapter projectsListViewAdapter;
+    private ProjectSwipeListViewAdaper projectsListViewAdapter;
 
-    //@BindView(R.id.projectSwipeListView) ListView projectsListView;
     private ListView projectsListView;
     private Context context;
     private Activity activity;
@@ -82,7 +111,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_projects, container, false);
-        ButterKnife.bind(this, view); //ButterKnife.bind(this);
+        ButterKnife.bind(this, view);
         return view;
     }
 
@@ -98,11 +127,9 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
                 .actionBarSize());
 
         projectsListView = (ListView) view.findViewById(R.id.projectSwipeListView);
-
-        projectsListViewAdapter = new ProjectListViewAdapter(getContext());
+        projectsListViewAdapter = new ProjectSwipeListViewAdaper(getContext(), this);
         projectsListView.setAdapter(projectsListViewAdapter);
         projectsListViewAdapter.setMode(Attributes.Mode.Single);
-        //projectsListView.setLayoutManager(new LinearLayoutManager(this));
         loadListViewEvents();
 
         projectsPresenter.attachView(this);
@@ -133,10 +160,8 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if(resultCode == Activity.RESULT_OK) {
-                Project project = (Project) data.getParcelableExtra("project"); // get json project added
+                Project project = data.getParcelableExtra("project"); // get json project added
                 projectsListViewAdapter.addItem(project);
-                //projectsListViewAdapter.notifyDataSetChanged();
-
             }
         }
     }
@@ -153,41 +178,12 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
                 projectSelectedCallback.onSendProject(project);
             }
         });
-        projectsListView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Log.e("ListView", "OnTouch");
-                return false;
-            }
-        });
-        projectsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            //Toast.makeText(context, "OnItemLongClickListener", Toast.LENGTH_SHORT).show();
-            return true;
-            }
-        });
-        projectsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                Log.e("ListView", "onScrollStateChanged");
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {}
-        });
-
-        projectsListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.e("ListView", "onItemSelected:" + position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Log.e("ListView", "onNothingSelected:");
-            }
-        });
+        /*
+        projectsListView.setOnTouchListener ...
+        projectsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() ...
+        projectsListView.setOnScrollListener(new AbsListView.OnScrollListener() ...
+        projectsListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() ...
+        */
     }
 
     @Override
@@ -199,7 +195,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
     @Override
     public void showProjects(Projects projects) {
         // TODO
-        projectsListViewAdapter.setProjects(projects.getProjectList());
+        projectsListViewAdapter.setItems(projects.getProjectList());
         projectsListViewAdapter.notifyDataSetChanged();
         Toast.makeText(context, "projects sync successfully", Toast.LENGTH_LONG).show();
     }
@@ -208,7 +204,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
     public void showProjectsEmpty() {
         // TODO
         List<Project> projectList = new ArrayList<>();
-        projectsListViewAdapter.setProjects(projectList);
+        projectsListViewAdapter.setItems(projectList);
         projectsListViewAdapter.notifyDataSetChanged();
         Toast.makeText(context, "projects empty", Toast.LENGTH_LONG).show();
     }
@@ -223,5 +219,15 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView {
         Projects projects = gson.fromJson(jsonString, Projects.class);
         showProjects(projects);
         */
+    }
+
+    @Override
+    public void onDeleteSuccess(Project project) {
+        projectsListViewAdapter.deleteItem(project);
+    }
+
+    @Override
+    public void onDeleteFailed() {
+
     }
 }

@@ -28,23 +28,25 @@ import butterknife.ButterKnife;
  * Created by adigu on 08.05.2017.
  */
 
-public class ProjectListViewAdapter extends BaseSwipeAdapter {
+public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
 
     //@Inject Context mContext;
     private Context context;
-    private List<Project> projectList;
+    private List<T> itemList;
+    private SwipeItemOnClickListener<T> onItemClickListener;
 
     //@BindView(R.id.textViewProjectListViewItemProjectname) TextView textViewProjectname;
     //@BindView(R.id.textViewProjectListViewItemDescription) TextView textViewDescription;
 
     //@Inject
-    public ProjectListViewAdapter(Context context) {
+    public SwipeItemListViewAdapter(Context context, SwipeItemOnClickListener<T> onItemClickListener) {
         this.context = context;
-        this.projectList = new ArrayList<>();
+        this.onItemClickListener = onItemClickListener;
+        this.itemList = new ArrayList<>();
     }
 
-    public void setProjects(List<Project> projectList) {
-        this.projectList = projectList;
+    public void setItems(List<T> itemList) {
+        this.itemList = itemList;
     }
 
     @Override
@@ -68,16 +70,18 @@ public class ProjectListViewAdapter extends BaseSwipeAdapter {
                 Toast.makeText(context, "DoubleClick", Toast.LENGTH_SHORT).show();
             }
         });
-        view.findViewById(R.id.iconTextViewProjectListViewItemDelete).setOnClickListener(new View.OnClickListener() {
+        swipeLayout.findViewById(R.id.iconTextViewProjectListViewItemDelete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "click delete", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "click delete " + position, Toast.LENGTH_SHORT).show();
+                onItemClickListener.onCallback(SwipeActionButtons.Delete, position, getItem(position));
             }
         });
-        view.findViewById(R.id.iconTextViewProjectListViewItemEdit).setOnClickListener(new View.OnClickListener() {
+        swipeLayout.findViewById(R.id.iconTextViewProjectListViewItemEdit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "click edit", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "click edit" + position, Toast.LENGTH_SHORT).show();
+                onItemClickListener.onCallback(SwipeActionButtons.Edit, position, getItem(position));
             }
         });
         return view;
@@ -85,22 +89,18 @@ public class ProjectListViewAdapter extends BaseSwipeAdapter {
 
     @Override
     public void fillValues(int position, View convertView) {
-        Project project = projectList.get(position);
-        //ButterKnife.bind(context, convertView);
-        TextView textViewProjectname = (TextView)convertView.findViewById(R.id.textViewProjectListViewItemProjectname);
-        TextView textViewDescription = (TextView)convertView.findViewById(R.id.textViewProjectListViewItemDescription);
-        textViewProjectname.setText(project.getName());
-        textViewDescription.setText(project.getDescription());
+
     }
+
 
     @Override
     public int getCount() {
-        return projectList.size();
+        return itemList.size();
     }
 
     @Override
-    public Project getItem(int position) {
-        return projectList.get(position);
+    public T getItem(int position) {
+        return itemList.get(position);
     }
 
     @Override
@@ -108,9 +108,16 @@ public class ProjectListViewAdapter extends BaseSwipeAdapter {
         return position;
     }
 
-    public void addItem(Project project) {
-        if(project != null) {
-            projectList.add(project);
+    public void addItem(T item) {
+        if(item != null) {
+            itemList.add(item);
+            this.notifyDataSetChanged();
+        }
+    }
+
+    public void deleteItem(T item) {
+        if(item != null) {
+            itemList.remove(item);
             this.notifyDataSetChanged();
         }
     }

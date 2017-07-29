@@ -9,6 +9,7 @@ import com.drone.imavis.mvp.data.remote.webodm.model.Token;
 
 import java.util.List;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -46,10 +47,10 @@ public interface IWebOdmApiEndpoint {
     Single<Project> addProject(@Body ProjectShort project);
 
     @PATCH("projects/{id}")
-    Observable<Project> updateProject(@Path("id") String id, @Body Project project);
+    Single<Project> updateProject(@Path("id") String id, @Body Project project);
 
-    @DELETE("projects/{id}")
-    Observable<Project> deleteProject(@Path("id") String id);
+    @DELETE("projects/{id}/") // DELETE requests needs the ending slash!
+    Completable deleteProject(@Path("id") String id);
 
     /* TASK */
 
