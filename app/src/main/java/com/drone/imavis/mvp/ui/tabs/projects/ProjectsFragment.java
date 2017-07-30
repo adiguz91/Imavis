@@ -50,7 +50,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
     ProjectSelected projectSelectedCallback;
 
     @Override
-    public void onCallback(SwipeActionButtons action, int position, Project item) {
+    public void onCallback(View view, SwipeActionButtons action, int position, Project item) {
         switch (action) {
             case Delete:
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -72,6 +72,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
                 break;
             case Edit:
                 // TODO start simple transition for edit project
+                startProjectEditActivity(view);
                 break;
         }
     }
@@ -150,6 +151,17 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ActivityOptions options =
                     ActivityOptions.makeSceneTransitionAnimation(activity, fabProjects, fabProjects.getTransitionName());
+            startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode, options.toBundle());
+        } else {
+            startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode);
+        }
+    }
+
+    private void startProjectEditActivity(View view) {
+        int requestCode = 1;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions options =
+                    ActivityOptions.makeSceneTransitionAnimation(activity, view, fabProjects.getTransitionName());
             startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode, options.toBundle());
         } else {
             startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode);

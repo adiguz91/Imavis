@@ -74,14 +74,14 @@ public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
             @Override
             public void onClick(View view) {
                 //Toast.makeText(context, "click delete " + position, Toast.LENGTH_SHORT).show();
-                onItemClickListener.onCallback(SwipeActionButtons.Delete, position, getItem(position));
+                onItemClickListener.onCallback(view, SwipeActionButtons.Delete, position, getItem(position));
             }
         });
         swipeLayout.findViewById(R.id.iconTextViewProjectListViewItemEdit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Toast.makeText(context, "click edit" + position, Toast.LENGTH_SHORT).show();
-                onItemClickListener.onCallback(SwipeActionButtons.Edit, position, getItem(position));
+                onItemClickListener.onCallback(view, SwipeActionButtons.Edit, position, getItem(position));
             }
         });
         return view;
