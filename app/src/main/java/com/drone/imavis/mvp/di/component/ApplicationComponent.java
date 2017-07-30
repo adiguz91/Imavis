@@ -9,6 +9,7 @@ import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.di.ApplicationContext;
 import com.drone.imavis.mvp.di.module.ApplicationModule;
+import com.drone.imavis.mvp.util.DialogUtil;
 
 import javax.inject.Singleton;
 
@@ -31,7 +32,6 @@ public interface ApplicationComponent {
     //DatabaseHelper databaseHelper();
     DataManager dataManager();
     //RxEventBus eventBus();
-
     //IFlyPlanUtil flyPlanUtil();
     //FileUtil fileUtil();
 

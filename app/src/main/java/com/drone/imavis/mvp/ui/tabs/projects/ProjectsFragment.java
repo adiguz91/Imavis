@@ -27,6 +27,7 @@ import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
 import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAction;
 import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity;
+import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.swipelistview.SwipeActionButtons;
 import com.drone.imavis.mvp.util.swipelistview.SwipeItemOnClickListener;
 import com.joanzapata.iconify.IconDrawable;
@@ -50,69 +51,6 @@ import butterknife.OnClick;
 
 public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, SwipeItemOnClickListener<Project> {
 
-    ProjectSelected projectSelectedCallback;
-    int selectedItem = -1;
-
-    public ViewParent findParentRecursively(View view, int targetId) {
-        if (view.getId() == targetId)
-            return (ViewParent)view;
-        View parent = (View) view.getParent();
-        if (parent == null)
-            return null;
-        return findParentRecursively(parent, targetId);
-    }
-
-    @Override
-    public void onCallback(View view, SwipeActionButtons action, int position, Project item) {
-        selectedItem = position;
-
-        SwipeLayout swipeView = (SwipeLayout) findParentRecursively(view, R.id.projectItemSwipe);
-
-        switch (action) {
-            case Delete:
-                String title = "Hinweis";
-                String message = "Wollen Sie das Project wirklich löschen?";
-                Map<Integer,String> buttons =  new HashMap<Integer,String>();
-                buttons.put(DialogInterface.BUTTON_POSITIVE, "Ja");
-                buttons.put(DialogInterface.BUTTON_NEGATIVE, "Nein");
-                showSimpleDialogMessage(title, message, buttons, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        swipeView.close();
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                projectsPresenter.deleteProject(item);
-                                break;
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                break;
-                        }
-                    }
-                });
-                break;
-            case Edit:
-                swipeView.close();
-                Intent intent = new Intent(context, ProjectAddOrEditActivity.class);
-                intent.putExtra("ProjectAction", ProjectAction.Edit);
-                intent.putExtra("Project", item);
-                startProjectActivity(view, intent, ProjectAction.Edit, fabAddProject.getTransitionName());
-                break;
-        }
-    }
-
-    private void showSimpleDialogMessage(String title, String message, Map<Integer,String> buttons, DialogInterface.OnClickListener dialogOnClickListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(title).setMessage(message);
-
-        if(buttons.get(DialogInterface.BUTTON_POSITIVE) != null)
-            builder.setPositiveButton(buttons.get(DialogInterface.BUTTON_POSITIVE), dialogOnClickListener);
-        if(buttons.get(DialogInterface.BUTTON_NEGATIVE) != null)
-            builder.setNegativeButton(buttons.get(DialogInterface.BUTTON_NEGATIVE), dialogOnClickListener);
-        if(buttons.get(DialogInterface.BUTTON_NEUTRAL) != null)
-            builder.setNeutralButton(buttons.get(DialogInterface.BUTTON_NEUTRAL), dialogOnClickListener);
-
-        builder.show();
-    }
-
     public interface ProjectSelected{
         void onSendProject(Project project);
     }
@@ -120,6 +58,11 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment.EXTRA_TRIGGER_SYNC_FLAG";
 
+    private ProjectSelected projectSelectedCallback;
+    private int selectedItem = -1;
+
+
+    @Inject DialogUtil dialogUtil;
     @Inject ProjectsPresenter projectsPresenter;
     private ProjectSwipeListViewAdaper projectsListViewAdapter;
 
@@ -150,6 +93,51 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
         View view = inflater.inflate(R.layout.activity_projects, container, false);
         ButterKnife.bind(this, view);
         return view;
+    }
+
+    public ViewParent findParentRecursively(View view, int targetId) {
+        if (view.getId() == targetId)
+            return (ViewParent)view;
+        View parent = (View) view.getParent();
+        if (parent == null)
+            return null;
+        return findParentRecursively(parent, targetId);
+    }
+
+    @Override
+    public void onCallback(View view, SwipeActionButtons action, int position, Project item) {
+        selectedItem = position;
+        SwipeLayout swipeView = (SwipeLayout) findParentRecursively(view, R.id.projectItemSwipe);
+
+        switch (action) {
+            case Delete:
+                String title = "Hinweis";
+                String message = "Wollen Sie das Project wirklich löschen?";
+                Map<Integer,String> buttons =  new HashMap<Integer,String>();
+                buttons.put(DialogInterface.BUTTON_POSITIVE, "Ja");
+                buttons.put(DialogInterface.BUTTON_NEGATIVE, "Nein");
+                dialogUtil.showSimpleDialogMessage(title, message, buttons, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        swipeView.close();
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                projectsPresenter.deleteProject(item);
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
+                    }
+                });
+                break;
+            case Edit:
+                swipeView.close();
+                Intent intent = new Intent(context, ProjectAddOrEditActivity.class);
+                intent.putExtra("ProjectAction", ProjectAction.Edit);
+                intent.putExtra("Project", item);
+                startProjectActivity(view, intent, ProjectAction.Edit, fabAddProject.getTransitionName());
+                break;
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
