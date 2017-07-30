@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     android:id="@+id/activity_project_add_container"
-    tools:context="com.drone.imavis.mvp.ui.tabs.projectsAdd.ProjectAddActivity">
+    tools:context="com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -68,7 +68,7 @@
             app:met_errorColor="#FFA0AC" />
 
         <com.dd.processbutton.iml.ActionProcessButton
-            android:id="@+id/buttonProjectAdd"
+            android:id="@+id/buttonProjectAction"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="16dp"

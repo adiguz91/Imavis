@@ -113,7 +113,7 @@
             android:label="Flyplanner"> <!-- android:screenOrientation="landscape" -->
         </activity>
         <activity
-            android:name=".ui.tabs.projectsAdd.ProjectAddActivity"
+            android:name=".ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity"
             android:label="Add Project"> <!-- android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" -->
         </activity>
     </application>

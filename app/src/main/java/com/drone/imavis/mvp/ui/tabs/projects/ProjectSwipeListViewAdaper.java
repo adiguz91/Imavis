@@ -6,6 +6,8 @@ import android.widget.TextView;
 
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.util.swipelistview.SwipeItemListViewAdapter;
+import com.drone.imavis.mvp.util.swipelistview.SwipeItemOnClickListener;
 
 /**
  * Created by adigu on 29.07.2017.

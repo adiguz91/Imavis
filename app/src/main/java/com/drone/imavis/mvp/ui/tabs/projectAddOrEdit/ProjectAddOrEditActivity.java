@@ -1,25 +1,19 @@
-package com.drone.imavis.mvp.ui.tabs.projectsAdd;
+package com.drone.imavis.mvp.ui.tabs.projectAddOrEdit;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -28,11 +22,11 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
-import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
-import com.drone.imavis.mvp.ui.tabs.projects.ProjectsPresenter;
+import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.add.IProjectAddMvpView;
+import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.add.ProjectAddPresenter;
+import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.edit.IProjectEditMvpView;
 import com.drone.imavis.mvp.util.GUIUtils;
 import com.drone.imavis.mvp.util.OnRevealAnimationListener;
-import com.drone.imavis.mvp.util.StringUtil;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.rengwuxian.materialedittext.MaterialEditText;
@@ -43,7 +37,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpView {
+public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAddMvpView, IProjectEditMvpView {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.projects.ProjectsActivity.EXTRA_TRIGGER_SYNC_FLAG";
@@ -67,7 +61,7 @@ public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpVi
 
     private Context context;
 
-    @BindView(R.id.buttonProjectAdd) ActionProcessButton buttonAdd;
+    @BindView(R.id.buttonProjectAction) ActionProcessButton buttonProjectAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +75,9 @@ public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpVi
         context = this;
 
         title.setText(getSupportActionBar().getTitle());
-        buttonAdd.setProgress(0);
-        buttonAdd.setMode(ActionProcessButton.Mode.ENDLESS);
-        buttonAdd.setOnClickListener(onClick -> addProject() );
+        buttonProjectAction.setProgress(0);
+        buttonProjectAction.setMode(ActionProcessButton.Mode.ENDLESS);
+        buttonProjectAction.setOnClickListener(onClick -> addProject() );
 
         fabClose.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_close)
                 .colorRes(R.color.icons)
@@ -119,19 +113,25 @@ public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpVi
         }
     }
 
+    private void passDataBack(Project project, ProjectAction projectAction) {
+        Intent intent = new Intent();
+        intent.putExtra("project", project);
+        intent.putExtra("ProjectAction", projectAction);
+        setResult(RESULT_OK, intent);
+        finish();
+
+        // put
+        //intent.putExtra("key", yourEnum);
+        // get
+        //yourEnum = (YourEnum) intent.getSerializableExtra("key");
+    }
+
     @Override
     public void onAddSuccess(Project project) {
         buttonAdd.setProgress(100); // 100 : Success
         onComplete();
-        passDataBack(project);
+        passDataBack(project, ProjectAction.Add);
         onCloseClicked();
-    }
-
-    private void passDataBack(Project project) {
-        Intent intent = new Intent();
-        intent.putExtra("project", project);
-        setResult(RESULT_OK, intent);
-        finish();
     }
 
     @Override
@@ -140,9 +140,9 @@ public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpVi
         onComplete();
     }
 
-    @Override
     public void onComplete() {
         // after button click timeout is reached!
+        buttonAdd.setEnabled(true);
         buttonAdd.setEnabled(true);
         projectName.setEnabled(true);
         projectDescription.setEnabled(true);
@@ -226,5 +226,18 @@ public class ProjectAddActivity extends BaseActivity implements IProjectAddMvpVi
         Fade fade = new Fade();
         getWindow().setReturnTransition(fade);
         fade.setDuration(getResources().getInteger(R.integer.animation_duration));
+    }
+
+    @Override
+    public void onEditSuccess(Project project) {
+        buttonAdd.setProgress(100); // 100 : Success
+        onComplete();
+        passDataBack(project);
+        onCloseClicked();
+    }
+
+    @Override
+    public void onEditFailed() {
+
     }
 }

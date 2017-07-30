@@ -80,6 +80,10 @@ public class DataManager {
         return webOdmService.addProject(project);
     }
 
+    public Single<Project> updateProject(String id, ProjectShort project) {
+        return webOdmService.updateProject(id, project);
+    }
+
     public Completable deleteProject(int id) {
         return webOdmService.deleteProject(Integer.toString(id));
     }

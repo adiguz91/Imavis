@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.tabs.projects;
+package com.drone.imavis.mvp.util.swipelistview;
 
 /**
  * Created by adigu on 29.07.2017.

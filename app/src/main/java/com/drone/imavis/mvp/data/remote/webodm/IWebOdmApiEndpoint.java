@@ -46,8 +46,8 @@ public interface IWebOdmApiEndpoint {
     @POST("projects/") // POST requests needs the ending slash!
     Single<Project> addProject(@Body ProjectShort project);
 
-    @PATCH("projects/{id}")
-    Single<Project> updateProject(@Path("id") String id, @Body Project project);
+    @PATCH("projects/{id}/")
+    Single<Project> updateProject(@Path("id") String id, @Body ProjectShort project);
 
     @DELETE("projects/{id}/") // DELETE requests needs the ending slash!
     Completable deleteProject(@Path("id") String id);

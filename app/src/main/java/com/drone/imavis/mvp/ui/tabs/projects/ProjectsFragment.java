@@ -11,26 +11,24 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
-import com.drone.imavis.mvp.ui.tabs.projectsAdd.ProjectAddActivity;
+import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAction;
+import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity;
+import com.drone.imavis.mvp.util.swipelistview.SwipeActionButtons;
+import com.drone.imavis.mvp.util.swipelistview.SwipeItemOnClickListener;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
-import com.joanzapata.iconify.widget.IconTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,18 +141,33 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
 
     @OnClick(R.id.fabProjects)
     public void onFabClicked() {
-        startProjectAddActivity();
+        startProjectActivity(fabProjects, ProjectAction.Add, fabProjects.getTransitionName());
     }
 
-    private void startProjectAddActivity() {
+    private void startProjectActivity(View view, ProjectAction projectAction, String transitionName) {
         int requestCode = 1;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ActivityOptions options =
-                    ActivityOptions.makeSceneTransitionAnimation(activity, fabProjects, fabProjects.getTransitionName());
-            startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode, options.toBundle());
-        } else {
-            startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode);
+
+        switch (projectAction) {
+            case Add:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    ActivityOptions options =
+                            ActivityOptions.makeSceneTransitionAnimation(activity, fabProjects, fabProjects.getTransitionName());
+                    startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode, options.toBundle());
+                } else {
+                    startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode);
+                }
+                break;
+            case Edit:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    ActivityOptions options =
+                            ActivityOptions.makeSceneTransitionAnimation(activity, view, transitionName);
+                    startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode, options.toBundle());
+                } else {
+                    startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode);
+                }
+                break;
         }
+
     }
 
     private void startProjectEditActivity(View view) {
@@ -162,9 +175,9 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ActivityOptions options =
                     ActivityOptions.makeSceneTransitionAnimation(activity, view, fabProjects.getTransitionName());
-            startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode, options.toBundle());
+            startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode, options.toBundle());
         } else {
-            startActivityForResult(new Intent(activity, ProjectAddActivity.class), requestCode);
+            startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode);
         }
     }
 

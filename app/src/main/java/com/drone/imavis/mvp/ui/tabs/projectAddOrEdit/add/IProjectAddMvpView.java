@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.tabs.projectsAdd;
+package com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.add;
 
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.ui.base.IMvpView;
@@ -12,6 +12,4 @@ public interface IProjectAddMvpView extends IMvpView {
     void onAddSuccess(Project project);
 
     void onAddFailed();
-
-    void onComplete();
 }
