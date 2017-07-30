@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.add;
+package com.drone.imavis.mvp.ui.tabs.projectAddOrEdit;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.model.Project;
@@ -20,18 +20,18 @@ import rx.Subscription;
  */
 
 @ConfigPersistent
-public class ProjectAddPresenter extends BasePresenter<IProjectAddMvpView> {
+public class ProjectAddOrEditPresenter extends BasePresenter<IProjectAddOrEditMvpView> {
 
     private final DataManager dataManager;
     private Subscription subscription;
 
     @Inject
-    public ProjectAddPresenter(DataManager dataManager) {
+    public ProjectAddOrEditPresenter(DataManager dataManager) {
         this.dataManager = dataManager;
     }
 
     @Override
-    public void attachView(IProjectAddMvpView mvpView) {
+    public void attachView(IProjectAddOrEditMvpView mvpView) {
         super.attachView(mvpView);
     }
 
@@ -59,6 +59,29 @@ public class ProjectAddPresenter extends BasePresenter<IProjectAddMvpView> {
                    @Override
                    public void onError(@NonNull Throwable e) {
                        getMvpView().onAddFailed();
+                   }
+               }
+            );
+    }
+
+    public void editProject(String id , ProjectShort project) {
+        checkViewAttached();
+        RxUtil.unsubscribe(subscription);
+        dataManager.updateProject(id, project)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+            .subscribe(new SingleObserver<Project>() {
+                   @Override
+                   public void onSubscribe(@NonNull Disposable d) {}
+
+                   @Override
+                   public void onSuccess(@NonNull Project project) {
+                       getMvpView().onEditSuccess(project);
+                   }
+
+                   @Override
+                   public void onError(@NonNull Throwable e) {
+                       getMvpView().onEditFailed();
                    }
                }
             );

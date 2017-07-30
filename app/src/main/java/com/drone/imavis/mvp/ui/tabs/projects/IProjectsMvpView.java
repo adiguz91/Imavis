@@ -20,4 +20,8 @@ public interface IProjectsMvpView extends IMvpView {
 
     void onDeleteFailed();
 
+    void onEditSuccess(int position, Project project);
+
+    void onEditFailed();
+
 }

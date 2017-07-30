@@ -107,6 +107,13 @@ public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
         }
     }
 
+    public void updateItem(int position, T item) {
+        if(item != null) {
+            itemList.set(position, item);
+            this.notifyDataSetChanged();
+        }
+    }
+
     public void deleteItem(T item) {
         if(item != null) {
             itemList.remove(item);

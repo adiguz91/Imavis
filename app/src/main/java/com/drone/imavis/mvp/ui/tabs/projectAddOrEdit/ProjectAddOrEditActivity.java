@@ -22,9 +22,7 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
-import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.add.IProjectAddMvpView;
-import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.add.ProjectAddPresenter;
-import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.edit.IProjectEditMvpView;
+import com.drone.imavis.mvp.ui.base.IMvpView;
 import com.drone.imavis.mvp.util.GUIUtils;
 import com.drone.imavis.mvp.util.OnRevealAnimationListener;
 import com.joanzapata.iconify.IconDrawable;
@@ -37,16 +35,17 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAddMvpView, IProjectEditMvpView {
+public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAddOrEditMvpView, IMvpView {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.projects.ProjectsActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
     @Inject
-    ProjectAddPresenter projectAddPresenter;
+    ProjectAddOrEditPresenter projectPresenter;
 
     @BindView(R.id.activity_project_add_container)
     RelativeLayout container;
+
     @BindView(R.id.projectAdd_fab_close)
     FloatingActionButton fabClose;
 
@@ -59,25 +58,41 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
     @BindView(R.id.projectsAddEditTextDescription)
     MaterialEditText projectDescription;
 
-    private Context context;
+    @BindView(R.id.buttonProjectAction)
+    ActionProcessButton buttonProjectAction;
 
-    @BindView(R.id.buttonProjectAction) ActionProcessButton buttonProjectAction;
+    private Context context;
+    private ProjectAction projectAction;
+    private Project project;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityComponent().inject(this);
         setContentView(R.layout.activity_projects_add);
-
-        // hide app title
-        getSupportActionBar().hide();
         ButterKnife.bind(this);
         context = this;
 
-        title.setText(getSupportActionBar().getTitle());
+        // get padded data
+        project = getIntent().getParcelableExtra("Project");
+        projectAction = (ProjectAction) getIntent().getSerializableExtra("ProjectAction");
+
+        // hide app title
+        getSupportActionBar().hide();
+        title.setText("Projekt"); // getSupportActionBar().getTitle()
+
+
         buttonProjectAction.setProgress(0);
         buttonProjectAction.setMode(ActionProcessButton.Mode.ENDLESS);
-        buttonProjectAction.setOnClickListener(onClick -> addProject() );
+        buttonProjectAction.setOnClickListener(onClick -> sendProject(projectAction) );
+
+        if (projectAction == ProjectAction.Add) {
+            buttonProjectAction.setText("Hinzufügen");
+        } else if (projectAction == ProjectAction.Edit) {
+            buttonProjectAction.setText("Speichern");
+            projectName.setText(project.getName());
+            projectDescription.setText(project.getDescription());
+        }
 
         fabClose.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_close)
                 .colorRes(R.color.icons)
@@ -90,7 +105,7 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
             initViews();
         }
 
-        projectAddPresenter.attachView(this);
+        projectPresenter.attachView(this);
     }
 
     @OnClick(R.id.projectAdd_fab_close)
@@ -98,52 +113,50 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
         onCloseClicked();
     }
 
-    public void addProject() {
+    public void sendProject(ProjectAction projectAction) {
         if(projectName.validate()) {
             ProjectShort project = new ProjectShort();
             project.setName(projectName.getEditableText().toString());
             project.setDescription(projectDescription.getEditableText().toString());
 
-            buttonAdd.setProgress(1);
-            buttonAdd.setEnabled(false);
+            buttonProjectAction.setProgress(1);
+            buttonProjectAction.setEnabled(false);
             projectName.setEnabled(false);
             projectDescription.setEnabled(false);
 
-            projectAddPresenter.addProject(project);
+            if(projectAction == ProjectAction.Add)
+                projectPresenter.addProject(project);
+            else if (projectAction == ProjectAction.Edit) {
+                projectPresenter.editProject(Integer.toString(this.project.getId()), project);
+            }
         }
     }
 
-    private void passDataBack(Project project, ProjectAction projectAction) {
+    private void passDataBack(Project project) {
         Intent intent = new Intent();
         intent.putExtra("project", project);
         intent.putExtra("ProjectAction", projectAction);
         setResult(RESULT_OK, intent);
         finish();
-
-        // put
-        //intent.putExtra("key", yourEnum);
-        // get
-        //yourEnum = (YourEnum) intent.getSerializableExtra("key");
     }
 
     @Override
     public void onAddSuccess(Project project) {
-        buttonAdd.setProgress(100); // 100 : Success
+        buttonProjectAction.setProgress(100); // 100 : Success
         onComplete();
-        passDataBack(project, ProjectAction.Add);
+        this.project = project;
         onCloseClicked();
     }
 
     @Override
     public void onAddFailed() {
-        buttonAdd.setProgress(-1); // -1 : Failed
+        buttonProjectAction.setProgress(-1); // -1 : Failed
+        this.project = null;
         onComplete();
     }
 
     public void onComplete() {
-        // after button click timeout is reached!
-        buttonAdd.setEnabled(true);
-        buttonAdd.setEnabled(true);
+        buttonProjectAction.setEnabled(true);
         projectName.setEnabled(true);
         projectDescription.setEnabled(true);
     }
@@ -197,15 +210,16 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
 
     @Override
     public void onBackPressed() {
+        passDataBack(project);
         GUIUtils.animateRevealHide(this, container, R.color.colorPrimary, fabClose.getWidth() / 2,
-                new OnRevealAnimationListener() {
-                    @Override
-                    public void onRevealHide() {
-                        backPressed();
-                    }
-                    @Override
-                    public void onRevealShow() {}
-                });
+            new OnRevealAnimationListener() {
+                @Override
+                public void onRevealHide() {
+                    backPressed();
+                }
+                @Override
+                public void onRevealShow() {}
+            });
     }
 
     @OnClick(R.id.projectAdd_fab_close)
@@ -218,6 +232,7 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
     }
 
     private void backPressed() {
+        passDataBack(project);
         super.onBackPressed();
     }
 
@@ -230,14 +245,16 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
 
     @Override
     public void onEditSuccess(Project project) {
-        buttonAdd.setProgress(100); // 100 : Success
+        buttonProjectAction.setProgress(100); // 100 : Success
         onComplete();
-        passDataBack(project);
+        this.project = project;
         onCloseClicked();
     }
 
     @Override
     public void onEditFailed() {
-
+        buttonProjectAction.setProgress(-1); // -1 : Failed
+        this.project = null;
+        onComplete();
     }
 }

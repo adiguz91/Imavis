@@ -14,10 +14,12 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
@@ -31,7 +33,10 @@ import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -46,33 +51,66 @@ import butterknife.OnClick;
 public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, SwipeItemOnClickListener<Project> {
 
     ProjectSelected projectSelectedCallback;
+    int selectedItem = -1;
+
+    public ViewParent findParentRecursively(View view, int targetId) {
+        if (view.getId() == targetId)
+            return (ViewParent)view;
+        View parent = (View) view.getParent();
+        if (parent == null)
+            return null;
+        return findParentRecursively(parent, targetId);
+    }
 
     @Override
     public void onCallback(View view, SwipeActionButtons action, int position, Project item) {
+        selectedItem = position;
+
+        SwipeLayout swipeView = (SwipeLayout) findParentRecursively(view, R.id.projectItemSwipe);
+
         switch (action) {
             case Delete:
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                String title = "Hinweis";
+                String message = "Wollen Sie das Project wirklich löschen?";
+                Map<Integer,String> buttons =  new HashMap<Integer,String>();
+                buttons.put(DialogInterface.BUTTON_POSITIVE, "Ja");
+                buttons.put(DialogInterface.BUTTON_NEGATIVE, "Nein");
+                showSimpleDialogMessage(title, message, buttons, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
+                        swipeView.close();
+                        switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
                                 projectsPresenter.deleteProject(item);
                                 break;
                             case DialogInterface.BUTTON_NEGATIVE:
-                                //No button clicked
                                 break;
                         }
                     }
-                };
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setMessage("Wollen Sie das Project wirklich löschen?").setPositiveButton("Ja", dialogClickListener)
-                        .setNegativeButton("Nein", dialogClickListener).show();
+                });
                 break;
             case Edit:
-                // TODO start simple transition for edit project
-                startProjectEditActivity(view);
+                swipeView.close();
+                Intent intent = new Intent(context, ProjectAddOrEditActivity.class);
+                intent.putExtra("ProjectAction", ProjectAction.Edit);
+                intent.putExtra("Project", item);
+                startProjectActivity(view, intent, ProjectAction.Edit, fabAddProject.getTransitionName());
                 break;
         }
+    }
+
+    private void showSimpleDialogMessage(String title, String message, Map<Integer,String> buttons, DialogInterface.OnClickListener dialogOnClickListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title).setMessage(message);
+
+        if(buttons.get(DialogInterface.BUTTON_POSITIVE) != null)
+            builder.setPositiveButton(buttons.get(DialogInterface.BUTTON_POSITIVE), dialogOnClickListener);
+        if(buttons.get(DialogInterface.BUTTON_NEGATIVE) != null)
+            builder.setNegativeButton(buttons.get(DialogInterface.BUTTON_NEGATIVE), dialogOnClickListener);
+        if(buttons.get(DialogInterface.BUTTON_NEUTRAL) != null)
+            builder.setNeutralButton(buttons.get(DialogInterface.BUTTON_NEUTRAL), dialogOnClickListener);
+
+        builder.show();
     }
 
     public interface ProjectSelected{
@@ -89,8 +127,8 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
     private Context context;
     private Activity activity;
 
-    @BindView(R.id.fabProjects)
-    FloatingActionButton fabProjects;
+    @BindView(R.id.fabAddProject)
+    FloatingActionButton fabAddProject;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -121,7 +159,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
         context = this.getContext();
         activity = this.getActivity();
 
-        fabProjects.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_plus)
+        fabAddProject.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_plus)
                 .colorRes(R.color.icons)
                 .actionBarSize());
 
@@ -139,45 +177,20 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
         //}
     }
 
-    @OnClick(R.id.fabProjects)
+    @OnClick(R.id.fabAddProject)
     public void onFabClicked() {
-        startProjectActivity(fabProjects, ProjectAction.Add, fabProjects.getTransitionName());
+        Intent intent = new Intent(context, ProjectAddOrEditActivity.class);
+        intent.putExtra("ProjectAction", ProjectAction.Add);
+        startProjectActivity(fabAddProject, intent, ProjectAction.Add, fabAddProject.getTransitionName());
     }
 
-    private void startProjectActivity(View view, ProjectAction projectAction, String transitionName) {
-        int requestCode = 1;
-
-        switch (projectAction) {
-            case Add:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    ActivityOptions options =
-                            ActivityOptions.makeSceneTransitionAnimation(activity, fabProjects, fabProjects.getTransitionName());
-                    startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode, options.toBundle());
-                } else {
-                    startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode);
-                }
-                break;
-            case Edit:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    ActivityOptions options =
-                            ActivityOptions.makeSceneTransitionAnimation(activity, view, transitionName);
-                    startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode, options.toBundle());
-                } else {
-                    startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode);
-                }
-                break;
-        }
-
-    }
-
-    private void startProjectEditActivity(View view) {
+    private void startProjectActivity(View view, Intent intent, ProjectAction projectAction, String transitionName) {
         int requestCode = 1;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ActivityOptions options =
-                    ActivityOptions.makeSceneTransitionAnimation(activity, view, fabProjects.getTransitionName());
-            startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode, options.toBundle());
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity, view, transitionName);
+            startActivityForResult(intent, requestCode, options.toBundle());
         } else {
-            startActivityForResult(new Intent(activity, ProjectAddOrEditActivity.class), requestCode);
+            startActivityForResult(intent, requestCode);
         }
     }
 
@@ -185,8 +198,13 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if(resultCode == Activity.RESULT_OK) {
-                Project project = data.getParcelableExtra("project"); // get json project added
-                projectsListViewAdapter.addItem(project);
+                Project project = data.getParcelableExtra("project");
+                ProjectAction projectAction = (ProjectAction) data.getSerializableExtra("ProjectAction");
+                if(projectAction == ProjectAction.Add)
+                    projectsListViewAdapter.addItem(project);
+                else if (projectAction == ProjectAction.Edit)
+                    projectsListViewAdapter.updateItem(selectedItem, project);
+                selectedItem = -1;
             }
         }
     }
@@ -219,19 +237,17 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
 
     @Override
     public void showProjects(Projects projects) {
-        // TODO
         projectsListViewAdapter.setItems(projects.getProjectList());
         projectsListViewAdapter.notifyDataSetChanged();
-        Toast.makeText(context, "projects sync successfully", Toast.LENGTH_LONG).show();
+        //Toast.makeText(context, "projects sync successfully", Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void showProjectsEmpty() {
-        // TODO
         List<Project> projectList = new ArrayList<>();
         projectsListViewAdapter.setItems(projectList);
         projectsListViewAdapter.notifyDataSetChanged();
-        Toast.makeText(context, "projects empty", Toast.LENGTH_LONG).show();
+        //Toast.makeText(context, "projects empty", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -252,7 +268,15 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
     }
 
     @Override
-    public void onDeleteFailed() {
+    public void onDeleteFailed() {}
+
+    @Override
+    public void onEditSuccess(int position, Project project) {
+        projectsListViewAdapter.updateItem(position, project);
+    }
+
+    @Override
+    public void onEditFailed() {
 
     }
 }
