@@ -103,9 +103,6 @@
             android:name=".ui.tabs.ProjectsFlyplansActivity"
             android:label="Imavis"></activity>
         <activity
-            android:name=".ui.tabs.flyplans.FlyplansActivity"
-            android:label="Flyplans"></activity>
-        <activity
             android:name=".ui.tabs.projects.ProjectsActivity"
             android:label="Projects"></activity>
         <activity

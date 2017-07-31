@@ -2,6 +2,7 @@ package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan;
 
 import android.graphics.Canvas;
 
+import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan.UnitOfLength;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
@@ -25,6 +26,12 @@ public class FlyPlan {
     public FlyPlan(String jsonFile) {
         this.map = map;
         this.nodes = new Nodes();
+    }
+
+    public FlyPlan(Task task) {
+        this.map = map;
+        this.nodes = new Nodes();
+        this.task = task;
     }
 
     public void draw(Canvas canvas) {
@@ -98,10 +105,18 @@ public class FlyPlan {
         this.title = title;
     }
 
+    public Task getTask() {
+        return task;
+    }
+    public void setTask(Task task) {
+        this.task = task;
+    }
+
     private Map map;
     private Nodes nodes;
     private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
     private int minSpeed = CFlyPlan.MIN_SPEED;
     private UnitOfLength unitOfLength = CFlyPlan.UNIT_OF_LENGTH;
     private String title;
+    private Task task;
 }

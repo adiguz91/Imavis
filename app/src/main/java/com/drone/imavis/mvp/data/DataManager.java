@@ -88,6 +88,10 @@ public class DataManager {
         return webOdmService.deleteProject(Integer.toString(id));
     }
 
+    public Completable deleteFlyplan(int projectId, int taskId) {
+        return webOdmService.deleteTask(Integer.toString(projectId), Integer.toString(taskId));
+    }
+
     /*
     public Observable<List<Projects>> getRibots() {
         return databaseHelper.getProjects().distinct();

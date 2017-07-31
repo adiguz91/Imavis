@@ -2,8 +2,10 @@ package com.drone.imavis.mvp.ui.tabs.flyplans;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.model.Flyplan;
+import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.di.ConfigPersistent;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.FlyPlan;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
 import com.drone.imavis.mvp.util.RxUtil;
 
@@ -12,6 +14,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.CompletableObserver;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -64,10 +67,9 @@ public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
                             getMvpView().showFlyplansEmpty();
                         } else {
                             // transformation wrapper
-                            List<Flyplan> flyplanList = new ArrayList<Flyplan>();
+                            List<FlyPlan> flyplanList = new ArrayList<FlyPlan>();
                             for(Task task : taskList) {
-                                Flyplan flyplan = new Flyplan();
-                                flyplan.setTask(task);
+                                FlyPlan flyplan = new FlyPlan(task);
                                 flyplanList.add(flyplan);
                             }
                             getMvpView().showFlyplans(flyplanList);
@@ -85,4 +87,29 @@ public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
                     }
                 });
     }
+
+    public void deleteFlyplan(FlyPlan flyplan) {
+        checkViewAttached();
+        RxUtil.unsubscribe(subscription);
+        dataManager.deleteFlyplan(flyplan.getTask().getId(), flyplan.getTask().getProject())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        getMvpView().onDeleteSuccess(flyplan);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        getMvpView().onDeleteFailed();
+                    }
+                });
+    }
+
 }

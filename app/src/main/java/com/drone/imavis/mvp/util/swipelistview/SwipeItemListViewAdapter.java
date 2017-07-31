@@ -27,14 +27,26 @@ public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
     private List<T> itemList;
     private SwipeItemOnClickListener<T> onItemClickListener;
 
+    int swipeItemList;
+    int swipeLayout;
+    int deleteRessource;
+    int editRessource;
+
     //@BindView(R.id.textViewProjectListViewItemProjectname) TextView textViewProjectname;
     //@BindView(R.id.textViewProjectListViewItemDescription) TextView textViewDescription;
 
     //@Inject
-    public SwipeItemListViewAdapter(Context context, SwipeItemOnClickListener<T> onItemClickListener) {
+    public SwipeItemListViewAdapter(Context context, SwipeItemOnClickListener<T> onItemClickListener, int swipeItemList,
+                                    int swipeLayout, int editRessource, int deleteRessource) {
         this.context = context;
         this.onItemClickListener = onItemClickListener;
         this.itemList = new ArrayList<>();
+
+        this.swipeItemList = swipeItemList;
+        this.swipeLayout = swipeLayout;
+
+        this.editRessource = editRessource;
+        this.deleteRessource = deleteRessource;
     }
 
     public void setItems(List<T> itemList) {
@@ -43,36 +55,36 @@ public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
 
     @Override
     public int getSwipeLayoutResourceId(int position) {
-        return R.id.projectItemSwipe;
+        return swipeItemList;
     }
 
     @Override
     public View generateView(int position, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.activity_project_listview_item, null);
+        View view = LayoutInflater.from(context).inflate(swipeLayout, null);
         SwipeLayout swipeLayout = (SwipeLayout) view.findViewById(getSwipeLayoutResourceId(position));
-        swipeLayout.addSwipeListener(new SimpleSwipeListener() {
-            @Override
-            public void onOpen(SwipeLayout layout) {
-                YoYo.with(Techniques.Tada).duration(500).delay(100).playOn(layout.findViewById(R.id.iconTextViewProjectListViewItemDelete));
-            }
-        });
+        //swipeLayout.addSwipeListener(new SimpleSwipeListener() {
+        //  @Override
+        //  public void onOpen(SwipeLayout layout) {
+        //        YoYo.with(Techniques.Tada).duration(500).delay(100).playOn(layout.findViewById(deleteRessource));
+        //    }
+        //});
+        /*
         swipeLayout.setOnDoubleClickListener(new SwipeLayout.DoubleClickListener() {
             @Override
             public void onDoubleClick(SwipeLayout layout, boolean surface) {
                 Toast.makeText(context, "DoubleClick", Toast.LENGTH_SHORT).show();
             }
         });
-        swipeLayout.findViewById(R.id.iconTextViewProjectListViewItemDelete).setOnClickListener(new View.OnClickListener() {
+        */
+        swipeLayout.findViewById(deleteRessource).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(context, "click delete " + position, Toast.LENGTH_SHORT).show();
                 onItemClickListener.onCallback(view, SwipeActionButtons.Delete, position, getItem(position));
             }
         });
-        swipeLayout.findViewById(R.id.iconTextViewProjectListViewItemEdit).setOnClickListener(new View.OnClickListener() {
+        swipeLayout.findViewById(editRessource).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(context, "click edit" + position, Toast.LENGTH_SHORT).show();
                 onItemClickListener.onCallback(view, SwipeActionButtons.Edit, position, getItem(position));
             }
         });
@@ -80,10 +92,7 @@ public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
     }
 
     @Override
-    public void fillValues(int position, View convertView) {
-
-    }
-
+    public void fillValues(int position, View convertView) {}
 
     @Override
     public int getCount() {

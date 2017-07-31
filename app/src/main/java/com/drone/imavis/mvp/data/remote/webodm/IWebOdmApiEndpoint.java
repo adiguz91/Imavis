@@ -60,6 +60,9 @@ public interface IWebOdmApiEndpoint {
     @GET("projects/{project_pk}/tasks/{id}")
     Observable<Task> getTask(@Path("project_pk") String projectId, @Path("id") String taskId);
 
+    @DELETE("projects/{project_id}/tasks/{task_id}/") // DELETE requests needs the ending slash!
+    Completable deleteTask(@Path("project_id") String projectId, @Path("task_id") String taskId);
+
     // and more ...
 }
 

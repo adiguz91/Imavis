@@ -18,13 +18,15 @@
         android:dividerHeight="10.0sp"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:src="@drawable/ic_done"
+        android:id="@+id/fabAddFlyplan"
         app:fabSize="normal"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="16dp"
         android:layout_marginRight="16dp"
         android:layout_gravity="bottom|right|end"
+        app:layout_behavior="com.drone.imavis.mvp.util.FabLayoutBehavior"
+        android:transitionName="transition_reveal_contact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

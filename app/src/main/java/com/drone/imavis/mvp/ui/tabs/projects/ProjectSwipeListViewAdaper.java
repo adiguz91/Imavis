@@ -16,7 +16,8 @@ import com.drone.imavis.mvp.util.swipelistview.SwipeItemOnClickListener;
 public class ProjectSwipeListViewAdaper extends SwipeItemListViewAdapter<Project> {
 
     public ProjectSwipeListViewAdaper(Context context, SwipeItemOnClickListener<Project> onItemClickListener) {
-        super(context, onItemClickListener);
+        super(context, onItemClickListener, R.id.projectItemSwipe, R.layout.activity_project_listview_item,
+              R.id.iconTextViewProjectListViewItemEdit, R.id.iconTextViewProjectListViewItemDelete);
     }
 
     @Override

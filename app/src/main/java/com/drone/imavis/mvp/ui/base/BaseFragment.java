@@ -86,6 +86,7 @@ public class BaseFragment extends Fragment {
         activity.startActivity(intent);
     }
 
+
     public void goBack(Context activity) {
         ((Activity)activity).finish();
     }
