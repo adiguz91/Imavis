@@ -3,11 +3,13 @@ package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.map;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.dimension.Size;
 
+import java.io.Serializable;
+
 /**
  * Created by Adrian on 26.11.2016.
  */
 
-public class Map<T> {
+public class Map<T> implements Serializable {
 
     private T map;
     private Coordinate coordinate;

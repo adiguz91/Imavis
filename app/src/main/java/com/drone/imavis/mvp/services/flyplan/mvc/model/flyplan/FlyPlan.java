@@ -1,7 +1,10 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan;
 
 import android.graphics.Canvas;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan.UnitOfLength;
@@ -12,11 +15,22 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.P
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.google.gson.Gson;
 
+import java.io.Serializable;
+import java.util.Date;
+
 /**
  * Created by Adrian on 26.11.2016.
  */
 
-public class FlyPlan {
+public class FlyPlan implements Parcelable {
+
+    private Map map;
+    private Nodes nodes;
+    private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
+    private int minSpeed = CFlyPlan.MIN_SPEED;
+    private UnitOfLength unitOfLength = CFlyPlan.UNIT_OF_LENGTH;
+    private String title;
+    private Task task;
 
     public FlyPlan(Map map) {
         this.map = map;
@@ -112,11 +126,50 @@ public class FlyPlan {
         this.task = task;
     }
 
-    private Map map;
-    private Nodes nodes;
-    private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
-    private int minSpeed = CFlyPlan.MIN_SPEED;
-    private UnitOfLength unitOfLength = CFlyPlan.UNIT_OF_LENGTH;
-    private String title;
-    private Task task;
+    /* PARCELABLE PART */
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeSerializable(map);
+        dest.writeSerializable(nodes);
+        dest.writeInt(minFlyHeight);
+        dest.writeInt(minSpeed);
+        dest.writeString(unitOfLength.name());
+        dest.writeString(title);
+        dest.writeParcelable(task, flags);
+    }
+
+    /**
+     * Constructs a Project from a Parcel
+     * @param parcelIn Source Parcel
+     */
+    public FlyPlan (Parcel parcelIn) {
+        this.map = (Map) parcelIn.readSerializable();
+        this.nodes = (Nodes) parcelIn.readSerializable();
+        this.minFlyHeight = parcelIn.readInt();
+        this.minSpeed = parcelIn.readInt();
+        this.unitOfLength = UnitOfLength.valueOf(parcelIn.readString());
+        this.title = parcelIn.readString();
+        this.task = parcelIn.readParcelable(Task.class.getClassLoader());
+    }
+
+    // Method to recreate a Question from a Parcel
+    public static Parcelable.Creator<FlyPlan> CREATOR = new Parcelable.Creator<FlyPlan>() {
+
+        @Override
+        public FlyPlan createFromParcel(Parcel source) {
+            return new FlyPlan(source);
+        }
+
+        @Override
+        public FlyPlan[] newArray(int size) {
+            return new FlyPlan[size];
+        }
+
+    };
 }

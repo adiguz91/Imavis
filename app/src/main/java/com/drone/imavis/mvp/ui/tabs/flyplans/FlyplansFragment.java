@@ -146,7 +146,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
         return findParentRecursively(parent, targetId);
     }
 
-    @OnClick(R.id.fabAddProject)
+    @OnClick(R.id.fabAddFlyplan)
     public void onFabClicked() {
         Intent intent = new Intent(context, ProjectAddOrEditActivity.class);
         intent.putExtra("ProjectAction", ProjectAction.Add);
