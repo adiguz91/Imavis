@@ -76,6 +76,7 @@ public class WebOdmService {
 
         // Network Client
         OkHttpClient.Builder okHttpClientBuild = new OkHttpClient.Builder()
+                .retryOnConnectionFailure(true)
                 .readTimeout(CAll.NETWORK_TIMEOUT_READ, TimeUnit.SECONDS)
                 .writeTimeout(CAll.NETWORK_TIMEOUT_WRITE, TimeUnit.SECONDS)
                 .connectTimeout(CAll.NETWORK_TIMEOUT_CONNECTION, TimeUnit.SECONDS)

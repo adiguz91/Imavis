@@ -66,7 +66,7 @@ public class Task implements Parcelable {
     @SerializedName("available_assets")
     private List<String> availableAssets;
     @SerializedName("uuid")
-    private UUID uuid;
+    private String uuid;
     @SerializedName("name")
     private String name;
     @SerializedName("processing_time")
@@ -138,11 +138,11 @@ public class Task implements Parcelable {
         this.availableAssets = availableAssets;
     }
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(UUID uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
@@ -233,7 +233,7 @@ public class Task implements Parcelable {
         dest.writeInt(imagesCount);
         dest.writeList(images);
         dest.writeList(availableAssets);
-        dest.writeSerializable(uuid);
+        dest.writeString(uuid);
         dest.writeString(name);
         dest.writeInt(processingTime);
         dest.writeByte((byte) (autoProcessingNode ? 1 : 0));
@@ -256,13 +256,13 @@ public class Task implements Parcelable {
         this.imagesCount = parcelIn.readInt();
         this.images = parcelIn.readArrayList(null);
         this.availableAssets =  parcelIn.readArrayList(null);
-        this.uuid = (UUID) parcelIn.readSerializable();
+        this.uuid = parcelIn.readString();
         this.name = parcelIn.readString();
         this.processingTime = parcelIn.readInt();
         this.autoProcessingNode = parcelIn.readByte() != 0;
         this.status = TaskStatus.values()[parcelIn.readInt()];
         this.lastError = parcelIn.readString();
-        options = new ArrayList<TaskOption>(); parcelIn.readTypedList(options, TaskOption.CREATOR);
+        this.options = null; //new ArrayList<TaskOption>(); parcelIn.readTypedList(this.options, null);
         this.groundControlPoints = parcelIn.readString();
         this.createdAt = new Date((parcelIn.readLong()));
         this.pendingAction = TaskPendingAction.values()[parcelIn.readInt()];
