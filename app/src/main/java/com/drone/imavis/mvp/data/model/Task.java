@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by adigu on 06.05.2017.
@@ -172,6 +173,14 @@ public class Task implements Parcelable {
 
     public TaskStatus getStatus() {
         return status;
+    }
+
+    public String getStatusString() {
+         try {
+            return status.toString();
+        } catch (Exception ex) {
+             return "";
+         }
     }
 
     public void setStatus(TaskStatus status) {

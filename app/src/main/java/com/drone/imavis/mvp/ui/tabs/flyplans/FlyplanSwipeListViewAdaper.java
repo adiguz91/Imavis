@@ -51,7 +51,7 @@ public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan
         TextView textViewFlyplanName = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemFlyplanname);
         TextView textViewStatus = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemStatus);
         textViewFlyplanName.setText(item.getTask().getName());
-        textViewStatus.setText(item.getTask().getStatus().toString());
+        textViewStatus.setText(item.getTask().getStatusString());
         //TextView textViewCreationDate = (TextView) convertView.findViewById(R.id.textViewFlyplanListViewItemCreatedDate);
 
         badgeStatus.setText1("COMPLETED"); // flyplan.getTask().getStatus().name()
