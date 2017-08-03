@@ -133,7 +133,7 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     @Override
     public void onDestroy() {
         super.onDestroy();
-        flyplannerMap.onDestroy();
+        //flyplannerMap.onDestroy();
     }
 
     @Override

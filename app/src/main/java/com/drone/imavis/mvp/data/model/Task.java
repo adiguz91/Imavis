@@ -78,8 +78,8 @@ public class Task implements Parcelable {
     private TaskStatus status;
     @SerializedName("last_error")
     private String lastError;
-    @SerializedName("options")
-    private List<TaskOption> options;
+    //@SerializedName("options")
+    //private List<TaskOption> options;
     @SerializedName("ground_control_points")
     private String groundControlPoints;
     @SerializedName("created_at")
@@ -194,15 +194,14 @@ public class Task implements Parcelable {
     public void setLastError(String lastError) {
         this.lastError = lastError;
     }
-
+/*
     public List<TaskOption> getOptions() {
         return options;
     }
-
     public void setOptions(List<TaskOption> options) {
         this.options = options;
     }
-
+*/
     public String getGroundControlPoints() {
         return groundControlPoints;
     }
@@ -248,7 +247,7 @@ public class Task implements Parcelable {
         dest.writeByte((byte) (autoProcessingNode ? 1 : 0));
         dest.writeInt(status == null ? -1 : status.ordinal());
         dest.writeString(lastError);
-        dest.writeTypedList(options);
+        //dest.writeTypedList(options);
         dest.writeString(groundControlPoints);
         dest.writeLong(createdAt.getTime());
         dest.writeInt(pendingAction == null ? -1 : pendingAction.ordinal());
@@ -271,7 +270,7 @@ public class Task implements Parcelable {
         this.autoProcessingNode = parcelIn.readByte() != 0;
         this.status = TaskStatus.values()[parcelIn.readInt()];
         this.lastError = parcelIn.readString();
-        this.options = null; //new ArrayList<TaskOption>(); parcelIn.readTypedList(this.options, null);
+        //this.options = null; //new ArrayList<TaskOption>(); parcelIn.readTypedList(this.options, null);
         this.groundControlPoints = parcelIn.readString();
         this.createdAt = new Date((parcelIn.readLong()));
         this.pendingAction = TaskPendingAction.values()[parcelIn.readInt()];
