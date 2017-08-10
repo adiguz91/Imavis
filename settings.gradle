@@ -1,1 +1,1 @@
-include ':app', ':flyplanner'
+include ':app' //, ':flyplanner'
