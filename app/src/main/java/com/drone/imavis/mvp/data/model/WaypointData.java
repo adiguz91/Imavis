@@ -169,6 +169,12 @@ public class WaypointData {
         myDao = daoSession != null ? daoSession.getWaypointDataDao() : null;
     }
 
+
+
+    
+
+    
+
     /* GreenDAO CONVERTER */
 
     static class WaypointModeConverter implements PropertyConverter<WaypointMode, String> {
