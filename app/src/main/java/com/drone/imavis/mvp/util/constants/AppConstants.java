@@ -6,6 +6,8 @@ package com.drone.imavis.mvp.util.constants;
 
 public final class AppConstants {
 
+    public static final String DATABASE_NAME = "offlineImavisDatabase";
+
     public static final String PREFERENCE_FILENAME = "ImavisPreverenceFile";
 
     private AppConstants() {

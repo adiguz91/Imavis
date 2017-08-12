@@ -1,72 +1,92 @@
 package com.drone.imavis.mvp.data.local.db;
 
-import com.drone.imavis.mvp.data.model.Projects;
+import com.drone.imavis.mvp.data.model.DaoMaster;
+import com.drone.imavis.mvp.data.model.DaoSession;
+import com.drone.imavis.mvp.data.model.FlyPlan;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import retrofit2.Call;
-import rx.Observable;
-import rx.Subscriber;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
 
 /**
- * Created by adigu on 14.05.2017.
+ * Created by adigu on 10.08.2017.
  */
 
-//@Singleton
-public class DatabaseHelper {
+@Singleton
+public class DatabaseHelper implements IDatabaseHelper {
 
-    /*
-    private final BriteDatabase mDb;
+    private final DaoSession mDaoSession;
 
     @Inject
-    public DatabaseHelper(DbOpenHelper dbOpenHelper) {
-        SqlBrite.Builder briteBuilder = new SqlBrite.Builder();
-        mDb = briteBuilder.build().wrapDatabaseHelper(dbOpenHelper, Schedulers.immediate());
+    public DatabaseHelper(DatabaseOpenHelper dbOpenHelper) {
+        mDaoSession = new DaoMaster(dbOpenHelper.getWritableDb()).newSession();
     }
 
-    public BriteDatabase getBriteDb() {
-        return mDb;
-    }
-    */
-
-    public Observable<Projects> setProjects( Observable<Projects> projects) {
-        return Observable.create(new Observable.OnSubscribe<Projects>() {
+    @Override
+    public Observable<Long> createFlyPlan(final FlyPlan flyPlan) {
+        return Observable.fromCallable(new Callable<Long>() {
             @Override
-            public void call(Subscriber<? super Projects> subscriber) {
-                if (subscriber.isUnsubscribed()) return;
-                /*
-                BriteDatabase.Transaction transaction = mDb.newTransaction();
-                try {
-                    mDb.delete(Db.RibotProfileTable.TABLE_NAME, null);
-                    for (Ribot ribot : newRibots) {
-                        long result = mDb.insert(Db.RibotProfileTable.TABLE_NAME,
-                                Db.RibotProfileTable.toContentValues(ribot.profile()),
-                                SQLiteDatabase.CONFLICT_REPLACE);
-                        if (result >= 0) subscriber.onNext(ribot);
-                    }
-                    transaction.markSuccessful();
-                    subscriber.onCompleted();
-                } finally {
-                    transaction.end();
-                }
-                */
+            public Long call() throws Exception {
+                return mDaoSession.getFlyPlanDao().insert(flyPlan);
             }
         });
     }
-/*
-    public Observable<List<Projects>> getProjects() {
-        return mDb.createQuery(Db.RibotProfileTable.TABLE_NAME,
-                "SELECT * FROM " + Db.RibotProfileTable.TABLE_NAME)
-                .mapToList(new Func1<Cursor, Ribot>() {
-                    @Override
-                    public Ribot call(Cursor cursor) {
-                        return Ribot.create(Db.RibotProfileTable.parseCursor(cursor));
-                    }
-                });
+
+    @Override
+    public Observable<Boolean> deleteFlyPlan(FlyPlan flyPlan) {
+        return Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                mDaoSession.getFlyPlanDao().deleteByKey(flyPlan.getId());
+                return true;
+            }
+        });
     }
-*/
+
+    @Override
+    public Observable<List<FlyPlan>> getAllFlyPlans() {
+        return Observable.fromCallable(new Callable<List<FlyPlan>>() {
+            @Override
+            public List<FlyPlan> call() throws Exception {
+                return mDaoSession.getFlyPlanDao().loadAll();
+            }
+        });
+    }
+
+    @Override
+    public Observable<FlyPlan> getFlyPlan(Long id) {
+        return Observable.fromCallable(new Callable<FlyPlan>() {
+            @Override
+            public FlyPlan call() throws Exception {
+                return mDaoSession.getFlyPlanDao().load(id);
+            }
+        });
+    }
+
+    @Override
+    public Observable<Boolean> updateFlyPlan(FlyPlan flyPlan) {
+        return Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                mDaoSession.getFlyPlanDao().update(flyPlan);
+                return true;
+            }
+        });
+    }
+
+    /*
+    @Override
+    public Observable<Boolean> isQuestionEmpty() {
+        return Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return !(mDaoSession.getQuestionDao().count() > 0);
+            }
+        });
+    }
+    */
 }

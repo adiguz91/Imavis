@@ -54,14 +54,20 @@ public interface IWebOdmApiEndpoint {
 
     /* TASK */
 
-    @GET("projects/{project_pk}/tasks")
-    Observable<List<Task>> getTasks(@Path("project_pk") String projectId);
+    @GET("projects/{projectId}/tasks")
+    Observable<List<Task>> getTasks(@Path("projectId") String projectId);
 
-    @GET("projects/{project_pk}/tasks/{id}")
-    Observable<Task> getTask(@Path("project_pk") String projectId, @Path("id") String taskId);
+    @GET("projects/{projectId}/tasks/{taskId}")
+    Observable<Task> getTask(@Path("projectId") String projectId, @Path("taskId") String taskId);
 
-    @DELETE("projects/{project_id}/tasks/{task_id}/") // DELETE requests needs the ending slash!
-    Completable deleteTask(@Path("project_id") String projectId, @Path("task_id") String taskId);
+    @POST("projects/{projectId}/tasks/") // POST requests needs the ending slash!
+    Single<Task> addTask(@Path("projectId") String projectId, @Body Task task);
+
+    @PATCH("projects/{projectId}/tasks/{taskId}/")
+    Single<Task> updateTask(@Path("projectId") String projectId, @Path("taskId") String taskId, @Body Task task);
+
+    @DELETE("projects/{projectId}/tasks/{taskId}/") // DELETE requests needs the ending slash!
+    Completable deleteTask(@Path("projectId") String projectId, @Path("taskId") String taskId);
 
     // and more ...
 }

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:id="@+id/activity_flyplan_add_container"
+    tools:context="com.drone.imavis.mvp.ui.tabs.flyplanAddOrEdit.FlyplanAddOrEditActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:orientation="vertical">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/flyplanAdd_fab_close"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_centerInParent="true"
+            android:transitionName="transition_reveal_contact"
+            app:fabSize="normal"
+            app:pressedTranslationZ="8dp"
+            app:elevation="0dp"
+            app:backgroundTint="@color/primary_dark"/>
+
+        <TextView
+            android:id="@+id/flyplanAddTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24dp"
+            android:background="@color/white"
+            android:gravity="center"
+            />
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/flyplanAddEditTextName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:minLines="1"
+            android:inputType="textAutoComplete"
+            app:met_iconPadding="2dp"
+            app:met_minCharacters="6"
+            app:met_maxCharacters="16"
+            app:met_floatingLabelText="Name"
+            app:met_floatingLabel="none"
+            app:met_baseColor="#ffffff"
+            app:met_primaryColor="#ffffff"
+            app:met_errorColor="#FFA0AC" />
+
+        <com.dd.processbutton.iml.ActionProcessButton
+            android:id="@+id/buttonFlyplanAction"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            custom:pb_colorComplete="@color/green_complete"
+            custom:pb_colorNormal="@color/colorPrimaryDark"
+            custom:pb_colorPressed="@color/colorPrimary"
+            custom:pb_colorProgress="@color/purple_progress"
+            custom:pb_textComplete="@string/activity_login_button_success"
+            custom:pb_textProgress="@string/activity_login_button_loading"
+            custom:pb_textError="@string/activity_login_button_error"/>
+    </LinearLayout>
+
+
+</RelativeLayout>

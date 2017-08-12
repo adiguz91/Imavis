@@ -3,11 +3,14 @@ package com.drone.imavis.mvp;
 import android.app.Application;
 import android.content.Context;
 
+import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.di.component.ApplicationComponent;
 import com.drone.imavis.mvp.di.component.DaggerApplicationComponent;
 import com.drone.imavis.mvp.di.module.ApplicationModule;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
+
+import javax.inject.Inject;
 
 import timber.log.Timber;
 
@@ -16,6 +19,9 @@ import timber.log.Timber;
  */
 
 public class AppStartup extends Application {
+
+    //@Inject
+    //DataManager mDataManager;
 
     private ApplicationComponent mApplicationComponent;
 

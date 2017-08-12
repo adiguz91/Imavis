@@ -5,6 +5,9 @@ import android.content.Context;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.SyncService;
+import com.drone.imavis.mvp.data.local.db.DatabaseHelper;
+import com.drone.imavis.mvp.data.local.db.DatabaseOpenHelper;
+import com.drone.imavis.mvp.data.local.db.IDatabaseHelper;
 import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.di.ApplicationContext;
@@ -14,6 +17,7 @@ import com.drone.imavis.mvp.util.DialogUtil;
 import javax.inject.Singleton;
 
 import dagger.Component;
+import dagger.Provides;
 
 /**
  * Created by adigu on 10.05.2017.
@@ -30,9 +34,10 @@ public interface ApplicationComponent {
     IWebOdmApiEndpoint webOdmService();
     PreferencesHelper preferencesHelper();
     //DatabaseHelper databaseHelper();
+
+    //DatabaseOpenHelper databaseOpenHelper();
     DataManager dataManager();
     //RxEventBus eventBus();
     //IFlyPlanUtil flyPlanUtil();
     //FileUtil fileUtil();
-
 }

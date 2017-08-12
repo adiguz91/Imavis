@@ -16,10 +16,10 @@ import javax.inject.Singleton;
  */
 
 @Singleton
-public class DbOpenHelper extends DaoMaster.OpenHelper {
+public class DatabaseOpenHelper extends DaoMaster.OpenHelper {
 
     @Inject
-    public DbOpenHelper(@ApplicationContext Context context, @DatabaseInfo String name) {
+    public DatabaseOpenHelper(@ApplicationContext Context context, @DatabaseInfo String name) {
         super(context, name);
     }
 

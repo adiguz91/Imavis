@@ -7,9 +7,13 @@ package com.drone.imavis.mvp.di.module;
 import android.app.Application;
 import android.content.Context;
 
+import com.drone.imavis.mvp.data.local.db.DatabaseHelper;
+import com.drone.imavis.mvp.data.local.db.IDatabaseHelper;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.data.remote.webodm.WebOdmService;
 import com.drone.imavis.mvp.di.ApplicationContext;
+import com.drone.imavis.mvp.di.DatabaseInfo;
+import com.drone.imavis.mvp.util.constants.AppConstants;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -44,6 +48,19 @@ public class ApplicationModule {
     IWebOdmApiEndpoint provideWebOdmService(WebOdmService webOdmService) {
         return webOdmService.getWebOdmService();
     }
+
+    @Provides
+    @Singleton
+    IDatabaseHelper provideDatabaseHelper(DatabaseHelper databaseHelper) {
+        return databaseHelper;
+    }
+
+    @Provides
+    @DatabaseInfo
+    String provideDatabaseName() {
+        return AppConstants.DATABASE_NAME;
+    }
+
 /*
     @Provides
     @Singleton

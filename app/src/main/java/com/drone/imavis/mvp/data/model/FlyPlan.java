@@ -4,8 +4,6 @@ import android.graphics.Canvas;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.drone.imavis.mvp.data.model.Waypoint;
-import com.drone.imavis.mvp.data.model.PointOfInterest;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan.UnitOfLength;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
@@ -16,7 +14,6 @@ import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
-import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
@@ -32,7 +29,7 @@ import org.greenrobot.greendao.DaoException;
  */
 
 @Entity(indexes = {
-        @Index(value = "title", unique = true)
+        @Index(value = "name", unique = true)
 })
 public class FlyPlan implements Parcelable {
 
@@ -58,7 +55,7 @@ public class FlyPlan implements Parcelable {
     @Transient
     private Task task;
 
-    @NotNull private String title; // task name
+    @NotNull private String name; // task name
     @NotNull private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
     @NotNull private int minSpeed = CFlyPlan.MIN_SPEED;
 
@@ -138,11 +135,11 @@ public class FlyPlan implements Parcelable {
         // todo convert all unitOfLength values and reload
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Task getTask() {
@@ -166,7 +163,7 @@ public class FlyPlan implements Parcelable {
         dest.writeInt(minFlyHeight);
         dest.writeInt(minSpeed);
         dest.writeString(unitOfLength.name());
-        dest.writeString(title);
+        dest.writeString(name);
         dest.writeParcelable(task, flags);
     }
 
@@ -367,18 +364,18 @@ public class FlyPlan implements Parcelable {
         this.minFlyHeight = parcelIn.readInt();
         this.minSpeed = parcelIn.readInt();
         this.unitOfLength = UnitOfLength.valueOf(parcelIn.readString());
-        this.title = parcelIn.readString();
+        this.name = parcelIn.readString();
         this.task = parcelIn.readParcelable(Task.class.getClassLoader());
     }
 
-    @Generated(hash = 243092872)
-    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, @NotNull Long mapDataId, @NotNull String title, int minFlyHeight,
+    @Generated(hash = 812053471)
+    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, @NotNull Long mapDataId, @NotNull String name, int minFlyHeight,
             int minSpeed) {
         this.id = id;
         this.unitOfLength = unitOfLength;
         this.projectId = projectId;
         this.mapDataId = mapDataId;
-        this.title = title;
+        this.name = name;
         this.minFlyHeight = minFlyHeight;
         this.minSpeed = minSpeed;
     }

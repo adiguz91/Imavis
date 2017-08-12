@@ -102,9 +102,9 @@
         <activity
             android:name=".ui.tabs.ProjectsFlyplansActivity"
             android:label="Imavis"></activity>
-        <activity
+        <!--<activity
             android:name=".ui.tabs.projects.ProjectsActivity"
-            android:label="Projects"></activity>
+            android:label="Projects"></activity>-->
         <activity
             android:name=".ui.flyplanner.FlyplannerActivity"
             android:label="Flyplanner"> <!-- android:screenOrientation="landscape" -->
@@ -112,6 +112,10 @@
         <activity
             android:name=".ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity"
             android:label="Add Project"> <!-- android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" -->
+        </activity>
+        <activity
+            android:name=".ui.tabs.flyplanAddOrEdit.FlyplanAddOrEditActivity"
+            android:label="Add Flyplan"> <!-- android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" -->
         </activity>
     </application>
 

@@ -21,7 +21,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 
-public interface DbHelper {
+public interface IDatabaseHelper {
 
     Observable<List<FlyPlan>> getAllFlyPlans();
 
@@ -30,4 +30,6 @@ public interface DbHelper {
     Observable<Boolean> updateFlyPlan(final FlyPlan flyPlan);
 
     Observable<Long> createFlyPlan(final FlyPlan flyPlan);
+
+    Observable<Boolean> deleteFlyPlan(final FlyPlan flyPlan);
 }
