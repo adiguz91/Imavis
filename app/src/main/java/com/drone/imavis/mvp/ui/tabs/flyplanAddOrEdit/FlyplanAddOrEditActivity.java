@@ -121,14 +121,14 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
             if(flyplanAction == FlyplanAction.Add)
                 flyplanPresenter.addFlyplan(flyplan);
             else if (flyplanAction == FlyplanAction.Edit) {
-                flyplanPresenter.editFlyplan(String.valueOf(this.flyplan.getId()), flyplan);
+                flyplanPresenter.editFlyplan(flyplan);
             }
         }
     }
 
     private void passDataBack(FlyPlan flyplan) {
         Intent intent = new Intent();
-        intent.putExtra("flyplan", flyplan);
+        intent.putExtra("Flyplan", flyplan);
         intent.putExtra("FlyplanAction", flyplanAction);
         setResult(RESULT_OK, intent);
         finish();

@@ -5,6 +5,7 @@ package com.drone.imavis.mvp.data.model;
  */
 
 public enum TaskStatus {
+    UNTOUCHED(0),
     QUEUED(10),
     RUNNING(20),
     FAILED(30),

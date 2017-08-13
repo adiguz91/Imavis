@@ -5,6 +5,7 @@ package com.drone.imavis.mvp.data.model;
  */
 
 public enum TaskPendingAction {
+    IDLE(0),
     CANCEL(1),
     REMOVE(2),
     RESTART(3);

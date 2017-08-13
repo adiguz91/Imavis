@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.drone.imavis.mvp.util.StringUtil;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan.UnitOfLength;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
@@ -136,6 +137,8 @@ public class FlyPlan implements Parcelable {
     }
 
     public String getName() {
+        if(task != null)
+            return task.getName();
         return name;
     }
     public void setName(String name) {

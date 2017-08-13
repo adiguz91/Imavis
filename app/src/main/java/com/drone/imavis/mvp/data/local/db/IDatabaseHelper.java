@@ -16,20 +16,37 @@
 package com.drone.imavis.mvp.data.local.db;
 
 import com.drone.imavis.mvp.data.model.FlyPlan;
+import com.drone.imavis.mvp.data.model.Project;
 
 import java.util.List;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 public interface IDatabaseHelper {
 
-    Observable<List<FlyPlan>> getAllFlyPlans();
+    /* FLYPLAN */
 
-    Observable<FlyPlan> getFlyPlan(final Long id);
+    Observable<List<FlyPlan>> getAllFlyplans();
 
-    Observable<Boolean> updateFlyPlan(final FlyPlan flyPlan);
+    Single<FlyPlan> getFlyplan(final Long id);
 
-    Observable<Long> createFlyPlan(final FlyPlan flyPlan);
+    Completable updateFlyplan(final FlyPlan flyplan);
 
-    Observable<Boolean> deleteFlyPlan(final FlyPlan flyPlan);
+    Single<Long> createFlyplan(final FlyPlan flyplan);
+
+    Completable deleteFlyplan(final FlyPlan flyplan);
+
+    /* PROJECT */
+
+    Observable<List<Project>> getAllProjects();
+
+    Single<Project> getProject(final Long id);
+
+    Completable updateProject(final Project project);
+
+    Single<Long> createProject(final Project project);
+
+    Completable deleteProject(final Project project);
 }

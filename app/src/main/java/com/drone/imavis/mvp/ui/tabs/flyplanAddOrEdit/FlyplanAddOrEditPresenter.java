@@ -10,6 +10,7 @@ import com.drone.imavis.mvp.util.RxUtil;
 
 import javax.inject.Inject;
 
+import io.reactivex.CompletableObserver;
 import io.reactivex.Observer;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -49,40 +50,35 @@ public class FlyplanAddOrEditPresenter extends BasePresenter<IFlyplanAddOrEditMv
         dataManager.addFlyplan(flyplan)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .subscribe(new Observer<FlyPlan>() {
-                   @Override
-                   public void onSubscribe(@NonNull Disposable d) {}
+            .subscribe(new SingleObserver<FlyPlan>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {}
 
-                   @Override
-                   public void onNext(@NonNull FlyPlan flyPlan) {
-                       getMvpView().onAddSuccess(flyplan);
-                   }
+                    @Override
+                    public void onSuccess(@NonNull FlyPlan flyPlan) {
+                        getMvpView().onAddSuccess(flyplan);
+                    }
 
                    @Override
                    public void onError(@NonNull Throwable e) {
                        getMvpView().onAddFailed();
                    }
-
-                   @Override
-                   public void onComplete() {
-
-                   }
                }
             );
     }
 
-    public void editFlyplan(String id , FlyPlan flyplan) {
+    public void editFlyplan(FlyPlan flyplan) {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
         dataManager.updateFlyplan(flyplan)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .subscribe(new SingleObserver<FlyPlan>() {
+            .subscribe(new CompletableObserver() {
                    @Override
                    public void onSubscribe(@NonNull Disposable d) {}
 
                    @Override
-                   public void onSuccess(@NonNull FlyPlan flyplan) {
+                   public void onComplete() {
                        getMvpView().onEditSuccess(flyplan);
                    }
 

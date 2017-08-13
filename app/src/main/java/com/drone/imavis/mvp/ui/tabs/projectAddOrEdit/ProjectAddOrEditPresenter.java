@@ -41,7 +41,7 @@ public class ProjectAddOrEditPresenter extends BasePresenter<IProjectAddOrEditMv
         if (subscription != null) subscription.unsubscribe();
     }
 
-    public void addProject(ProjectShort project) {
+    public void addProject(Project project) {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
         dataManager.addProject(project)
@@ -64,10 +64,10 @@ public class ProjectAddOrEditPresenter extends BasePresenter<IProjectAddOrEditMv
             );
     }
 
-    public void editProject(String id , ProjectShort project) {
+    public void editProject(Project project) {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
-        dataManager.updateProject(id, project)
+        dataManager.updateProject(project)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(io.reactivex.schedulers.Schedulers.io())
             .subscribe(new SingleObserver<Project>() {

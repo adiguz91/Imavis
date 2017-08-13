@@ -16,7 +16,10 @@ public class ProjectShort {
     @SerializedName("description")
     private String description;
 
-    public ProjectShort() {}
+    public ProjectShort(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 
     public String getName() {
         return name;
