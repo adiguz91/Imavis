@@ -13,7 +13,7 @@ public class Projects {
     @SerializedName("count")
     private int count;
     @SerializedName("next")
-    private int next;
+    private String next;
     @SerializedName("previous")
     private int previous;
     @SerializedName("results")
@@ -33,11 +33,11 @@ public class Projects {
         this.count = count;
     }
 
-    public int getNext() {
+    public String getNext() {
         return next;
     }
 
-    private void setNext(int next) {
+    private void setNext(String next) {
         this.next = next;
     }
 

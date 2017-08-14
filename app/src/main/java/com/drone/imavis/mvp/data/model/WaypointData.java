@@ -102,6 +102,21 @@ public class WaypointData {
     public void setPoiID(Long poiID) {
         this.poiID = poiID;
     }
+	
+	/* GreenDAO CONVERTER */
+
+    static class WaypointModeConverter implements PropertyConverter<WaypointMode, String> {
+        @Override
+        public WaypointMode convertToEntityProperty(String databaseValue) {
+            return WaypointMode.valueOf(databaseValue);
+        }
+
+        @Override
+        public String convertToDatabaseValue(WaypointMode entityProperty) {
+            return entityProperty.name();
+        }
+    }
+	
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 785828351)
     public PointOfInterest getPoi() {
@@ -167,25 +182,7 @@ public class WaypointData {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getWaypointDataDao() : null;
-    }
-
-
+    }   
 
     
-
-    
-
-    /* GreenDAO CONVERTER */
-
-    static class WaypointModeConverter implements PropertyConverter<WaypointMode, String> {
-        @Override
-        public WaypointMode convertToEntityProperty(String databaseValue) {
-            return WaypointMode.valueOf(databaseValue);
-        }
-
-        @Override
-        public String convertToDatabaseValue(WaypointMode entityProperty) {
-            return entityProperty.name();
-        }
-    }
 }
