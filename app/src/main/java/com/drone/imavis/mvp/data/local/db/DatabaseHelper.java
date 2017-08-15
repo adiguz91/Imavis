@@ -134,7 +134,8 @@ public class DatabaseHelper implements IDatabaseHelper {
         return Completable.fromCallable(new Callable<Object>() {
             @Override
             public Boolean call() throws Exception {
-                mDaoSession.getProjectDao().deleteByKey(project.getId());
+                if(project.getId() != null)
+                    mDaoSession.getProjectDao().deleteByKey(project.getId());
                 return true;
             }
         });

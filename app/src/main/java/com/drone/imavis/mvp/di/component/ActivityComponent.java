@@ -14,6 +14,7 @@ import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
 import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment;
 import com.drone.imavis.mvp.util.DialogUtil;
+import com.drone.imavis.mvp.util.ImageUtil;
 
 import dagger.Subcomponent;
 
@@ -35,4 +36,5 @@ public interface ActivityComponent {
     void inject(FlyplanAddOrEditActivity flyplanAddOrEditActivity);
 
     DialogUtil dialogUtil();
+    ImageUtil imageUtil();
 }
