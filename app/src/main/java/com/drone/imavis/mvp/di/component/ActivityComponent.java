@@ -26,9 +26,7 @@ import dagger.Subcomponent;
 public interface ActivityComponent {
 
     void inject(LoginActivity loginActivity);
-
     void inject(ProjectsFlyplansActivity projectsFlyplansActivity);
-    //void inject(ProjectsActivity projectsActivity);
     void inject(FlyplansFragment flyplansFragment);
     void inject(ProjectsFragment projectsFragment);
     void inject(FlyplannerActivity flyplannerActivity);

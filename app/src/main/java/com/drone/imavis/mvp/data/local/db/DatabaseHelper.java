@@ -3,9 +3,11 @@ package com.drone.imavis.mvp.data.local.db;
 import com.drone.imavis.mvp.data.model.DaoMaster;
 import com.drone.imavis.mvp.data.model.DaoSession;
 import com.drone.imavis.mvp.data.model.FlyPlan;
+import com.drone.imavis.mvp.data.model.FlyPlanDao;
 import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.data.model.Projects;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -35,11 +37,14 @@ public class DatabaseHelper implements IDatabaseHelper {
     /* FLYPLAN */
 
     @Override
-    public Observable<List<FlyPlan>> getAllFlyplans() {
+    public Observable<List<FlyPlan>> getFlyplansFromProject(Project project) {
         return Observable.fromCallable(new Callable<List<FlyPlan>>() {
             @Override
             public List<FlyPlan> call() throws Exception {
-                return mDaoSession.getFlyPlanDao().loadAll();
+                return mDaoSession.getFlyPlanDao().queryBuilder()
+                        .where(FlyPlanDao.Properties.ProjectId.eq(project.getId()))
+                        .orderAsc(FlyPlanDao.Properties.Name)
+                        .list();
             }
         });
     }
@@ -70,6 +75,7 @@ public class DatabaseHelper implements IDatabaseHelper {
         return Single.fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
+                flyplan.setCreatedAt(new Date());
                 return mDaoSession.getFlyPlanDao().insert(flyplan);
             }
         });

@@ -224,8 +224,8 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
     }
 
     @Override
-    public void showProjects(Projects projects) {
-        projectsListViewAdapter.setItems(projects.getProjectList());
+    public void showProjects(List<Project> projects) {
+        projectsListViewAdapter.setItems(projects);
         projectsListViewAdapter.notifyDataSetChanged();
         //Toast.makeText(context, "projects sync successfully", Toast.LENGTH_LONG).show();
     }

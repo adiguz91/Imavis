@@ -21,6 +21,7 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
+import java.util.Date;
 import java.util.List;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
@@ -42,16 +43,22 @@ public class FlyPlan implements Parcelable {
 
     @NotNull
     private Long projectId;
+
+    @NotNull
     @ToOne(joinProperty = "projectId")
     private Project project;
 
-    @NotNull
     private Long mapDataId;
     @ToOne(joinProperty = "mapDataId")
     private MapData mapData;
 
+    @NotNull
+    private Date createdAt;
+
     @Transient
     private Nodes nodes;
+
+    private Long taskId;
 
     @Transient
     private Task task;
@@ -98,6 +105,22 @@ public class FlyPlan implements Parcelable {
     }
     public String saveToJsonFile() {
         return new Gson().toJson(this);
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     public MapData getMap() {
@@ -246,14 +269,11 @@ public class FlyPlan implements Parcelable {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 158350601)
-    public void setMapData(@NotNull MapData mapData) {
-        if (mapData == null) {
-            throw new DaoException("To-one property 'mapDataId' has not-null constraint; cannot set to-one to null");
-        }
+    @Generated(hash = 125145966)
+    public void setMapData(MapData mapData) {
         synchronized (this) {
             this.mapData = mapData;
-            mapDataId = mapData.getId();
+            mapDataId = mapData == null ? null : mapData.getId();
             mapData__resolvedKey = mapDataId;
         }
     }
@@ -371,13 +391,15 @@ public class FlyPlan implements Parcelable {
         this.task = parcelIn.readParcelable(Task.class.getClassLoader());
     }
 
-    @Generated(hash = 812053471)
-    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, @NotNull Long mapDataId, @NotNull String name, int minFlyHeight,
-            int minSpeed) {
+    @Generated(hash = 1383884599)
+    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, @NotNull Date createdAt, Long taskId,
+            @NotNull String name, int minFlyHeight, int minSpeed) {
         this.id = id;
         this.unitOfLength = unitOfLength;
         this.projectId = projectId;
         this.mapDataId = mapDataId;
+        this.createdAt = createdAt;
+        this.taskId = taskId;
         this.name = name;
         this.minFlyHeight = minFlyHeight;
         this.minSpeed = minSpeed;

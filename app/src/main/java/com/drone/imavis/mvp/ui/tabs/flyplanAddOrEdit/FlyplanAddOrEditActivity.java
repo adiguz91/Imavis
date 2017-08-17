@@ -62,6 +62,7 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
     private Context context;
     private FlyplanAction flyplanAction;
     private FlyPlan flyplan;
+    private Project project;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
         // get padded data
         flyplan = getIntent().getParcelableExtra("Flyplan");
         flyplanAction = (FlyplanAction) getIntent().getSerializableExtra("FlyplanAction");
+        project = (Project) getIntent().getParcelableExtra("Project");
 
         // hide app title
         getSupportActionBar().hide();
@@ -113,6 +115,11 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
         if(flyplanName.validate()) {
             FlyPlan flyplan = new FlyPlan();
             flyplan.setName(flyplanName.getEditableText().toString());
+
+            if(project != null) {
+                flyplan.setProject(project);
+                flyplan.setProjectId(project.getId());
+            }
 
             buttonFlyplanAction.setProgress(1);
             buttonFlyplanAction.setEnabled(false);

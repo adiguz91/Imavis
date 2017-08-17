@@ -28,7 +28,7 @@ public interface IDatabaseHelper {
 
     /* FLYPLAN */
 
-    Observable<List<FlyPlan>> getAllFlyplans();
+    Observable<List<FlyPlan>> getFlyplansFromProject(Project project);
 
     Single<FlyPlan> getFlyplan(final Long id);
 

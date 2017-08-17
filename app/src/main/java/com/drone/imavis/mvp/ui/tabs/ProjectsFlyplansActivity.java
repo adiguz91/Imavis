@@ -138,9 +138,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
         viewPager.setPagingEnabled(true);
         viewPagerTab.getTabAt(1).setClickable(true);
         viewPagerTab.getTabAt(1).performClick();
-
     }
-
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
