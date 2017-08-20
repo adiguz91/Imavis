@@ -48,5 +48,7 @@ public interface IDatabaseHelper {
 
     Single<Long> createProject(final Project project);
 
+    Completable saveProject(final Project project);
+
     Completable deleteProject(final Project project);
 }

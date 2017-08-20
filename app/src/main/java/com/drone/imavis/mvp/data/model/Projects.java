@@ -15,7 +15,7 @@ public class Projects {
     @SerializedName("next")
     private String next;
     @SerializedName("previous")
-    private int previous;
+    private String previous;
     @SerializedName("results")
     private List<Project> projectList;
 
@@ -41,11 +41,11 @@ public class Projects {
         this.next = next;
     }
 
-    public int getPrevious() {
+    public String getPrevious() {
         return previous;
     }
 
-    private void setPrevious(int previous) {
+    private void setPrevious(String previous) {
         this.previous = previous;
     }
 
@@ -53,7 +53,7 @@ public class Projects {
         return projectList;
     }
 
-    private void setProjectList(List<Project> projectList) {
+    public void setProjectList(List<Project> projectList) {
         this.projectList = projectList;
     }
 }

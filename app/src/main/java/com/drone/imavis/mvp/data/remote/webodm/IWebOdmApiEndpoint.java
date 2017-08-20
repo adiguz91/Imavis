@@ -37,8 +37,8 @@ public interface IWebOdmApiEndpoint {
 
     /* PROJECT */
 
-    @GET("projects")
-    Single<Projects> getProjects();
+    @GET("projects/")
+    Observable<Projects> getProjects(@Query("page") int page);
 
     @GET("projects/{id}")
     Observable<Project> getProject(@Path("id") String id);

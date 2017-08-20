@@ -136,6 +136,17 @@ public class DatabaseHelper implements IDatabaseHelper {
     }
 
     @Override
+    public Completable saveProject(Project project) {
+        return Completable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                mDaoSession.getProjectDao().save(project);
+                return true;
+            }
+        });
+    }
+
+    @Override
     public Completable deleteProject(Project project) {
         return Completable.fromCallable(new Callable<Object>() {
             @Override
