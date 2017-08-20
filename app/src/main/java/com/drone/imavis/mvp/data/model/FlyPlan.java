@@ -51,8 +51,7 @@ public class FlyPlan implements Parcelable {
     private Long mapDataId;
     @ToOne(joinProperty = "mapDataId")
     private MapData mapData;
-
-    @NotNull
+    
     private Date createdAt;
 
     @Transient
@@ -184,6 +183,7 @@ public class FlyPlan implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id == null ? 0 : id);
         dest.writeSerializable(mapData);
         dest.writeSerializable(nodes);
         dest.writeInt(minFlyHeight);
@@ -382,6 +382,7 @@ public class FlyPlan implements Parcelable {
      * @param parcelIn Source Parcel
      */
     public FlyPlan (Parcel parcelIn) {
+        this.id = parcelIn.readLong();
         this.mapData = (MapData) parcelIn.readSerializable();
         this.nodes = (Nodes) parcelIn.readSerializable();
         this.minFlyHeight = parcelIn.readInt();
@@ -391,9 +392,9 @@ public class FlyPlan implements Parcelable {
         this.task = parcelIn.readParcelable(Task.class.getClassLoader());
     }
 
-    @Generated(hash = 1383884599)
-    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, @NotNull Date createdAt, Long taskId,
-            @NotNull String name, int minFlyHeight, int minSpeed) {
+    @Generated(hash = 1940035783)
+    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, Date createdAt, Long taskId, @NotNull String name,
+            int minFlyHeight, int minSpeed) {
         this.id = id;
         this.unitOfLength = unitOfLength;
         this.projectId = projectId;

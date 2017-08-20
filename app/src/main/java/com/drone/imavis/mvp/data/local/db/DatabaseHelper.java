@@ -71,7 +71,7 @@ public class DatabaseHelper implements IDatabaseHelper {
     }
 
     @Override
-    public Single<Long> createFlyplan(final FlyPlan flyplan) {
+    public Single<Long> createFlyplan(FlyPlan flyplan) {
         return Single.fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {

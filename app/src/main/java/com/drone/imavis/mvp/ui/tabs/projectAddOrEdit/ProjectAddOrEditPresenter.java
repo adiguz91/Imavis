@@ -9,6 +9,7 @@ import com.drone.imavis.mvp.util.RxUtil;
 
 import javax.inject.Inject;
 
+import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -70,12 +71,12 @@ public class ProjectAddOrEditPresenter extends BasePresenter<IProjectAddOrEditMv
         dataManager.updateProject(project)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .subscribe(new SingleObserver<Project>() {
+            .subscribe(new CompletableObserver() {
                    @Override
                    public void onSubscribe(@NonNull Disposable d) {}
 
                    @Override
-                   public void onSuccess(@NonNull Project project) {
+                   public void onComplete() {
                        getMvpView().onEditSuccess(project);
                    }
 

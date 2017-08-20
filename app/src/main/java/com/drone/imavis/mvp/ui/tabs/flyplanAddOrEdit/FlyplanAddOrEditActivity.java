@@ -59,6 +59,7 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
     @BindView(R.id.buttonFlyplanAction)
     ActionProcessButton buttonFlyplanAction;
 
+    private int result = RESULT_OK;
     private Context context;
     private FlyplanAction flyplanAction;
     private FlyPlan flyplan;
@@ -74,6 +75,8 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
 
         // get padded data
         flyplan = getIntent().getParcelableExtra("Flyplan");
+        if (flyplan == null)
+            flyplan = new FlyPlan();
         flyplanAction = (FlyplanAction) getIntent().getSerializableExtra("FlyplanAction");
         project = (Project) getIntent().getParcelableExtra("Project");
 
@@ -108,12 +111,13 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
 
     @OnClick(R.id.flyplanAdd_fab_close)
     public void onFabClicked() {
+        result = RESULT_CANCELED;
         onCloseClicked();
     }
 
     public void sendFlyplan(FlyplanAction flyplanAction) {
         if(flyplanName.validate()) {
-            FlyPlan flyplan = new FlyPlan();
+            //FlyPlan flyplan = new FlyPlan();
             flyplan.setName(flyplanName.getEditableText().toString());
 
             if(project != null) {
@@ -137,7 +141,7 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
         Intent intent = new Intent();
         intent.putExtra("Flyplan", flyplan);
         intent.putExtra("FlyplanAction", flyplanAction);
-        setResult(RESULT_OK, intent);
+        setResult(result, intent);
         finish();
     }
 
