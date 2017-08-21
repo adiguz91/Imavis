@@ -14,4 +14,6 @@ public interface IFlyplannerActivity extends IMvpView {
 
     void onStartFlyplanTaskSuccess(FlyPlan flyplan);
     void onStartFlyplanTaskFailed();
+
+    void updateFlyplanNodes();
 }

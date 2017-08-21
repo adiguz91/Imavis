@@ -195,6 +195,12 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     }
 
     @Override
+    public void updateFlyplanNodes() {
+        Toast.makeText(this, "The camera has stopped moving.",
+                Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         flyplannerPresenter.saveFlyplan(flyplan);

@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 //import com.drone.flyplanner.ui.flyplan.FlyPlanView;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
+import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -32,7 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  */
 
 // http://things2notedown.blogspot.co.at/2014/07/how-to-display-mapfragment-inside.html
-public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
+public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener {
 
     MapView mapView;
     private GoogleMap googleMap;
@@ -82,6 +84,7 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
         googleMap.setIndoorEnabled(true);
         googleMap.setBuildingsEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.setOnCameraIdleListener(this);
 
         //CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18);
         //googleMap.moveCamera(cameraUpdateFactory);
@@ -209,5 +212,11 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
             googleMap.getUiSettings().setScrollGesturesEnabled(true);
         else
             googleMap.getUiSettings().setScrollGesturesEnabled(false);
+    }
+
+    @Override
+    public void onCameraIdle() {
+        // The camera has stopped moving
+        ((FlyplannerActivity)getActivity()).updateFlyplanNodes();
     }
 }
