@@ -1,5 +1,6 @@
 package com.drone.imavis.mvp.ui.flyplanner;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -17,14 +18,20 @@ import com.appyvet.rangebar.IRangeBarFormatter;
 import com.appyvet.rangebar.RangeBar;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.FlyPlan;
+import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
+import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.github.jorgecastilloprz.listeners.FABProgressListener;
+import com.google.android.gms.maps.MapView;
 import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+
+import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 
@@ -32,12 +39,14 @@ import butterknife.ButterKnife;
  * Created by adigu on 30.05.2017.
  */
 
-public class FlyplannerActivity extends BaseActivity { // FragmentActivity
+public class FlyplannerActivity extends BaseActivity implements IFlyplannerActivity { // FragmentActivity
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
+    @Inject FlyplannerPresenter flyplannerPresenter;
     Context context;
+    FlyPlan flyplan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,9 @@ public class FlyplannerActivity extends BaseActivity { // FragmentActivity
         setContentView(R.layout.activity_flyplanner);
         ButterKnife.bind(this);
         context = this;
+
+        flyplannerPresenter.attachView(this);
+        flyplan = (FlyPlan) getIntent().getParcelableExtra("Flyplan");
 
         //getActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -107,7 +119,7 @@ public class FlyplannerActivity extends BaseActivity { // FragmentActivity
                         .actionBarSize());
 
         menu.findItem(R.id.menu_flyplanner_action_lock).setIcon(
-                new IconDrawable(this, FontAwesomeIcons.fa_lock)
+                new IconDrawable(this, FontAwesomeIcons.fa_unlock_alt)
                         .colorRes(R.color.icons)
                         .actionBarSize());
 
@@ -132,12 +144,21 @@ public class FlyplannerActivity extends BaseActivity { // FragmentActivity
             //Toast.makeText(FlyplannerActivity.this, "Create Text", Toast.LENGTH_LONG).show();
         }
         if (id == R.id.menu_flyplanner_action_lock) {
+
+            FlyPlanView flyplannerDrawer = (FlyPlanView) ((Activity) context).findViewById(R.id.flyplannerDraw);
+
             if (item.getTitle().equals("Lock")) {
+                // unlock
+                if (flyplannerDrawer != null)
+                    flyplannerDrawer.setIsLocked(false);
                 item.setTitle("Unlock");
                 item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_unlock_alt)
                             .colorRes(R.color.icons)
                             .actionBarSize());
             } else {
+                // lock
+                if (flyplannerDrawer != null)
+                    flyplannerDrawer.setIsLocked(true);
                 item.setTitle("Lock");
                 item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_lock)
                             .colorRes(R.color.icons)
@@ -148,13 +169,62 @@ public class FlyplannerActivity extends BaseActivity { // FragmentActivity
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return true;
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         //loginPresenter.detachView();
     }
+
+    @Override
+    public void onSaveFlyplanSuccess(FlyPlan flyplan) {
+
+    }
+
+    @Override
+    public void onSaveFlyplanFailed() {
+
+    }
+
+    @Override
+    public void onStartFlyplanTaskSuccess(FlyPlan flyplan) {
+
+    }
+
+    @Override
+    public void onStartFlyplanTaskFailed() {
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        flyplannerPresenter.saveFlyplan(flyplan);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+
+        //FlyPlanView flyplannerDrawer = (FlyPlanView) ((Activity) context).findViewById(R.id.flyplannerDraw);
+        //flyplannerDrawer.doOnTouch(ev);
+
+        //MapView mapView = (MapView) ((Activity) context).findViewById(R.id.googleMapView);
+        //mapView.onTouchEvent(ev);
+
+        //FlyplannerFragment flyplannerFragment = (FlyplannerFragment) getSupportFragmentManager().findFragmentById(R.id.flyplanner);
+
+
+        //if(flyplannerFragment.getGoogleMapFragment() != null) {
+        //    flyplannerFragment.getGoogleMapFragment().getMapView().onTouchEvent(ev);
+        //}
+
+        //boolean result = super.onTouchEvent(ev);
+        return super.dispatchTouchEvent(ev);
+    }
+
+    /*
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //boolean result = super.onTouchEvent(event);
+        return false; //!result;
+    }
+    */
 }

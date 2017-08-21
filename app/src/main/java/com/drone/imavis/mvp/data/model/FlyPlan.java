@@ -21,6 +21,8 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.greenrobot.greendao.annotation.Generated;
@@ -76,6 +78,19 @@ public class FlyPlan implements Parcelable {
         this.task = task;
         this.mapData = mapData;
         this.nodes = new Nodes();
+    }
+
+    public void manuallSetNodes() {
+        /*
+        if(nodes != null) {
+            if(nodes.getPointOfInterests() != null) {
+                pointOfInterests.clear();
+                for (com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest drawPoi : nodes.getPointOfInterests()) {
+                    PointOfInterest poi = new PointOfInterest(drawPoi.getShape().getCoordinate(), new PointOfInterestData())
+                }
+            }
+        }
+        */
     }
 
     public void draw(Canvas canvas) {

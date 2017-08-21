@@ -37,12 +37,11 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
     MapView mapView;
     private GoogleMap googleMap;
     private OnMapReadyCallback onMapReadyCallback;
-    private FlyPlanView flyplannerDrawer;
-
     private LatLng location;
     private MarkerOptions markerOptions;
     private Marker marker;
     private boolean showMap;
+    private FlyPlanView flyplannerDrawer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,15 +51,17 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_flyplanner, container, false);
-        //flyplannerDrawer = (FlyPlanView) view.findViewById(R.id.flyplanner);
+        View view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        //mapView.setOnTouchListener(new View.OnTouchListener() {
-        //    @Override
-        //    public boolean onTouch(View v, MotionEvent event) {
-        //        return false;
-        //    }
-        //});
+        mapView = (MapView) view.findViewById(R.id.googleMapView);
+        mapView.onCreate(savedInstanceState);
+        mapView.onResume(); // needed to get the map to display immediately
+
+        // add view
+        //View layout2 = LayoutInflater.from(this).inflate(R.layout.fragment_, mLinearLayout, false)
+        //FlyPlanView flyplannerDrawer = new FlyPlanView(getContext());
+        //mapView.addView(flyplannerDrawer);
+        mapView.getMapAsync(this);
 
         return view;
     }
@@ -68,8 +69,33 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
     @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //ButterKnife.bind(getContext(), view);
+    }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
+        MapsInitializer.initialize(this.getContext());
 
+        //LocationEnable();
+        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        googleMap.setTrafficEnabled(true);
+        googleMap.setIndoorEnabled(true);
+        googleMap.setBuildingsEnabled(true);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+
+        //CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18);
+        //googleMap.moveCamera(cameraUpdateFactory);
+        this.googleMap = googleMap;
+        updateMarker(getLocation());
+        //flyplannerMap.mapTouchView.setFlyplannerMapListener(this);
+    }
+
+    public MapView getMapView() {
+        return mapView;
+    }
+
+    public void setMapView(MapView mapView) {
+        this.mapView = mapView;
     }
 
     public LatLng getLocation() {
@@ -115,26 +141,6 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
-        MapsInitializer.initialize(this.getContext());
-
-        //LocationEnable();
-        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        googleMap.setTrafficEnabled(true);
-        googleMap.setIndoorEnabled(true);
-        googleMap.setBuildingsEnabled(true);
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
-
-        //CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18);
-        //googleMap.moveCamera(cameraUpdateFactory);
-        this.googleMap = googleMap;
-        updateMarker(getLocation());
-
-        //flyplannerDrawer.setFlyplannerListener(this);
-    }
-
     /*
     // centralize?
     public static LatLng getGPSfromScreen(Coordinate coordinate) {
@@ -173,12 +179,13 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback {
         mapView.onDestroy();
     }
 
+    /*
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
-
+*/
     @Override
     public void onLowMemory() {
         super.onLowMemory();

@@ -1,10 +1,12 @@
-package com.drone.imavis.mvp.ui.tabs.projectAddOrEdit;
+package com.drone.imavis.mvp.ui.flyplanner;
 
 import com.drone.imavis.mvp.data.DataManager;
+import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
+import com.drone.imavis.mvp.ui.tabs.flyplans.IFlyplansMvpView;
+import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.IProjectAddOrEditMvpView;
 import com.drone.imavis.mvp.util.RxUtil;
 
 import javax.inject.Inject;
@@ -21,18 +23,18 @@ import rx.Subscription;
  */
 
 @ConfigPersistent
-public class ProjectAddOrEditPresenter extends BasePresenter<IProjectAddOrEditMvpView> {
+public class FlyplannerPresenter extends BasePresenter<IFlyplannerActivity> {
 
     private final DataManager dataManager;
     private Subscription subscription;
 
     @Inject
-    public ProjectAddOrEditPresenter(DataManager dataManager) {
+    public FlyplannerPresenter(DataManager dataManager) {
         this.dataManager = dataManager;
     }
 
     @Override
-    public void attachView(IProjectAddOrEditMvpView mvpView) {
+    public void attachView(IFlyplannerActivity mvpView) {
         super.attachView(mvpView);
     }
 
@@ -42,47 +44,43 @@ public class ProjectAddOrEditPresenter extends BasePresenter<IProjectAddOrEditMv
         if (subscription != null) subscription.unsubscribe();
     }
 
-    public void addProject(Project project) {
+    public void saveFlyplan(FlyPlan flyplan) {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
-        dataManager.addProject(project)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .subscribe(new SingleObserver<Project>() {
-                   @Override
-                   public void onSubscribe(@NonNull Disposable d) {}
-
-                   @Override
-                   public void onSuccess(@NonNull Project project) {
-                       getMvpView().onAddSuccess(project);
-                   }
-
-                   @Override
-                   public void onError(@NonNull Throwable e) {
-                       getMvpView().onAddFailed();
-                   }
-               }
-            );
-    }
-
-    public void editProject(Project project) {
-        checkViewAttached();
-        RxUtil.unsubscribe(subscription);
-        dataManager.updateProject(project)
+        dataManager.updateFlyplan(flyplan)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(io.reactivex.schedulers.Schedulers.io())
             .subscribe(new CompletableObserver() {
                    @Override
                    public void onSubscribe(@NonNull Disposable d) {}
-
-                    @Override
-                    public void onComplete() {
-                        getMvpView().onEditSuccess(project);
-                    }
-
+                   @Override
+                   public void onComplete() {
+                       getMvpView().onSaveFlyplanSuccess(flyplan);
+                   }
                    @Override
                    public void onError(@NonNull Throwable e) {
-                       getMvpView().onEditFailed();
+                       getMvpView().onSaveFlyplanFailed();
+                   }
+               }
+            );
+    }
+
+    public void startFlyplanTask(FlyPlan flyplan) {
+        checkViewAttached();
+        RxUtil.unsubscribe(subscription);
+        dataManager.startFlyplanTask(flyplan)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+            .subscribe(new SingleObserver<FlyPlan>() {
+                   @Override
+                   public void onSubscribe(@NonNull Disposable d) {}
+                   @Override
+                   public void onSuccess(@NonNull FlyPlan flyplan) {
+                       getMvpView().onStartFlyplanTaskSuccess(flyplan);
+                   }
+                   @Override
+                   public void onError(@NonNull Throwable e) {
+                       getMvpView().onStartFlyplanTaskFailed();
                    }
                }
             );

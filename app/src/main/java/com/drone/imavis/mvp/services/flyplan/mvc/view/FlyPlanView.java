@@ -41,10 +41,17 @@ public class FlyPlanView extends View {
         return isHandledTouch;
     }
 
-    //private GoogleMapFragment googleMapFragment;
 
     public FlyPlanView(final Context context) {
         super(context);
+
+        this.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
+
         init(context);
     }
     public FlyPlanView(final Context context, final AttributeSet attrs) {
@@ -94,12 +101,19 @@ public class FlyPlanView extends View {
         return true;
     }
 
-    private static boolean isDown = false;
-    public static boolean isDown() {
-        return isDown;
+    private static boolean isLocked = false;
+    public static boolean isLocked() {
+        return isLocked;
+    }
+    public static void setIsLocked(boolean isLocked) {
+        FlyPlanView.isLocked = isLocked;
     }
 
     public boolean doOnTouch(MotionEvent event) {
+
+        if(isLocked)
+            return super.onTouchEvent(event);
+
         //super.onTouchEvent(event);
         Log.w(TAG, "onTouchEvent: " + event);
         int actionIndex; // event.getActionIndex()
@@ -123,15 +137,11 @@ public class FlyPlanView extends View {
                 break;
         }
 
-        if(event.getActionMasked() == MotionEvent.ACTION_DOWN)
-            isHandledTouch = true;
+        //if(event.getActionMasked() == MotionEvent.ACTION_DOWN)
+        //    isHandledTouch = true;
         Log.i("LogFlyplan", "isHandled: " + isHandledTouch + " | event: " + event.getActionMasked());
 
-        //flyplannerListener.onCompleteHandling(isHandledTouch, event);
-
-        if(!isHandledTouch)
-            return false; //return super.onTouchEvent(event);
-        return isHandledTouch;
+       return isHandledTouch;
     }
 
 

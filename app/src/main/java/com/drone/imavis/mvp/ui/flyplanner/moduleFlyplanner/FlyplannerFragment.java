@@ -13,10 +13,7 @@ import android.view.ViewGroup;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
-import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.FlyplannerMap;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
-import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.TouchableMapWrapper;
-import com.drone.imavis.mvp.util.ProgressGenerator;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -27,22 +24,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallback, TouchableMapWrapper.OnMapTouchListener {
+public class FlyplannerFragment extends BaseFragment {
 
-    //MapView mapView;
-    FlyplannerMap flyplannerMap;
-    private GoogleMap googleMap;
-    FlyPlanView flyplannerDrawer;
-    Context context;
+    private GoogleMapFragment googleMapFragment;
+    private FlyPlanView flyplannerDrawer;
+    private Context context;
 
-    private LatLng location;
-    private MarkerOptions markerOptions;
-    private Marker marker;
-    private boolean showMap;
-
+    //private boolean showMap;
     private View view;
-
-    private TouchableMapWrapper touchableMapWrapper;
 
     public FlyplannerFragment() {
         // Required empty public constructor
@@ -60,12 +49,21 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
 
         flyplannerDrawer = (FlyPlanView) view.findViewById(R.id.flyplannerDraw);
 
-        flyplannerMap = (FlyplannerMap) getChildFragmentManager().findFragmentById(R.id.flyplannerMapFragment);
-
-        //flyplannerMap.onCreate(savedInstanceState);
-        flyplannerMap.getMapAsync(this);
+        // load map fragment
+        googleMapFragment = new GoogleMapFragment();
+        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.flyplannerMap, googleMapFragment);
+        fragmentTransaction.commit();
 
         return view;
+    }
+
+    public GoogleMapFragment getGoogleMapFragment() {
+        return googleMapFragment;
+    }
+
+    public void setGoogleMapFragment(GoogleMapFragment googleMapFragment) {
+        this.googleMapFragment = googleMapFragment;
     }
 
     @Override
@@ -77,45 +75,22 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         super.onViewCreated(view, savedInstanceState);
         //ButterKnife.bind(getContext(), view);
 
-
-
         // load map fragment
         //googleMapFragment = new GoogleMapFragment();
         //FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
         //fragmentTransaction.replace(R.id.flyplannerMapView, googleMapFragment);
         //fragmentTransaction.commit();
 
-
-
         //googleMapFragment.getMap();
         //flyplannerDrawer.setMapFragment(googleMapFragment);
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
-        MapsInitializer.initialize(this.getContext());
 
-        //LocationEnable();
-        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        googleMap.setTrafficEnabled(true);
-        googleMap.setIndoorEnabled(true);
-        googleMap.setBuildingsEnabled(true);
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
-
-        //CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18);
-        //googleMap.moveCamera(cameraUpdateFactory);
-        this.googleMap = googleMap;
-        updateMarker(getLocation());
-
-        flyplannerMap.mapTouchView.setFlyplannerMapListener(this);
-    }
 
     @Override
     public void onAttach(Context context) {
         this.context = context;
         super.onAttach(context);
-        //
     }
 
     @Override
@@ -127,44 +102,19 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     @Override
     public void onResume() {
         super.onResume();
-        flyplannerMap.onResume();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //flyplannerMap.onDestroy();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        flyplannerMap.onPause();
     }
 
-    public LatLng getLocation() {
-        if(location == null)
-            location = new LatLng(46.61028, 13.85583);
-        return location;
-    }
-    public Marker getMarker() {
-        return marker;
-    }
-
-    public void updateMarker(LatLng location) {
-        if(marker != null)
-            marker.remove();
-
-        //googleMap.setMinZoomPreference(0.5f);
-        //googleMap.setMaxZoomPreference(2.0f);
-        markerOptions = new MarkerOptions().position(getLocation()).title("Marker in Villach");
-        marker = googleMap.addMarker(markerOptions);
-        marker.setPosition(getLocation());
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(getLocation()));
-        // Zoom in the Google Map
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-    }
-
+/*
     @Override
     public void onMapTouchReceive(boolean result, MotionEvent event) {
         //boolean result = flyplannerDrawer.onTouchEvent(event);
@@ -173,4 +123,6 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         else
             googleMap.getUiSettings().setScrollGesturesEnabled(false);
     }
+*/
+
 }
