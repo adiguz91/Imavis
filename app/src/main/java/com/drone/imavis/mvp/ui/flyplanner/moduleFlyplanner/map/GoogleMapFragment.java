@@ -3,6 +3,7 @@ package com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -17,6 +18,14 @@ import android.view.ViewGroup;
 
 //import com.drone.flyplanner.ui.flyplan.FlyPlanView;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterests;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoints;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
@@ -25,9 +34,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by adigu on 29.05.2017.
@@ -61,8 +74,11 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 
         // add view
         //View layout2 = LayoutInflater.from(this).inflate(R.layout.fragment_, mLinearLayout, false)
-        //FlyPlanView flyplannerDrawer = new FlyPlanView(getContext());
+
+        //flyplannerDrawer = new FlyPlanView(getContext());
         //mapView.addView(flyplannerDrawer);
+        flyplannerDrawer = (FlyPlanView) getActivity().findViewById(R.id.flyplannerDraw);
+
         mapView.getMapAsync(this);
 
         return view;
@@ -144,21 +160,20 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
     }
 
-    /*
     // centralize?
-    public static LatLng getGPSfromScreen(Coordinate coordinate) {
-        Projection projection = googleMap.getProjection();
+    public LatLng getGpsfromScreen(Coordinate coordinate) {
+        Projection projection = this.googleMap.getProjection();
+        // TODO toPoint in COORDINATE
         Point screenPoint = new Point((int)coordinate.getX(), (int)coordinate.getY());
         return projection.fromScreenLocation(screenPoint);
     }
 
-    public static Coordinate getCoordinatefromGPS(LatLng position) {
-        Projection projection = googleMap.getProjection();
+    public Coordinate getCoordinatefromGps(LatLng position) {
+        Projection projection = this.googleMap.getProjection();
         Point screenPosition = projection.toScreenLocation(position);
         Coordinate screenPoint = new Coordinate(screenPosition.x, screenPosition.y);
         return screenPoint;
     }
-    */
 
     public GoogleMap getMap() {
         return googleMap;
@@ -217,6 +232,28 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
     @Override
     public void onCameraIdle() {
         // The camera has stopped moving
-        ((FlyplannerActivity)getActivity()).updateFlyplanNodes();
+
+        List<GPSCoordinate> waypointGpsCoordinates = new ArrayList<>();
+        List<GPSCoordinate> poiGpsCoordinates = new ArrayList<>();
+
+        Waypoints waypoints = FlyPlanController.getInstance().getFlyPlan().getPoints().getWaypoints();
+        PointOfInterests pois = FlyPlanController.getInstance().getFlyPlan().getPoints().getPointOfInterests();
+
+        Coordinate coordinate;
+        for(int i=0; i < waypoints.size(); i++) {
+            coordinate = waypoints.get(i).getShape().getCoordinate();
+            LatLng googleGps = getGpsfromScreen(coordinate);
+            GPSCoordinate gpsCoordinate = new GPSCoordinate(googleGps.latitude, googleGps.longitude);
+            waypointGpsCoordinates.add(gpsCoordinate);
+        }
+
+        for(int i=0; i < pois.size(); i++) {
+            coordinate = pois.get(i).getShape().getCoordinate();
+            LatLng googleGps = getGpsfromScreen(coordinate);
+            GPSCoordinate gpsCoordinate = new GPSCoordinate(googleGps.latitude, googleGps.longitude);
+            poiGpsCoordinates.add(gpsCoordinate);
+        }
+
+        ((FlyplannerActivity)getActivity()).updateFlyplanNodes(waypointGpsCoordinates, poiGpsCoordinates);
     }
 }

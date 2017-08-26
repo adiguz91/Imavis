@@ -19,6 +19,7 @@ import com.appyvet.rangebar.RangeBar;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.FlyPlan;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
@@ -30,6 +31,8 @@ import com.google.android.gms.maps.MapView;
 import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -195,7 +198,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     }
 
     @Override
-    public void updateFlyplanNodes() {
+    public void updateFlyplanNodes(List<GPSCoordinate> waypointGpsCoordinates, List<GPSCoordinate>  poiGpsCoordinates) {
+
+        // TODO set GPS data to flyplan and save to db!
+
         Toast.makeText(this, "The camera has stopped moving.",
                 Toast.LENGTH_SHORT).show();
     }
