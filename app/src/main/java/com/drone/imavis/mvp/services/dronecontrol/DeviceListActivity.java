@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.parrot.arsdk.ARSDK;
 import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
@@ -30,17 +31,17 @@ import java.util.List;
 import java.util.Set;
 
 public class DeviceListActivity extends AppCompatActivity {
+
+    /*
     public static final String EXTRA_DEVICE_SERVICE = "EXTRA_DEVICE_SERVICE";
 
     private static final String TAG = "DeviceListActivity";
 
-    /** List of runtime permission we need. */
     private static final String[] PERMISSIONS_NEEDED = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_COARSE_LOCATION,
     };
 
-    /** Code for permission request result handling. */
     private static final int REQUEST_CODE_PERMISSIONS_REQUEST = 1;
 
     public DroneDiscoverer mDroneDiscoverer;
@@ -75,34 +76,8 @@ public class DeviceListActivity extends AppCompatActivity {
                 switch (product) {
                     case ARDISCOVERY_PRODUCT_ARDRONE:
                     case ARDISCOVERY_PRODUCT_BEBOP_2:
-                        intent = new Intent(DeviceListActivity.this, BebopActivity.class);
+                        intent = new Intent(DeviceListActivity.this, FlyplannerActivity.class);
                         break;
-                    /*
-                    case ARDISCOVERY_PRODUCT_SKYCONTROLLER:
-                        intent = new Intent(DeviceListActivity.this, SkyControllerActivity.class);
-                        break;
-
-                    case ARDISCOVERY_PRODUCT_SKYCONTROLLER_2:
-                    case ARDISCOVERY_PRODUCT_SKYCONTROLLER_NG:
-                        intent = new Intent(DeviceListActivity.this, SkyController2Activity.class);
-                        break;
-
-                    case ARDISCOVERY_PRODUCT_JS:
-                    case ARDISCOVERY_PRODUCT_JS_EVO_LIGHT:
-                    case ARDISCOVERY_PRODUCT_JS_EVO_RACE:
-                        intent = new Intent(DeviceListActivity.this, JSActivity.class);
-                        break;
-
-                    case ARDISCOVERY_PRODUCT_MINIDRONE:
-                    case ARDISCOVERY_PRODUCT_MINIDRONE_EVO_BRICK:
-                    case ARDISCOVERY_PRODUCT_MINIDRONE_EVO_LIGHT:
-                    case ARDISCOVERY_PRODUCT_MINIDRONE_DELOS3:
-                        intent = new Intent(DeviceListActivity.this, MiniDroneActivity.class);
-                        break;
-                    case ARDISCOVERY_PRODUCT_MINIDRONE_WINGX:
-                        intent = new Intent(DeviceListActivity.this, SwingDroneActivity.class);
-                        break;
-                    */
                     default:
                         Log.e(TAG, "The type " + product + " is not supported by this sample");
                 }
@@ -186,10 +161,9 @@ public class DeviceListActivity extends AppCompatActivity {
 
         @Override
         public void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList) {
-            mDronesList.clear();
-            mDronesList.addAll(dronesList);
-
-            mAdapter.notifyDataSetChanged();
+            //mDronesList.clear();
+            //mDronesList.addAll(dronesList);
+            //mAdapter.notifyDataSetChanged();
         }
     };
 
@@ -239,5 +213,5 @@ public class DeviceListActivity extends AppCompatActivity {
             return rowView;
         }
     };
-
+    */
 }

@@ -25,5 +25,10 @@ tools:context="com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity">
     android:orderInCategory="400"
     app:showAsAction="ifRoom" />
 
+<item
+    android:id="@+id/drones_spinner"
+    android:title="Drones"
+    app:showAsAction="always" />
+
 
 </menu>

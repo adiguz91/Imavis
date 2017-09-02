@@ -1,16 +1,25 @@
 package com.drone.imavis.mvp.ui.flyplanner;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -19,19 +28,34 @@ import com.appyvet.rangebar.RangeBar;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.FlyPlan;
+import com.drone.imavis.mvp.services.dronecontrol.BebopDrone;
+import com.drone.imavis.mvp.services.dronecontrol.BebopVideoView;
+import com.drone.imavis.mvp.services.dronecontrol.DeviceListActivity;
+import com.drone.imavis.mvp.services.dronecontrol.DroneDiscoverer;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
+import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
+import com.drone.imavis.mvp.util.DialogUtil;
+import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.github.jorgecastilloprz.listeners.FABProgressListener;
 import com.google.android.gms.maps.MapView;
 import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.parrot.arsdk.ARSDK;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
+import com.parrot.arsdk.arcontroller.ARControllerCodec;
+import com.parrot.arsdk.arcontroller.ARFrame;
+import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -42,7 +66,7 @@ import butterknife.ButterKnife;
  * Created by adigu on 30.05.2017.
  */
 
-public class FlyplannerActivity extends BaseActivity implements IFlyplannerActivity { // FragmentActivity
+public class FlyplannerActivity extends BaseActivity implements IFlyplannerActivity, DroneDiscoverer.Listener { // FragmentActivity
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity.EXTRA_TRIGGER_SYNC_FLAG";
@@ -51,6 +75,31 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     Context context;
     FlyPlan flyplan;
 
+    private BebopDrone bebopDrone;
+    private BebopVideoView bebopVideoView;
+
+    @Inject DronePermissionRequestHelper dronePermissionRequestHelper;
+    @Inject DialogUtil dialogUtil;
+    List<ARDiscoveryDeviceService> dronesList;
+    ARDiscoveryDeviceService drone;
+
+    /** List of runtime permission we need. */
+    private static final String[] PERMISSIONS_NEEDED = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+    };
+    /** Code for permission request result handling. */
+    private static final int REQUEST_CODE_PERMISSIONS_REQUEST = 1;
+
+    public DroneDiscoverer droneDiscoverer;
+
+    // this block loads the native libraries
+    // it is mandatory
+    static {
+        ARSDK.loadSDKLibs();
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +107,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         setContentView(R.layout.activity_flyplanner);
         ButterKnife.bind(this);
         context = this;
+
+        /* Drone */
+        droneDiscoverer = new DroneDiscoverer(this);
+        dronePermissionRequestHelper.requestPermission(PERMISSIONS_NEEDED, REQUEST_CODE_PERMISSIONS_REQUEST);
 
         flyplannerPresenter.attachView(this);
         flyplan = (FlyPlan) getIntent().getParcelableExtra("Flyplan");
@@ -126,6 +179,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         .colorRes(R.color.icons)
                         .actionBarSize());
 
+        menu.findItem(R.id.drones_spinner).setIcon(
+                new IconDrawable(this, FontAwesomeIcons.fa_wifi)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
         return true;
     }
 
@@ -168,6 +226,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                             .actionBarSize());
             }
         }
+        if (id == R.id.drones_spinner) {
+            // Drone discover
+            droneDiscoverer.startDiscovering();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -199,9 +261,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
     @Override
     public void updateFlyplanNodes(List<GPSCoordinate> waypointGpsCoordinates, List<GPSCoordinate>  poiGpsCoordinates) {
-
         // TODO set GPS data to flyplan and save to db!
-
         Toast.makeText(this, "The camera has stopped moving.",
                 Toast.LENGTH_SHORT).show();
     }
@@ -210,27 +270,19 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     public void onPause() {
         super.onPause();
         flyplannerPresenter.saveFlyplan(flyplan);
+
+        // clean the drone discoverer object
+        droneDiscoverer.stopDiscovering();
+        //mDroneDiscoverer.cleanup();
+        //mDroneDiscoverer.removeListener(mDiscovererListener);
     }
 
+    /*
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-
-        //FlyPlanView flyplannerDrawer = (FlyPlanView) ((Activity) context).findViewById(R.id.flyplannerDraw);
-        //flyplannerDrawer.doOnTouch(ev);
-
-        //MapView mapView = (MapView) ((Activity) context).findViewById(R.id.googleMapView);
-        //mapView.onTouchEvent(ev);
-
-        //FlyplannerFragment flyplannerFragment = (FlyplannerFragment) getSupportFragmentManager().findFragmentById(R.id.flyplanner);
-
-
-        //if(flyplannerFragment.getGoogleMapFragment() != null) {
-        //    flyplannerFragment.getGoogleMapFragment().getMapView().onTouchEvent(ev);
-        //}
-
-        //boolean result = super.onTouchEvent(ev);
         return super.dispatchTouchEvent(ev);
     }
+    */
 
     /*
     @Override
@@ -239,4 +291,186 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         return false; //!result;
     }
     */
+
+    private final BebopDrone.Listener mBebopListener = new BebopDrone.Listener() {
+        @Override
+        public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
+            switch (state)
+            {
+                case ARCONTROLLER_DEVICE_STATE_RUNNING:
+                    //mConnectionProgressDialog.dismiss();
+                    break;
+
+                case ARCONTROLLER_DEVICE_STATE_STOPPED:
+                    // if the deviceController is stopped, go back to the previous activity
+                    //mConnectionProgressDialog.dismiss();
+                    finish();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        public void onBatteryChargeChanged(int batteryPercentage) {
+            //mBatteryLabel.setText(String.format("%d%%", batteryPercentage));
+        }
+
+        @Override
+        public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
+            switch (state) {
+                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
+                    //mTakeOffLandBt.setText("Take off");
+                    //mTakeOffLandBt.setEnabled(true);
+                    //mDownloadBt.setEnabled(true);
+                    break;
+                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
+                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
+                    //mTakeOffLandBt.setText("Land");
+                    //mTakeOffLandBt.setEnabled(true);
+                    //mDownloadBt.setEnabled(false);
+                    break;
+                default:
+                    //mTakeOffLandBt.setEnabled(false);
+                    //mDownloadBt.setEnabled(false);
+            }
+        }
+
+        @Override
+        public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
+            //Log.i(TAG, "Picture has been taken");
+        }
+
+        @Override
+        public void configureDecoder(ARControllerCodec codec) {
+            bebopVideoView.configureDecoder(codec);
+        }
+
+        @Override
+        public void onFrameReceived(ARFrame frame) {
+            bebopVideoView.displayFrame(frame);
+        }
+
+        @Override
+        public void onMatchingMediasFound(int nbMedias) {
+            /*
+            mDownloadProgressDialog.dismiss();
+            mNbMaxDownload = nbMedias;
+            mCurrentDownloadIndex = 1;
+
+            if (nbMedias > 0) {
+                mDownloadProgressDialog = new ProgressDialog(BebopActivity.this, R.style.AppCompatAlertDialogStyle);
+                mDownloadProgressDialog.setIndeterminate(false);
+                mDownloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                mDownloadProgressDialog.setMessage("Downloading medias");
+                mDownloadProgressDialog.setMax(mNbMaxDownload * 100);
+                mDownloadProgressDialog.setSecondaryProgress(mCurrentDownloadIndex * 100);
+                mDownloadProgressDialog.setProgress(0);
+                mDownloadProgressDialog.setCancelable(false);
+                mDownloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mBebopDrone.cancelGetLastFlightMedias();
+                    }
+                });
+                mDownloadProgressDialog.show();
+            }
+            */
+        }
+
+        @Override
+        public void onDownloadProgressed(String mediaName, int progress) {
+            //mDownloadProgressDialog.setProgress(((mCurrentDownloadIndex - 1) * 100) + progress);
+        }
+
+        @Override
+        public void onDownloadComplete(String mediaName) {
+            /*
+            mCurrentDownloadIndex++;
+            mDownloadProgressDialog.setSecondaryProgress(mCurrentDownloadIndex * 100);
+
+            if (mCurrentDownloadIndex > mNbMaxDownload) {
+                mDownloadProgressDialog.dismiss();
+                mDownloadProgressDialog = null;
+            }
+            */
+        }
+    };
+
+
+    /* Drone Discovery Code */
+
+    @Override
+    public void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList) {
+
+        this.dronesList = dronesList;
+
+        List<String> drones = new ArrayList<>();
+        for (ARDiscoveryDeviceService drone : dronesList) {
+            drones.add(drone.getName());
+        }
+
+        dialogUtil.showDialog(FlyplannerActivity.this, "Found Drones", drones, new String[] { "OK", "Abbrechen" },
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int button) {
+
+                        if (button == Dialog.BUTTON_POSITIVE) {
+
+                            ListView lw = ((AlertDialog)dialog).getListView();
+                            String serviceName = (String) lw.getAdapter().getItem(lw.getCheckedItemPosition());
+
+                            for (ARDiscoveryDeviceService droneService : dronesList)
+                            {
+                                if(droneService.getName().equals(serviceName)) {
+                                    drone = droneService;
+                                    break;
+                                }
+                            }
+                            if(drone != null) {
+                                bebopDrone = new BebopDrone(context, drone);
+                                bebopDrone.addListener(mBebopListener);
+                            }
+                        }
+
+                    }
+                });
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        // setup the drone discoverer and register as listener
+        droneDiscoverer.setup();
+        droneDiscoverer.addListener(this); // onDronesListUpdated
+
+        // start discovering
+        //droneDiscoverer.startDiscovering();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        boolean denied = false;
+        if (permissions.length == 0) {
+            // canceled, finish
+            denied = true;
+        } else {
+            for (int i = 0; i < permissions.length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    denied = true;
+                }
+            }
+        }
+
+        if (denied) {
+            Toast.makeText(this, "At least one permission is missing.", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
 }

@@ -15,6 +15,7 @@ import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.ImageUtil;
+import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 
 import dagger.Subcomponent;
 
@@ -33,6 +34,7 @@ public interface ActivityComponent {
     void inject(ProjectAddOrEditActivity projectAddOrEditActivity);
     void inject(FlyplanAddOrEditActivity flyplanAddOrEditActivity);
 
+    DronePermissionRequestHelper dronePermissionRequestHelper();
     DialogUtil dialogUtil();
     ImageUtil imageUtil();
 }

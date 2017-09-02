@@ -1,10 +1,15 @@
 package com.drone.imavis.mvp.ui.tabs;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -17,21 +22,30 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.services.dronecontrol.DroneDiscoverer;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment;
+import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
+import com.parrot.arsdk.ARSDK;
+import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 
@@ -39,15 +53,35 @@ import butterknife.ButterKnife;
  * Created by adigu on 23.05.2017.
  */
 
-public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFragment.ProjectSelected {
+public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFragment.ProjectSelected, DroneDiscoverer.Listener {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.projects.ProjectsFlyplansActivity.EXTRA_TRIGGER_SYNC_FLAG";
+
+    @Inject DronePermissionRequestHelper dronePermissionRequestHelper;
 
     //@Inject
     //ProjectsPresenter projectsPresenter;
     //private ProjectListViewAdapter projectsListViewAdapter;
     //@Inject ProjectListViewAdapter projectsListViewAdapter;
+
+    List<ARDiscoveryDeviceService> dronesList;
+
+    /** List of runtime permission we need. */
+    private static final String[] PERMISSIONS_NEEDED = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+    };
+    /** Code for permission request result handling. */
+    private static final int REQUEST_CODE_PERMISSIONS_REQUEST = 1;
+
+    public DroneDiscoverer droneDiscoverer;
+
+    // this block loads the native libraries
+    // it is mandatory
+    static {
+        ARSDK.loadSDKLibs();
+    }
 
     //@BindView(R.id.projectSwipeListView)
     //ListView projectsListView;
@@ -75,6 +109,10 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
         setContentView(R.layout.activity_tabs_projects_flyplans);
         ButterKnife.bind(this);
         context = this;
+
+        /* Drone */
+        droneDiscoverer = new DroneDiscoverer(this);
+        dronePermissionRequestHelper.requestPermission(PERMISSIONS_NEEDED, REQUEST_CODE_PERMISSIONS_REQUEST);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -161,9 +199,14 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
         if (id == R.id.drones_spinner){
 
             // TODO discover drones!
-            List<String> drones = new ArrayList<String>();
-            drones.add("Bebop1");
-            drones.add("Bebop2");
+            //List<String> drones = new ArrayList<String>();
+            //drones.add("Bebop1");
+            //drones.add("Bebop2");
+
+            List<String> drones = new ArrayList<>();
+            for (ARDiscoveryDeviceService drone : dronesList) {
+                drones.add(drone.getName());
+            }
 
             showDialog(ProjectsFlyplansActivity.this, "Found Drones", drones, new String[] { "OK", "Abbrechen" },
                     new DialogInterface.OnClickListener() {
@@ -205,5 +248,76 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
         builder.show();
     }
 
+    /* Drone Code */
+
+    @Override
+    public void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList) {
+
+        this.dronesList = dronesList;
+
+        List<String> drones = new ArrayList<>();
+        for (ARDiscoveryDeviceService drone : dronesList) {
+            drones.add(drone.getName());
+        }
+
+        showDialog(ProjectsFlyplansActivity.this, "Found Drones", drones, new String[] { "OK", "Abbrechen" },
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which==-1)
+                            Log.d("Neha", "On button click");
+                        //Do your functionality here
+
+
+                    }
+                });
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        // setup the drone discoverer and register as listener
+        droneDiscoverer.setup();
+        droneDiscoverer.addListener(this); // onDronesListUpdated
+
+        // start discovering
+        droneDiscoverer.startDiscovering();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        // clean the drone discoverer object
+        droneDiscoverer.stopDiscovering();
+        //mDroneDiscoverer.cleanup();
+        //mDroneDiscoverer.removeListener(mDiscovererListener);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        boolean denied = false;
+        if (permissions.length == 0) {
+            // canceled, finish
+            denied = true;
+        } else {
+            for (int i = 0; i < permissions.length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    denied = true;
+                }
+            }
+        }
+
+        if (denied) {
+            Toast.makeText(this, "At least one permission is missing.", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
 
 }
