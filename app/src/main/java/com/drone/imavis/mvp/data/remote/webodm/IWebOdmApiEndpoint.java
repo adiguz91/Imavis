@@ -13,13 +13,16 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -60,8 +63,9 @@ public interface IWebOdmApiEndpoint {
     @GET("projects/{projectId}/tasks/{taskId}")
     Observable<Task> getTask(@Path("projectId") String projectId, @Path("taskId") String taskId);
 
-    @POST("projects/{projectId}/tasks/") // POST requests needs the ending slash!
-    Single<Task> addTask(@Path("projectId") String projectId, @Body Task task);
+    @Multipart
+    @POST("projects/{projectId}/tasks/") // POST requests needs the ending slash!, or MultipartBody.Part[] images
+    Single<Task> addTask(@Part List<MultipartBody.Part> images, @Path("projectId") String projectId, @Body Task task);
 
     @PATCH("projects/{projectId}/tasks/{taskId}/")
     Single<Task> updateTask(@Path("projectId") String projectId, @Path("taskId") String taskId, @Body Task task);

@@ -1,6 +1,7 @@
 package com.drone.imavis.mvp.data.model;
 
 import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -27,6 +28,8 @@ import java.util.Date;
 import java.util.List;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
+
+import okhttp3.MultipartBody;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -57,6 +60,9 @@ public class FlyPlan implements Parcelable {
     private Date createdAt;
 
     @Transient
+    private Uri imageFolderUrl;
+
+    @Transient
     private Nodes nodes;
 
     private Long taskId;
@@ -78,6 +84,14 @@ public class FlyPlan implements Parcelable {
         this.task = task;
         this.mapData = mapData;
         this.nodes = new Nodes();
+    }
+
+    public Uri getImageFolderUrl() {
+        return imageFolderUrl;
+    }
+
+    public void setImageFolderUrl(Uri imageFolderUrl) {
+        this.imageFolderUrl = imageFolderUrl;
     }
 
     public void manuallSetNodes() {

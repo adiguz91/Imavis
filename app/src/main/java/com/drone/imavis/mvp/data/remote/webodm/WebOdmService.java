@@ -1,12 +1,16 @@
 package com.drone.imavis.mvp.data.remote.webodm;
 
 import android.content.Context;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.remote.webodm.model.Token;
 import com.drone.imavis.mvp.di.ApplicationContext;
+import com.drone.imavis.mvp.util.FileUtil;
 import com.drone.imavis.mvp.util.constants.classes.CAll;
 import com.drone.imavis.mvp.util.constants.classes.CFiles;
+import com.drone.imavis.mvp.util.file.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.picasso.OkHttp3Downloader;
@@ -14,7 +18,10 @@ import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -23,8 +30,11 @@ import javax.inject.Singleton;
 
 import okhttp3.Cache;
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -44,7 +54,7 @@ public class WebOdmService {
     private Context context;
 
     @Inject
-    public WebOdmService(@ApplicationContext Context context, PreferencesHelper preferencesHelper) {
+    public WebOdmService(@ApplicationContext Context context, PreferencesHelper preferencesHelper, FileUtil fileUtil) {
         this.context = context;
         this.preferencesHelper = preferencesHelper;
     }

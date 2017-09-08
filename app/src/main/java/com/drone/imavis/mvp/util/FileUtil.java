@@ -2,11 +2,19 @@ package com.drone.imavis.mvp.util;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.util.Log;
+
+import com.drone.imavis.mvp.di.ActivityContext;
+import com.drone.imavis.mvp.di.ApplicationContext;
+import com.drone.imavis.mvp.di.PerActivity;
+import com.drone.imavis.mvp.util.file.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -14,12 +22,73 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 /**
  * Created by adigu on 23.02.2017.
  */
 
+@Singleton
 public class FileUtil {
+
+    private Context context;
+
+    @Inject
+    public FileUtil(@ApplicationContext Context context) {
+        this.context = context;
+    }
+
+    @NonNull
+    public MultipartBody.Part prepareFilePart(String partName, Uri fileUri) {
+        // https://github.com/iPaulPro/aFileChooser/blob/master/aFileChooser/src/com/ipaulpro/afilechooser/utils/FileUtils.java
+        // use the FileUtils to get the actual file by uri
+        File file = FileUtils.getFile(context, fileUri);
+
+        // create RequestBody instance from file
+        RequestBody requestFile =
+                RequestBody.create(
+                        MediaType.parse(context.getContentResolver().getType(fileUri)),
+                        file
+                );
+
+        // MultipartBody.Part is used to send also the actual file name
+        return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
+    }
+
+    /*
+    * fileFilter == null -> accept all
+    * */
+    public List<MultipartBody.Part> getFileParts(String partName, Uri folderUri, FileFilter fileFilter) {
+
+        if(fileFilter == null) {
+            fileFilter = new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return true;
+                }
+            };
+        }
+
+        File folderFile = new File(folderUri.getPath());
+        List<File> files = Arrays.asList(folderFile.listFiles(fileFilter));
+
+        List<MultipartBody.Part> fileParts = new ArrayList<>();
+        for (File file : files) {
+            Uri fileUri = Uri.fromFile(file);
+            if (fileUri != null)
+                fileParts.add(prepareFilePart(partName, fileUri));
+        }
+        return fileParts;
+    }
 
     private static String getAbsoluteFolderPath(String absoluteFilePath) {
         File file = new File(absoluteFilePath);
