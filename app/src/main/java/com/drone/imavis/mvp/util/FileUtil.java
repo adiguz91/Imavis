@@ -1,11 +1,13 @@
 package com.drone.imavis.mvp.util;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import com.drone.imavis.mvp.di.ActivityContext;
 import com.drone.imavis.mvp.di.ApplicationContext;
@@ -56,12 +58,26 @@ public class FileUtil {
         // create RequestBody instance from file
         RequestBody requestFile =
                 RequestBody.create(
-                        MediaType.parse(context.getContentResolver().getType(fileUri)),
+                        MediaType.parse(getMimeType(fileUri)),
                         file
                 );
 
         // MultipartBody.Part is used to send also the actual file name
         return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
+    }
+
+    public String getMimeType(Uri uri) {
+        String mimeType = null;
+        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            ContentResolver cr = context.getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    fileExtension.toLowerCase());
+        }
+        return mimeType;
     }
 
     /*
@@ -79,7 +95,8 @@ public class FileUtil {
         }
 
         File folderFile = new File(folderUri.getPath());
-        List<File> files = Arrays.asList(folderFile.listFiles(fileFilter));
+        List<File> files = new ArrayList<>();
+        files = Arrays.asList(folderFile.listFiles(fileFilter));
 
         List<MultipartBody.Part> fileParts = new ArrayList<>();
         for (File file : files) {

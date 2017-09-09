@@ -7,6 +7,7 @@ package com.drone.imavis.mvp.di.component;
 import com.drone.imavis.mvp.di.PerActivity;
 import com.drone.imavis.mvp.di.module.ActivityModule;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
+import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.ui.login.LoginActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplanAddOrEdit.FlyplanAddOrEditActivity;
@@ -34,6 +35,8 @@ public interface ActivityComponent {
     void inject(FlyplannerActivity flyplannerActivity);
     void inject(ProjectAddOrEditActivity projectAddOrEditActivity);
     void inject(FlyplanAddOrEditActivity flyplanAddOrEditActivity);
+    void inject(ModelViewerActivity modelViewerActivity);
+
 
     DronePermissionRequestHelper dronePermissionRequestHelper();
     DialogUtil dialogUtil();

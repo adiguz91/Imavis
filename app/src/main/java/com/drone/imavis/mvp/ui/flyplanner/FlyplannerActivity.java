@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -38,6 +39,7 @@ import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
+import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
@@ -55,6 +57,7 @@ import com.parrot.arsdk.arcontroller.ARControllerCodec;
 import com.parrot.arsdk.arcontroller.ARFrame;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +88,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
     /** List of runtime permission we need. */
     private static final String[] PERMISSIONS_NEEDED = new String[]{
+            Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_COARSE_LOCATION,
     };
@@ -140,6 +144,18 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                 .colorRes(R.color.icons)
                 .actionBarSize());
 
+        fabStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //String appDirectory = getApplicationInfo().dataDir;
+                String imageDirectory = "/storage/emulated/0/Android/data/com.drone.imavis/images/castle/";
+                File imageFileDirectory = new File(imageDirectory);
+                Uri imageUriDirectory = Uri.fromFile(imageFileDirectory);
+                flyplan.setImageFolderUrl(imageUriDirectory);
+                flyplannerPresenter.startFlyplanTask(flyplan);
+            }
+        });
+
         fabProgressCircleStart.attachListener(new FABProgressListener() {
             @Override
             public void onFABProgressAnimationEnd() {
@@ -152,6 +168,12 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
+    }
+
+    public static String combine (String path1, String path2) {
+        File file1 = new File(path1);
+        File file2 = new File(file1, path2);
+        return file2.getPath();
     }
 
     @Override
@@ -200,6 +222,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         //}
         if (id == R.id.menu_flyplanner_action_maptype){
             //Toast.makeText(FlyplannerActivity.this, "Refresh App", Toast.LENGTH_LONG).show();
+            goToActivity(this, ModelViewerActivity.class, new Bundle());
         }
         if (id == R.id.menu_flyplanner_action_findgps){
             //Toast.makeText(FlyplannerActivity.this, "Create Text", Toast.LENGTH_LONG).show();
@@ -269,7 +292,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @Override
     public void onPause() {
         super.onPause();
-        flyplannerPresenter.saveFlyplan(flyplan);
+        //flyplannerPresenter.saveFlyplan(flyplan);
 
         // clean the drone discoverer object
         droneDiscoverer.stopDiscovering();
