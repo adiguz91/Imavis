@@ -2,7 +2,7 @@ package com.drone.imavis.mvp.util;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
+import android.app.AlertDialog;
 
 import com.drone.imavis.mvp.di.ActivityContext;
 import com.drone.imavis.mvp.di.ApplicationContext;

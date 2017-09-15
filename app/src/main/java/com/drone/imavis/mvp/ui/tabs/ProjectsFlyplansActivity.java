@@ -47,6 +47,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -87,9 +88,13 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     //ListView projectsListView;
 
     private Context context;
-    private CustomViewPager viewPager;
-    private SmartTabLayout viewPagerTab;
     private FragmentPagerItemAdapter fragmentAdapter;
+
+    @BindView(R.id.viewpager)
+    CustomViewPager viewPager;
+
+    @BindView(R.id.viewpagertab)
+    SmartTabLayout viewPagerTab;
 
     /**
      * Return an Intent to start this Activity.
@@ -132,10 +137,8 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
                 .add("Flyplans", FlyplansFragment.class)
                 .create());
 
-        viewPager = (CustomViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(fragmentAdapter);
 
-        viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
+        viewPager.setAdapter(fragmentAdapter);
         viewPagerTab.setViewPager(viewPager);
 
         onSelectProjectsFragment();
@@ -195,30 +198,13 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.drones_spinner){
-
-            // TODO discover drones!
-            //List<String> drones = new ArrayList<String>();
-            //drones.add("Bebop1");
-            //drones.add("Bebop2");
-
-            List<String> drones = new ArrayList<>();
-            for (ARDiscoveryDeviceService drone : dronesList) {
-                drones.add(drone.getName());
-            }
-
-            showDialog(ProjectsFlyplansActivity.this, "Found Drones", drones, new String[] { "OK", "Abbrechen" },
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if(which==-1)
-                                Log.d("Neha", "On button click");
-                            //Do your functionality here
-                        }
-                    });
+        switch (item.getItemId()) {
+            case R.id.drones_spinner:
+                //todo
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     public void showDialog(Context context, String title, List<String> list, String[] btnText,
@@ -253,24 +239,6 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     @Override
     public void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList) {
 
-        this.dronesList = dronesList;
-
-        List<String> drones = new ArrayList<>();
-        for (ARDiscoveryDeviceService drone : dronesList) {
-            drones.add(drone.getName());
-        }
-
-        showDialog(ProjectsFlyplansActivity.this, "Found Drones", drones, new String[] { "OK", "Abbrechen" },
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(which==-1)
-                            Log.d("Neha", "On button click");
-                        //Do your functionality here
-
-
-                    }
-                });
     }
 
     @Override

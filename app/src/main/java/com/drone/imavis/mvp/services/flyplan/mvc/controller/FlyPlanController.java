@@ -2,11 +2,14 @@ package com.drone.imavis.mvp.services.flyplan.mvc.controller;
 
 import android.graphics.Canvas;
 
+import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.MapData;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.util.constants.classes.CFileDirectories;
 import com.drone.imavis.mvp.util.constants.classes.CFiles;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CShape;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.FlyPlan;
+import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.map.Map;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.dimension.Size;
@@ -21,6 +24,8 @@ import java.io.File;
 import java.util.ListIterator;
 
 import com.drone.imavis.mvp.util.FileUtil;
+
+import butterknife.BindView;
 
 /**
  * Created by adigu on 23.02.2017.
@@ -48,13 +53,13 @@ public class FlyPlanController implements IFlyPlan {
     }
 
     public FlyPlanController() {
-        Coordinate mapCoordinate = new Coordinate(0,0);
-        Size mapSize = new Size(50, 50);
-        Map map = new Map<GoogleMap>(mapCoordinate, mapSize);
-        this.flyPlan = new FlyPlan(map);
+        // TODO find acual or last coordinate
+        MapData mapData = new MapData(new GPSCoordinate(0,0), 1.0f);
+        this.flyPlan = new FlyPlan(mapData);
     }
-    public FlyPlanController(Map map) {
-        this.flyPlan = new FlyPlan(map);
+
+    public FlyPlanController(MapData mapData) {
+        this.flyPlan = new FlyPlan(mapData);
     }
     public FlyPlanController(FlyPlan flyPlan) {
         this.flyPlan = flyPlan;
@@ -213,7 +218,7 @@ public class FlyPlanController implements IFlyPlan {
         return false;
     }
 
-    public float getScaleFactor() {
+    public static float getScaleFactor() {
         return FlyPlanView.getScaleFactor();
     }
 
@@ -224,10 +229,8 @@ public class FlyPlanController implements IFlyPlan {
 
     @Override
     public FlyPlan onPlanCreateNew() {
-        Coordinate coordinate = new Coordinate(0, 0);
-        Size size = new Size(50, 50);
-        Map map = new Map(coordinate, size);
-        return new FlyPlan(map);
+        GPSCoordinate coordinate = new GPSCoordinate(0, 0);
+        return new FlyPlan(new MapData(coordinate, 1.0f));
     }
 
     @Override
@@ -241,7 +244,7 @@ public class FlyPlanController implements IFlyPlan {
 
     @Override
     public boolean onPlanSave() {
-        String filenameWithExtension = flyPlan.getTitle() + CFiles.SAVE_DATATYPE;
+        String filenameWithExtension = flyPlan.getName() + CFiles.SAVE_DATATYPE;
         String absoluteFlyPlanFilePath = FileUtil.FilePathCombine(CFileDirectories.FLYPLAN_ABSOLUTE, filenameWithExtension);
         return FileUtil.writeToFile(absoluteFlyPlanFilePath, flyPlan.saveToJsonFile());
     }

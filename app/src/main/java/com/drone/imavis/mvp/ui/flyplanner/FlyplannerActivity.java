@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,10 +41,12 @@ import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment
 import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
+import com.drone.imavis.mvp.util.dronecontroll.AutonomController;
 import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.github.jorgecastilloprz.listeners.FABProgressListener;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.LatLng;
 import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
@@ -63,6 +64,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -103,6 +105,12 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         ARSDK.loadSDKLibs();
     }
 
+    @BindView(R.id.flyplanner_fab_pc_start)
+    FABProgressCircle fabProgressCircleStart;
+
+    @BindView(R.id.flyplanner_fab_start)
+    FloatingActionButton fabStart;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +131,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        FABProgressCircle fabProgressCircleStart = (FABProgressCircle) findViewById(R.id.flyplanner_fab_pc_start);
+        //fabProgressCircleStart = (FABProgressCircle) findViewById(R.id.flyplanner_fab_pc_start);
         fabProgressCircleStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,7 +147,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             }
         });
 
-        FloatingActionButton fabStart = (FloatingActionButton) findViewById(R.id.flyplanner_fab_start);
+        //FloatingActionButton fabStart = (FloatingActionButton) findViewById(R.id.flyplanner_fab_start);
         fabStart.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_play)
                 .colorRes(R.color.icons)
                 .actionBarSize());
@@ -216,44 +224,40 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        //if (id == R.id.action_settings) {
-        //    return true;
-        //}
-        if (id == R.id.menu_flyplanner_action_maptype){
-            //Toast.makeText(FlyplannerActivity.this, "Refresh App", Toast.LENGTH_LONG).show();
-            goToActivity(this, ModelViewerActivity.class, new Bundle());
-        }
-        if (id == R.id.menu_flyplanner_action_findgps){
-            //Toast.makeText(FlyplannerActivity.this, "Create Text", Toast.LENGTH_LONG).show();
-        }
-        if (id == R.id.menu_flyplanner_action_lock) {
+        switch (item.getItemId()) {
 
-            FlyPlanView flyplannerDrawer = (FlyPlanView) ((Activity) context).findViewById(R.id.flyplannerDraw);
-
-            if (item.getTitle().equals("Lock")) {
-                // unlock
-                if (flyplannerDrawer != null)
-                    flyplannerDrawer.setIsLocked(false);
-                item.setTitle("Unlock");
-                item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_unlock_alt)
+            case R.id.menu_flyplanner_action_maptype:
+                goToActivity(this, ModelViewerActivity.class, new Bundle());
+                return true;
+            case R.id.menu_flyplanner_action_findgps:
+                // TODO
+                return true;
+            case R.id.menu_flyplanner_action_lock:
+                FlyPlanView flyplannerDrawer = (FlyPlanView) ((Activity) context).findViewById(R.id.flyplannerDraw);
+                if (item.getTitle().equals("Lock")) {
+                    // unlock
+                    if (flyplannerDrawer != null)
+                        flyplannerDrawer.setIsLocked(false);
+                    item.setTitle("Unlock");
+                    item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_unlock_alt)
                             .colorRes(R.color.icons)
                             .actionBarSize());
-            } else {
-                // lock
-                if (flyplannerDrawer != null)
-                    flyplannerDrawer.setIsLocked(true);
-                item.setTitle("Lock");
-                item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_lock)
+                } else {
+                    // lock
+                    if (flyplannerDrawer != null)
+                        flyplannerDrawer.setIsLocked(true);
+                    item.setTitle("Lock");
+                    item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_lock)
                             .colorRes(R.color.icons)
                             .actionBarSize());
-            }
+                }
+                return true;
+            case R.id.drones_spinner:
+                droneDiscoverer.startDiscovering();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        if (id == R.id.drones_spinner) {
-            // Drone discover
-            droneDiscoverer.startDiscovering();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -427,6 +431,12 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @Override
     public void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList) {
 
+        if(dronesList == null || dronesList.isEmpty()) {
+            Toast.makeText(this, "No Drones found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
         this.dronesList = dronesList;
 
         List<String> drones = new ArrayList<>();
@@ -452,6 +462,13 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 }
                             }
                             if(drone != null) {
+                                AutonomController autonomController = new AutonomController(context, drone);
+                                autonomController.getConnectionState();
+                                autonomController.connect();
+                                //autonomController.takePicture();
+                                autonomController.generateMavlinkFile(new LatLng(46.62318659, 13.8429757), 1, 0); // alt 516
+                                autonomController.autoFlight("/storage/emulated/0/mavlink_files/flightPlan.mavlink");
+
                                 bebopDrone = new BebopDrone(context, drone);
                                 bebopDrone.addListener(mBebopListener);
                             }
