@@ -6,6 +6,7 @@ package com.drone.imavis.mvp.di.component;
 
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.di.module.ActivityModule;
+import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.ScaleListener;
 
 import dagger.Component;
 
@@ -21,5 +22,4 @@ import dagger.Component;
 public interface ConfigPersistentComponent {
 
     ActivityComponent activityComponent(ActivityModule activityModule);
-
 }

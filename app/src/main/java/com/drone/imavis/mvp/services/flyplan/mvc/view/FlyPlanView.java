@@ -1,6 +1,7 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.view;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -14,6 +15,8 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.di.component.ConfigPersistentComponent;
+import com.drone.imavis.mvp.di.component.DaggerConfigPersistentComponent;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
@@ -25,6 +28,9 @@ import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.GestureListener;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.ScaleListener;
 
 public class FlyPlanView extends View {
+
+    //@Inject FlyplanController flyplanController;
+    private ScaleListener scaleListener;
 
     private GestureDetector gestureDetector;
     private Rect viewRect;
@@ -41,19 +47,12 @@ public class FlyPlanView extends View {
         return isHandledTouch;
     }
 
-
     public FlyPlanView(final Context context) {
         super(context);
-
-        this.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return false;
-            }
-        });
-
         init(context);
     }
+
+
     public FlyPlanView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         init(context);
@@ -63,19 +62,16 @@ public class FlyPlanView extends View {
         init(context);
     }
 
+
     public void init(final Context context) {
         nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
         gestureDetector = new GestureDetector(context, new GestureListener());
-        scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-        // FlyPlanController.getInstance().init(context);
-
-        //final Activity activity = (Activity) context;
-        //GoogleMapFragment googleMapFragment = (GoogleMapFragment) activity.fra.findFragmentById(R.id.flyplannerMapView);
+        scaleDetector = new ScaleGestureDetector(context, scaleListener);
     }
 
     public static float getScaleFactor() {
         if(scaleDetector != null)
-            return ScaleListener.getScaleFactor();
+            return scaleDetector.getScaleFactor();
         return CMap.SCALE_FACTOR_DEFAULT;
     }
 
@@ -110,29 +106,23 @@ public class FlyPlanView extends View {
     }
 
     public boolean doOnTouch(MotionEvent event) {
-
         if(isLocked)
             return super.onTouchEvent(event);
-
-        //super.onTouchEvent(event);
         Log.w(TAG, "onTouchEvent: " + event);
-        int actionIndex; // event.getActionIndex()
-
+        //int actionIndex; // event.getActionIndex()
         isHandledTouch = false;
 
         // onTouch trigger events
         isHandledTouch = scaleDetector.onTouchEvent(event);
+
         isHandledTouch = gestureDetector.onTouchEvent(event);
 
-        //isDown = false;
         switch (event.getActionMasked())
         {
-            // find Node or Line
             case MotionEvent.ACTION_MOVE:
                 isHandledTouch = actionMove(event);
                 invalidate();
                 break;
-            // do nothing
             default:
                 break;
         }
@@ -140,16 +130,13 @@ public class FlyPlanView extends View {
         //if(event.getActionMasked() == MotionEvent.ACTION_DOWN)
         //    isHandledTouch = true;
         Log.i("LogFlyplan", "isHandled: " + isHandledTouch + " | event: " + event.getActionMasked());
-
-       return isHandledTouch;
+        return isHandledTouch;
     }
-
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         return doOnTouch(event);
     }
-
 
     public static boolean actionMove(MotionEvent event) {
         int pointerCount = event.getPointerCount();
@@ -177,6 +164,4 @@ public class FlyPlanView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         viewRect = new Rect(0, 0, getMeasuredWidth(), getMeasuredHeight());
     }
-
-
 }

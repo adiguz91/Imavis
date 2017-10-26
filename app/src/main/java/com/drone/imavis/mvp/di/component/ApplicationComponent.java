@@ -12,6 +12,8 @@ import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.remote.webodm.IWebOdmApiEndpoint;
 import com.drone.imavis.mvp.di.ApplicationContext;
 import com.drone.imavis.mvp.di.module.ApplicationModule;
+import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
+import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.ScaleListener;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.FileUtil;
 
@@ -38,8 +40,10 @@ public interface ApplicationComponent {
 
     //DatabaseOpenHelper databaseOpenHelper();
     DataManager dataManager();
+    //FlyPlanController flyplanController();
     FileUtil fileUtil();
     //RxEventBus eventBus();
     //IFlyPlanUtil flyPlanUtil();
     //FileUtil fileUtil();
+    ScaleListener scaleListener();
 }

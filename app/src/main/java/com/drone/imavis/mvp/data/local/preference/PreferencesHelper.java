@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.drone.imavis.mvp.di.ApplicationContext;
+import com.drone.imavis.mvp.util.constants.classes.CMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,6 +21,7 @@ public class PreferencesHelper implements IPreferencesHelper {
 
     private static final String PREF_KEY_CURRENT_USER_ID = "PREF_KEY_CURRENT_USER_ID";
     private static final String PREF_KEY_AUTHORIZATION_TOKEN = "PREF_KEY_AUTHORIZATION_TOKEN";
+    private static final String PREF_KEY_FLYPLANVIEW_SCALEFACTOR = "PREF_KEY_FLYPLANVIEW_SCALEFACTOR";
 
     @Inject
     public PreferencesHelper(@ApplicationContext Context context) {
@@ -49,5 +51,15 @@ public class PreferencesHelper implements IPreferencesHelper {
     public void setAuthorizationToken(String token) {
         if(token == null) token = "";
         preferences.edit().putString(PREF_KEY_AUTHORIZATION_TOKEN, token).apply();
+    }
+
+    @Override
+    public float getFlyplanViewScaleFactor() {
+        return preferences.getFloat(PREF_KEY_FLYPLANVIEW_SCALEFACTOR, CMap.SCALE_FACTOR_DEFAULT);
+    }
+
+    @Override
+    public void setFlyplanViewScaleFactor(float scaleFactor) {
+        preferences.edit().putFloat(PREF_KEY_FLYPLANVIEW_SCALEFACTOR, scaleFactor).apply();
     }
 }

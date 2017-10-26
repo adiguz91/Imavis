@@ -4,7 +4,10 @@ import android.graphics.Canvas;
 
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.MapData;
+import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
+import com.drone.imavis.mvp.ui.base.BasePresenter;
+import com.drone.imavis.mvp.ui.flyplanner.IFlyplannerActivity;
 import com.drone.imavis.mvp.util.constants.classes.CFileDirectories;
 import com.drone.imavis.mvp.util.constants.classes.CFiles;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
@@ -25,11 +28,14 @@ import java.util.ListIterator;
 
 import com.drone.imavis.mvp.util.FileUtil;
 
+import javax.inject.Singleton;
+
 import butterknife.BindView;
 
 /**
  * Created by adigu on 23.02.2017.
  */
+
 public class FlyPlanController implements IFlyPlan {
 
     private FlyPlan flyPlan;
@@ -58,9 +64,6 @@ public class FlyPlanController implements IFlyPlan {
         this.flyPlan = new FlyPlan(mapData);
     }
 
-    public FlyPlanController(MapData mapData) {
-        this.flyPlan = new FlyPlan(mapData);
-    }
     public FlyPlanController(FlyPlan flyPlan) {
         this.flyPlan = flyPlan;
     }

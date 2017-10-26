@@ -7,10 +7,11 @@ package com.drone.imavis.mvp.data.local.preference;
 public interface IPreferencesHelper {
 
     int getCurrentUserId();
-
     void setCurrentUserId(int userId);
 
     String getAuthorizationToken();
-
     void setAuthorizationToken(String token);
+
+    float getFlyplanViewScaleFactor();
+    void setFlyplanViewScaleFactor(float scaleFactor);
 }
