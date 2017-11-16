@@ -3,7 +3,7 @@ package com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.app.FragmentTransaction;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;

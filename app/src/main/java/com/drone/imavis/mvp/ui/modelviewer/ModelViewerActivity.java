@@ -93,6 +93,35 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
                 new XWalkResourceClient(xWalkWebView)
                 {
                     @Override
+                    public void onLoadStarted(XWalkView xWalkView, String url) {
+                        ValueCallback<String> callback =
+                                new ValueCallback<String>() {
+                                    @Override
+                                    public void onReceiveValue(String jsonResult)
+                                    {
+                                        Log.i("TAG modelviewer TEST","from js:"+jsonResult);
+                                        //xWalkWebView.onHide();
+                                        // Show status bar
+                                        //showStatusBar();
+                                        //startTimer();
+                                    }
+                                };
+                        xWalkView.evaluateJavascript(
+                                "(function() { " +
+                                        //"document.addEventListener('DOMContentLoaded', function(event) {" +
+                                            "var url = window.location.href;" +
+                                            "var search = 'login';" +
+                                            "if(url.includes(search)) {" +
+                                                "var form = document.getElementsByTagName('form')[0];" +
+                                                "document.getElementById('id_username').value = username;" +
+                                                "document.getElementById('id_password').value = password;" +
+                                                "form.submit();" +
+                                            "}" +
+                                        //"});"
+                                        "})();", callback);
+                    }
+
+                    @Override
                     public void onLoadFinished(XWalkView xWalkView, String url)
                     {
                         //xWalkView.load("javascript:functionInTest()", null);
@@ -130,6 +159,7 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
         xWalkWebView.onHide();
 
         //xWalkWebView.getSettings().setInitialPageScale(100);
+
         xWalkWebView.load("http://192.168.99.100:8000/3d/project/38/task/3/", null);
     }
 
