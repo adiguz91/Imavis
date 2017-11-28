@@ -28,6 +28,10 @@ import com.parrot.arsdk.arcontroller.ARDeviceControllerStreamListener;
 import com.parrot.arsdk.arcontroller.ARFeatureARDrone3;
 import com.parrot.arsdk.arcontroller.ARFeatureCommon;
 import com.parrot.arsdk.arcontroller.ARFrame;
+import com.parrot.arsdk.ardatatransfer.ARDATATRANSFER_UPLOADER_RESUME_ENUM;
+import com.parrot.arsdk.ardatatransfer.ARDataTransferException;
+import com.parrot.arsdk.ardatatransfer.ARDataTransferManager;
+import com.parrot.arsdk.ardatatransfer.ARDataTransferUploader;
 import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_FAMILY_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDevice;
@@ -56,7 +60,7 @@ public class AutonomController {
 
     public static final String MAVLINK_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory().toString() + "/mavlink_files";
     private static final String TAG = "BebopDrone";
-    private static final int DEVICE_PORT = 21;
+    private static final int FTP_FLIGHTPLAN = 61; //21
 
     public interface Listener {
 
@@ -105,7 +109,11 @@ public class AutonomController {
     private String mCurrentRunId;
     private ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM mAutoFlyingState;
 
+    private ARDiscoveryDeviceService deviceService;
+
     public AutonomController(Context context, @NonNull ARDiscoveryDeviceService deviceService) {
+
+        this.deviceService = deviceService;
 
         mListeners = new ArrayList<>();
 
@@ -125,23 +133,25 @@ public class AutonomController {
                 discoveryDevice.dispose();
             }
 
-            try
-            {
+                /*
                 String productIP = ((ARDiscoveryDeviceNetService)(deviceService.getDevice())).getIp();
 
-                ARUtilsManager ftpListManager = new ARUtilsManager();
-                ARUtilsManager ftpQueueManager = new ARUtilsManager();
+                ARUtilsManager ftpUploadManager = new ARUtilsManager();
+                //ARUtilsManager ftpQueueManager = new ARUtilsManager();
 
-                ftpListManager.initWifiFtp(productIP, DEVICE_PORT, ARUtilsManager.FTP_ANONYMOUS, "");
-                ftpQueueManager.initWifiFtp(productIP, DEVICE_PORT, ARUtilsManager.FTP_ANONYMOUS, "");
+                ftpUploadManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, ARUtilsManager.FTP_ANONYMOUS, "");
+                //ftpQueueManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, ARUtilsManager.FTP_ANONYMOUS, "");
 
-                mSDCardModule = new SDCardModule(ftpListManager, ftpQueueManager);
-                mSDCardModule.addListener(mSDCardModuleListener);
-            }
-            catch (ARUtilsException e)
-            {
-                Log.e(TAG, "Exception", e);
-            }
+                ARDataTransferManager dataTransferManager = new ARDataTransferManager();
+                ARDataTransferUploader uploader = dataTransferManager.getARDataTransferUploader();
+                ftpUploadManager = new ARUtilsManager();
+
+                final UploadListener listener = new UploadListener(null, uploader);
+                uploader.createUploader(ftpUploadManager, "flightPlan.mavlink", "/storage/emulated/0/mavlink_files/flightPlan.mavlink", listener, null, listener, null, ARDATATRANSFER_UPLOADER_RESUME_ENUM.ARDATATRANSFER_UPLOADER_RESUME_FALSE);
+*/
+                //mSDCardModule = new SDCardModule(ftpListManager, ftpQueueManager);
+                //mSDCardModule.addListener(mSDCardModuleListener);
+
 
         } else {
             Log.e(TAG, "DeviceService type is not supported by BebopDrone");
@@ -173,6 +183,39 @@ public class AutonomController {
             }
         }
         return success;
+    }
+
+    public void GpsFix() {
+
+        //ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendGPSSettingsSendControllerGPS(DrohneLat, DrohneLon, DrohneAlt, PilotLat, PilotLon);
+        //mDeviceController.getFeatureCommon().sendGPSControllerPositionForRun(lat, lng);
+    }
+
+    public void uploadFlyPlan(String localFilepath)
+    {
+
+        try {
+            String productIP = ((ARDiscoveryDeviceNetService)(deviceService.getDevice())).getIp();
+
+            ARUtilsManager ftpUploadManager = new ARUtilsManager();
+            //ARUtilsManager ftpQueueManager = new ARUtilsManager();
+
+            ftpUploadManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, "", "");
+            //ftpUploadManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, ARUtilsManager.FTP_ANONYMOUS, "");
+            //ftpQueueManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, ARUtilsManager.FTP_ANONYMOUS, "");
+
+            ARDataTransferManager dataTransferManager = new ARDataTransferManager();
+            ARDataTransferUploader uploader = dataTransferManager.getARDataTransferUploader();
+            ftpUploadManager = new ARUtilsManager();
+
+            final UploadListener listener = new UploadListener(null, uploader);
+            uploader.createUploader(ftpUploadManager, "flightPlan.mavlink", localFilepath, listener, null, listener, null, ARDATATRANSFER_UPLOADER_RESUME_ENUM.ARDATATRANSFER_UPLOADER_RESUME_FALSE);
+
+        } catch (ARUtilsException e) {
+            e.printStackTrace();
+        } catch (ARDataTransferException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean disconnect() {
@@ -236,7 +279,7 @@ public class AutonomController {
         final File mavFile = new File(filename);
 
         //noinspection ResultOfMethodCallIgnored
-        mavFile.delete();
+        //mavFile.delete();
         generator.CreateMavlinkFile(filename);
 
         return filename;
@@ -529,6 +572,7 @@ public class AutonomController {
 
         @Override
         public void onCommandReceived(ARDeviceController deviceController, ARCONTROLLER_DICTIONARY_KEY_ENUM commandKey, ARControllerDictionary elementDictionary) {
+            Log.d("onCommandReceived", commandKey.toString());
             if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED) && (elementDictionary != null)) {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if (args != null) {
@@ -641,7 +685,9 @@ public class AutonomController {
                     ARControllerArgumentDictionary<Object> args = itr.next();
                     if (args != null) {
                         final ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component = ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM.getFromValue((Integer)args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT));
+
                         final byte State = (byte)((Integer)args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_STATE)).intValue();
+                        Log.d("componentDrone", "STATE: " + State + ", VALUE: " + component.getValue() + ": " + component.toString());
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -683,6 +729,7 @@ public class AutonomController {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if (args != null) {
                     final Integer gpsSatellite = (Integer)  args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSTATE_NUMBEROFSATELLITECHANGED_NUMBEROFSATELLITE);
+                    Log.d("componentDrone", "gpsSatellite: " + Integer.toString(gpsSatellite));
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {

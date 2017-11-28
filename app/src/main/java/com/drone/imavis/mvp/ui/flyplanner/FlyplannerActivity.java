@@ -56,7 +56,9 @@ import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATE
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARControllerCodec;
 import com.parrot.arsdk.arcontroller.ARFrame;
+import com.parrot.arsdk.ardatatransfer.ARDataTransferException;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
+import com.parrot.arsdk.arutils.ARUtilsException;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -466,8 +468,12 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 autonomController.getConnectionState();
                                 autonomController.connect();
                                 //autonomController.takePicture();
-                                autonomController.generateMavlinkFile(new LatLng(46.62318659, 13.8429757), 1, 0); // alt 516
-                                autonomController.autoFlight("/storage/emulated/0/mavlink_files/flightPlan.mavlink");
+
+                                autonomController.GpsFix(); // TODO!!!!
+
+                                String localFilepath = autonomController.generateMavlinkFile(new LatLng(46.62318659, 13.8429757), 1, 0); // alt 516
+                                autonomController.uploadFlyPlan(localFilepath);
+                                autonomController.autoFlight("flightPlan.mavlink");
 
                                 bebopDrone = new BebopDrone(context, drone);
                                 bebopDrone.addListener(mBebopListener);

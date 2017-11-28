@@ -8,9 +8,12 @@ import android.os.HandlerThread;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM;
 import com.parrot.arsdk.arcontroller.ARFeatureCommon;
+import com.parrot.arsdk.ardatatransfer.ARDATATRANSFER_ERROR_ENUM;
 import com.parrot.arsdk.ardatatransfer.ARDATATRANSFER_UPLOADER_RESUME_ENUM;
 import com.parrot.arsdk.ardatatransfer.ARDataTransferManager;
 import com.parrot.arsdk.ardatatransfer.ARDataTransferUploader;
+import com.parrot.arsdk.ardatatransfer.ARDataTransferUploaderCompletionListener;
+import com.parrot.arsdk.ardatatransfer.ARDataTransferUploaderProgressListener;
 import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_ENUM;
 import com.parrot.arsdk.ardiscovery.UsbAccessoryMux;
 import com.parrot.arsdk.armavlink.ARMavlinkException;
@@ -24,6 +27,62 @@ import java.io.File;
  * Created by adigu on 14.09.2017.
  */
 
+class UploadListener implements ARDataTransferUploaderProgressListener, ARDataTransferUploaderCompletionListener {
+
+    private final ARFeatureCommon featureCommon;
+    private ARDataTransferUploader uploader;
+
+    public UploadListener(final ARFeatureCommon featureCommon, ARDataTransferUploader uploader) {
+        this.featureCommon = featureCommon;
+        this.uploader = uploader;
+    }
+
+    @Override
+    public void didUploadComplete(Object arg, final ARDATATRANSFER_ERROR_ENUM error) {
+        //if (ARPro3Application.DEBUG) Log.d(TAG, "mavlink didUploadComplete status=" + error.name());
+
+        final Object lock = new Object();
+
+        synchronized (lock) {
+            new Thread() {
+                @Override
+                public void run() {
+                    synchronized (lock) {
+                        uploader.cancelThread();
+                        uploader.dispose();
+                        uploader = null;
+
+                        //uploadManager.closeWifiFtp();
+                        //uploadManager.dispose();
+                        //uploadManager = null;
+
+                        //dataTransferManager.dispose();
+                        //dataTransferManager = null;
+
+                        //uploadHandlerThread.quit();
+                        //uploadHandlerThread = null;
+
+                        //if (ARPro3Application.DEBUG) Log.d(TAG, "released uploader resources");
+
+                        if (featureCommon != null && error == ARDATATRANSFER_ERROR_ENUM.ARDATATRANSFER_OK) {
+                            // if (ARPro3Application.DEBUG) Log.d(TAG, "sendMavlinkStart");
+                            //featureCommon.sendMavlinkStart("flightPlan.mavlink", ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_FLIGHTPLAN);
+                            //Log.i(TAG,"SendMavlink is Success");
+                        }
+                    }
+                }
+            }.start();
+        }
+    }
+
+    @Override
+    public void didUploadProgress(Object arg, float percent) {
+        /*
+        if (ARPro3Application.DEBUG)
+            Log.d(TAG, "mavlink file upload progress=" + percent);
+            */
+    }
+}
 
 /*
  * START A FLIGHTPLAN
