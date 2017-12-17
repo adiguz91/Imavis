@@ -9,11 +9,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +43,7 @@ import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment
 import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
+import com.drone.imavis.mvp.util.UnsubscribeIfPresent;
 import com.drone.imavis.mvp.util.dronecontroll.AutonomController;
 import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 import com.github.jorgecastilloprz.FABProgressCircle;
@@ -59,6 +62,7 @@ import com.parrot.arsdk.arcontroller.ARFrame;
 import com.parrot.arsdk.ardatatransfer.ARDataTransferException;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.arsdk.arutils.ARUtilsException;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -68,6 +72,11 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import pl.charmas.android.reactivelocation2.ReactiveLocationProvider;
 
 /**
  * Created by adigu on 30.05.2017.
@@ -78,17 +87,24 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
-    @Inject FlyplannerPresenter flyplannerPresenter;
+    @Inject
+    FlyplannerPresenter flyplannerPresenter;
     Context context;
     FlyPlan flyplan;
 
     private BebopDrone bebopDrone;
     private BebopVideoView bebopVideoView;
 
-    @Inject DronePermissionRequestHelper dronePermissionRequestHelper;
-    @Inject DialogUtil dialogUtil;
+    @Inject
+    DronePermissionRequestHelper dronePermissionRequestHelper;
+    @Inject
+    DialogUtil dialogUtil;
     List<ARDiscoveryDeviceService> dronesList;
     ARDiscoveryDeviceService drone;
+
+    private ReactiveLocationProvider locationProvider;
+    private Observable<Location> lastKnownLocationObservable;
+    private Disposable lastKnownLocationDisposable;
 
     /** List of runtime permission we need. */
     private static final String[] PERMISSIONS_NEEDED = new String[]{
@@ -173,12 +189,70 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             }
         });
 
+        initLocation();
+
         // todo: init flyplanner fragment instance
 
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
     }
+
+    // TODO : https://github.com/mcharmas/Android-ReactiveLocation/blob/master/sample/src/main/java/pl/charmas/android/reactivelocation2/sample/BaseActivity.java
+    //protected abstract void onLocationPermissionGranted();
+
+    public void onLocationPermissionGranted() {
+        // https://github.com/mcharmas/Android-ReactiveLocation
+        /*lastKnownLocationDisposable = lastKnownLocationObservable.
+                .map(new LocationToStringFunc())
+                .subscribe(new DisplayTextOnViewAction(lastKnownLocationView), new ErrorHandler());*/
+
+        lastKnownLocationObservable
+                .subscribe(x ->
+                        Log.d("location", x.toString()));
+    }
+
+    public void initLocation() {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        ReactiveLocationProvider locationProvider = new ReactiveLocationProvider(context);
+
+        locationProvider = new ReactiveLocationProvider(getApplicationContext());
+
+        lastKnownLocationObservable = locationProvider
+                .getLastKnownLocation()
+                .observeOn(AndroidSchedulers.mainThread());
+
+        // TODO: move this rxPermissions to application start init, and into dagger
+        // https://github.com/tbruyelle/RxPermissions/blob/521654fb8ffc69b32faba70523ba436689f6c195/sample/src/main/java/com/tbruyelle/rxpermissions/sample/MainActivity.java
+        RxPermissions rxPermissions = new RxPermissions(this); // where this is an Activity instance
+        rxPermissions.setLogging(true);
+
+        rxPermissions
+                .request(Manifest.permission.ACCESS_FINE_LOCATION)
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean granted) throws Exception {
+                        if (granted) {
+                            onLocationPermissionGranted();
+                        } else {
+                            //Toast.makeText(BaseActivity.this, "Sorry, no demo without permission...", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    //-------------------
 
     public static String combine (String path1, String path2) {
         File file1 = new File(path1);
@@ -427,7 +501,6 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         }
     };
 
-
     /* Drone Discovery Code */
 
     @Override
@@ -472,7 +545,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 // TODO!!!!
                                 GPSCoordinate droneCoordinate = new GPSCoordinate();
                                 GPSCoordinate pilotCoordinate = new GPSCoordinate();
-                                autonomController.SetHomeLocation(droneCoordinate, pilotCoordinate);
+                                autonomController.SetHomeLocation(pilotCoordinate);
 
                                 String localFilepath = autonomController.generateMavlinkFile(new LatLng(46.62318659, 13.8429757), 1, 0); // alt 516
                                 autonomController.uploadFlyPlan(localFilepath);
@@ -521,5 +594,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             Toast.makeText(this, "At least one permission is missing.", Toast.LENGTH_LONG).show();
             finish();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        UnsubscribeIfPresent.dispose(lastKnownLocationDisposable);
     }
 }
