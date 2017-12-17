@@ -472,7 +472,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 // TODO!!!!
                                 GPSCoordinate droneCoordinate = new GPSCoordinate();
                                 GPSCoordinate pilotCoordinate = new GPSCoordinate();
-                                autonomController.GpsFix(droneCoordinate, pilotCoordinate);
+                                autonomController.SetHomeLocation(droneCoordinate, pilotCoordinate);
 
                                 String localFilepath = autonomController.generateMavlinkFile(new LatLng(46.62318659, 13.8429757), 1, 0); // alt 516
                                 autonomController.uploadFlyPlan(localFilepath);

@@ -168,7 +168,7 @@ dependencies {
     compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.2.2'
     compile 'com.parrot:arsdk:3.12.6'
 
-
+    compile 'com.yayandroid:LocationManager:2.0.4' // https://github.com/yayaa/LocationManager/tree/master/app
 
     //noinspection GradleCompatible
     //compile 'com.android.support:design:26.1.0'

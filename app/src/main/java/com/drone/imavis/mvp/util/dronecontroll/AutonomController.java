@@ -268,12 +268,14 @@ public class AutonomController {
         mDeviceController.getFeatureARDrone3().sendGPSSettingsReturnHomeDelay(delay);
     }
 
-    public void GpsFix(GPSCoordinate droneCoordinate, GPSCoordinate pilotCoordinate) {
-
+    public void SetHomeLocation(GPSCoordinate pilotCoordinate) {
+        // used for gps fix
+        double horrizontalAccurancy = -1;
+        double verticalAccurancy = -1;
         // TODO: altitude
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3()
-                                            .sendGPSSettingsSendControllerGPS(droneCoordinate.getLatitude(), droneCoordinate.getLongitude(), droneCoordinate.getElevation(),
-                                                                              pilotCoordinate.getLatitude(), pilotCoordinate.getLongitude());
+                                            .sendGPSSettingsSendControllerGPS(pilotCoordinate.getLatitude(), pilotCoordinate.getLongitude(), pilotCoordinate.getElevation(),
+                                                                              horrizontalAccurancy, verticalAccurancy);
         //mDeviceController.getFeatureCommon().sendGPSControllerPositionForRun(lat, lng);
         Log.d("ARCONTROLLER_ERROR_ENUM", error.toString());
     }
