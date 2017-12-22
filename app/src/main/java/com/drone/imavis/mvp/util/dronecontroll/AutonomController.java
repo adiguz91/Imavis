@@ -76,51 +76,14 @@ import static com.parrot.arsdk.arcontroller.ARControllerDictionary.ARCONTROLLER_
  * Created by adigu on 14.09.2017.
  */
 
-// http://developer.parrot.com/docs/reference/bebop_2/index.html#set-max-altitude
+// http://developer.parrot.com/docs/reference/bebop_2/index.html
 public class AutonomController {
 
     public static final String MAVLINK_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory().toString() + "/mavlink_files";
     private static final String TAG = "BebopDrone";
     private static final int FTP_FLIGHTPLAN = 61; //21
 
-    public interface Listener {
-
-        void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state);
-
-        void onBatteryChargeChanged(int batteryPercentage);
-
-        void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
-
-        void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
-
-        void configureDecoder(ARControllerCodec codec);
-
-        void onFrameReceived(ARFrame frame);
-
-        void onMatchingMediasFound(int nbMedias);
-
-        void onDownloadProgressed(String mediaName, int progress);
-
-        void onDownloadComplete(String mediaName);
-
-        void onGPSChange(double latitude, double longtitude, double altitude);
-
-        void onSpeedChange(float north, float east, float down);
-
-        void onAltitudeChange(double altitude);
-
-        void onHomeReturn(double latitude, double longtitude, double altitude);
-
-        void onFlightPath(ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component, byte State);
-
-        void onAutoStateChanged(ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM state);
-
-        void noOfSaterllite(Integer gpsSatellite);
-
-        void onAutoAvailableState(byte availabilityState);
-    }
-
-    private final List<Listener> mListeners;
+    private final List<AutocomDroneControllerListener> mListeners;
     private final Handler mHandler;
 
     private ARDeviceController mDeviceController;
@@ -186,11 +149,11 @@ public class AutonomController {
     }
 
     //region Listener functions
-    public void addListener(AutonomController.Listener listener) {
+    public void addListener(AutocomDroneControllerListener listener) {
         mListeners.add(listener);
     }
 
-    public void removeListener(AutonomController.Listener listener) {
+    public void removeListener(AutocomDroneControllerListener listener) {
         mListeners.remove(listener);
     }
     //endregion Listener
@@ -233,6 +196,8 @@ public class AutonomController {
     }
 
     public void enableVideoStreaming(boolean enable) {
+        // SET THE ELECTRIC FREQUENCY
+        // SET THE ANTIFLICKERING MODE
         mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte)(enable ? 1:0));
     }
 
@@ -240,12 +205,6 @@ public class AutonomController {
         // bool enabled
         // Once it is configured, you can start/stop the timelapse with the RecordVideo command.
         mDeviceController.getFeatureARDrone3().sendPictureSettingsTimelapseSelection((byte)(enable ? 1:0), interval);
-    }
-
-    public void EnableVideoStream(boolean enable) {
-        // SET THE ELECTRIC FREQUENCY
-        // SET THE ANTIFLICKERING MODE
-        mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte)(enable?1:0));
     }
 
     public void LATER() {
@@ -284,9 +243,8 @@ public class AutonomController {
         mDeviceController.getFeatureARDrone3().sendPilotingSettingsMaxAltitude(maxAltitude);
     }
 
-    public void uploadFlyPlan(String localFilepath)
+    public void uploadFlyPlan (String localFilepath)
     {
-
         try {
             String productIP = ((ARDiscoveryDeviceNetService)(deviceService.getDevice())).getIp();
 
@@ -501,121 +459,121 @@ public class AutonomController {
 
     //region notify listener block
     private void notifyConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onDroneConnectionChanged(state);
         }
     }
 
     private void notifyBatteryChanged(int battery) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onBatteryChargeChanged(battery);
         }
     }
 
     private void notifyPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onPilotingStateChanged(state);
         }
     }
 
     private void notifyAutoStateChange(ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM state) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onAutoStateChanged(state);
         }
     }
 
     private void notifyPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onPictureTaken(error);
         }
     }
 
     private void notifyConfigureDecoder(ARControllerCodec codec) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.configureDecoder(codec);
         }
     }
 
     private void notifyFrameReceived(ARFrame frame) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onFrameReceived(frame);
         }
     }
 
     private void notifyMatchingMediasFound(int nbMedias) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onMatchingMediasFound(nbMedias);
         }
     }
 
     private void notifyDownloadProgressed(String mediaName, int progress) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onDownloadProgressed(mediaName, progress);
         }
     }
 
     private void notifyDownloadComplete(String mediaName) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onDownloadComplete(mediaName);
         }
     }
 
     private void notifyGPSChange(double latitude, double longtitude, double altitude) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onGPSChange(latitude, longtitude, altitude);
         }
     }
 
     private void notifySpeedChange(float speedX, float speedY, float speedZ){
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onSpeedChange(speedX, speedY, speedZ);
         }
     }
 
     private void notifyAltitudeChange(double altitude){
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onAltitudeChange(altitude);
         }
     }
 
     private void notifyHomeReturn(double latitude, double longtitude, double altitude){
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onHomeReturn(latitude, longtitude, altitude);
         }
     }
 
     private void notifyAutoFlightPath(ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component, byte State){
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onFlightPath(component, State);
         }
     }
 
     private void notifyAvailabiltyState(byte availabilityState) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
             listener.onAutoAvailableState(availabilityState);
         }
     }
 
     private void onUpdateBebopGpsSatellite(Integer gpsSatellite) {
-        List<AutonomController.Listener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomController.Listener listener : listenersCpy) {
-            listener.noOfSaterllite(gpsSatellite);
+        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutocomDroneControllerListener listener : listenersCpy) {
+            listener.numberOfSatellites(gpsSatellite);
         }
     }
 
