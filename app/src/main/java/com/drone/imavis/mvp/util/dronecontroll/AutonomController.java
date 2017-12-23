@@ -1,11 +1,13 @@
 package com.drone.imavis.mvp.util.dronecontroll;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.dronecontrol.SDCardModule;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.google.android.gms.maps.model.LatLng;
@@ -81,7 +83,7 @@ import static com.parrot.arsdk.arcontroller.ARControllerDictionary.ARCONTROLLER_
  */
 
 // http://developer.parrot.com/docs/reference/bebop_2/index.html
-public class AutonomController {
+public class AutonomController implements IAutonomousFlightController {
 
     // constants
     public static final String DATE_FORMAT_ISO_8601 = "yyyy-mm-dd";
@@ -182,22 +184,49 @@ public class AutonomController {
         mDeviceController.getFeatureCommon().sendCommonReboot();
     }
 
-    /**
-     * http://developer.parrot.com/docs/reference/bebop_2/#controller-gps-info
-     * @param latitude
-     * @param longitude
-     * @param altitude
-     * @param horizontal_accuracy
-     * @param vertical_accuracy
-     * @param north_speed
-     * @param east_speed
-     * @param down_speed
-     * @param timestamp
-     */
-    public void changeHomeLocation(double latitude, double longitude, float altitude, float horizontal_accuracy, float vertical_accuracy, float north_speed, float east_speed, float down_speed, double timestamp) {
-        mDeviceController.getFeatureControllerInfo().sendGps((double)latitude, (double)longitude, (float)altitude, (float)horizontal_accuracy, (float)vertical_accuracy, (float)north_speed, (float)east_speed, (float)down_speed, (double)timestamp);
+    public void uploadAutonomousFlightPlan(FlyPlan flyPlan, String localFilepath) {
+        try {
+            String productIP = ((ARDiscoveryDeviceNetService)(deviceService.getDevice())).getIp();
+
+            ARUtilsManager ftpUploadManager = new ARUtilsManager();
+            //ARUtilsManager ftpQueueManager = new ARUtilsManager();
+
+            ftpUploadManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, "", "");
+            //ftpUploadManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, ARUtilsManager.FTP_ANONYMOUS, "");
+            //ftpQueueManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, ARUtilsManager.FTP_ANONYMOUS, "");
+
+            ARDataTransferManager dataTransferManager = new ARDataTransferManager();
+            ARDataTransferUploader uploader = dataTransferManager.getARDataTransferUploader();
+            ftpUploadManager = new ARUtilsManager();
+
+            final UploadListener listener = new UploadListener(null, uploader);
+            uploader.createUploader(ftpUploadManager, "flightPlan.mavlink", localFilepath, listener, null, listener, null, ARDATATRANSFER_UPLOADER_RESUME_ENUM.ARDATATRANSFER_UPLOADER_RESUME_FALSE);
+
+        } catch (ARUtilsException e) {
+            e.printStackTrace();
+        } catch (ARDataTransferException e) {
+            e.printStackTrace();
+        }
     }
 
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#controller-gps-info
+     * @param location
+     * @param horizontalAccuracy
+     * @param verticalAccuracy
+     * @param northSpeed
+     * @param eastSpeed
+     * @param downSpeed
+     * @param timestamp
+     */
+    public void changeHomeLocation(GPSCoordinate location, float horizontalAccuracy, float verticalAccuracy, float northSpeed, float eastSpeed, float downSpeed, double timestamp) {
+        mDeviceController.getFeatureControllerInfo().sendGps(location.getLatitude(), location.getLongitude(), (float)location.getAltitude(), horizontalAccuracy, verticalAccuracy, northSpeed, eastSpeed, downSpeed, timestamp);
+    }
+
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-max-distance
+     * @param maxDistance
+     */
     public void setMaxDistance(float maxDistance) {
         //mDeviceController.getFeatureARDrone3().sendPilotingSettingsNoFlyOverMaxDistance((byte)shouldNotFlyOver);
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendPilotingSettingsMaxDistance(maxDistance);
@@ -229,13 +258,13 @@ public class AutonomController {
     }
 
     /**
+     * if type == 0 == video else image
      * http://developer.parrot.com/docs/reference/bebop_2/#record-a-video
      * @param record
      * @param type
      * @param interval
      */
     public void recordVideoOrTakePictures(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM record, int type, float interval) {
-        // if type == 0 == video else image
         if (type > 0)
             setPictureInterval(true, interval);
         mDeviceController.getFeatureARDrone3().sendMediaRecordVideoV2(record); // start or stop
@@ -344,12 +373,11 @@ public class AutonomController {
      * @param homeCoordinate
      */
     public void setHomeLocation(GPSCoordinate homeCoordinate) {
-
         double horrizontalAccurancy = -1;
         double verticalAccurancy = -1;
         // TODO: altitude
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3()
-                                            .sendGPSSettingsSendControllerGPS(homeCoordinate.getLatitude(), homeCoordinate.getLongitude(), homeCoordinate.getElevation(),
+                                            .sendGPSSettingsSendControllerGPS(homeCoordinate.getLatitude(), homeCoordinate.getLongitude(), homeCoordinate.getAltitude(),
                                                                               horrizontalAccurancy, verticalAccurancy);
         Log.d("ARCONTROLLER_ERROR_ENUM", error.toString());
     }
@@ -368,32 +396,6 @@ public class AutonomController {
      */
     public void setMaxAltitude(float maxAltitude) {
         mDeviceController.getFeatureARDrone3().sendPilotingSettingsMaxAltitude(maxAltitude);
-    }
-
-    public void uploadFlyPlan (String localFilepath)
-    {
-        try {
-            String productIP = ((ARDiscoveryDeviceNetService)(deviceService.getDevice())).getIp();
-
-            ARUtilsManager ftpUploadManager = new ARUtilsManager();
-            //ARUtilsManager ftpQueueManager = new ARUtilsManager();
-
-            ftpUploadManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, "", "");
-            //ftpUploadManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, ARUtilsManager.FTP_ANONYMOUS, "");
-            //ftpQueueManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, ARUtilsManager.FTP_ANONYMOUS, "");
-
-            ARDataTransferManager dataTransferManager = new ARDataTransferManager();
-            ARDataTransferUploader uploader = dataTransferManager.getARDataTransferUploader();
-            ftpUploadManager = new ARUtilsManager();
-
-            final UploadListener listener = new UploadListener(null, uploader);
-            uploader.createUploader(ftpUploadManager, "flightPlan.mavlink", localFilepath, listener, null, listener, null, ARDATATRANSFER_UPLOADER_RESUME_ENUM.ARDATATRANSFER_UPLOADER_RESUME_FALSE);
-
-        } catch (ARUtilsException e) {
-            e.printStackTrace();
-        } catch (ARDataTransferException e) {
-            e.printStackTrace();
-        }
     }
 
     public boolean disconnect() {
@@ -415,21 +417,21 @@ public class AutonomController {
         return mFlyingState;
     }
 
-    public ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM getAutoFlyingState(){
+    public ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM getFlyPlanState() {
         return mAutoFlyingState;
     }
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#pause-a-flightplan
      */
-    public void pauseMavLinkFlyPlan(){
+    public void pauseAutonomousFlight(){
         mDeviceController.getFeatureCommon().sendMavlinkPause();
     }
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#stop-a-flightplan
      */
-    public void stopMavLinkFlyPlan(){
+    public void stopAutonomousFlight(){
         mDeviceController.getFeatureCommon().sendMavlinkStop();
     }
 
@@ -488,9 +490,9 @@ public class AutonomController {
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#start-a-flightplan
-     * @param filename
      */
-    public void startAutonomousFlight(String filename){
+    public void startAutonomousFlight(){
+        String filename = "";
         mDeviceController.getFeatureCommon().sendMavlinkStart(filename, ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_FLIGHTPLAN);
         Log.d(TAG,"sending autoFlight Mavlink file");
     }
@@ -614,10 +616,11 @@ public class AutonomController {
 
     //region notify listener block
     private void notifyConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        /*List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
         for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onDroneConnectionChanged(state);
-        }
+        }*/
+        mListeners.get(0).onDroneConnectionChanged(state);
     }
 
     private void notifyBatteryChanged(int battery) {
@@ -769,7 +772,7 @@ public class AutonomController {
         public void onStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARCONTROLLER_ERROR_ENUM error) {
             mState = newState;
             if (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(mState)) {
-                mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 1);
+                //mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 1);
             } else if (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED.equals(mState)) {
                 mSDCardModule.cancelGetFlightMedias();
             }

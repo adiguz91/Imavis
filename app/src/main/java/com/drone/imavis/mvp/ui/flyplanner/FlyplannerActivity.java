@@ -545,11 +545,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 // TODO!!!!
                                 GPSCoordinate droneCoordinate = new GPSCoordinate();
                                 GPSCoordinate pilotCoordinate = new GPSCoordinate();
-                                autonomController.SetHomeLocation(pilotCoordinate);
+                                autonomController.setHomeLocation(pilotCoordinate);
 
                                 String localFilepath = autonomController.generateMavlinkFile(new LatLng(46.62318659, 13.8429757), 1, 0); // alt 516
-                                autonomController.uploadFlyPlan(localFilepath);
-                                autonomController.autoFlight("flightPlan.mavlink");
+                                autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
+                                autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
 
                                 bebopDrone = new BebopDrone(context, drone);
                                 bebopDrone.addListener(mBebopListener);
