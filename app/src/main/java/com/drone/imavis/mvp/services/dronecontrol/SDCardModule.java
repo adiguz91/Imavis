@@ -23,6 +23,9 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * http://developer.parrot.com/docs/SDK3/#download-pictures-and-videos
+ */
 public class SDCardModule {
 
     private static final String TAG = "SDCardModule";

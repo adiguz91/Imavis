@@ -8,8 +8,8 @@ import android.util.Log;
 
 import com.drone.imavis.mvp.services.dronecontrol.SDCardModule;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
-import com.drone.imavis.mvp.util.EnvironmentExtended;
 import com.google.android.gms.maps.model.LatLng;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_EVENT_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR_ENUM;
@@ -22,8 +22,8 @@ import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTO
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_PICTUREFORMATCHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_AUTOWHITEBALANCESELECTION_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_PICTUREFORMATSELECTION_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEOFRAMERATE_FRAMERATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEORESOLUTIONS_TYPE_ENUM;
-import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEOSTABILIZATIONMODE_MODE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_ALERTSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM;
@@ -35,6 +35,8 @@ import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTST
 import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_WIFI_SECURITY_KEY_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_WIFI_SECURITY_TYPE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DICTIONARY_KEY_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_ERROR_ENUM;
@@ -66,7 +68,9 @@ import com.parrot.arsdk.arutils.ARUtilsException;
 import com.parrot.arsdk.arutils.ARUtilsManager;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -79,11 +83,14 @@ import static com.parrot.arsdk.arcontroller.ARControllerDictionary.ARCONTROLLER_
 // http://developer.parrot.com/docs/reference/bebop_2/index.html
 public class AutonomController {
 
+    // constants
+    public static final String DATE_FORMAT_ISO_8601 = "yyyy-mm-dd";
+    public static final String TIME_FORMAT_ISO_8601 = "hh:mm:ss";
     public static final String MAVLINK_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory().toString() + "/mavlink_files";
     private static final String TAG = "BebopDrone";
     private static final int FTP_FLIGHTPLAN = 61; //21
 
-    private final List<AutocomDroneControllerListener> mListeners;
+    private final List<AutonomousFlightControllerListener> mListeners;
     private final Handler mHandler;
 
     private ARDeviceController mDeviceController;
@@ -92,7 +99,6 @@ public class AutonomController {
     private ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM mFlyingState;
     private String mCurrentRunId;
     private ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM mAutoFlyingState;
-
     private ARDiscoveryDeviceService deviceService;
 
     public AutonomController(Context context, @NonNull ARDiscoveryDeviceService deviceService) {
@@ -149,11 +155,11 @@ public class AutonomController {
     }
 
     //region Listener functions
-    public void addListener(AutocomDroneControllerListener listener) {
+    public void addListener(AutonomousFlightControllerListener listener) {
         mListeners.add(listener);
     }
 
-    public void removeListener(AutocomDroneControllerListener listener) {
+    public void removeListener(AutonomousFlightControllerListener listener) {
         mListeners.remove(listener);
     }
     //endregion Listener
@@ -169,77 +175,198 @@ public class AutonomController {
         return success;
     }
 
-    public void SetMaxDistance(float maxDistance) {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#reboot
+     */
+    public void reboot() {
+        mDeviceController.getFeatureCommon().sendCommonReboot();
+    }
+
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#controller-gps-info
+     * @param latitude
+     * @param longitude
+     * @param altitude
+     * @param horizontal_accuracy
+     * @param vertical_accuracy
+     * @param north_speed
+     * @param east_speed
+     * @param down_speed
+     * @param timestamp
+     */
+    public void changeHomeLocation(double latitude, double longitude, float altitude, float horizontal_accuracy, float vertical_accuracy, float north_speed, float east_speed, float down_speed, double timestamp) {
+        mDeviceController.getFeatureControllerInfo().sendGps((double)latitude, (double)longitude, (float)altitude, (float)horizontal_accuracy, (float)vertical_accuracy, (float)north_speed, (float)east_speed, (float)down_speed, (double)timestamp);
+    }
+
+    public void setMaxDistance(float maxDistance) {
         //mDeviceController.getFeatureARDrone3().sendPilotingSettingsNoFlyOverMaxDistance((byte)shouldNotFlyOver);
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendPilotingSettingsMaxDistance(maxDistance);
         Log.d("ARCONTROLLER_ERROR_ENUM", error.toString());
     }
 
-    public void CancelMoveTo() {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#cancel-the-moveto
+     */
+    public void cancelMoveTo() {
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendPilotingCancelMoveTo();
     }
 
-    public void SetPictureFormat(ARCOMMANDS_ARDRONE3_PICTURESETTINGS_PICTUREFORMATSELECTION_TYPE_ENUM type) {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-picture-format
+     * @param type
+     */
+    public void setPictureFormat(ARCOMMANDS_ARDRONE3_PICTURESETTINGS_PICTUREFORMATSELECTION_TYPE_ENUM type) {
         mDeviceController.getFeatureARDrone3().sendPictureSettingsPictureFormatSelection(type);
     }
 
-    private void SetWitheBalanceMode(ARCOMMANDS_ARDRONE3_PICTURESETTINGS_AUTOWHITEBALANCESELECTION_TYPE_ENUM type) {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-white-balance-mode
+     * @param type
+     */
+    private void setWitheBalanceMode(ARCOMMANDS_ARDRONE3_PICTURESETTINGS_AUTOWHITEBALANCESELECTION_TYPE_ENUM type) {
         // auto
         mDeviceController.getFeatureARDrone3().sendPictureSettingsAutoWhiteBalanceSelection(type);
     }
 
-    public void StartTakingVideoOrPictures(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM record, int type, float interval) {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#record-a-video
+     * @param record
+     * @param type
+     * @param interval
+     */
+    public void recordVideoOrTakePictures(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM record, int type, float interval) {
         // if type == 0 == video else image
         if (type > 0)
-            SetTakePeriodicalPicture(true, interval);
+            setPictureInterval(true, interval);
         mDeviceController.getFeatureARDrone3().sendMediaRecordVideoV2(record); // start or stop
     }
 
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#enable-disable-video-streaming
+     * @param enable
+     */
     public void enableVideoStreaming(boolean enable) {
         // SET THE ELECTRIC FREQUENCY
         // SET THE ANTIFLICKERING MODE
         mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte)(enable ? 1:0));
     }
 
-    public void SetTakePeriodicalPicture(boolean enable, float interval) {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-timelapse-mode
+     * @param enable
+     * @param interval
+     */
+    public void setPictureInterval(boolean enable, float interval) {
         // bool enabled
         // Once it is configured, you can start/stop the timelapse with the RecordVideo command.
         mDeviceController.getFeatureARDrone3().sendPictureSettingsTimelapseSelection((byte)(enable ? 1:0), interval);
     }
 
-    public void LATER() {
-        // deviceController.getFeatureCommon().sendSettingsCountry((String)code);//SET THE COUNTRY - for WIFI frequency band
-        // deviceController.getFeatureCommon().sendSettingsAutoCountry((byte)automatic);
+    /**
+     * Set the country for WiFi frequency band
+     * Country code with ISO 3166 format
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-the-country
+     * @param countryCode
+     */
+    public void setWifiSettingsCountry(String countryCode) {
+        mDeviceController.getFeatureCommon().sendSettingsCountry(countryCode);
+    }
+
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#enable-auto-country
+     * @param automatic
+     */
+    public void setWifiSettingsAutoCountry(boolean automatic) {
+        mDeviceController.getFeatureCommon().sendSettingsAutoCountry((byte)(automatic ? 1:0));
+    }
+
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-the-wifi-security
+     * @param type
+     * @param key
+     * @param keyType
+     */
+    public void setWifiSecurity(ARCOMMANDS_WIFI_SECURITY_TYPE_ENUM type, String key, ARCOMMANDS_WIFI_SECURITY_KEY_TYPE_ENUM keyType) {
+        mDeviceController.getFeatureWifi().sendSetSecurity(type, key, keyType);
+    }
+
+    /**
+     * DateTime with ISO-8601 format
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-the-date
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-the-time
+     * @param dateTime
+     */
+    public void setCurrentDateTime(Date dateTime) {
+        String date = new SimpleDateFormat(DATE_FORMAT_ISO_8601).format(dateTime);
+        String time = new SimpleDateFormat(TIME_FORMAT_ISO_8601).format(dateTime);
 
         // will be used to save it to the picture - NOT SEND WHEN USING libARController
-        // deviceController.getFeatureCommon().sendCommonCurrentDate((String)date);
-        // deviceController.getFeatureCommon().sendCommonCurrentTime((String)time)
-
-        // deviceController.getFeatureWifi().sendSetSecurity((ARCOMMANDS_WIFI_SECURITY_TYPE_ENUM)type, (String)key, (ARCOMMANDS_WIFI_SECURITY_KEY_TYPE_ENUM)key_type);
+        mDeviceController.getFeatureCommon().sendCommonCurrentDate(date);
+        mDeviceController.getFeatureCommon().sendCommonCurrentTime(time);
     }
 
-    public void SetStreamingSettings(ARCOMMANDS_ARDRONE3_MEDIASTREAMING_VIDEOSTREAMMODE_MODE_ENUM mode, ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEORESOLUTIONS_TYPE_ENUM type) {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-the-stream-mode
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-video-resolutions
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-video-framerate
+     * @param mode
+     * @param type
+     */
+    public void setStreamingSettings(ARCOMMANDS_ARDRONE3_MEDIASTREAMING_VIDEOSTREAMMODE_MODE_ENUM mode,
+                                     ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEORESOLUTIONS_TYPE_ENUM type,
+                                     ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEOFRAMERATE_FRAMERATE_ENUM frameRate) {
         mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoStreamMode(mode);
         mDeviceController.getFeatureARDrone3().sendPictureSettingsVideoResolutions(type);
+        mDeviceController.getFeatureARDrone3().sendPictureSettingsVideoFramerate(frameRate);
     }
 
-    public void SetAutoReturnHomeDelay(short delay) {
-        mDeviceController.getFeatureARDrone3().sendGPSSettingsReturnHomeDelay(delay);
+    /**
+     * Starts on autonomous flight
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-video-autorecord-mode
+     * @param enableAutoRecord
+     * @param autoRecordMassStorageId
+     */
+    public void enableAutoVideoRecord(boolean enableAutoRecord, byte autoRecordMassStorageId) {
+        mDeviceController.getFeatureARDrone3().sendPictureSettingsVideoAutorecordSelection((byte)(enableAutoRecord ? 1:0), autoRecordMassStorageId);
     }
 
-    public void SetHomeLocation(GPSCoordinate pilotCoordinate) {
-        // used for gps fix
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-the-return-home-delay
+     * @param delayInSecond
+     */
+    public void setReturnHomeDelayAfterDisconnect(short delayInSecond) {
+        mDeviceController.getFeatureARDrone3().sendGPSSettingsReturnHomeDelay(delayInSecond);
+    }
+
+    /**
+     * Used for gps fix,
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-controller-gps-location
+     * @param homeCoordinate
+     */
+    public void setHomeLocation(GPSCoordinate homeCoordinate) {
+
         double horrizontalAccurancy = -1;
         double verticalAccurancy = -1;
         // TODO: altitude
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3()
-                                            .sendGPSSettingsSendControllerGPS(pilotCoordinate.getLatitude(), pilotCoordinate.getLongitude(), pilotCoordinate.getElevation(),
+                                            .sendGPSSettingsSendControllerGPS(homeCoordinate.getLatitude(), homeCoordinate.getLongitude(), homeCoordinate.getElevation(),
                                                                               horrizontalAccurancy, verticalAccurancy);
-        //mDeviceController.getFeatureCommon().sendGPSControllerPositionForRun(lat, lng);
         Log.d("ARCONTROLLER_ERROR_ENUM", error.toString());
     }
 
-    public void SetMaxAltitude(float maxAltitude) {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-the-preferred-home-type
+     * @param type
+     */
+    public void setHomeType(ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM type) {
+        mDeviceController.getFeatureARDrone3().sendGPSSettingsHomeType(type);
+    }
+
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-max-altitude
+     * @param maxAltitude
+     */
+    public void setMaxAltitude(float maxAltitude) {
         mDeviceController.getFeatureARDrone3().sendPilotingSettingsMaxAltitude(maxAltitude);
     }
 
@@ -292,20 +419,34 @@ public class AutonomController {
         return mAutoFlyingState;
     }
 
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#pause-a-flightplan
+     */
     public void pauseMavLinkFlyPlan(){
         mDeviceController.getFeatureCommon().sendMavlinkPause();
     }
 
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#stop-a-flightplan
+     */
     public void stopMavLinkFlyPlan(){
         mDeviceController.getFeatureCommon().sendMavlinkStop();
     }
 
-    public void SetReturnHomeOnDisconnectFlyPlan(boolean enable) {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#set-returnhome-behavior-during-flightplan
+     * @param enable
+     */
+    public void setReturnHomeOnDisconnect(boolean enable) {
         // delay have to been set
         mDeviceController.getFeatureCommon().sendFlightPlanSettingsReturnHomeOnDisconnect((byte)(enable?1:0));
     }
 
-    public void Calibration(boolean start) {
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#start-abort-magnetometer-calibration
+     * @param start
+     */
+    public void calibration(boolean start) {
         mDeviceController.getFeatureCommon().sendCalibrationMagnetoCalibration((byte)(start?1:0));
     }
 
@@ -345,20 +486,19 @@ public class AutonomController {
         return filename;
     }
 
-    public void autoFlight(String filename){
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#start-a-flightplan
+     * @param filename
+     */
+    public void startAutonomousFlight(String filename){
         mDeviceController.getFeatureCommon().sendMavlinkStart(filename, ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_FLIGHTPLAN);
         Log.d(TAG,"sending autoFlight Mavlink file");
     }
 
+    /*
     public void takeOff() {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().sendPilotingTakeOff();
-        }
-    }
-
-    public void land() {
-        if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
-            mDeviceController.getFeatureARDrone3().sendPilotingLanding();
         }
     }
 
@@ -367,13 +507,27 @@ public class AutonomController {
             mDeviceController.getFeatureARDrone3().sendPilotingEmergency();
         }
     }
+    */
 
-    public void home(){
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#land
+     */
+    public void land() {
+        if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
+            mDeviceController.getFeatureARDrone3().sendPilotingLanding();
+        }
+    }
+
+    /**
+     * http://developer.parrot.com/docs/reference/bebop_2/#return-home
+     */
+    public void returnHome(){
         if ((mDeviceController != null) || (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().sendPilotingNavigateHome((byte) 1);
         }
     }
 
+    /*
     public void takePicture() {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().sendMediaRecordPictureV2();
@@ -412,6 +566,7 @@ public class AutonomController {
             mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag(flag);
         }
     }
+    */
 
     public void getLastFlightMedias() {
         String runId = mCurrentRunId;
@@ -459,120 +614,120 @@ public class AutonomController {
 
     //region notify listener block
     private void notifyConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onDroneConnectionChanged(state);
         }
     }
 
     private void notifyBatteryChanged(int battery) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onBatteryChargeChanged(battery);
         }
     }
 
     private void notifyPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onPilotingStateChanged(state);
         }
     }
 
     private void notifyAutoStateChange(ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM state) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onAutoStateChanged(state);
         }
     }
 
     private void notifyPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onPictureTaken(error);
         }
     }
 
     private void notifyConfigureDecoder(ARControllerCodec codec) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.configureDecoder(codec);
         }
     }
 
     private void notifyFrameReceived(ARFrame frame) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onFrameReceived(frame);
         }
     }
 
     private void notifyMatchingMediasFound(int nbMedias) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onMatchingMediasFound(nbMedias);
         }
     }
 
     private void notifyDownloadProgressed(String mediaName, int progress) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onDownloadProgressed(mediaName, progress);
         }
     }
 
     private void notifyDownloadComplete(String mediaName) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onDownloadComplete(mediaName);
         }
     }
 
     private void notifyGPSChange(double latitude, double longtitude, double altitude) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onGPSChange(latitude, longtitude, altitude);
         }
     }
 
     private void notifySpeedChange(float speedX, float speedY, float speedZ){
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onSpeedChange(speedX, speedY, speedZ);
         }
     }
 
     private void notifyAltitudeChange(double altitude){
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onAltitudeChange(altitude);
         }
     }
 
     private void notifyHomeReturn(double latitude, double longtitude, double altitude){
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onHomeReturn(latitude, longtitude, altitude);
         }
     }
 
     private void notifyAutoFlightPath(ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component, byte State){
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onFlightPath(component, State);
         }
     }
 
     private void notifyAvailabiltyState(byte availabilityState) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onAutoAvailableState(availabilityState);
         }
     }
 
     private void onUpdateBebopGpsSatellite(Integer gpsSatellite) {
-        List<AutocomDroneControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutocomDroneControllerListener listener : listenersCpy) {
+        List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
+        for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.numberOfSatellites(gpsSatellite);
         }
     }
