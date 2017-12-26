@@ -42,11 +42,12 @@ public interface AutonomousFlightOnCommandReceivedListener {
 
     void connect();
     void disconnect();
+
     ARCONTROLLER_DEVICE_STATE_ENUM getConnectionState();
     ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM getFlyingState();
     ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM getAutonomousFlyplanState();
-    void uploadFlyPlan();
 
+    void uploadFlyPlan();
     void pauseAutonomousFlight();
     void stopAutonomousFlight();
     void startAutonomousFlight();
