@@ -6,9 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,38 +17,26 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
-import com.appyvet.rangebar.IRangeBarFormatter;
-import com.appyvet.rangebar.RangeBar;
-import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.dronecontrol.BebopDrone;
 import com.drone.imavis.mvp.services.dronecontrol.BebopVideoView;
-import com.drone.imavis.mvp.services.dronecontrol.DeviceListActivity;
 import com.drone.imavis.mvp.services.dronecontrol.DroneDiscoverer;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
-import com.drone.imavis.mvp.ui.base.BaseFragment;
-import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
-import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
 import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
-import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.UnsubscribeIfPresent;
 import com.drone.imavis.mvp.util.dronecontroll.AutonomController;
 import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.github.jorgecastilloprz.listeners.FABProgressListener;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
-import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.parrot.arsdk.ARSDK;
@@ -59,7 +45,6 @@ import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATE
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARControllerCodec;
 import com.parrot.arsdk.arcontroller.ARFrame;
-import com.parrot.arsdk.ardatatransfer.ARDataTransferException;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.arsdk.arutils.ARUtilsException;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -537,7 +522,12 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 }
                             }
                             if(drone != null) {
-                                AutonomController autonomController = new AutonomController(context, drone);
+                                AutonomController autonomController = null;
+                                try {
+                                    autonomController = new AutonomController(context, drone);
+                                } catch (ARUtilsException e) {
+                                    e.printStackTrace();
+                                }
                                 autonomController.getConnectionState();
                                 autonomController.connect();
                                 //autonomController.takePicture();
