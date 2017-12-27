@@ -5,7 +5,6 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GP
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIASTREAMING_VIDEOSTREAMMODE_MODE_ENUM;
-import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_AUTOWHITEBALANCESELECTION_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_PICTUREFORMATSELECTION_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEOFRAMERATE_FRAMERATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEORESOLUTIONS_TYPE_ENUM;
@@ -55,8 +54,7 @@ public interface IAutonomousFlightController {
     //void calibrationAxisY();
     //void calibrationAxisZ();
 
-    void addListener(AutonomousFlightControllerListener listener);
-    void removeListener(AutonomousFlightControllerListener listener);
+    void setListener(AutonomousFlightControllerListener listener);
     void dispose();
     boolean connect();
     boolean disconnect();

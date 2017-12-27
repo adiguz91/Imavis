@@ -32,11 +32,10 @@ import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.UnsubscribeIfPresent;
-import com.drone.imavis.mvp.util.dronecontroll.AutonomController;
+import com.drone.imavis.mvp.util.dronecontroll.AutonomousFlightController;
 import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.github.jorgecastilloprz.listeners.FABProgressListener;
-import com.google.android.gms.maps.model.LatLng;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.parrot.arsdk.ARSDK;
@@ -522,9 +521,9 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 }
                             }
                             if(drone != null) {
-                                AutonomController autonomController = null;
+                                AutonomousFlightController autonomController = null;
                                 try {
-                                    autonomController = new AutonomController(context, drone);
+                                    autonomController = new AutonomousFlightController(context, drone);
                                 } catch (ARUtilsException e) {
                                     e.printStackTrace();
                                 }
@@ -537,7 +536,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 GPSCoordinate pilotCoordinate = new GPSCoordinate();
                                 autonomController.setHomeLocation(pilotCoordinate);
 
-                                String localFilepath = autonomController.generateMavlinkFile(new LatLng(46.62318659, 13.8429757), 1, 0); // alt 516
+                                String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
                                 autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
                                 autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
 

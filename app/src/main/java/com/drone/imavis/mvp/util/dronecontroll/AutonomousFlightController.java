@@ -9,7 +9,9 @@ import android.util.Log;
 import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.dronecontrol.SDCardModule;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
-import com.google.android.gms.maps.model.LatLng;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Nodes;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
@@ -50,16 +52,14 @@ import com.parrot.arsdk.arutils.ARUtilsManager;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by adigu on 14.09.2017.
  */
 
 // http://developer.parrot.com/docs/reference/bebop_2/index.html
-public class AutonomController implements IAutonomousFlightController {
+public class AutonomousFlightController implements IAutonomousFlightController {
 
     // constants
     public static final String DATE_FORMAT_ISO_8601 = "yyyy-mm-dd";
@@ -68,7 +68,7 @@ public class AutonomController implements IAutonomousFlightController {
     private static final String TAG = "BebopDrone";
     private static final int FTP_FLIGHTPLAN = 61; //21
 
-    private final List<AutonomousFlightControllerListener> mListeners;
+    private AutonomousFlightControllerListener mListener;
     private final Handler mHandler;
     private SDCardModule mSDCardModule;
     private ARUtilsManager mFtpUploadManager;
@@ -84,20 +84,19 @@ public class AutonomController implements IAutonomousFlightController {
     private int mBatteryStatus;
     private String mRunId;
     private boolean mCalibrationIsRequired;
-    private DroneDeviceControllerListener droneDeviceController;
+    private DroneDeviceControllerManager droneDeviceController;
 
-    public AutonomController(Context context, @NonNull ARDiscoveryDeviceService deviceService) throws ARUtilsException {
+    public AutonomousFlightController(Context context, @NonNull ARDiscoveryDeviceService deviceService) throws ARUtilsException {
 
         mFtpUploadManager = new ARUtilsManager();
         mFtpQueueManager = new ARUtilsManager();
         mDeviceService = deviceService;
-        mListeners = new ArrayList<>();
         // needed because some callbacks will be called on the main thread
         mHandler = new Handler(context.getMainLooper());
         mState = ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED;
 
         mSDCardModule = new SDCardModule(mFtpUploadManager, mFtpQueueManager);
-        droneDeviceController = new DroneDeviceControllerListener(context, mSDCardModule);
+        droneDeviceController = new DroneDeviceControllerManager(context, mSDCardModule);
 
         // if the product type of the deviceService match with the types supported
         ARDISCOVERY_PRODUCT_ENUM productType = ARDiscoveryService.getProductFromProductID(deviceService.getProductID());
@@ -120,12 +119,8 @@ public class AutonomController implements IAutonomousFlightController {
             mDeviceController.dispose();
     }
 
-    public void addListener(AutonomousFlightControllerListener listener) {
-        mListeners.add(listener);
-    }
-
-    public void removeListener(AutonomousFlightControllerListener listener) {
-        mListeners.remove(listener);
+    public void setListener(AutonomousFlightControllerListener listener) {
+        mListener = listener;
     }
 
     public boolean connect() {
@@ -421,25 +416,44 @@ public class AutonomController implements IAutonomousFlightController {
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureCommon().sendCalibrationMagnetoCalibration((byte)(start?1:0));
     }
 
-    public String generateMavlinkFile(LatLng position, float altitude, float yaw) {
+    public String generateMavlinkFile(Nodes nodes, short delayBeforStart) {
+
+        if (nodes.getWaypoints() == null || nodes.getWaypoints().size() == 0) {
+            return null;
+        }
 
         final ARMavlinkFileGenerator generator;
 
         try {
             generator = new ARMavlinkFileGenerator();
         } catch (ARMavlinkException e) {
-            //Log.e(Tag, "generateMavlinkFile: " + e.getMessage(), e);
-            return "";
+            return null;
         }
 
-        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkDelay(10));
-        // Take off coordinates
-        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float) position.latitude, (float) position.longitude, altitude, yaw, 0));
-        // Way points - coordinates to travel
-        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkNavWaypointMissionItem((float) position.latitude + 0.00002000f, (float) position.longitude + 0.00002000f, altitude, yaw));
-        // Landing coordinates
-        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float) position.latitude,(float) position.longitude, 0, 0));
-        //lat,long,alt,yaw
+        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkDelay(delayBeforStart));
+
+        if (nodes.getWaypoints().size() <= 2) {
+            GPSCoordinate takeOff = new GPSCoordinate(); // TODO nodes.getWaypoints().getFirst();
+            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float)takeOff.getLatitude(), (float)takeOff.getLongitude(), (float)takeOff.getAltitude(), 0, 0));
+            nodes.getWaypoints().getFirst();
+            GPSCoordinate landing = new GPSCoordinate(); // TODO nodes.getWaypoints().getLast();
+            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float)landing.getLatitude(), (float)landing.getLongitude(), (float)landing.getAltitude(), 0));
+        }
+
+        int count = 0;
+        for (Waypoint waypoint : nodes.getWaypoints()) {
+            if ((0 < count) && (count < (nodes.getWaypoints().size() - 1))) {
+                // convert coordinate to gpsCoordinates waypoint.getShape().getCoordinate(); lat == y; lng == x; alt == z
+                GPSCoordinate gpsCoordinate = new GPSCoordinate();
+                generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkNavWaypointMissionItem((float)gpsCoordinate.getLatitude(), (float)gpsCoordinate.getLongitude(), (float)gpsCoordinate.getAltitude(), 0));
+
+                if (((WaypointData)waypoint.getData()).getPoi() != null) {
+                    //generator.GetCurrentMissionItemList().getMissionItem(count).
+                    // TODO
+                }
+            }
+            count++;
+        }
 
         // save our mavlink file
         //final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.MAVLINK_STORAGE_DIRECTORY));
@@ -542,71 +556,71 @@ public class AutonomController implements IAutonomousFlightController {
         for (AutonomousFlightControllerListener listener : listenersCpy) {
             listener.onDroneConnectionChanged(state);
         }*/
-        mListeners.get(0).onDroneConnectionChanged(state);
+        mListener.onDroneConnectionChanged(state);
     }
 
     private void notifyBatteryChanged(int battery) {
-        mListeners.get(0).onBatteryChargeChanged(battery);
+        mListener.onBatteryChargeChanged(battery);
     }
 
     private void notifyPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-        mListeners.get(0).onPilotingStateChanged(state);
+        mListener.onPilotingStateChanged(state);
     }
 
     private void notifyAutoStateChange(ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM state) {
-        mListeners.get(0).onAutoStateChanged(state);
+        mListener.onAutoStateChanged(state);
     }
 
     private void notifyPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-        mListeners.get(0).onPictureTaken(error);
+        mListener.onPictureTaken(error);
     }
 
     private void notifyConfigureDecoder(ARControllerCodec codec) {
-        mListeners.get(0).configureDecoder(codec);
+        mListener.configureDecoder(codec);
     }
 
     private void notifyFrameReceived(ARFrame frame) {
-        mListeners.get(0).onFrameReceived(frame);
+        mListener.onFrameReceived(frame);
     }
 
     private void notifyMatchingMediasFound(int nbMedias) {
-        mListeners.get(0).onMatchingMediasFound(nbMedias);
+        mListener.onMatchingMediasFound(nbMedias);
     }
 
     private void notifyDownloadProgressed(String mediaName, int progress) {
-        mListeners.get(0).onDownloadProgressed(mediaName, progress);
+        mListener.onDownloadProgressed(mediaName, progress);
     }
 
     private void notifyDownloadComplete(String mediaName) {
-        mListeners.get(0).onDownloadComplete(mediaName);
+        mListener.onDownloadComplete(mediaName);
     }
 
     private void notifyGPSChange(double latitude, double longtitude, double altitude) {
-        mListeners.get(0).onGPSChange(latitude, longtitude, altitude);
+        mListener.onGPSChange(latitude, longtitude, altitude);
     }
 
     private void notifySpeedChange(float speedX, float speedY, float speedZ){
-        mListeners.get(0).onSpeedChange(speedX, speedY, speedZ);
+        mListener.onSpeedChange(speedX, speedY, speedZ);
     }
 
     private void notifyAltitudeChange(double altitude){
-        mListeners.get(0).onAltitudeChange(altitude);
+        mListener.onAltitudeChange(altitude);
     }
 
     private void notifyHomeReturn(double latitude, double longtitude, double altitude){
-        mListeners.get(0).onHomeReturn(latitude, longtitude, altitude);
+        mListener.onHomeReturn(latitude, longtitude, altitude);
     }
 
     private void notifyAutoFlightPath(ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component, byte State){
-        mListeners.get(0).onFlightPath(component, State);
+        mListener.onFlightPath(component, State);
     }
 
     private void notifyAvailabiltyState(byte availabilityState) {
-        mListeners.get(0).onAutoAvailableState(availabilityState);
+        mListener.onAutoAvailableState(availabilityState);
     }
 
     private void onUpdateBebopGpsSatellite(Integer gpsSatellite) {
-        mListeners.get(0).numberOfSatellites(gpsSatellite);
+        mListener.numberOfSatellites(gpsSatellite);
     }
 
     private final ARDeviceControllerStreamListener mStreamListener = new ARDeviceControllerStreamListener() {
