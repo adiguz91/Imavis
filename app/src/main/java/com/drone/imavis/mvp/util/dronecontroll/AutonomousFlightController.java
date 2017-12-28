@@ -12,17 +12,36 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GP
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Nodes;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointMode;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGSSTATE_HOMETYPECHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIASTREAMINGSTATE_VIDEOENABLECHANGED_ENABLED_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIASTREAMING_VIDEOSTREAMMODE_MODE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_PICTUREFORMATCHANGED_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEOFRAMERATECHANGED_FRAMERATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEORESOLUTIONSCHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_AUTOWHITEBALANCESELECTION_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_PICTUREFORMATSELECTION_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEOFRAMERATE_FRAMERATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEORESOLUTIONS_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_ORIENTATION_MODE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_STATUS_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORLASTERRORCHANGED_MOTORERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORSTATECHANGED_MOTORERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_WIFI_SECURITY_KEY_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_WIFI_SECURITY_TYPE_ENUM;
@@ -47,19 +66,22 @@ import com.parrot.arsdk.ardiscovery.ARDiscoveryService;
 import com.parrot.arsdk.armavlink.ARMavlinkException;
 import com.parrot.arsdk.armavlink.ARMavlinkFileGenerator;
 import com.parrot.arsdk.armavlink.ARMavlinkMissionItem;
+import com.parrot.arsdk.armavlink.MAV_ROI;
 import com.parrot.arsdk.arutils.ARUtilsException;
 import com.parrot.arsdk.arutils.ARUtilsManager;
 
 import java.io.File;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by adigu on 14.09.2017.
  */
 
 // http://developer.parrot.com/docs/reference/bebop_2/index.html
-public class AutonomousFlightController implements IAutonomousFlightController {
+public class AutonomousFlightController implements IAutonomousFlightController, DroneDeviceControllerListener {
 
     // constants
     public static final String DATE_FORMAT_ISO_8601 = "yyyy-mm-dd";
@@ -67,6 +89,18 @@ public class AutonomousFlightController implements IAutonomousFlightController {
     public static final String MAVLINK_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory().toString() + "/mavlink_files";
     private static final String TAG = "BebopDrone";
     private static final int FTP_FLIGHTPLAN = 61; //21
+
+    private SimpleDateFormat formatterISO8601;
+
+    private String mCurrentDate;
+    private String mCurrentTime;
+    private boolean mIsChangedCurrentDate;
+    private boolean mIsChangedCurrentTime;
+
+    private boolean mIsChangedPictureAndVideoFramerate;
+    private boolean mIsChangedPictureAndVideoResolution;
+    private ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEORESOLUTIONSCHANGED_TYPE_ENUM mPictureAndVideoResolutionType;
+    private ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEOFRAMERATECHANGED_FRAMERATE_ENUM mPictureAndVideoFramerateType;
 
     private AutonomousFlightControllerListener mListener;
     private final Handler mHandler;
@@ -87,6 +121,8 @@ public class AutonomousFlightController implements IAutonomousFlightController {
     private DroneDeviceControllerManager droneDeviceController;
 
     public AutonomousFlightController(Context context, @NonNull ARDiscoveryDeviceService deviceService) throws ARUtilsException {
+
+        formatterISO8601 = new SimpleDateFormat(DATE_FORMAT_ISO_8601 + " " + TIME_FORMAT_ISO_8601);
 
         mFtpUploadManager = new ARUtilsManager();
         mFtpQueueManager = new ARUtilsManager();
@@ -111,6 +147,46 @@ public class AutonomousFlightController implements IAutonomousFlightController {
         else {
             Log.e(TAG, "DeviceService type is not supported by BebopDrone");
         }
+    }
+
+    private Date getDateTimeFromString(String source) {
+        Date dateTime = null;
+        try {
+            dateTime = formatterISO8601.parse(source);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return dateTime;
+    }
+
+    private ARDiscoveryDevice createDiscoveryDevice(@NonNull ARDiscoveryDeviceService service, ARDISCOVERY_PRODUCT_ENUM productType) {
+        ARDiscoveryDevice device = null;
+        try {
+            device = new ARDiscoveryDevice();
+
+            ARDiscoveryDeviceNetService netDeviceService = (ARDiscoveryDeviceNetService) service.getDevice();
+            device.initWifi(productType, netDeviceService.getName(), netDeviceService.getIp(), netDeviceService.getPort());
+
+        } catch (ARDiscoveryException e) {
+            Log.e(TAG, "Exception", e);
+            Log.e(TAG, "Error: " + e.getError());
+        }
+
+        return device;
+    }
+
+    private ARDeviceController createDeviceController(@NonNull ARDiscoveryDevice discoveryDevice) {
+        ARDeviceController deviceController = null;
+        try {
+            deviceController = new ARDeviceController(discoveryDevice);
+
+            deviceController.addListener(droneDeviceController.getDeviceControllerListener());
+            deviceController.addStreamListener(mStreamListener);
+        } catch (ARControllerException e) {
+            //Log.e(TAG, "Exception", e);
+        }
+
+        return deviceController;
     }
 
     public void dispose()
@@ -280,6 +356,9 @@ public class AutonomousFlightController implements IAutonomousFlightController {
      * @param dateTime
      */
     public void setCurrentDateTime(Date dateTime) {
+        mIsChangedCurrentDate = false;
+        mIsChangedCurrentTime = false;
+
         String date = new SimpleDateFormat(DATE_FORMAT_ISO_8601).format(dateTime);
         String time = new SimpleDateFormat(TIME_FORMAT_ISO_8601).format(dateTime);
 
@@ -296,6 +375,9 @@ public class AutonomousFlightController implements IAutonomousFlightController {
      */
     public void setPictureAndVideoSettings(ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEORESOLUTIONS_TYPE_ENUM type,
                                      ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEOFRAMERATE_FRAMERATE_ENUM frameRate) {
+        mIsChangedPictureAndVideoFramerate = false;
+        mIsChangedPictureAndVideoResolution = false;
+
         ARCONTROLLER_ERROR_ENUM error1 = mDeviceController.getFeatureARDrone3().sendPictureSettingsVideoResolutions(type);
         ARCONTROLLER_ERROR_ENUM error2 = mDeviceController.getFeatureARDrone3().sendPictureSettingsVideoFramerate(frameRate);
     }
@@ -449,7 +531,14 @@ public class AutonomousFlightController implements IAutonomousFlightController {
 
                 if (((WaypointData)waypoint.getData()).getPoi() != null) {
                     //generator.GetCurrentMissionItemList().getMissionItem(count).
-                    // TODO
+                    GPSCoordinate poiCoordinate = new GPSCoordinate();
+                    // TODO ROI and SetViewMode
+                    if (((WaypointData) waypoint.getData()).getMode() == WaypointMode.Progressive) {
+                        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkSetROI(MAV_ROI.MAV_ROI_WPNEXT, 0, 0, 0, 0, 0));
+                    }
+                    else {
+                        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkSetROI(MAV_ROI.MAV_ROI_LOCATION, 0, 0, (float)poiCoordinate.getLatitude(), (float)poiCoordinate.getLongitude(), (float)poiCoordinate.getAltitude()));
+                    }
                 }
             }
             count++;
@@ -520,123 +609,238 @@ public class AutonomousFlightController implements IAutonomousFlightController {
         mSDCardModule.cancelGetFlightMedias();
     }
 
-    private ARDiscoveryDevice createDiscoveryDevice(@NonNull ARDiscoveryDeviceService service, ARDISCOVERY_PRODUCT_ENUM productType) {
-        ARDiscoveryDevice device = null;
-        try {
-            device = new ARDiscoveryDevice();
-
-            ARDiscoveryDeviceNetService netDeviceService = (ARDiscoveryDeviceNetService) service.getDevice();
-            device.initWifi(productType, netDeviceService.getName(), netDeviceService.getIp(), netDeviceService.getPort());
-
-        } catch (ARDiscoveryException e) {
-            Log.e(TAG, "Exception", e);
-            Log.e(TAG, "Error: " + e.getError());
-        }
-
-        return device;
-    }
-
-    private ARDeviceController createDeviceController(@NonNull ARDiscoveryDevice discoveryDevice) {
-        ARDeviceController deviceController = null;
-        try {
-            deviceController = new ARDeviceController(discoveryDevice);
-
-            deviceController.addListener(droneDeviceController.getDeviceControllerListener());
-            deviceController.addStreamListener(mStreamListener);
-        } catch (ARControllerException e) {
-            //Log.e(TAG, "Exception", e);
-        }
-
-        return deviceController;
-    }
-
-    //region notify listener block
-    private void notifyConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-        /*List<AutonomousFlightControllerListener> listenersCpy = new ArrayList<>(mListeners);
-        for (AutonomousFlightControllerListener listener : listenersCpy) {
-            listener.onDroneConnectionChanged(state);
-        }*/
-        mListener.onDroneConnectionChanged(state);
-    }
-
-    private void notifyBatteryChanged(int battery) {
-        mListener.onBatteryChargeChanged(battery);
-    }
-
-    private void notifyPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-        mListener.onPilotingStateChanged(state);
-    }
-
-    private void notifyAutoStateChange(ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM state) {
-        mListener.onAutoStateChanged(state);
-    }
-
-    private void notifyPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-        mListener.onPictureTaken(error);
-    }
-
-    private void notifyConfigureDecoder(ARControllerCodec codec) {
-        mListener.configureDecoder(codec);
-    }
-
-    private void notifyFrameReceived(ARFrame frame) {
-        mListener.onFrameReceived(frame);
-    }
-
-    private void notifyMatchingMediasFound(int nbMedias) {
-        mListener.onMatchingMediasFound(nbMedias);
-    }
-
-    private void notifyDownloadProgressed(String mediaName, int progress) {
-        mListener.onDownloadProgressed(mediaName, progress);
-    }
-
-    private void notifyDownloadComplete(String mediaName) {
-        mListener.onDownloadComplete(mediaName);
-    }
-
-    private void notifyGPSChange(double latitude, double longtitude, double altitude) {
-        mListener.onGPSChange(latitude, longtitude, altitude);
-    }
-
-    private void notifySpeedChange(float speedX, float speedY, float speedZ){
-        mListener.onSpeedChange(speedX, speedY, speedZ);
-    }
-
-    private void notifyAltitudeChange(double altitude){
-        mListener.onAltitudeChange(altitude);
-    }
-
-    private void notifyHomeReturn(double latitude, double longtitude, double altitude){
-        mListener.onHomeReturn(latitude, longtitude, altitude);
-    }
-
-    private void notifyAutoFlightPath(ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component, byte State){
-        mListener.onFlightPath(component, State);
-    }
-
-    private void notifyAvailabiltyState(byte availabilityState) {
-        mListener.onAutoAvailableState(availabilityState);
-    }
-
-    private void onUpdateBebopGpsSatellite(Integer gpsSatellite) {
-        mListener.numberOfSatellites(gpsSatellite);
-    }
+    // ################################
 
     private final ARDeviceControllerStreamListener mStreamListener = new ARDeviceControllerStreamListener() {
         @Override
         public ARCONTROLLER_ERROR_ENUM configureDecoder(ARDeviceController deviceController, final ARControllerCodec codec) {
-            notifyConfigureDecoder(codec);
+            //notifyConfigureDecoder(codec);
             return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
         }
 
         @Override
         public ARCONTROLLER_ERROR_ENUM onFrameReceived(ARDeviceController deviceController, final ARFrame frame) {
-            notifyFrameReceived(frame);
+            //notifyFrameReceived(frame);
             return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
         }
 
         @Override
         public void onFrameTimeout(ARDeviceController deviceController) {}
     };
+
+    // ####################################################
+    // Listener begin
+
+    public void notifyMatchingMediasFoundChanged(int numberOfMedias) {
+        mListener.notifyMatchingMediasFoundChanged(numberOfMedias);
+    }
+
+    public void notifyDownloadProgressedChanged(String mediaName, int progress) {
+        mListener.notifyDownloadProgressedChanged(mediaName, progress);
+    }
+
+    public void notifyDownloadCompleteChanged(String mediaName) {
+        mListener.notifyDownloadCompleteChanged(mediaName);
+    }
+
+    public void notifyConnectionStateChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
+        mListener.notifyConnectionStateChanged(state);
+    }
+
+    public void notifyBatteryProgressChanged(int batteryProgress) {
+        mListener.notifyBatteryProgressChanged(batteryProgress);
+    }
+
+    public void notifyMaxDistanceChanged(float current, float min, float max) {
+        mListener.notifyMaxDistanceChanged(current, min, max);
+    }
+
+    public void notifyMoveToChanged(GPSCoordinate location, float heading, ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_ORIENTATION_MODE_ENUM orientationMode, ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_STATUS_ENUM status) {
+        mListener.notifyMoveToChanged(location, heading, orientationMode, status);
+    }
+
+    public void notifyCurrentDateChanged(String date) {
+        mCurrentDate = date;
+        mIsChangedCurrentDate = true;
+        if (mIsChangedCurrentTime) {
+            mListener.notifyCurrentDateTimeChanged(getDateTimeFromString(mCurrentDate + " " + mCurrentTime));
+        }
+    }
+
+    public void notifyCurrentTimeChanged(String time) {
+        mCurrentTime = time;
+        mIsChangedCurrentTime = true;
+        if (mIsChangedCurrentDate) {
+            mListener.notifyCurrentDateTimeChanged(getDateTimeFromString(mCurrentDate + " " + mCurrentTime));
+        }
+    }
+
+    public void notifyPictureAndVideoResolutionChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEORESOLUTIONSCHANGED_TYPE_ENUM type) {
+        mPictureAndVideoResolutionType = type;
+        mIsChangedPictureAndVideoResolution = true;
+        if (mIsChangedPictureAndVideoFramerate) {
+            mListener.notifyPictureAndVideoSettingsChanged(mPictureAndVideoResolutionType, mPictureAndVideoFramerateType);
+        }
+    }
+
+    public void notifyPictureAndVideoFramerateChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEOFRAMERATECHANGED_FRAMERATE_ENUM framerate) {
+        mPictureAndVideoFramerateType = framerate;
+        mIsChangedPictureAndVideoFramerate = true;
+        if (mIsChangedPictureAndVideoResolution) {
+            mListener.notifyPictureAndVideoSettingsChanged(mPictureAndVideoResolutionType, mPictureAndVideoFramerateType);
+        }
+    }
+
+    public void notifyAutoVideoRecordStatusChanged(boolean enabled, byte massStorageId) {
+        mListener.notifyAutoVideoRecordStatusChanged(enabled, massStorageId);
+    }
+
+    public void notifyReturnHomeDelayAfterDisconnectChanged(short delay) {
+        mListener.notifyReturnHomeDelayAfterDisconnectChanged(delay);
+    }
+
+    public void notifyHomeTypeChanged(ARCOMMANDS_ARDRONE3_GPSSETTINGSSTATE_HOMETYPECHANGED_TYPE_ENUM type) {
+        mListener.notifyHomeTypeChanged(type);
+    }
+
+    public void notifyReturnHomeOnDisconnectStatusChanged(boolean enabled, boolean isReadOnly) {
+        mListener.notifyReturnHomeOnDisconnectStatusChanged(enabled, isReadOnly);
+    }
+
+    public void notifyWifiSettingsCountryChanged(String countryCode) {
+        mListener.notifyWifiSettingsCountryChanged(countryCode);
+    }
+
+    public void notifyWifiSettingsAutoCountryStatusChanged(boolean automatic) {
+        mListener.notifyWifiSettingsAutoCountryStatusChanged(automatic);
+    }
+
+    public void notifyWifiSecurityChanged(String key, ARCOMMANDS_WIFI_SECURITY_TYPE_ENUM keyType) {
+        mListener.notifyWifiSecurityChanged(key, keyType);
+    }
+
+    public void notifyVideoStreamingStatusChanged(ARCOMMANDS_ARDRONE3_MEDIASTREAMINGSTATE_VIDEOENABLECHANGED_ENABLED_ENUM enabledStatus) {
+        mListener.notifyVideoStreamingStatusChanged(enabledStatus);
+    }
+
+    public void notifyMassStorageContentChanged(Map<Byte, Short> massContentTypeCount) {
+        mListener.notifyMassStorageContentChanged(massContentTypeCount);
+    }
+
+    public void notifyReturnHomeStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM state, ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM reason) {
+        mListener.notifyReturnHomeStateChanged(state, reason);
+    }
+
+    public void notifyFlyingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
+        mListener.notifyFlyingStateChanged(state);
+        // TODO LOCAL VARIABLE?
+    }
+
+    public void notifyPictureStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_STATE_ENUM state, ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR_ENUM error) {
+        mListener.notifyPictureStateChanged(state, error);
+    }
+
+    public void notifyRecordVideoOrTakePicturesStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state, ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_ERROR_ENUM error) {
+        mListener.notifyRecordVideoOrTakePicturesStateChanged(state, error);
+    }
+
+    public void notifyPictureTakenChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
+        mListener.notifyPictureTakenChanged(error);
+    }
+
+    public void notifyCurrentRunIdChanged(String runId) {
+        mListener.notifyCurrentRunIdChanged(runId);
+    }
+
+    public void notifySpeedChanged(float speedX, float speedY, float speedZ) {
+        mListener.notifySpeedChanged(speedX, speedY, speedZ);
+    }
+
+    public void notifyDroneLocationChanged(GPSCoordinate location, byte latitudeAccuracy, byte longitudeAccuracy, byte altitudeAccuracy) {
+        mListener.notifyDroneLocationChanged(location, latitudeAccuracy, longitudeAccuracy, altitudeAccuracy);
+    }
+
+    public void notifyMaxAltitudeChanged(float current, float min, float max) {
+        mListener.notifyMaxAltitudeChanged(current, min, max);
+    }
+
+    public void notifyMotorErrorChanged(byte motorIds, ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORSTATECHANGED_MOTORERROR_ENUM motorError) {
+        mListener.notifyMotorErrorChanged(motorIds, motorError);
+    }
+
+    public void notifyPictureFormatChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_PICTUREFORMATCHANGED_TYPE_ENUM type) {
+        mListener.notifyPictureFormatChanged(type);
+    }
+
+    public void notifyWitheBalanceModeChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE_ENUM type) {
+        //mListener.notifyWitheBalanceModeChanged(type);
+        throw new UnsupportedOperationException();
+    }
+
+    public void notifyPictureIntervalChanged(boolean enabled, float interval, float minInterval, float maxInterval) {
+        mListener.notifyPictureIntervalChanged(enabled, interval, minInterval, maxInterval);
+    }
+
+    public void notifyHomeLocationChanged(boolean isFixed) {
+        mListener.notifyHomeLocationChanged(isFixed);
+    }
+
+    public void notifyMotorFlightStatusChanged(short numberOfFlights, short lastFlightDuration, int totalFlightDuration) {
+        mListener.notifyMotorFlightStatusChanged(numberOfFlights, lastFlightDuration, totalFlightDuration);
+    }
+
+    public void notifyLastMotorErrorChanged(ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORLASTERRORCHANGED_MOTORERROR_ENUM motorError) {
+        mListener.notifyLastMotorErrorChanged(motorError);
+    }
+
+    public void notifyGeofencingChanged(boolean shouldNotFlyOver) {
+        mListener.notifyGeofencingChanged(shouldNotFlyOver);
+    }
+
+    public void notifyAltitudeChanged(double altitude) {
+        mListener.notifyAltitudeChanged(altitude);
+    }
+
+    public void notifyHomeLocationChanged(GPSCoordinate location) {
+        mListener.notifyHomeLocationChanged(location);
+    }
+
+    public void notifyFlightPlanComponentStateListChanged(ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component, boolean state) {
+        mListener.notifyFlightPlanComponentStateListChanged(component, state);
+    }
+
+    public void notifyFlightPlanAvailabilityStateChanged(boolean state) {
+        mListener.notifyFlightPlanAvailabilityStateChanged(state);
+    }
+
+    public void notifyAutonomousFlightChanged(ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM state, ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_TYPE_ENUM type, String filepath) {
+        mListener.notifyAutonomousFlightChanged(state, type, filepath);
+    }
+
+    public void notifyCalibrationRequiredChanged(boolean isRequired) {
+        mListener.notifyCalibrationRequiredChanged(isRequired);
+    }
+
+    public void notifyCalibrationAxisChanged(ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM axis) {
+        mListener.notifyCalibrationAxisChanged(axis);
+    }
+
+    public void notifyCalibrationStateChanged(boolean started) {
+        mListener.notifyCalibrationStateChanged(started);
+    }
+
+    public void notifyCalibrationAxisStateChanged(boolean xAxisIsCalibrated, boolean yAxisIsCalibrated, boolean zAxisIsCalibrated, boolean calibrationFailed) {
+        mListener.notifyCalibrationAxisStateChanged(xAxisIsCalibrated, yAxisIsCalibrated, zAxisIsCalibrated, calibrationFailed);
+    }
+
+    public void notifyMissionItemExecutedChanged(int missionItemId) {
+        mListener.notifyMissionItemExecutedChanged(missionItemId);
+    }
+
+    public void notifyNumberOfSatellitesChanged(int statellites) {
+        mListener.notifyNumberOfSatellitesChanged(statellites);
+    }
+
+    // Listener end
+    // ####################################################
 }

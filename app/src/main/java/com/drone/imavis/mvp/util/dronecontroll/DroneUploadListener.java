@@ -1,16 +1,5 @@
 package com.drone.imavis.mvp.util.dronecontroll;
 
-import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM;
-import com.parrot.arsdk.arcontroller.ARCONTROLLER_ERROR_ENUM;
-import com.parrot.arsdk.arcontroller.ARFeatureCommon;
-import com.parrot.arsdk.ardatatransfer.ARDATATRANSFER_ERROR_ENUM;
-import com.parrot.arsdk.ardatatransfer.ARDataTransferUploaderCompletionListener;
-import com.parrot.arsdk.ardatatransfer.ARDataTransferUploaderProgressListener;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceNetService;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
-import com.parrot.arsdk.arutils.ARUTILS_FTP_RESUME_ENUM;
-import com.parrot.arsdk.arutils.ARUtilsFtpConnection;
-
 /**
  * Created by adigu on 14.09.2017.
  */

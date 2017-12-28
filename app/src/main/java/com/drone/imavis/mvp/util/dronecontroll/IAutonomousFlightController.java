@@ -36,7 +36,6 @@ public interface IAutonomousFlightController {
     void enableVideoStreaming(boolean enable);
     void enableAutoVideoRecord(boolean enableAutoRecord, byte autoRecordMassStorageId);
 
-
     void setWifiSettingsCountry(String countryCode);
     void setWifiSettingsAutoCountry(boolean automatic);
     void setWifiSecurity(ARCOMMANDS_WIFI_SECURITY_TYPE_ENUM type, String key, ARCOMMANDS_WIFI_SECURITY_KEY_TYPE_ENUM keyType);

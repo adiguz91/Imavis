@@ -1,27 +1,10 @@
 package com.drone.imavis.mvp.util.dronecontroll;
 
-import android.animation.ObjectAnimator;
-import android.content.Context;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
-
-import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM;
 import com.parrot.arsdk.arcontroller.ARFeatureCommon;
 import com.parrot.arsdk.ardatatransfer.ARDATATRANSFER_ERROR_ENUM;
-import com.parrot.arsdk.ardatatransfer.ARDATATRANSFER_UPLOADER_RESUME_ENUM;
-import com.parrot.arsdk.ardatatransfer.ARDataTransferManager;
 import com.parrot.arsdk.ardatatransfer.ARDataTransferUploader;
 import com.parrot.arsdk.ardatatransfer.ARDataTransferUploaderCompletionListener;
 import com.parrot.arsdk.ardatatransfer.ARDataTransferUploaderProgressListener;
-import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_ENUM;
-import com.parrot.arsdk.ardiscovery.UsbAccessoryMux;
-import com.parrot.arsdk.armavlink.ARMavlinkException;
-import com.parrot.arsdk.armavlink.ARMavlinkFileGenerator;
-import com.parrot.arsdk.armavlink.ARMavlinkMissionItem;
-import com.parrot.arsdk.arutils.ARUtilsManager;
-
-import java.io.File;
 
 /**
  * Created by adigu on 14.09.2017.
