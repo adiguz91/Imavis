@@ -1,8 +1,5 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.view;
 
-import android.app.Activity;
-import android.app.Application;
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -14,18 +11,13 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.di.component.ConfigPersistentComponent;
-import com.drone.imavis.mvp.di.component.DaggerConfigPersistentComponent;
-import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
-import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
-import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
-import com.drone.imavis.mvp.util.constants.classes.CMap;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.GestureListener;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.ScaleListener;
+import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
+import com.drone.imavis.mvp.util.constants.classes.CMap;
 
 public class FlyPlanView extends View {
 
@@ -83,18 +75,6 @@ public class FlyPlanView extends View {
         canvas.scale(getScaleFactor(), getScaleFactor());
         FlyPlanController.getInstance().draw(canvas);
         canvas.restore();
-    }
-
-    private Node touchedNode;
-
-    private boolean onDown(MotionEvent event) {
-        //FlyPlanView.getNodes().clear();
-        int pointerId = event.getPointerId(0);
-        Coordinate touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
-        touchedNode = FlyPlanController.getInstance().getTouchedNode(touchCoordinate);
-        if(touchedNode == null)
-            return false;
-        return true;
     }
 
     private static boolean isLocked = false;

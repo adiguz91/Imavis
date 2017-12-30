@@ -29,6 +29,7 @@ import com.drone.imavis.mvp.services.dronecontrol.DroneDiscoverer;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
+import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.UnsubscribeIfPresent;
@@ -87,6 +88,9 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     DialogUtil dialogUtil;
     List<ARDiscoveryDeviceService> dronesList;
     ARDiscoveryDeviceService drone;
+
+    @BindView(R.id.flyplanner)
+    private FlyplannerFragment flyplannerFragment;
 
     private ReactiveLocationProvider locationProvider;
     private Observable<Location> lastKnownLocationObservable;
@@ -533,11 +537,13 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 autonomController.connect();
                                 //autonomController.takePicture();
 
+                                flyplannerFragment.getGoogleMapFragment();
+
                                 lastKnownLocationObservable.subscribe(x -> {
                                     GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
                                     autonomController.setHomeLocation(homeLocation);
                                 });
-                                
+
                                 String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
                                 autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
                                 autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
