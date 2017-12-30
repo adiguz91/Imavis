@@ -76,6 +76,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     Context context;
     FlyPlan flyplan;
 
+    private AutonomousFlightController autonomController;
+
     private BebopDrone bebopDrone;
     private BebopVideoView bebopVideoView;
 
@@ -520,8 +522,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                     break;
                                 }
                             }
-                            if(drone != null) {
-                                AutonomousFlightController autonomController = null;
+                            if (drone != null) {
+                                autonomController = null;
                                 try {
                                     autonomController = new AutonomousFlightController(context, drone);
                                 } catch (ARUtilsException e) {
@@ -531,11 +533,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 autonomController.connect();
                                 //autonomController.takePicture();
 
-                                // TODO!!!!
-                                GPSCoordinate droneCoordinate = new GPSCoordinate();
-                                GPSCoordinate pilotCoordinate = new GPSCoordinate();
-                                autonomController.setHomeLocation(pilotCoordinate);
-
+                                lastKnownLocationObservable.subscribe(x -> {
+                                    GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
+                                    autonomController.setHomeLocation(homeLocation);
+                                });
+                                
                                 String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
                                 autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
                                 autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
