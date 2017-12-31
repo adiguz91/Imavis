@@ -89,7 +89,6 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     List<ARDiscoveryDeviceService> dronesList;
     ARDiscoveryDeviceService drone;
 
-    @BindView(R.id.flyplanner)
     private FlyplannerFragment flyplannerFragment;
 
     private ReactiveLocationProvider locationProvider;
@@ -126,6 +125,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         activityComponent().inject(this);
         setContentView(R.layout.activity_flyplanner);
         ButterKnife.bind(this);
+        flyplannerFragment = (FlyplannerFragment) getSupportFragmentManager().findFragmentById(R.id.flyplanner);
         context = this;
 
         /* Drone */

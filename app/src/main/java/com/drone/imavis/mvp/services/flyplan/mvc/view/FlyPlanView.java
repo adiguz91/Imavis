@@ -16,6 +16,7 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Co
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.GestureListener;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.ScaleListener;
+import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CMap;
 
@@ -26,6 +27,8 @@ public class FlyPlanView extends View {
 
     private GestureDetector gestureDetector;
     private Rect viewRect;
+
+    private FlyplannerFragment flyplannerFragment;
 
     private static final String TAG = "FlyPlanView";
     private static ScaleGestureDetector scaleDetector;
@@ -54,8 +57,8 @@ public class FlyPlanView extends View {
         init(context);
     }
 
-
     public void init(final Context context) {
+        //flyplannerFragment = (FlyplannerFragment) getParent();
         nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
         gestureDetector = new GestureDetector(context, new GestureListener());
         scaleDetector = new ScaleGestureDetector(context, scaleListener);
