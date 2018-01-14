@@ -15,6 +15,14 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class GoogleMapExtension extends Map<GoogleMap> {
 
+    public GoogleMapExtension(GoogleMap map) {
+        super(map);
+    }
+
+    public GoogleMapExtension(GoogleMap map, MapData mapData) {
+        super(map, mapData);
+    }
+
     @Override
     public GPSCoordinate getGpsfromScreen(Coordinate coordinate) {
         Projection projection = getMap().getProjection();

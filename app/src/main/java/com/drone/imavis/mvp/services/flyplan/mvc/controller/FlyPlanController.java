@@ -2,35 +2,21 @@ package com.drone.imavis.mvp.services.flyplan.mvc.controller;
 
 import android.graphics.Canvas;
 
-import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.data.model.MapData;
-import com.drone.imavis.mvp.di.ConfigPersistent;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
-import com.drone.imavis.mvp.ui.base.BasePresenter;
-import com.drone.imavis.mvp.ui.flyplanner.IFlyplannerActivity;
-import com.drone.imavis.mvp.util.constants.classes.CFileDirectories;
-import com.drone.imavis.mvp.util.constants.classes.CFiles;
-import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
-import com.drone.imavis.mvp.util.constants.classes.CShape;
 import com.drone.imavis.mvp.data.model.FlyPlan;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.map.Map;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.dimension.Size;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
-import com.google.android.gms.maps.GoogleMap;
+import com.drone.imavis.mvp.util.FileUtil;
+import com.drone.imavis.mvp.util.constants.classes.CFileDirectories;
+import com.drone.imavis.mvp.util.constants.classes.CFiles;
+import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
+import com.drone.imavis.mvp.util.constants.classes.CShape;
 
 import java.io.File;
 import java.util.ListIterator;
-
-import com.drone.imavis.mvp.util.FileUtil;
-
-import javax.inject.Singleton;
-
-import butterknife.BindView;
 
 /**
  * Created by adigu on 23.02.2017.
@@ -38,7 +24,7 @@ import butterknife.BindView;
 
 public class FlyPlanController implements IFlyPlan {
 
-    private FlyPlan flyPlan;
+    private static FlyPlan flyPlan;
     private static FlyPlanController flyPlanController;
     private static Node touchedNode;
     private static Waypoint selectedWaypoint;
@@ -53,15 +39,9 @@ public class FlyPlanController implements IFlyPlan {
 
     // SINGLETON PATTERN
     public static FlyPlanController getInstance() {
-        if (flyPlanController == null)
-            flyPlanController = new FlyPlanController();
+        if (flyPlanController == null && flyPlan != null)
+            flyPlanController = new FlyPlanController(flyPlan);
         return flyPlanController;
-    }
-
-    public FlyPlanController() {
-        // TODO find acual or last coordinate
-        MapData mapData = new MapData(new GPSCoordinate(0,0), 1.0f);
-        this.flyPlan = new FlyPlan(mapData);
     }
 
     public FlyPlanController(FlyPlan flyPlan) {
@@ -230,10 +210,13 @@ public class FlyPlanController implements IFlyPlan {
         return flyPlan;
     }
 
+    public static void setFlyPlan(FlyPlan flyPlanValue) { flyPlan = flyPlanValue; }
+
     @Override
     public FlyPlan onPlanCreateNew() {
-        GPSCoordinate coordinate = new GPSCoordinate(0, 0);
-        return new FlyPlan(new MapData(coordinate, 1.0f));
+        //GPSCoordinate coordinate = new GPSCoordinate(0, 0);
+        //return new FlyPlan(new MapData(coordinate, 1.0f));
+        return null;
     }
 
     @Override

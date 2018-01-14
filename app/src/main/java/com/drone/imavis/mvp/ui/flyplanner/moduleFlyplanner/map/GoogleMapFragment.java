@@ -1,34 +1,24 @@
 package com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-//import com.drone.flyplanner.ui.flyplan.FlyPlanView;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterests;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoints;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
-import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -42,12 +32,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
+//import com.drone.flyplanner.ui.flyplan.FlyPlanView;
+
 /**
  * Created by adigu on 29.05.2017.
  */
 
 // http://things2notedown.blogspot.co.at/2014/07/how-to-display-mapfragment-inside.html
-public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener {
+public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdleListener {
 
     MapView mapView;
     private GoogleMap googleMap;
@@ -57,6 +49,8 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
     private Marker marker;
     private boolean showMap;
     private FlyPlanView flyplannerDrawer;
+
+    private OnMapReadyCallback mOnMapReadyCallback;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,16 +64,12 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 
         mapView = (MapView) view.findViewById(R.id.googleMapView);
         mapView.onCreate(savedInstanceState);
-        mapView.onResume(); // needed to get the map to display immediately
+        //mapView.onResume(); // needed to get the map to display immediately
 
         // add view
         //View layout2 = LayoutInflater.from(this).inflate(R.layout.fragment_, mLinearLayout, false)
 
-        //flyplannerDrawer = new FlyPlanView(getContext());
-        //mapView.addView(flyplannerDrawer);
-        flyplannerDrawer = (FlyPlanView) getActivity().findViewById(R.id.flyplannerDraw);
-
-        mapView.getMapAsync(this);
+        //flyplannerDrawer = (FlyPlanView) getActivity().findViewById(R.id.flyplannerDraw);
 
         return view;
     }
@@ -89,7 +79,13 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
         //ButterKnife.bind(getContext(), view);
     }
 
-    @Override
+    public void setOnMapReadyCallback(OnMapReadyCallback onMapReadyCallback) {
+        if (mOnMapReadyCallback == null) {
+            mOnMapReadyCallback = onMapReadyCallback;
+            mapView.getMapAsync(mOnMapReadyCallback);
+        }
+    }
+
     public void onMapReady(GoogleMap googleMap) {
         // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
         MapsInitializer.initialize(this.getContext());
@@ -182,7 +178,8 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
     @Override
     public void onResume() {
         super.onResume();
-        mapView.onResume();
+        if(mapView != null)
+            mapView.onResume();
     }
 
     @Override

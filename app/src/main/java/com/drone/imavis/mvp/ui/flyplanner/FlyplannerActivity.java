@@ -75,7 +75,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @Inject
     FlyplannerPresenter flyplannerPresenter;
     Context context;
-    FlyPlan flyplan;
+    private FlyPlan flyplan;
 
     private AutonomousFlightController autonomController;
 
@@ -123,8 +123,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityComponent().inject(this);
+        flyplan = (FlyPlan) getIntent().getParcelableExtra("Flyplan");
+
         setContentView(R.layout.activity_flyplanner);
         ButterKnife.bind(this);
+
         flyplannerFragment = (FlyplannerFragment) getSupportFragmentManager().findFragmentById(R.id.flyplanner);
         context = this;
 
@@ -133,7 +136,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         dronePermissionRequestHelper.requestPermission(PERMISSIONS_NEEDED, REQUEST_CODE_PERMISSIONS_REQUEST);
 
         flyplannerPresenter.attachView(this);
-        flyplan = (FlyPlan) getIntent().getParcelableExtra("Flyplan");
+
 
         //getActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -186,6 +189,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
+    }
+
+    public FlyPlan getFlyplan() {
+        return flyplan;
     }
 
     // TODO : https://github.com/mcharmas/Android-ReactiveLocation/blob/master/sample/src/main/java/pl/charmas/android/reactivelocation2/sample/BaseActivity.java

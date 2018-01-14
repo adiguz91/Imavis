@@ -5,15 +5,16 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.drone.imavis.mvp.util.StringUtil;
-import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
-import com.drone.imavis.mvp.util.constants.classes.CFlyPlan.UnitOfLength;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Nodes;
+import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
+import com.drone.imavis.mvp.util.constants.classes.CFlyPlan.UnitOfLength;
 import com.google.gson.Gson;
 
+import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
@@ -22,14 +23,8 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
-
-import okhttp3.MultipartBody;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -56,6 +51,9 @@ public class FlyPlan implements Parcelable {
     private Long mapDataId;
     @ToOne(joinProperty = "mapDataId")
     private MapData mapData;
+
+    @Transient
+    private GoogleMapExtension map;
     
     private Date createdAt;
 
@@ -63,7 +61,7 @@ public class FlyPlan implements Parcelable {
     private Uri imageFolderUrl;
 
     @Transient
-    private Nodes nodes;
+    private Nodes nodes = new Nodes();
 
     private Long taskId;
 
@@ -79,12 +77,6 @@ public class FlyPlan implements Parcelable {
 
     @ToMany(referencedJoinProperty = "id")
     private List<com.drone.imavis.mvp.data.model.PointOfInterest> pointOfInterests;
-
-    public FlyPlan(MapData mapData) {
-        this.task = task;
-        this.mapData = mapData;
-        this.nodes = new Nodes();
-    }
 
     public Uri getImageFolderUrl() {
         return imageFolderUrl;
@@ -151,11 +143,12 @@ public class FlyPlan implements Parcelable {
         this.createdAt = createdAt;
     }
 
-    public MapData getMap() {
-        return mapData;
+    public GoogleMapExtension getMap() {
+        return map;
     }
-    private void setMap(MapData mapData) {
-        this.mapData = mapData;
+    public void setMap(GoogleMapExtension map) {
+        this.map = map;
+        nodes.setMap(map);
     }
 
     public Nodes getPoints() {
@@ -214,7 +207,7 @@ public class FlyPlan implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(id == null ? 0 : id);
         dest.writeSerializable(mapData);
-        dest.writeSerializable(nodes);
+        //dest.writeSerializable(nodes);
         dest.writeInt(minFlyHeight);
         dest.writeInt(minSpeed);
         dest.writeString(unitOfLength.name());
@@ -413,7 +406,7 @@ public class FlyPlan implements Parcelable {
     public FlyPlan (Parcel parcelIn) {
         this.id = parcelIn.readLong();
         this.mapData = (MapData) parcelIn.readSerializable();
-        this.nodes = (Nodes) parcelIn.readSerializable();
+        //this.nodes = (Nodes) parcelIn.readSerializable();
         this.minFlyHeight = parcelIn.readInt();
         this.minSpeed = parcelIn.readInt();
         this.unitOfLength = UnitOfLength.valueOf(parcelIn.readString());

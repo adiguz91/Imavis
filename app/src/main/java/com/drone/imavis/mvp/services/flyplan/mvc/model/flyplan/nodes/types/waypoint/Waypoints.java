@@ -28,6 +28,8 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         this.addAll(deserializedPOIs);
     }
 
+
+
     public int draw(Canvas canvas) {
         Waypoint waypoint, waypointLastNode = null;
         ListIterator<Waypoint> iterator;

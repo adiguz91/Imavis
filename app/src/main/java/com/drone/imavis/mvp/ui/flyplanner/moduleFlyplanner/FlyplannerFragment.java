@@ -3,28 +3,24 @@ package com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-//import com.drone.flyplanner.ui.flyplan.FlyPlanView;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.GoogleMapExtension;
+import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+
+//import com.drone.flyplanner.ui.flyplan.FlyPlanView;
 
 
-public class FlyplannerFragment extends BaseFragment {
+public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallback {
 
     private GoogleMapFragment googleMapFragment;
     private FlyPlanView flyplannerDrawer;
@@ -32,6 +28,8 @@ public class FlyplannerFragment extends BaseFragment {
 
     //private boolean showMap;
     private View view;
+
+    private FlyplannerActivity activity;
 
     public FlyplannerFragment() {
         // Required empty public constructor
@@ -46,46 +44,50 @@ public class FlyplannerFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_flyplanner, container, false);
+        activity = (FlyplannerActivity) getActivity();
+        return view;
+    }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //ButterKnife.bind(getContext(), view);
         flyplannerDrawer = (FlyPlanView) view.findViewById(R.id.flyplannerDraw);
 
-        // load map fragment
-        googleMapFragment = new GoogleMapFragment();
-        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.flyplannerMap, googleMapFragment);
-        fragmentTransaction.commit();
+        initChildFragment();
+    }
 
-        return view;
+    private void initChildFragment() {
+        // load google map fragment
+        googleMapFragment = new GoogleMapFragment();
+        getChildFragmentManager().beginTransaction().replace(R.id.flyplannerMap, googleMapFragment).commit();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //googleMapFragment.getMapView().getMapAsync(this); //.setOnMapReadyCallback(this);
+        googleMapFragment.setOnMapReadyCallback(this);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        getGoogleMapFragment().onMapReady(googleMap);
+
+        // TODO GoogleMapExtension can be initialized in the GoogleMapFragment
+        GoogleMapExtension googleMapExtension = new GoogleMapExtension(getGoogleMapFragment().getMap());
+        activity.getFlyplan().setMap(googleMapExtension);
+        FlyPlanController.setFlyPlan(activity.getFlyplan());
     }
 
     public GoogleMapFragment getGoogleMapFragment() {
         return googleMapFragment;
     }
 
-    public void setGoogleMapFragment(GoogleMapFragment googleMapFragment) {
-        this.googleMapFragment = googleMapFragment;
-    }
-
     @Override
     public View getView() {
         return view;
     }
-
-    @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        //ButterKnife.bind(getContext(), view);
-
-        // load map fragment
-        //googleMapFragment = new GoogleMapFragment();
-        //FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-        //fragmentTransaction.replace(R.id.flyplannerMapView, googleMapFragment);
-        //fragmentTransaction.commit();
-
-        //googleMapFragment.getMap();
-        //flyplannerDrawer.setMapFragment(googleMapFragment);
-    }
-
-
 
     @Override
     public void onAttach(Context context) {

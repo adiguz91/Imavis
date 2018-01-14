@@ -58,7 +58,6 @@ public class FlyPlanView extends View {
     }
 
     public void init(final Context context) {
-        //flyplannerFragment = (FlyplannerFragment) getParent();
         nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
         gestureDetector = new GestureDetector(context, new GestureListener());
         scaleDetector = new ScaleGestureDetector(context, scaleListener);
@@ -106,6 +105,10 @@ public class FlyPlanView extends View {
                 isHandledTouch = actionMove(event);
                 invalidate();
                 break;
+            case MotionEvent.ACTION_UP:
+                if (!isHandledTouch) {
+                    isHandledTouch = actionUp(event);
+                }
             default:
                 break;
         }
@@ -139,6 +142,27 @@ public class FlyPlanView extends View {
             }
         }
         //MainFlyplanner.removeActionButtons(); #### !!!! IMPORTANT UUUUSEEEEEE, callback!?=!=
+        return isHandled;
+    }
+
+    public static boolean actionUp(MotionEvent event) {
+
+        int pointerCount = event.getPointerCount();
+        boolean isHandled = true;
+        for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
+            //pointerId = event.getPointerId(actionIndex);
+            Coordinate coordinateTouched = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
+            Node touchedNode = FlyPlanController.getTouchedNode();
+            if (touchedNode != null) {
+                touchedNode.getShape().setCoordinate(coordinateTouched);
+                FlyPlanController.getInstance().getFlyPlan().getPoints().editNode(touchedNode);
+                break;
+            } else {
+                // drag map
+                isHandled &= false;
+                break;
+            }
+        }
         return isHandled;
     }
 
