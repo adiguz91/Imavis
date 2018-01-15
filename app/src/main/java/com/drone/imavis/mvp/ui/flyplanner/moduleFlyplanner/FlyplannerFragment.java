@@ -20,7 +20,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 //import com.drone.flyplanner.ui.flyplan.FlyPlanView;
 
 
-public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallback {
+public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
     private GoogleMapFragment googleMapFragment;
     private FlyPlanView flyplannerDrawer;
@@ -77,7 +77,14 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         // TODO GoogleMapExtension can be initialized in the GoogleMapFragment
         GoogleMapExtension googleMapExtension = new GoogleMapExtension(getGoogleMapFragment().getMap());
         activity.getFlyplan().setMap(googleMapExtension);
+
+        googleMapFragment.setOnMapLoadedCallback(this);
+    }
+
+    @Override
+    public void onMapLoaded() {
         FlyPlanController.getInstance().setFlyPlan(activity.getFlyplan());
+        flyplannerDrawer.invalidate(); // To force a view to draw
     }
 
     public GoogleMapFragment getGoogleMapFragment() {

@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
@@ -83,6 +84,14 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         if (mOnMapReadyCallback == null) {
             mOnMapReadyCallback = onMapReadyCallback;
             mapView.getMapAsync(mOnMapReadyCallback);
+        }
+    }
+
+    private GoogleMap.OnMapLoadedCallback onMapLoadedCallback;
+    public void setOnMapLoadedCallback(GoogleMap.OnMapLoadedCallback callback) {
+        if (onMapLoadedCallback == null) {
+            onMapLoadedCallback = callback;
+            googleMap.setOnMapLoadedCallback(onMapLoadedCallback);
         }
     }
 
@@ -164,11 +173,31 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         return projection.fromScreenLocation(screenPoint);
     }
 
-    public Coordinate getCoordinatefromGps(LatLng position) {
-        Projection projection = this.googleMap.getProjection();
+    public void getCoordinatefromGps(GPSCoordinate gpsCoordinate) {
+        /*Projection projection = this.googleMap.getProjection();
         Point screenPosition = projection.toScreenLocation(position);
         Coordinate screenPoint = new Coordinate(screenPosition.x, screenPosition.y);
         return screenPoint;
+        */
+
+        if(gpsCoordinate == null)
+            screenCoordinateCallback.onScreenCoordinate(null);
+
+        LatLng googleCoordinate = new LatLng(gpsCoordinate.getLatitude(), gpsCoordinate.getLongitude());
+
+        Coordinate screenPosition = null;
+        if (mapView.getViewTreeObserver().isAlive()) {
+            mapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    // ! you can query Projection object here
+                    Point screenPoint = getMap().getProjection().toScreenLocation(googleCoordinate);
+                    Coordinate screenPosition = new Coordinate(screenPoint.x, screenPoint.y);
+                    screenCoordinateCallback.onScreenCoordinate(screenPosition);
+                }
+            });
+        }
     }
 
     public GoogleMap getMap() {
@@ -224,6 +253,13 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
             googleMap.getUiSettings().setScrollGesturesEnabled(true);
         else
             googleMap.getUiSettings().setScrollGesturesEnabled(false);
+    }
+
+    private OnScreenCoordinateCallback screenCoordinateCallback;
+
+    public void setOnScreenCoordinateCallback(OnScreenCoordinateCallback callback) {
+        if(screenCoordinateCallback == null)
+            this.screenCoordinateCallback = callback;
     }
 
     @Override

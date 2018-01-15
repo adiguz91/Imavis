@@ -18,13 +18,11 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -73,12 +71,6 @@ public class FlyPlan implements Parcelable {
     @NotNull private String name; // task name
     @NotNull private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
     @NotNull private int minSpeed = CFlyPlan.MIN_SPEED;
-
-    @ToMany(referencedJoinProperty = "id")
-    private List<com.drone.imavis.mvp.data.model.Waypoint> waypoints;
-
-    @ToMany(referencedJoinProperty = "id")
-    private List<com.drone.imavis.mvp.data.model.PointOfInterest> pointOfInterests;
 
     public Uri getImageFolderUrl() {
         return imageFolderUrl;
@@ -299,62 +291,6 @@ public class FlyPlan implements Parcelable {
             mapDataId = mapData == null ? null : mapData.getId();
             mapData__resolvedKey = mapDataId;
         }
-    }
-
-    /**
-     * To-many relationship, resolved on first access (and after reset).
-     * Changes to to-many relations are not persisted, make changes to the target entity.
-     */
-    @Generated(hash = 1597059416)
-    public List<Waypoint> getWaypoints() {
-        if (waypoints == null) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            WaypointDao targetDao = daoSession.getWaypointDao();
-            List<Waypoint> waypointsNew = targetDao._queryFlyPlan_Waypoints(id);
-            synchronized (this) {
-                if (waypoints == null) {
-                    waypoints = waypointsNew;
-                }
-            }
-        }
-        return waypoints;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 1743736783)
-    public synchronized void resetWaypoints() {
-        waypoints = null;
-    }
-
-    /**
-     * To-many relationship, resolved on first access (and after reset).
-     * Changes to to-many relations are not persisted, make changes to the target entity.
-     */
-    @Generated(hash = 887659655)
-    public List<PointOfInterest> getPointOfInterests() {
-        if (pointOfInterests == null) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            PointOfInterestDao targetDao = daoSession.getPointOfInterestDao();
-            List<PointOfInterest> pointOfInterestsNew = targetDao._queryFlyPlan_PointOfInterests(id);
-            synchronized (this) {
-                if (pointOfInterests == null) {
-                    pointOfInterests = pointOfInterestsNew;
-                }
-            }
-        }
-        return pointOfInterests;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 503561242)
-    public synchronized void resetPointOfInterests() {
-        pointOfInterests = null;
     }
 
     /**

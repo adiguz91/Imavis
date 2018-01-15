@@ -31,4 +31,16 @@ public class GoogleMapExtension extends Map<GoogleMap> {
         LatLng latLng = projection.fromScreenLocation(screenPoint);
         return new GPSCoordinate(latLng.latitude, latLng.longitude, 0);
     }
+
+    @Override
+    public Coordinate getScreenCoordinatesfromGps(GPSCoordinate gpsCoordinate) {
+        Coordinate screenPoint = new Coordinate(0,0);
+        if(gpsCoordinate != null) {
+            LatLng googleCoordinate = new LatLng(gpsCoordinate.getLatitude(), gpsCoordinate.getLongitude());
+            Projection projection = getMap().getProjection();
+            Point screenPosition = projection.toScreenLocation(googleCoordinate);
+            screenPoint = new Coordinate(screenPosition.x, screenPosition.y);
+        }
+        return screenPoint;
+    }
 }

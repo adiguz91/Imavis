@@ -24,7 +24,7 @@ import java.util.ListIterator;
 
 public class FlyPlanController implements IFlyPlan {
 
-    private static FlyPlan flyPlan;
+    private static FlyPlan flyPlan = new FlyPlan();
     private static FlyPlanController flyPlanController;
     private static Node touchedNode;
     private static Waypoint selectedWaypoint;
@@ -135,7 +135,8 @@ public class FlyPlanController implements IFlyPlan {
     }
 
     public void draw(Canvas canvas) {
-        flyPlan.draw(canvas);
+        if(flyPlan != null)
+            flyPlan.draw(canvas);
     }
 
     /**

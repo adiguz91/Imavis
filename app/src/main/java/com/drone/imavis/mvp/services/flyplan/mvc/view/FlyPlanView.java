@@ -74,9 +74,18 @@ public class FlyPlanView extends View {
         return CMap.SCALE_FACTOR_DEFAULT;
     }
 
+    // draw outside
+    Rect newRect = new Rect();
+
     @Override
     public void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
+
+        // draw outside
+        /*canvas.getClipBounds(newRect);
+        newRect.inset(-20, -20);  //make the rect larger
+        canvas.clipRect(newRect, Region.Op.REPLACE);*/
+
         canvas.save();
         // mainActivity.Zoom(mScaleFactor); // GoogleMap
         canvas.scale(getScaleFactor(), getScaleFactor());
