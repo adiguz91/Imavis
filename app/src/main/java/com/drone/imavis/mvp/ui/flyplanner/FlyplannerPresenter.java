@@ -1,12 +1,11 @@
 package com.drone.imavis.mvp.ui.flyplanner;
 
+import android.util.Log;
+
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.model.FlyPlan;
-import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
-import com.drone.imavis.mvp.ui.tabs.flyplans.IFlyplansMvpView;
-import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.IProjectAddOrEditMvpView;
 import com.drone.imavis.mvp.util.RxUtil;
 
 import javax.inject.Inject;
@@ -47,6 +46,8 @@ public class FlyplannerPresenter extends BasePresenter<IFlyplannerActivity> {
     public void saveFlyplan(FlyPlan flyplan) {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
+
+        flyplan.setNodesJson(flyplan.getPoints().toSimpleNodesJson());
         dataManager.updateFlyplan(flyplan)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(io.reactivex.schedulers.Schedulers.io())
@@ -59,7 +60,9 @@ public class FlyplannerPresenter extends BasePresenter<IFlyplannerActivity> {
                    }
                    @Override
                    public void onError(@NonNull Throwable e) {
+                       Log.w("ERROR-PRESENTER", "saveFlyplan: " + e);
                        getMvpView().onSaveFlyplanFailed();
+
                    }
                }
             );

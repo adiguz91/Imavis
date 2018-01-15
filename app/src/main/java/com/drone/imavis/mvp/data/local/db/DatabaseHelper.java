@@ -5,12 +5,10 @@ import com.drone.imavis.mvp.data.model.DaoSession;
 import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.data.model.FlyPlanDao;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.Projects;
 
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -64,7 +62,7 @@ public class DatabaseHelper implements IDatabaseHelper {
         return Completable.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                mDaoSession.getFlyPlanDao().update(flyplan);
+                mDaoSession.getFlyPlanDao().save(flyplan);
                 return true;
             }
         });

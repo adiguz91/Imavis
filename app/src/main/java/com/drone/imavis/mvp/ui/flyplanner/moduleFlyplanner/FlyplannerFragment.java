@@ -77,7 +77,7 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         // TODO GoogleMapExtension can be initialized in the GoogleMapFragment
         GoogleMapExtension googleMapExtension = new GoogleMapExtension(getGoogleMapFragment().getMap());
         activity.getFlyplan().setMap(googleMapExtension);
-        FlyPlanController.setFlyPlan(activity.getFlyplan());
+        FlyPlanController.getInstance().setFlyPlan(activity.getFlyplan());
     }
 
     public GoogleMapFragment getGoogleMapFragment() {

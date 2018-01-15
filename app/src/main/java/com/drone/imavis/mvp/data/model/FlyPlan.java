@@ -63,6 +63,8 @@ public class FlyPlan implements Parcelable {
     @Transient
     private Nodes nodes = new Nodes();
 
+    private String nodesJson;
+
     private Long taskId;
 
     @Transient
@@ -86,19 +88,6 @@ public class FlyPlan implements Parcelable {
         this.imageFolderUrl = imageFolderUrl;
     }
 
-    public void manuallSetNodes() {
-        /*
-        if(nodes != null) {
-            if(nodes.getPointOfInterests() != null) {
-                pointOfInterests.clear();
-                for (com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest drawPoi : nodes.getPointOfInterests()) {
-                    PointOfInterest poi = new PointOfInterest(drawPoi.getShape().getCoordinate(), new PointOfInterestData())
-                }
-            }
-        }
-        */
-    }
-
     public void draw(Canvas canvas) {
         int selectedWaypointIndex = this.getPoints().getWaypoints().draw(canvas);
         int selectedPoiIndex = this.getPoints().getPointOfInterests().draw(canvas);
@@ -118,6 +107,10 @@ public class FlyPlan implements Parcelable {
             selectedPOI.getShape().setBackgroundColor(this.getPoints().getPointOfInterests().getPoiColorById(selectedPoiIndex));
             selectedPOI.draw(canvas, String.valueOf(selectedPoiId));
         }
+    }
+
+    public void setNodesJson(String nodesJson) {
+        this.nodesJson = nodesJson;
     }
 
     public static FlyPlan loadFromJsonFile(String jsonFileContent) {
@@ -152,6 +145,12 @@ public class FlyPlan implements Parcelable {
     }
 
     public Nodes getPoints() {
+        if(nodes != null && (nodes.getWaypoints().size() == 0 && nodes.getPointOfInterests().size() == 0) && (nodesJson != null || nodesJson != "")) {
+            nodes.loadNodes(nodesJson);
+        }
+        else if (nodes == null)
+            nodes = new Nodes();
+
         return nodes;
     }
     private void setPoints(Nodes points) {
@@ -212,7 +211,9 @@ public class FlyPlan implements Parcelable {
         dest.writeInt(minSpeed);
         dest.writeString(unitOfLength.name());
         dest.writeString(name);
+        dest.writeString(nodesJson);
         dest.writeParcelable(task, flags);
+        dest.writeLong(projectId == null ? 0 : projectId);
     }
 
     public Long getId() {
@@ -392,6 +393,10 @@ public class FlyPlan implements Parcelable {
         myDao.update(this);
     }
 
+    public String getNodesJson() {
+        return this.nodesJson;
+    }
+
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 608845545)
     public void __setDaoSession(DaoSession daoSession) {
@@ -406,22 +411,25 @@ public class FlyPlan implements Parcelable {
     public FlyPlan (Parcel parcelIn) {
         this.id = parcelIn.readLong();
         this.mapData = (MapData) parcelIn.readSerializable();
-        //this.nodes = (Nodes) parcelIn.readSerializable();
         this.minFlyHeight = parcelIn.readInt();
         this.minSpeed = parcelIn.readInt();
         this.unitOfLength = UnitOfLength.valueOf(parcelIn.readString());
         this.name = parcelIn.readString();
+        //this.nodes = (Nodes) parcelIn.readSerializable();
+        this.nodesJson = parcelIn.readString();
         this.task = parcelIn.readParcelable(Task.class.getClassLoader());
+        this.projectId = parcelIn.readLong();
     }
 
-    @Generated(hash = 1940035783)
-    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, Date createdAt, Long taskId, @NotNull String name,
-            int minFlyHeight, int minSpeed) {
+    @Generated(hash = 111111680)
+    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, Date createdAt, String nodesJson, Long taskId,
+            @NotNull String name, int minFlyHeight, int minSpeed) {
         this.id = id;
         this.unitOfLength = unitOfLength;
         this.projectId = projectId;
         this.mapDataId = mapDataId;
         this.createdAt = createdAt;
+        this.nodesJson = nodesJson;
         this.taskId = taskId;
         this.name = name;
         this.minFlyHeight = minFlyHeight;

@@ -369,7 +369,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @Override
     public void onPause() {
         super.onPause();
-        //flyplannerPresenter.saveFlyplan(flyplan);
+        flyplannerPresenter.saveFlyplan(flyplan);
 
         // clean the drone discoverer object
         droneDiscoverer.stopDiscovering();

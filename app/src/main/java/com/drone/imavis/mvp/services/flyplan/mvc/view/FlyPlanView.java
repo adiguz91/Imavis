@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
@@ -61,6 +62,10 @@ public class FlyPlanView extends View {
         nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
         gestureDetector = new GestureDetector(context, new GestureListener());
         scaleDetector = new ScaleGestureDetector(context, scaleListener);
+    }
+
+    public void setFlyPlan(FlyPlan flyPlan) {
+        FlyPlanController.getInstance().setFlyPlan(flyPlan);
     }
 
     public static float getScaleFactor() {
