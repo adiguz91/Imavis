@@ -515,10 +515,10 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkDelay(delayBeforStart));
 
         if (nodes.getWaypoints().size() <= 2) {
-            GPSCoordinate takeOff = new GPSCoordinate(); // TODO nodes.getWaypoints().getFirst();
+            GPSCoordinate takeOff = nodes.getWaypoints().getFirst().getShape().getCoordinate().getGpsCoordinate();
             generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float)takeOff.getLatitude(), (float)takeOff.getLongitude(), (float)takeOff.getAltitude(), 0, 0));
-            nodes.getWaypoints().getFirst();
-            GPSCoordinate landing = new GPSCoordinate(); // TODO nodes.getWaypoints().getLast();
+
+            GPSCoordinate landing = nodes.getWaypoints().getLast().getShape().getCoordinate().getGpsCoordinate();
             generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float)landing.getLatitude(), (float)landing.getLongitude(), (float)landing.getAltitude(), 0));
         }
 
@@ -526,12 +526,12 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         for (Waypoint waypoint : nodes.getWaypoints()) {
             if ((0 < count) && (count < (nodes.getWaypoints().size() - 1))) {
                 // convert coordinate to gpsCoordinates waypoint.getShape().getCoordinate(); lat == y; lng == x; alt == z
-                GPSCoordinate gpsCoordinate = new GPSCoordinate();
+                GPSCoordinate gpsCoordinate = waypoint.getShape().getCoordinate().getGpsCoordinate();
                 generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkNavWaypointMissionItem((float)gpsCoordinate.getLatitude(), (float)gpsCoordinate.getLongitude(), (float)gpsCoordinate.getAltitude(), 0));
 
                 if (((WaypointData)waypoint.getData()).getPoi() != null) {
                     //generator.GetCurrentMissionItemList().getMissionItem(count).
-                    GPSCoordinate poiCoordinate = new GPSCoordinate();
+                    GPSCoordinate poiCoordinate = ((WaypointData)waypoint.getData()).getPoi().getShape().getCoordinate().getGpsCoordinate();
                     // TODO ROI and SetViewMode
                     if (((WaypointData) waypoint.getData()).getMode() == WaypointMode.Progressive) {
                         generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkSetROI(MAV_ROI.MAV_ROI_WPNEXT, 0, 0, 0, 0, 0));

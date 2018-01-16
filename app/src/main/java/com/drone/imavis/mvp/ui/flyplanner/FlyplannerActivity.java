@@ -40,11 +40,6 @@ import com.github.jorgecastilloprz.listeners.FABProgressListener;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.parrot.arsdk.ARSDK;
-import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
-import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
-import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
-import com.parrot.arsdk.arcontroller.ARControllerCodec;
-import com.parrot.arsdk.arcontroller.ARFrame;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.arsdk.arutils.ARUtilsException;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -392,112 +387,6 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     }
     */
 
-    private final BebopDrone.Listener mBebopListener = new BebopDrone.Listener() {
-        @Override
-        public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-            switch (state)
-            {
-                case ARCONTROLLER_DEVICE_STATE_RUNNING:
-                    //mConnectionProgressDialog.dismiss();
-                    break;
-
-                case ARCONTROLLER_DEVICE_STATE_STOPPED:
-                    // if the deviceController is stopped, go back to the previous activity
-                    //mConnectionProgressDialog.dismiss();
-                    finish();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        @Override
-        public void onBatteryChargeChanged(int batteryPercentage) {
-            //mBatteryLabel.setText(String.format("%d%%", batteryPercentage));
-        }
-
-        @Override
-        public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-            switch (state) {
-                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
-                    //mTakeOffLandBt.setText("Take off");
-                    //mTakeOffLandBt.setEnabled(true);
-                    //mDownloadBt.setEnabled(true);
-                    break;
-                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
-                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
-                    //mTakeOffLandBt.setText("Land");
-                    //mTakeOffLandBt.setEnabled(true);
-                    //mDownloadBt.setEnabled(false);
-                    break;
-                default:
-                    //mTakeOffLandBt.setEnabled(false);
-                    //mDownloadBt.setEnabled(false);
-            }
-        }
-
-        @Override
-        public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-            //Log.i(TAG, "Picture has been taken");
-        }
-
-        @Override
-        public void configureDecoder(ARControllerCodec codec) {
-            bebopVideoView.configureDecoder(codec);
-        }
-
-        @Override
-        public void onFrameReceived(ARFrame frame) {
-            bebopVideoView.displayFrame(frame);
-        }
-
-        @Override
-        public void onMatchingMediasFound(int nbMedias) {
-            /*
-            mDownloadProgressDialog.dismiss();
-            mNbMaxDownload = nbMedias;
-            mCurrentDownloadIndex = 1;
-
-            if (nbMedias > 0) {
-                mDownloadProgressDialog = new ProgressDialog(BebopActivity.this, R.style.AppCompatAlertDialogStyle);
-                mDownloadProgressDialog.setIndeterminate(false);
-                mDownloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                mDownloadProgressDialog.setMessage("Downloading medias");
-                mDownloadProgressDialog.setMax(mNbMaxDownload * 100);
-                mDownloadProgressDialog.setSecondaryProgress(mCurrentDownloadIndex * 100);
-                mDownloadProgressDialog.setProgress(0);
-                mDownloadProgressDialog.setCancelable(false);
-                mDownloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mBebopDrone.cancelGetLastFlightMedias();
-                    }
-                });
-                mDownloadProgressDialog.show();
-            }
-            */
-        }
-
-        @Override
-        public void onDownloadProgressed(String mediaName, int progress) {
-            //mDownloadProgressDialog.setProgress(((mCurrentDownloadIndex - 1) * 100) + progress);
-        }
-
-        @Override
-        public void onDownloadComplete(String mediaName) {
-            /*
-            mCurrentDownloadIndex++;
-            mDownloadProgressDialog.setSecondaryProgress(mCurrentDownloadIndex * 100);
-
-            if (mCurrentDownloadIndex > mNbMaxDownload) {
-                mDownloadProgressDialog.dismiss();
-                mDownloadProgressDialog = null;
-            }
-            */
-        }
-    };
-
     /* Drone Discovery Code */
 
     @Override
@@ -555,8 +444,9 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
                                 autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
 
-                                bebopDrone = new BebopDrone(context, drone);
-                                bebopDrone.addListener(mBebopListener);
+
+                                // TODO shape design pattern
+                                // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
                             }
                         }
 
