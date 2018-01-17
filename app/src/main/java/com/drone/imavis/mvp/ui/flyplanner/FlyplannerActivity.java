@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import com.drone.imavis.mvp.services.dronecontrol.BebopVideoView;
 import com.drone.imavis.mvp.services.dronecontrol.DroneDiscoverer;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
+import com.drone.imavis.mvp.services.flyplan.mvc.view.SheetFab;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
@@ -37,6 +39,7 @@ import com.drone.imavis.mvp.util.dronecontroll.AutonomousFlightController;
 import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.github.jorgecastilloprz.listeners.FABProgressListener;
+import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.parrot.arsdk.ARSDK;
@@ -120,6 +123,9 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         activityComponent().inject(this);
         flyplan = (FlyPlan) getIntent().getParcelableExtra("Flyplan");
 
+        if(flyplan == null)
+            flyplan = new FlyPlan();
+
         setContentView(R.layout.activity_flyplanner);
         ButterKnife.bind(this);
 
@@ -136,6 +142,25 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         //getActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        SheetFab fab = (SheetFab) findViewById(R.id.fabSheet);
+        View sheetView = findViewById(R.id.fab_sheet);
+        View overlay = findViewById(R.id.overlay);
+        int sheetColor = getResources().getColor(R.color.blue_normal);
+        int fabColor = getResources().getColor(R.color.accent_color);
+
+        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.transparent)));
+        fab.setRippleColor(getResources().getColor(R.color.transparent));
+        fab.setElevation(0);
+        fab.setCompatElevation(0);
+
+        // Initialize material sheet FAB
+        MaterialSheetFab materialSheetFab = new MaterialSheetFab<>(fab, sheetView, overlay,
+                sheetColor, fabColor);
+
+        // Default reveal direction is up and to the left (for FABs in the bottom right corner)
+        //revealXDirection = RevealXDirection.LEFT;
+        //revealYDirection = RevealYDirection.UP;
 
         //fabProgressCircleStart = (FABProgressCircle) findViewById(R.id.flyplanner_fab_pc_start);
         fabProgressCircleStart.setOnClickListener(new View.OnClickListener() {

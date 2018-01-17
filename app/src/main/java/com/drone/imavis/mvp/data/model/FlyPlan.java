@@ -137,7 +137,7 @@ public class FlyPlan implements Parcelable {
     }
 
     public Nodes getPoints() {
-        if(nodes != null && (nodes.getWaypoints().size() == 0 && nodes.getPointOfInterests().size() == 0) && (nodesJson != null || nodesJson != "")) {
+        if(nodes != null && (nodes.getWaypoints().size() == 0 && nodes.getPointOfInterests().size() == 0) && (nodesJson != null && nodesJson != "")) {
             nodes.loadNodes(nodesJson);
         }
         else if (nodes == null)

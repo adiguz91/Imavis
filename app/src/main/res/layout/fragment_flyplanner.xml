@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment">
@@ -26,6 +27,76 @@
             android:id="@+id/flyplannerDraw"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+    <!-- android:layout_alignParentRight="true" -->
+    <com.drone.imavis.mvp.services.flyplan.mvc.view.SheetFab
+        android:id="@+id/fabSheet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="0dp"
+        app:elevation="0dp"/>
+
+    <!-- Overlay that dims the screen -->
+    <com.gordonwong.materialsheetfab.DimOverlayFrameLayout
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Circular reveal container for the sheet -->
+    <io.codetail.widget.RevealLinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="end|bottom"
+        android:orientation="vertical">
+
+        <!-- Sheet that contains your items -->
+        <android.support.v7.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10px"
+            android:id="@+id/fab_sheet"
+            style="@style/Widget.MaterialSheetFab.Sheet"
+            xmlns:android="http://schemas.android.com/apk/res/android">
+
+            <!-- Sheet items -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Recording -->
+                <TextView
+                    android:id="@+id/fab_sheet_item_recording"
+                    style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                    android:text="recording"/>
+
+                <!-- Reminder -->
+                <TextView
+                    android:id="@+id/fab_sheet_item_reminder"
+                    style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                    android:text="reminder" />
+
+                <!-- Photo -->
+                <TextView
+                    android:id="@+id/fab_sheet_item_photo"
+                    style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                    android:text="photo"/>
+
+                <!-- Note -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/fab_sheet_item_note"
+                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                        android:text="createnote"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+    </io.codetail.widget.RevealLinearLayout>
 
     <LinearLayout
         android:layout_alignParentBottom="true"
@@ -81,7 +152,6 @@
                 app:elevation="4dp"
                 app:borderWidth="0dp" />
         </com.github.jorgecastilloprz.FABProgressCircle>
-
 
     </LinearLayout>
 
