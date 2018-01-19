@@ -35,32 +35,6 @@ import timber.log.Timber;
 
 public class AppStartup extends Application {
 
-    public class TestData {
-        private Long id;
-        private Date date;
-
-        public TestData(Long id, Date date) {
-            this.id = id;
-            this.date = date;
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public Date getDate() {
-            return date;
-        }
-
-        public void setDate(Date date) {
-            this.date = date;
-        }
-    }
-
     //@Inject
     //DataManager mDataManager;
 

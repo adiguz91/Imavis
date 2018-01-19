@@ -8,6 +8,7 @@ import com.drone.imavis.mvp.di.PerActivity;
 import com.drone.imavis.mvp.di.module.ActivityModule;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
+import com.drone.imavis.mvp.ui.searchwlan.SearchWlanActivity;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.ui.login.LoginActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplanAddOrEdit.FlyplanAddOrEditActivity;
@@ -28,6 +29,7 @@ import dagger.Subcomponent;
 public interface ActivityComponent {
 
     void inject(LoginActivity loginActivity);
+    void inject(SearchWlanActivity searchWlanActivity);
     void inject(ProjectsFlyplansActivity projectsFlyplansActivity);
     void inject(FlyplansFragment flyplansFragment);
     void inject(ProjectsFragment projectsFragment);

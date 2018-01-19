@@ -161,6 +161,8 @@ dependencies {
 
     compile 'com.gordonwong:material-sheet-fab:1.2.1'
 
+    compile 'com.skyfishjy.ripplebackground:library:1.0.1'
+
     // add library
     //compile 'com.android.support.constraint:constraint-layout:+'
     // https://mvnrepository.com/artifact/commons-io/commons-io
