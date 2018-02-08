@@ -9,19 +9,17 @@ import android.graphics.Point;
 import android.net.wifi.ScanResult;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
-import com.drone.imavis.mvp.util.CicleMath;
+import com.drone.imavis.mvp.util.CircleMath;
 import com.skyfishjy.library.RippleBackground;
 import com.thanosfisherman.wifiutils.WifiUtils;
-import com.thanosfisherman.wifiutils.wifiScan.ScanResultsListener;
-import com.thanosfisherman.wifiutils.wifiState.WifiStateListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,25 +39,48 @@ public class SearchWlanActivity extends BaseActivity {
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.searchwlan.SearchWlanActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
-    @Inject SearchWlanPresenter searchWlanPresenter;
+    @Inject
+    SearchWlanPresenter searchWlanPresenter;
     private Context context;
 
-    @BindView(R.id.wlanMap) RippleBackground wlanMapView;
-    @BindView(R.id.foundDevice) ImageView foundDevice;
-    @BindView(R.id.centerImage) ImageView centerImageButton;
+    @BindView(R.id.wlanMap)
+    RippleBackground wlanMapView;
+    @BindView(R.id.foundDevice)
+    ImageView foundDevice;
+    @BindView(R.id.centerImage)
+    ImageView centerImageButton;
+    @BindView(R.id.rootScanWifi)
+    RelativeLayout rootLayout;
+
     final Handler wlanMapHandler = new Handler();
 
     // https://wwija.com/computer-internet-technology/46004_scan-results-available-action-return-empty-list-in-android-6-0.html
     private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1000;
+
     private Point centerPoint;
     private float centerPointRadius;
+    private Point rippleCanvasPoint;
+    private float rippleRadius;
     private List<Point> devicePositions;
 
     @Override
-    public void onWindowFocusChanged (boolean hasFocus) {
+    public void onWindowFocusChanged(boolean hasFocus) {
         int[] location = new int[2];
         centerImageButton.getLocationInWindow(location);
-        centerPoint = new Point(location[0], location[1]);
+        //centerPoint = new Point(location[0], location[1]);
+        centerPoint = new Point(wlanMapView.getMeasuredWidth()/2, wlanMapView.getMeasuredHeight()/2);
+        centerPointRadius = centerImageButton.getLayoutParams().width / 2;
+
+        wlanMapView.getLocationInWindow(location);
+        Point wlanMapViewPoint = new Point(location[0], location[1]);
+
+        rippleRadius = (int) ((wlanMapView.getMeasuredWidth()/2) - (centerPointRadius));
+        //rippleCanvasPoint = new Point((int)centerPointRadius/2, wlanMapViewPoint.y/2);
+        rippleCanvasPoint = new Point(0,0);
+
+        //rootLayout = findViewById(R.id.rootScanWifi);
+        //addImageViewToRoot(rootLayout, rippleCanvasPoint);
+        //addImageViewToRoot(rootLayout, centerPoint);
     }
 
     @Override
@@ -75,13 +96,6 @@ public class SearchWlanActivity extends BaseActivity {
         }
 
         WifiUtils.enableLog(true);
-
-        centerPointRadius = centerImageButton.getLayoutParams().width;
-        centerPoint = new Point(centerImageButton.getLeft(), centerImageButton.getTop());
-        devicePositions = new ArrayList<>();
-
-        //load();
-        //getWifi();
         searchWlans();
     }
 
@@ -107,45 +121,38 @@ public class SearchWlanActivity extends BaseActivity {
     }
 
     private void load() {
-        WifiUtils.withContext(getApplicationContext()).enableWifi(new WifiStateListener() {
-            @Override
-            public void isSuccess(boolean isSuccess) {
+        WifiUtils.withContext(getApplicationContext()).enableWifi(isSuccess -> {
+            if (isSuccess) {
                 //searchWlans();
                 wlanMapView.startRippleAnimation();
-                WifiUtils.withContext(getApplicationContext()).scanWifi(new ScanResultsListener() {
-                    @Override
-                    public void onScanResults(@NonNull List<ScanResult> scanResults) {
-
-                        //foundDevices(scanResults);
-
-                    }
+                WifiUtils.withContext(getApplicationContext()).scanWifi(scanResults -> {
+                    //foundDevices(scanResults);
                 }).start();
             }
         });
     }
 
-
-
-
-
     private void searchWlans() {
-        centerImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                wlanMapView.startRippleAnimation();
-                wlanMapHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        List<String> simulation = new ArrayList<>();
-                        simulation.add("Test1");
-                        simulation.add("Test2");
-                        //simulation.add("Test3");
-                        //simulation.add("Test4");
-                        //simulation.add("Test5");
-                        foundDevicesSimulation(simulation);
-                    }
-                },5000);
-            }
+        centerImageButton.setOnClickListener(view -> {
+            devicePositions = new ArrayList<>();
+
+            wlanMapView.startRippleAnimation();
+            wlanMapHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    devicePositions.add(centerPoint);
+                    List<String> simulation = new ArrayList<>();
+                    simulation.add("Test1");
+                    simulation.add("Test2");
+                    simulation.add("Test3");
+                    simulation.add("Test4");
+                    simulation.add("Test5");
+                    simulation.add("Test6");
+                    simulation.add("Test7");
+                    simulation.add("Test8");
+                    foundDevicesSimulation(simulation);
+                }
+            }, 5000);
         });
         centerImageButton.callOnClick();
     }
@@ -159,48 +166,40 @@ public class SearchWlanActivity extends BaseActivity {
 
     private void foundDevicesSimulation(List<String> scanResults) {
         for (String scanResult : scanResults) {
-            positionDeviceSimulation(scanResult);
+            Point point = getRandomPointFromRipple();
+            createDevice(point);
         }
+        wlanMapView.stopRippleAnimation();
     }
 
-
-
     private Point getRandomPointFromRipple() {
-        Point point = null;
+        Point randomPoint = null;
 
-        int maxRippleRadius = (int) (centerPoint.x - centerPointRadius);
-
-        if (devicePositions.isEmpty())
-            point = CicleMath.getRandomPointFromCircle(centerPoint, maxRippleRadius);
-        else {
+        if (devicePositions.isEmpty()) {
+            randomPoint = CircleMath.getRandomPointFromCircle(centerPoint, rippleRadius);
+        } else {
             boolean isSearching = true;
-            boolean check = true;
+            boolean check;
             while (isSearching) {
-                point = CicleMath.getRandomPointFromCircle(centerPoint, maxRippleRadius);
                 check = true;
+                randomPoint = CircleMath.getRandomPointFromCircle(centerPoint, rippleRadius);
                 for (Point devicePoint : devicePositions) {
-                    if(CicleMath.isInsideCircle(devicePoint, centerPointRadius, point)) {
+                    if (CircleMath.isCircleCollision(devicePoint, centerPointRadius+30, randomPoint)) {
                         check &= false;
                         break;
-                    }
-                    else
+                    } else
                         check &= true;
                 }
-                if(check)
-                    break;
+                if (check)
+                    break; // isSearching = false;
             }
         }
 
-        devicePositions.add(point);
-        return point;
+        devicePositions.add(randomPoint);
+        return randomPoint;
     }
 
-    private void positionDeviceSimulation(String scanResult) {
-        Point point = getRandomPointFromRipple();
-        createDevice(point);
-    }
-
-    private void positionDevice(ScanResult scanResult){
+    private void positionDevice(ScanResult scanResult) {
 
         Point point = getRandomPointFromRipple();
         createDevice(point);
@@ -213,42 +212,38 @@ public class SearchWlanActivity extends BaseActivity {
         */
     }
 
-
-    private ImageView createImageView() {
-        ImageView iv = new ImageView(getApplicationContext());
-        iv.setImageDrawable(getDrawable(R.drawable.phone2));
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-                                                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                                                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        iv.setLayoutParams(lp);
-        return iv;
+    private void createDevice(Point point) {
+        ImageView imageView = addImageViewToRoot(rootLayout, point);
+        AnimatorSet animatorSet = createAnimation(imageView);
+        imageView.setVisibility(View.VISIBLE);
+        animatorSet.start();
     }
 
-    private void createDevice(Point point) {
+    private ImageView addImageViewToRoot(ViewGroup root, Point point) {
+        point = CircleMath.centerPoint(point, (int)centerPointRadius);
+        ImageView imageView = new ImageView(getApplicationContext());
+        imageView.setImageDrawable(getDrawable(R.drawable.phone2));
+        imageView.setVisibility(View.INVISIBLE);
 
-        ImageView imageView = createImageView();
+        int diameter = (int)centerPointRadius * 2;
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(diameter, diameter);
+        params.leftMargin = point.x; //rippleCanvasPoint.x + point.x;
+        params.topMargin = point.y; //rippleCanvasPoint.y + point.y;
+        root.addView(imageView, params);
+        return imageView;
+    }
 
+    private AnimatorSet createAnimation(View view) {
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.setDuration(400);
         animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
-        ArrayList<Animator> animatorList=new ArrayList<Animator>();
-        ObjectAnimator scaleXAnimator = ObjectAnimator.ofFloat(imageView, "ScaleX", 0f, 1.2f, 1f);
+        ArrayList<Animator> animatorList = new ArrayList<Animator>();
+        ObjectAnimator scaleXAnimator = ObjectAnimator.ofFloat(view, "ScaleX", 0f, 1.2f, 1f);
         animatorList.add(scaleXAnimator);
-        ObjectAnimator scaleYAnimator = ObjectAnimator.ofFloat(imageView, "ScaleY", 0f, 1.2f, 1f);
+        ObjectAnimator scaleYAnimator = ObjectAnimator.ofFloat(view, "ScaleY", 0f, 1.2f, 1f);
         animatorList.add(scaleYAnimator);
         animatorSet.playTogether(animatorList);
-
-        RelativeLayout root = (RelativeLayout) findViewById(R.id.rootScanWifi);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(168, 168);
-
-        int rippleRadius = (int) (centerPoint.x - centerPointRadius);
-        Point canvasPoint = new Point((int) centerPointRadius, centerPoint.y - rippleRadius);
-        params.leftMargin = canvasPoint.x + point.x;
-        params.topMargin = canvasPoint.y + point.y;
-        root.addView(imageView, params);
-
-        imageView.setVisibility(View.VISIBLE);
-        animatorSet.start();
+        return animatorSet;
     }
 
     @Override
