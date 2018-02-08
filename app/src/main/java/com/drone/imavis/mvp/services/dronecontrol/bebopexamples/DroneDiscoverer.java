@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.services.dronecontrol;
+package com.drone.imavis.mvp.services.dronecontrol.bebopexamples;
 
 import android.content.ComponentName;
 import android.content.Context;

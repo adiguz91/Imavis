@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.util.dronecontroll;
+package com.drone.imavis.mvp.services.dronecontrol;
 
 import android.content.Context;
 import android.os.Environment;
@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.drone.imavis.mvp.data.model.FlyPlan;
-import com.drone.imavis.mvp.services.dronecontrol.SDCardModule;
+import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.SDCardModule;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Nodes;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;

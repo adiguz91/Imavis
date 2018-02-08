@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.util.dronecontroll;
+package com.drone.imavis.mvp.services.dronecontrol;
 
 import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;

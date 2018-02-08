@@ -24,19 +24,20 @@ import android.widget.Toast;
 
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.FlyPlan;
-import com.drone.imavis.mvp.services.dronecontrol.BebopDrone;
-import com.drone.imavis.mvp.services.dronecontrol.BebopVideoView;
-import com.drone.imavis.mvp.services.dronecontrol.DroneDiscoverer;
+import com.drone.imavis.mvp.services.dronecontrol.AutonomousFlightController;
+import com.drone.imavis.mvp.services.dronecontrol.DronePermissionRequestHelper;
+import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.BebopDrone;
+import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.BebopVideoView;
+import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.DroneDiscoverer;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.SheetFab;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
+import com.drone.imavis.mvp.ui.searchwlan.SearchWlanActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.UnsubscribeIfPresent;
-import com.drone.imavis.mvp.util.dronecontroll.AutonomousFlightController;
-import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.github.jorgecastilloprz.listeners.FABProgressListener;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
@@ -346,7 +347,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                 }
                 return true;
             case R.id.drones_spinner:
-                droneDiscoverer.startDiscovering();
+                goToActivity(this, SearchWlanActivity.class, new Bundle());
+                //droneDiscoverer.startDiscovering();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

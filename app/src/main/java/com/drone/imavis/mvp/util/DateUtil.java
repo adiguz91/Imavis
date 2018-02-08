@@ -11,7 +11,7 @@ import java.util.Date;
  * Created by adigu on 06.05.2017.
  */
 
-public class DateUtil {
+public final class DateUtil {
 
     public static Date getDateNow() {
         Calendar calendar = Calendar.getInstance();

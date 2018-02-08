@@ -1,22 +1,6 @@
-package com.drone.imavis.mvp.services.dronecontrol;
+package com.drone.imavis.mvp.services.dronecontrol.bebopexamples;
 
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
-import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
-import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
-import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
-import com.parrot.arsdk.arcontroller.ARControllerCodec;
-import com.parrot.arsdk.arcontroller.ARFrame;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 
 public class BebopActivity extends AppCompatActivity {
     /*

@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.util.dronecontroll;
+package com.drone.imavis.mvp.services.dronecontrol.bebopexamples;
 
 /**
  * Created by adigu on 14.09.2017.

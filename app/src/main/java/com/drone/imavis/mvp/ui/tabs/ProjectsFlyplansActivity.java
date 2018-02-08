@@ -14,12 +14,12 @@ import android.widget.Toast;
 
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.services.dronecontrol.DroneDiscoverer;
+import com.drone.imavis.mvp.services.dronecontrol.DronePermissionRequestHelper;
+import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.DroneDiscoverer;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment;
-import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
@@ -44,7 +44,8 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.projects.ProjectsFlyplansActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
-    @Inject DronePermissionRequestHelper dronePermissionRequestHelper;
+    @Inject
+    DronePermissionRequestHelper dronePermissionRequestHelper;
 
     //@Inject
     //ProjectsPresenter projectsPresenter;

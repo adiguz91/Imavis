@@ -46,53 +46,111 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/item_selector"
-        android:orientation="horizontal">
-
-        <com.joanzapata.iconify.widget.IconTextView
-            android:id="@+id/iconTextViewFlyplanListViewItemShowFlyplanIcon"
-            android:layout_height="match_parent"
-            android:layout_width="wrap_content"
-            android:text="{fa-paper-plane-o}"
-            android:padding="10dp"
-            android:shadowRadius="0"
-            android:textSize="40sp"
-            android:background="@color/colorPrimary"
-            android:textColor="@color/colorPrimaryDark"
-            android:gravity="center_vertical" />
+        android:background="@drawable/border_swipe_item">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/item_selector"
-            android:padding="10dp"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textViewFlyplanListViewItemFlyplanname"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="20dp"
-                android:textStyle="bold" />
+                android:layout_height="wrap_content">
+                <com.joanzapata.iconify.widget.IconTextView
+                    android:id="@+id/iconTextViewFlyplanListViewItemShowFlyplanIcon"
+                    android:layout_height="match_parent"
+                    android:layout_width="70dp"
+                    android:text="{fa-paper-plane-o}"
+                    android:padding="10dp"
+                    android:shadowRadius="0"
+                    android:textSize="40sp"
+                    android:background="@color/colorPrimary"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:gravity="center_vertical|center_horizontal" />
 
-            <TextView
-                android:id="@+id/textViewFlyplanListViewItemStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Completed"
-                android:textSize="20dp"
-                android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/item_selector"
+                    android:padding="10dp"
+                    android:orientation="vertical">
 
-            <!--<TextView
-                android:id="@+id/textViewFlyplanListViewItemCreatedDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="17.05.2017 10:24"
-                android:textSize="16dp"
-                android:textStyle="normal"/>-->
+                    <TextView
+                        android:id="@+id/textViewFlyplanListViewItemFlyplanname"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textViewFlyplanListViewItemStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed"
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textViewFlyplanListViewItemCreatedDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="17.05.2017 10:24"
+                        android:textSize="14dp"
+                        android:textStyle="normal"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.joanzapata.iconify.widget.IconTextView
+                    android:id="@+id/iconTextViewFlyplanListViewItemShow3DModelView"
+                    android:layout_height="match_parent"
+                    android:layout_width="70dp"
+                    android:text="{fa-cubes}"
+                    android:padding="10dp"
+                    android:shadowRadius="0"
+                    android:textSize="40sp"
+                    android:background="@color/dropdown_divider_color"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:gravity="center_vertical|center_horizontal" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/dropdown_divider_color"
+                    android:padding="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textViewFlyplanListViewItemFlyplanLastStartDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Start 07.02.2018 14:30:01"
+                        android:textSize="14dp"
+                        android:textStyle="normal" />
+
+                    <TextView
+                        android:id="@+id/textViewFlyplanListViewItemFlyplanLastDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Duration 44sec"
+                        android:textSize="14dp"
+                        android:textStyle="normal" />
+
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+
 
         </LinearLayout>
 
     </LinearLayout>
+
 </com.daimajia.swipe.SwipeLayout>

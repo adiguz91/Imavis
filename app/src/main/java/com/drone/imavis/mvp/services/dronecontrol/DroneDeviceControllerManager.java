@@ -1,10 +1,10 @@
-package com.drone.imavis.mvp.util.dronecontroll;
+package com.drone.imavis.mvp.services.dronecontrol;
 
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import com.drone.imavis.mvp.services.dronecontrol.SDCardModule;
+import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.SDCardModule;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.util.extensions.BooleanExtension;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGSSTATE_HOMETYPECHANGED_TYPE_ENUM;

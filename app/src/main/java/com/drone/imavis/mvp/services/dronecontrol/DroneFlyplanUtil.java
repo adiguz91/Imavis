@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.util.dronecontroll;
+package com.drone.imavis.mvp.services.dronecontrol;
 
 import com.parrot.arsdk.arcontroller.ARFeatureCommon;
 import com.parrot.arsdk.ardatatransfer.ARDATATRANSFER_ERROR_ENUM;

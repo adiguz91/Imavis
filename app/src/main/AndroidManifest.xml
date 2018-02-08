@@ -7,6 +7,9 @@
         android:name="your.package.name.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
@@ -110,6 +113,10 @@
         <activity
             android:name=".ui.flyplanner.FlyplannerActivity"
             android:label="Flyplanner"> <!-- android:screenOrientation="landscape" -->
+        </activity>
+        <activity
+            android:name=".ui.searchwlan.SearchWlanActivity"
+            android:label="Drone connector"> <!-- android:screenOrientation="landscape" -->
         </activity>
         <activity
             android:name=".ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity"

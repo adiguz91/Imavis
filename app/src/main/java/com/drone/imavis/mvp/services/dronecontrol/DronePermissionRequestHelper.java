@@ -1,4 +1,4 @@
-package com.drone.imavis.mvp.util.dronecontroll;
+package com.drone.imavis.mvp.services.dronecontrol;
 
 import android.app.Activity;
 import android.content.Context;

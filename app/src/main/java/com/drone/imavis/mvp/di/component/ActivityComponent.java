@@ -6,18 +6,18 @@ package com.drone.imavis.mvp.di.component;
 
 import com.drone.imavis.mvp.di.PerActivity;
 import com.drone.imavis.mvp.di.module.ActivityModule;
+import com.drone.imavis.mvp.services.dronecontrol.DronePermissionRequestHelper;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
+import com.drone.imavis.mvp.ui.login.LoginActivity;
 import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
 import com.drone.imavis.mvp.ui.searchwlan.SearchWlanActivity;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
-import com.drone.imavis.mvp.ui.login.LoginActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplanAddOrEdit.FlyplanAddOrEditActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
 import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.ImageUtil;
-import com.drone.imavis.mvp.util.dronecontroll.DronePermissionRequestHelper;
 
 import dagger.Subcomponent;
 

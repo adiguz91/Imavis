@@ -1,34 +1,6 @@
-package com.drone.imavis.mvp.services.dronecontrol;
+package com.drone.imavis.mvp.services.dronecontrol.bebopexamples;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
-import com.parrot.arsdk.ARSDK;
-import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_ENUM;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryService;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class DeviceListActivity extends AppCompatActivity {
 
