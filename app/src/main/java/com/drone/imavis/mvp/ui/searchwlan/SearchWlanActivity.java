@@ -5,27 +5,39 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
+import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.internal.MDTintHelper;
+import com.afollestad.materialdialogs.internal.ThemeSingleton;
 import com.amulyakhare.textdrawable.TextDrawable;
+import com.annimon.stream.Stream;
 import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.services.flyplan.mvc.view.SheetFab;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.util.CircleMath;
-import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.skyfishjy.library.RippleBackground;
 import com.thanosfisherman.wifiutils.WifiUtils;
 
@@ -59,12 +71,25 @@ public class SearchWlanActivity extends BaseActivity {
     ImageView centerImageButton;
     @BindView(R.id.rootFoundDevices)
     RelativeLayout rootLayout;
+
+    private View positiveAction;
+    private EditText passwordInput;
+
+    private boolean isNeverClicked = true;
+    private long maxFoundDevices = 6;
+
+    /*
     @BindView(R.id.fabWifiDevice)
     SheetFab fabWifiDevice;
     @BindView(R.id.fabWifiSheet)
     View sheetViewWifi;
     @BindView(R.id.overlayWifi)
     View overlayWifi;
+    @BindView(R.id.editTextFabSheetPassword)
+    MaterialEditText editTextFabSheetPassword;
+    @BindView(R.id.wifiFabSheetSSID)
+    TextView wifiFabSheetSSID;
+    */
 
     final Handler wlanMapHandler = new Handler();
 
@@ -78,6 +103,7 @@ public class SearchWlanActivity extends BaseActivity {
     private List<Point> devicePositions;
 
     private boolean busy = false;
+    //private MaterialSheetFab materialSheetFab;
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -94,6 +120,8 @@ public class SearchWlanActivity extends BaseActivity {
         //rippleCanvasPoint = new Point((int)centerPointRadius/2, wlanMapViewPoint.y/2);
         rippleCanvasPoint = new Point(0, 0);
 
+        //fabWifiDevice.
+
         WifiUtils.enableLog(true);
         getWifi();
     }
@@ -109,39 +137,6 @@ public class SearchWlanActivity extends BaseActivity {
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
-
-        initFabSheet();
-
-        //fabWifiDevice.hide();
-        rootLayout.setOnTouchListener((view, motionEvent) -> {
-            Point touchedPoint = new Point((int)motionEvent.getX(), (int)motionEvent.getY());
-            for (Point point : devicePositions) {
-                if (CircleMath.isPointInsideCircle(point, touchedPoint, centerPointRadius+30)) {
-                    fabWifiDevice.setLeft(point.x);
-                    fabWifiDevice.setTop(point.y);
-                    fabWifiDevice.callOnClick();
-                    break;
-                }
-            }
-            return false;
-        });
-
-
-    }
-
-    private void initFabSheet() {
-
-        int sheetColor = getResources().getColor(R.color.blue_normal);
-        int fabColor = getResources().getColor(R.color.accent_color);
-
-        fabWifiDevice.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.transparent)));
-        fabWifiDevice.setRippleColor(getResources().getColor(R.color.transparent));
-        fabWifiDevice.setElevation(0);
-        fabWifiDevice.setCompatElevation(0);
-
-        // Initialize material sheet FAB
-        MaterialSheetFab materialSheetFab = new MaterialSheetFab<>(fabWifiDevice, sheetViewWifi, overlayWifi,
-                sheetColor, fabColor);
     }
 
     // call this method only if you are on 6.0 and up, otherwise call doGetWifi()
@@ -150,7 +145,9 @@ public class SearchWlanActivity extends BaseActivity {
             requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
         } else {
             scanWifiDevices(); // the actual wifi scanning
-            centerImageButton.callOnClick();
+            if (isNeverClicked)
+                centerImageButton.callOnClick();
+            isNeverClicked = false;
         }
     }
 
@@ -180,9 +177,9 @@ public class SearchWlanActivity extends BaseActivity {
                         devicePositions.add(centerPoint);
                         wlanMapView.startRippleAnimation();
                         WifiUtils.withContext(getApplicationContext()).scanWifi(scanResults -> {
-                            for (ScanResult scanResult : scanResults) {
-                                createDevice(scanResult, getRandomPointFromRipple());
-                            }
+                            List<ScanResult> filteredScanResults = Stream.of(scanResults).sortBy(scanResult -> Math.abs(scanResult.level)).limit(maxFoundDevices).toList();
+                            //List<ScanResult> filteredScanResult = (List) scanResults.stream().sorted(Comparator.comparing(o -> o.level)).limit(maxFoundDevices);
+                            Stream.of(filteredScanResults).forEach(scanResult -> createDevice(scanResult, getRandomPointFromRipple()));
                             wlanMapView.stopRippleAnimation();
                             busy = false;
                         }).start();
@@ -202,7 +199,7 @@ public class SearchWlanActivity extends BaseActivity {
                 check = true;
                 randomPoint = CircleMath.getRandomPointFromCircle(centerPoint, rippleRadius);
                 for (Point devicePoint : devicePositions) {
-                    if (CircleMath.isCircleCollision(devicePoint, centerPointRadius + 30, randomPoint)) {
+                    if (CircleMath.isCircleCollision(devicePoint, centerPointRadius + 40, randomPoint)) {
                         check &= false;
                         break;
                     } else
@@ -223,22 +220,100 @@ public class SearchWlanActivity extends BaseActivity {
         animatorSet.start();
     }
 
+    private void onWifiConnect(String ssid, String password) {
+        // connect to wifi
+        WifiUtils.withContext(getApplicationContext())
+                .connectWith(ssid, password)
+                .onConnectionResult(isSuccess -> {
+                    // success toast message, goBack
+                    if (isSuccess)
+                        showToast("Connection succeeded!");
+                    else
+                        showToast("Connection failed!");
+                })
+                .start();
+    }
+
+    private void showToast(String message) {
+        Toast toast = new Toast(this);
+        if (toast != null) {
+            toast.cancel();
+            toast = null;
+        }
+        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    public void showDialogWifiConnector(ScanResult scanResult) {
+        MaterialDialog dialog =
+                new MaterialDialog.Builder(this)
+                        .title("Wifi connector")
+                        .customView(R.layout.dialog_wifi_connector, true)
+                        .positiveText("Connect")
+                        .negativeText(android.R.string.cancel)
+                        .onPositive(
+                            (dialog1, which) -> {
+                                EditText passwordInput = dialog1.getCustomView().findViewById(R.id.password);
+                                onWifiConnect(scanResult.SSID, passwordInput.getText().toString());
+                            })
+                        .build();
+
+        positiveAction = dialog.getActionButton(DialogAction.POSITIVE);
+        //noinspection ConstantConditions
+
+        TextView textViewSSID = dialog.getCustomView().findViewById(R.id.textViewSSID);
+        textViewSSID.setText(scanResult.SSID);
+        TextView textViewSecurity = dialog.getCustomView().findViewById(R.id.textViewSecurity);
+        textViewSecurity.setText(scanResult.capabilities);
+        TextView textViewSignalStrength = dialog.getCustomView().findViewById(R.id.textViewSignalStrength);
+        int signalStrengthLevel = WifiManager.calculateSignalLevel(scanResult.level, SignalStrength.values().length);
+        textViewSignalStrength.setText(SignalStrength.values()[signalStrengthLevel].toString());
+
+        passwordInput = dialog.getCustomView().findViewById(R.id.password);
+        passwordInput.addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        positiveAction.setEnabled(s.toString().trim().length() > 0);
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {}
+                });
+
+        // Toggling the show password CheckBox will mask or unmask the password input EditText
+        CheckBox checkbox = dialog.getCustomView().findViewById(R.id.showPassword);
+        checkbox.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> {
+                    passwordInput.setInputType(
+                            !isChecked ? InputType.TYPE_TEXT_VARIATION_PASSWORD : InputType.TYPE_CLASS_TEXT);
+                    passwordInput.setTransformationMethod(
+                            !isChecked ? PasswordTransformationMethod.getInstance() : null);
+                });
+
+        int widgetColor = ThemeSingleton.get().widgetColor;
+        MDTintHelper.setTint(
+                checkbox, widgetColor == 0 ? ContextCompat.getColor(this, R.color.accent) : widgetColor);
+
+        MDTintHelper.setTint(
+                passwordInput,
+                widgetColor == 0 ? ContextCompat.getColor(this, R.color.accent) : widgetColor);
+
+        dialog.show();
+        positiveAction.setEnabled(false); // disabled by default
+    }
+
     private ImageView addImageViewToRoot(ViewGroup root, ScanResult scanResult, Point point) {
         point = CircleMath.centerPoint(point, (int) centerPointRadius);
         ImageView imageView = new ImageView(getApplicationContext());
         //imageView.setImageDrawable(getDrawable(R.drawable.phone2));
         imageView.setImageDrawable(getTextDrawable(scanResult.SSID));
         imageView.setVisibility(View.INVISIBLE);
-
-        String wifiPassword = "";
         imageView.setOnClickListener(view -> {
-            // connect to wifi
-            WifiUtils.withContext(getApplicationContext())
-                .connectWith(scanResult.SSID, wifiPassword)
-                .onConnectionResult(isSuccess -> {
-                    // success toast message, goBack
-                })
-                .start();
+            showDialogWifiConnector(scanResult);
         });
 
         int diameter = (int) centerPointRadius * 2;
@@ -258,6 +333,7 @@ public class SearchWlanActivity extends BaseActivity {
                 .useFont(Typeface.DEFAULT)
                 .fontSize(toPx(10))
                 .textColor(0xfff58559)
+                .withBorder(4)
                 .bold()
                 .endConfig().buildRound(text, Color.DKGRAY );
     }

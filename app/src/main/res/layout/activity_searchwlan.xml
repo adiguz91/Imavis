@@ -29,96 +29,9 @@
     </com.skyfishjy.library.RippleBackground>
 
     <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/rootFoundDevices">
-
-        </RelativeLayout>
-
-        <!-- android:layout_alignParentRight="true" -->
-        <com.drone.imavis.mvp.services.flyplan.mvc.view.SheetFab
-            android:id="@+id/fabWifiDevice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:elevation="0dp"
-            app:elevation="0dp"/>
-
-        <!-- Overlay that dims the screen -->
-        <com.gordonwong.materialsheetfab.DimOverlayFrameLayout
-            android:id="@+id/overlayWifi"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <!-- Circular reveal container for the sheet -->
-        <io.codetail.widget.RevealLinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="end|bottom"
-            android:orientation="vertical">
-
-            <!-- Sheet that contains your items -->
-            <android.support.v7.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10px"
-                android:id="@+id/fabWifiSheet"
-                style="@style/Widget.MaterialSheetFab.Sheet"
-                xmlns:android="http://schemas.android.com/apk/res/android">
-
-                <!-- Sheet items -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- Wifi SSID -->
-                    <TextView
-                        android:id="@+id/fab_sheet_item_recording"
-                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Bebop2 Drone"/>
-
-                    <!-- Set Password -->
-                    <com.rengwuxian.materialedittext.MaterialEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Password"
-                        android:text=""
-                        android:textSize="20sp"
-                        app:met_iconLeft="@drawable/phone2"
-                        app:met_iconPadding="0dp"
-                        app:met_baseColor="@android:color/white"
-                        app:met_floatingLabel="highlight"
-                        app:met_maxCharacters="20"
-                        app:met_primaryColor="?colorAccent" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_horizontal">
-                            <Button
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Connect"/>
-
-                            <Button
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Cancel"/>
-                        </LinearLayout>
-
-                </LinearLayout>
-
-            </android.support.v7.widget.CardView>
-        </io.codetail.widget.RevealLinearLayout>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rootFoundDevices">
 
     </RelativeLayout>
 

@@ -17,4 +17,8 @@
     <dimen name="sheet_item_textsize">16sp</dimen>
     <dimen name="fab_elevation">4dp</dimen>
     <dimen name="fab_sheet_elevation">0dp</dimen>
+
+    <!-- dialog wifi connector -->
+    <dimen name="customTitle">14sp</dimen>
+    <dimen name="customEntry">18sp</dimen>
 </resources>

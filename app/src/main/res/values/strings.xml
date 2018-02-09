@@ -30,4 +30,15 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- dialog wifi connector -->
+    <string name="signalStrength">Signal strength</string>
+    <string name="excellent">Excellent</string>
+    <string name="security">Security</string>
+    <string name="securityType"></string>
+    <string name="password">Password</string>
+    <string name="showPassword">Show password</string>
+    <string name="connect">Connect</string>
+    <string name="ssidLabel">SSID</string>
+    <string name="ssidTextBox"></string>
 </resources>

@@ -91,6 +91,8 @@ dependencies {
     // design & layout
     //Optional: see how to use the utility.
 
+    compile 'com.annimon:stream:1.1.9'
+
     //dependencies
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile('com.rengwuxian.materialedittext:library:2.1.4') {
