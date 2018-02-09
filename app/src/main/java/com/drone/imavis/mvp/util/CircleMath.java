@@ -13,13 +13,7 @@ public final class CircleMath {
     }
 
     public static boolean isCircleCollision(Point point1, float radius, Point point2) {
-        // Compare radius of circle with distance of its center from given point
-        /*if ((point2.x - point1.x) * (point2.x - point1.x) +
-                (point2.y - point1.y) * (point2.y - point1.y) <= radius * radius)
-            return true;
-        else
-            return false;
-        */
+
         /*
         double xDif = point1.x - point2.x;
         double yDif = point1.y - point2.y;
@@ -33,6 +27,15 @@ public final class CircleMath {
             return false; // no collision;
         else
             return true;
+    }
+
+    public static boolean isPointInsideCircle(Point point1, Point point2, float radius) {
+        // Compare radius of circle with distance of its center from given point
+        if ((point2.x - point1.x) * (point2.x - point1.x) +
+                (point2.y - point1.y) * (point2.y - point1.y) <= radius * radius)
+            return true;
+        else
+            return false;
     }
 
     // https://codepen.io/enxaneta/pen/dXGEbv
