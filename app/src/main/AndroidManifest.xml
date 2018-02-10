@@ -106,7 +106,10 @@
         -->
         <activity
             android:name=".ui.tabs.ProjectsFlyplansActivity"
-            android:label="Imavis"></activity>
+            android:label="Imavis"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
         <!--<activity
             android:name=".ui.tabs.projects.ProjectsActivity"
             android:label="Projects"></activity>-->

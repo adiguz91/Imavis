@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.location.Location;
@@ -319,7 +320,13 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         int id = item.getItemId();
 
         switch (item.getItemId()) {
-
+            case android.R.id.home:
+                Intent intent = new Intent();
+                intent.putExtra("Flyplan", flyplan);
+                setResult(RESULT_BACK_PRESSED, intent);
+                //super.onBackPressed();
+                finish();
+                return true;
             case R.id.menu_flyplanner_action_maptype:
                 goToActivity(this, ModelViewerActivity.class, new Bundle());
                 return true;
@@ -354,6 +361,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    private int RESULT_BACK_PRESSED = 2000;
 
     @Override
     protected void onDestroy() {

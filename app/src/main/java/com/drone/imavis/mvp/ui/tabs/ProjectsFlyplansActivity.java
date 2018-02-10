@@ -8,8 +8,10 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.drone.imavis.mvp.R;
@@ -18,10 +20,23 @@ import com.drone.imavis.mvp.services.dronecontrol.DronePermissionRequestHelper;
 import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.DroneDiscoverer;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
+import com.drone.imavis.mvp.ui.searchwlan.SearchWlanActivity;
 import com.drone.imavis.mvp.ui.tabs.flyplans.FlyplansFragment;
 import com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
@@ -46,12 +61,6 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
 
     @Inject
     DronePermissionRequestHelper dronePermissionRequestHelper;
-
-    //@Inject
-    //ProjectsPresenter projectsPresenter;
-    //private ProjectListViewAdapter projectsListViewAdapter;
-    //@Inject ProjectListViewAdapter projectsListViewAdapter;
-
     List<ARDiscoveryDeviceService> dronesList;
 
     /** List of runtime permission we need. */
@@ -82,6 +91,9 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     @BindView(R.id.viewpagertab)
     SmartTabLayout viewPagerTab;
 
+    private AccountHeader headerResult = null;
+    private Drawer result = null;
+
     /**
      * Return an Intent to start this Activity.
      * triggerDataSyncOnCreate allows disabling the background sync service onCreate. Should
@@ -104,18 +116,6 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
         /* Drone */
         droneDiscoverer = new DroneDiscoverer(this);
         dronePermissionRequestHelper.requestPermission(PERMISSIONS_NEEDED, REQUEST_CODE_PERMISSIONS_REQUEST);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        /*
-        Toolbar toolbar = (Toolbar) findViewById(R.id.apptoolbar);
-        TextView mTitle = (TextView) toolbar.findViewById(R.id.apptoolbar_title);
-        setSupportActionBar(toolbar);
-        mTitle.setText(toolbar.getTitle());
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        */
-        // do stuff
 
         fragmentAdapter = new FragmentPagerItemAdapter(
                 getSupportFragmentManager(), FragmentPagerItems.with(this)
@@ -141,9 +141,89 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
                 }
             }
         });
+
+        initMenu(savedInstanceState);
+    }
+
+    private void initMenu(Bundle savedInstanceState) {
+        // Handle Toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.ProjectsFlyplansToolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Projects");
+
+        IconDrawable iconMenu = new IconDrawable(this, FontAwesomeIcons.fa_bars).colorRes(R.color.white).actionBarSize();
+        getSupportActionBar().setHomeAsUpIndicator(iconMenu);
+
+        // Create a few sample profile
+
+        IconDrawable iconProfile = new IconDrawable(this, FontAwesomeIcons.fa_user).actionBarSize();
+        final IProfile profile = new ProfileDrawerItem().withName("Mike Penz").withEmail("mikepenz@gmail.com").withIcon(iconProfile);
+
+        IconDrawable iconLogout = new IconDrawable(this, FontAwesomeIcons.fa_lock).actionBarSize();
+        IconDrawable iconSettings = new IconDrawable(this, FontAwesomeIcons.fa_cog).actionBarSize();
+
+        // Create the AccountHeader
+        headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withCompactStyle(true)
+                //.withHeaderBackground(R.drawable.header)
+                .addProfiles(
+                        profile,
+                        //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
+                        new ProfileSettingDrawerItem().withName("Logout").withIcon(iconLogout),
+                        new ProfileSettingDrawerItem().withName("Manage Account").withIcon(iconSettings)
+                )
+                .withSavedInstance(savedInstanceState)
+                .build();
+
+        IconDrawable icon = new IconDrawable(this, FontAwesomeIcons.fa_user).actionBarSize();
+
+        //Create the drawer
+        result = new DrawerBuilder()
+                .withActivity(this)
+                .withToolbar(toolbar)
+                .withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName("Home").withIcon(icon).withIdentifier(1),
+                        new SectionDrawerItem().withName("Settings"),
+                        new SecondaryDrawerItem().withName("Edit").withIcon(icon)
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        if (drawerItem != null && drawerItem.getIdentifier() == 1) {
+                            //startSupportActionMode(new ActionBarCallBack());
+                            //findViewById(R.id.action_mode_bar).setBackgroundColor(UIUtils.getThemeColorFromAttrOrRes(CompactHeaderDrawerActivity.this, R.attr.colorPrimary, R.color.material_drawer_primary));
+                        }
+
+                        if (drawerItem instanceof Nameable) {
+                            //toolbar.setTitle(((Nameable) drawerItem).getName().getText(CompactHeaderDrawerActivity.this));
+                        }
+
+                        return false;
+                    }
+                })
+                .withSavedInstance(savedInstanceState)
+                .build();
+
+        //set the back arrow in the toolbar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(false);
+    }
+
+    @Override
+    public void onBackPressed() {
+        //handle the back press :D close the drawer first and if the drawer is closed close the activity
+        if (result != null && result.isDrawerOpen()) {
+            result.closeDrawer();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private void onSelectProjectsFragment() {
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle("Projects");
         viewPager.setPagingEnabled(false);
         viewPagerTab.getTabAt(1).setClickable(false);
         // change tab color disabled
@@ -186,7 +266,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.drones_spinner:
-                //todo
+                goToActivity(this, SearchWlanActivity.class, new Bundle());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -232,12 +312,13 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     {
         super.onResume();
 
+        // TODO repair
         // setup the drone discoverer and register as listener
-        droneDiscoverer.setup();
-        droneDiscoverer.addListener(this); // onDronesListUpdated
+        //droneDiscoverer.setup();
+        //droneDiscoverer.addListener(this); // onDronesListUpdated
 
         // start discovering
-        droneDiscoverer.startDiscovering();
+        //droneDiscoverer.startDiscovering();
     }
 
     @Override
