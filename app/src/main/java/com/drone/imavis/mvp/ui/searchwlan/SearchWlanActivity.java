@@ -13,12 +13,14 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -103,7 +105,25 @@ public class SearchWlanActivity extends BaseActivity {
     private List<Point> devicePositions;
 
     private boolean busy = false;
-    //private MaterialSheetFab materialSheetFab;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        activityComponent().inject(this);
+        setContentView(R.layout.activity_searchwlan);
+        ButterKnife.bind(this);
+        context = this;
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
+            //startService(SyncService.getStartIntent(this));
+        }
+
+        //Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        //startActivity(intent);
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -127,15 +147,18 @@ public class SearchWlanActivity extends BaseActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        activityComponent().inject(this);
-        setContentView(R.layout.activity_searchwlan);
-        ButterKnife.bind(this);
-        context = this;
-
-        if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
-            //startService(SyncService.getStartIntent(this));
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (getParentActivityIntent() == null) {
+                    //Log.i(TAG, "You have forgotten to specify the parentActivityName in the AndroidManifest!");
+                    onBackPressed();
+                } else {
+                    NavUtils.navigateUpFromSameTask(this);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
