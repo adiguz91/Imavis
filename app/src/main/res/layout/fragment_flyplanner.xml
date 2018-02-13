@@ -21,12 +21,20 @@
         class="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.FlyplannerMap" />
         -->
 
+
+
     <!-- draw nodes -->
     <com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView
             android:layout_weight="0"
             android:id="@+id/flyplannerDraw"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+    <ImageView
+    android:id="@+id/droneFlyingState"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:srcCompat="@drawable/drone_flying_state"/>
 
     <include layout="@layout/view_action_buttons"/>
 

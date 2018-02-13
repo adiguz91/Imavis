@@ -4,8 +4,8 @@ import android.graphics.Canvas;
 
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
-import com.google.gson.Gson;
 import com.drone.imavis.mvp.util.doublelinkedlist.DoublyLinkedList;
+import com.google.gson.Gson;
 
 import java.util.ListIterator;
 
@@ -27,8 +27,6 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         Waypoints deserializedPOIs = gson.fromJson(waypointsJSON, Waypoints.class);
         this.addAll(deserializedPOIs);
     }
-
-
 
     public int draw(Canvas canvas) {
         Waypoint waypoint, waypointLastNode = null;

@@ -1,12 +1,15 @@
 package com.drone.imavis.mvp.data.model;
 
 import android.graphics.Canvas;
+import android.graphics.Path;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Nodes;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan.UnitOfLength;
 import com.google.gson.Gson;
@@ -23,6 +26,7 @@ import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.util.Date;
+import java.util.ListIterator;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -78,6 +82,22 @@ public class FlyPlan implements Parcelable {
 
     public void setImageFolderUrl(Uri imageFolderUrl) {
         this.imageFolderUrl = imageFolderUrl;
+    }
+
+    public Path getPathRoute(float xCorrection, float yCorrection) {
+        Path path = new Path();
+        int count = 1;
+        for (ListIterator<Waypoint> it = nodes.getWaypoints().listIterator(); it.hasNext(); ) {
+            Waypoint waypoint = it.next();
+            Coordinate coordinate = waypoint.getShape().getCoordinate();
+            if (count == 1) {
+                path.moveTo(coordinate.getX() - xCorrection, coordinate.getY() - yCorrection);
+            } else {
+                path.lineTo(coordinate.getX() - xCorrection, coordinate.getY() - yCorrection);
+            }
+            count++;
+        }
+        return path;
     }
 
     public void draw(Canvas canvas) {

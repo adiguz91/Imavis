@@ -1,6 +1,7 @@
 package com.drone.imavis.mvp.ui.flyplanner;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,8 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Path;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -20,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -189,11 +191,15 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             @Override
             public void onClick(View v) {
                 //String appDirectory = getApplicationInfo().dataDir;
-                String imageDirectory = "/storage/emulated/0/Android/data/com.drone.imavis/images/castle/";
+                /*String imageDirectory = "/storage/emulated/0/Android/data/com.drone.imavis/images/castle/";
                 File imageFileDirectory = new File(imageDirectory);
                 Uri imageUriDirectory = Uri.fromFile(imageFileDirectory);
                 flyplan.setImageFolderUrl(imageUriDirectory);
-                flyplannerPresenter.startFlyplanTask(flyplan);
+                flyplannerPresenter.startFlyplanTask(flyplan);*/
+
+                long duration = 10000; // calculate duration alonge
+                ImageView imageView = findViewById(R.id.droneFlyingState);
+                moveViewAlongPath(imageView, flyplan.getPathRoute(imageView.getWidth()/2, imageView.getHeight()/2), duration);
             }
         });
 
@@ -360,6 +366,13 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void moveViewAlongPath(final View view, final Path path, long duration) {
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(view, View.X, View.Y, path);
+        objectAnimator.setDuration(duration);
+        objectAnimator.setAutoCancel(true);
+        objectAnimator.start();
     }
 
     private int RESULT_BACK_PRESSED = 2000;
