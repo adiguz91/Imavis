@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao' // apply plugin
 
 android {
-    compileSdkVersion 26 // 25
-    buildToolsVersion '26.0.2' // 25.0.0 or 25.0.2
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3' // https://developer.android.com/studio/releases/build-tools.html
     defaultConfig {
         applicationId "com.drone.imavis"
         minSdkVersion 23
@@ -52,7 +52,7 @@ android {
     }
 
     dexOptions {
-        incremental true
+        //incremental true
         jumboMode true
         javaMaxHeapSize '12g'
     }
@@ -67,6 +67,12 @@ repositories {
     maven { url 'http://dl.bintray.com/amulyakhare/maven' }
     google()
     //maven { url "https://maven.google.com" }
+}
+
+ext {
+    supportLibraryVersion = "27.1.0"
+    supportLibraryVersion2 = "27.1.0" // 27.0.0
+    playServicesVersion = "11.4.2"
 }
 
 dependencies {
@@ -144,25 +150,22 @@ dependencies {
     implementation("com.mikepenz:materialdrawer:6.0.6@aar") {
         transitive = true
     }
+
+    implementation "com.android.support:appcompat-v7:$supportLibraryVersion2" // 27.1.0
     //implementation "com.android.support:recyclerview-v7:27.0.0" //${versions.supportLib}
-    implementation "com.android.support:support-annotations:26.1.0"
-
-    compile 'com.android.support:support-v4:26.1.0'
-    compile 'com.android.support:appcompat-v7:27.0.0'
-
-    compile 'com.android.support:support-v13:26.1.0'
-
-    compile 'com.android.support:design:26.1.0'
-
-    compile 'com.android.support:cardview-v7:26.1.0'
+    implementation "com.android.support:support-annotations:$supportLibraryVersion"
+    compile "com.android.support:support-v4:$supportLibraryVersion"
+    compile "com.android.support:support-v13:$supportLibraryVersion"
+    compile "com.android.support:design:$supportLibraryVersion"
+    compile "com.android.support:cardview-v7:$supportLibraryVersion"
 
 
     // gps/googlemaps/places location
     compile 'pl.charmas.android:android-reactive-location2:2.0@aar'
     compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
-    compile 'com.google.android.gms:play-services:11.4.2' // 10.0.1
-    compile 'com.google.android.gms:play-services-location:11.0.4' //you can use newer GMS version if you need
-    compile 'com.google.android.gms:play-services-places:11.4.2'
+    implementation "com.google.android.gms:play-services:$playServicesVersion" // 10.0.1
+    implementation "com.google.android.gms:play-services-location:$playServicesVersion" //you can use newer GMS version if you need
+    implementation "com.google.android.gms:play-services-places:$playServicesVersion" // 11.4.2
 
     compile 'com.github.dmytrodanylyk.android-process-button:library:1.0.4'
     compile 'com.github.nekocode:Badge:2.0'
@@ -179,7 +182,7 @@ dependencies {
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 
     // add library
-    //compile 'com.android.support.constraint:constraint-layout:+'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0-beta4'
     // https://mvnrepository.com/artifact/commons-io/commons-io
     //compile 'commons-io:commons-io:2.5'
     compile group: 'commons-io', name: 'commons-io', version: '2.6'

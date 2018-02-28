@@ -1,16 +1,17 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment">
 
 
     <fragment
-        android:name="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment"
         android:id="@+id/flyplannerMap"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:name="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <!-- xmlns:android="http://schemas.android.com/apk/res/android" -->
     <!--<fragment
@@ -22,78 +23,88 @@
         -->
 
 
-
     <!-- draw nodes -->
     <com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView
-            android:layout_weight="0"
-            android:id="@+id/flyplannerDraw"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        android:id="@+id/flyplannerDraw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <ImageView
-    android:id="@+id/droneFlyingState"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    app:srcCompat="@drawable/drone_flying_state"/>
+        android:id="@+id/droneFlyingState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/drone_flying_state" />
 
-    <include layout="@layout/view_action_buttons"/>
+    <include
+        android:id="@+id/include"
+        layout="@layout/view_action_buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
+
 
     <LinearLayout
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal">
+        android:id="@+id/linearLayout"
+        android:layout_width="280dp"
+        android:layout_height="36dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/layout_background_round"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/flyplanner_fab_pc_start"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
-            android:layout_alignParentBottom="true"
+        <SeekBar
+            android:id="@+id/flyplannerSeekBarHeight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:layout_gravity="center_vertical"
-            android:orientation="horizontal"
-            android:background="@drawable/layout_background_round">
+            android:progress="20"
+            android:secondaryProgress="20" />
 
-            <SeekBar
-                android:id="@+id/flyplannerSeekBarHeight"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:progress="20"
-                android:secondaryProgress="20"
-                android:layout_gravity="center_vertical"/>
-
-            <com.joanzapata.iconify.widget.IconTextView
-                android:padding="5dp"
-                android:layout_margin="5dp"
-                android:id="@+id/iconTextViewLoginAppIcon"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:text="{fa-i-cursor}"
-                android:shadowRadius="0"
-                android:textSize="16sp"
-                android:background="@color/colorPrimary"
-                android:textColor="#ffffff"/>
-
-        </LinearLayout>
-
-        <com.github.jorgecastilloprz.FABProgressCircle
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/flyplanner_fab_pc_start"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right">
-
-            <!-- You can change it with the fab from the library you want to use -->
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/flyplanner_fab_start"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:rippleColor="#ffffff"
-                app:elevation="4dp"
-                app:borderWidth="0dp" />
-        </com.github.jorgecastilloprz.FABProgressCircle>
+        <com.joanzapata.iconify.widget.IconTextView
+            android:id="@+id/iconTextViewLoginAppIcon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:background="@color/colorPrimary"
+            android:padding="5dp"
+            android:shadowRadius="0"
+            android:text="{fa-i-cursor}"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
 
     </LinearLayout>
 
+    <com.github.jorgecastilloprz.FABProgressCircle xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/flyplanner_fab_pc_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-</RelativeLayout>
+        <!-- You can change it with the fab from the library you want to use -->
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/flyplanner_fab_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:borderWidth="0dp"
+            app:elevation="4dp"
+            app:rippleColor="#ffffff" />
+    </com.github.jorgecastilloprz.FABProgressCircle>
+
+    <android.support.constraint.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="top" />
+
+
+</android.support.constraint.ConstraintLayout>
