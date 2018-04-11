@@ -3,20 +3,22 @@ package com.drone.imavis.mvp.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.FlyPlan;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.map.Map;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Nodes;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import org.json.JSONArray;
+import org.greenrobot.greendao.annotation.Convert;
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Transient;
+import org.greenrobot.greendao.converter.PropertyConverter;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
+import org.greenrobot.greendao.annotation.Generated;
+
+import okhttp3.MultipartBody;
+import retrofit2.http.Part;
 
 /**
  * Created by adigu on 06.05.2017.
@@ -24,48 +26,24 @@ import java.util.concurrent.ExecutionException;
 
 public class Task implements Parcelable {
 
-//    {
-//            "id": 134,
-//            "project": 27,
-//            "processing_node": 10,
-//            "images_count": 48,
-//            "available_assets": [
-//                "all",
-//                "geotiff",
-//                "texturedmodel",
-//                "las",
-//                "csv",
-//                "ply"
-//            ],
-//            "uuid": "4338d684-91b4-49a2-b907-8ba171894393",
-//            "name": "Task Name",
-//            "processing_time": 2197417,
-//            "auto_processing_node": false,
-//            "status": 40,
-//            "last_error": null,
-//            "options": [
-//                {
-//                    "name": "use-opensfm-pointcloud",
-//                    "value": true
-//                }
-//            ],
-//            "ground_control_points": null,
-//            "created_at": "2017-02-18T18:01:55.402551Z",
-//            "pending_action": null
-//    }
-
     @SerializedName("id")
-    private int  id;
+    private int id;
+
     @SerializedName("project")
-    private int  project;
+    private int project;
+
     @SerializedName("processing_node")
     private int processingNode;
+
     @SerializedName("images_count")
     private int imagesCount;
-    @Expose(serialize = false, deserialize = false)
-    private List<String> images; // url
+
+    //@Expose(serialize = false, deserialize = false)
+    List<MultipartBody.Part> images; // url
+
     @SerializedName("available_assets")
     private List<String> availableAssets;
+
     @SerializedName("uuid")
     private String uuid;
     @SerializedName("name")
@@ -74,8 +52,10 @@ public class Task implements Parcelable {
     private int processingTime; // milliseconds
     @SerializedName("auto_processing_node")
     private boolean autoProcessingNode;
+
     @SerializedName("status")
     private TaskStatus status;
+
     @SerializedName("last_error")
     private String lastError;
     //@SerializedName("options")
@@ -84,6 +64,7 @@ public class Task implements Parcelable {
     private String groundControlPoints;
     @SerializedName("created_at")
     private Date createdAt;
+
     @SerializedName("pending_action")
     private TaskPendingAction pendingAction;
 
@@ -95,7 +76,7 @@ public class Task implements Parcelable {
         return id;
     }
 
-    private void setId(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -103,7 +84,7 @@ public class Task implements Parcelable {
         return project;
     }
 
-    private void setProject(int project) {
+    public void setProject(int project) {
         this.project = project;
     }
 
@@ -119,15 +100,15 @@ public class Task implements Parcelable {
         return imagesCount;
     }
 
-    private void setImagesCount(int imagesCount) {
+    public void setImagesCount(int imagesCount) {
         this.imagesCount = imagesCount;
     }
 
-    public List<String> getImages() {
+    public List<MultipartBody.Part> getImages() {
         return images;
     }
 
-    public void setImages(List<String> images) {
+    public void setImages(List<MultipartBody.Part> images) {
         this.images = images;
     }
 
@@ -253,6 +234,10 @@ public class Task implements Parcelable {
         dest.writeInt(pendingAction == null ? -1 : pendingAction.ordinal());
     }
 
+    public boolean getAutoProcessingNode() {
+        return this.autoProcessingNode;
+    }
+
     /**
      * Constructs a Project from a Parcel
      * @param parcelIn Source Parcel
@@ -268,12 +253,14 @@ public class Task implements Parcelable {
         this.name = parcelIn.readString();
         this.processingTime = parcelIn.readInt();
         this.autoProcessingNode = parcelIn.readByte() != 0;
-        this.status = TaskStatus.values()[parcelIn.readInt()];
+        int temp = parcelIn.readInt();
+        this.status = TaskStatus.values()[temp == -1 ? 0 : temp];
         this.lastError = parcelIn.readString();
         //this.options = null; //new ArrayList<TaskOption>(); parcelIn.readTypedList(this.options, null);
         this.groundControlPoints = parcelIn.readString();
         this.createdAt = new Date((parcelIn.readLong()));
-        this.pendingAction = TaskPendingAction.values()[parcelIn.readInt()];
+        temp = parcelIn.readInt();
+        this.pendingAction = TaskPendingAction.values()[temp == -1 ? 0 : temp];
     }
 
     // Method to recreate a Question from a Parcel

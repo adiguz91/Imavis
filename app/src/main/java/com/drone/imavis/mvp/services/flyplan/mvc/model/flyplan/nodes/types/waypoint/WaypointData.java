@@ -3,9 +3,9 @@ package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.wayp
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.NodeData;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
+import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -20,7 +20,6 @@ public class WaypointData extends NodeData {
     public int getDirection() {
         return direction;
     }
-
     public void setDirection(int direction) {
         this.direction = direction;
     }
@@ -28,7 +27,6 @@ public class WaypointData extends NodeData {
     public int getDistanceToNextNode() {
         return distanceToNextNode;
     }
-
     public void setDistanceToNextNode(int distanceToNextNode) {
         this.distanceToNextNode = distanceToNextNode;
     }
@@ -36,7 +34,6 @@ public class WaypointData extends NodeData {
     public int getSpeedToNextNode() {
         return speedToNextNode;
     }
-
     public void setSpeedToNextNode(int speedToNextNode) {
         this.speedToNextNode = speedToNextNode;
     }
@@ -44,7 +41,6 @@ public class WaypointData extends NodeData {
     public int getFlyHeight() {
         return flyHeight;
     }
-
     public void setFlyHeight(int flyHeight) {
         this.flyHeight = flyHeight;
     }
@@ -52,7 +48,6 @@ public class WaypointData extends NodeData {
     public WaypointMode getMode() {
         return mode;
     }
-
     public void setMode(WaypointMode mode) {
         this.mode = mode;
     }
@@ -60,7 +55,6 @@ public class WaypointData extends NodeData {
     public PointOfInterest getPoi() {
         return poi;
     }
-
     public void setPoi(PointOfInterest poi) {
         this.poi = poi;
     }

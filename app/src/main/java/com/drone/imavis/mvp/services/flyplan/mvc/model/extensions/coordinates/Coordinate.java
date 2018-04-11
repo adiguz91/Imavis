@@ -8,12 +8,18 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.dimension.Size
 
 public class Coordinate {
 
-    private float x;
-    private float y;
-    private float z;
+    private float x; // longitude
+    private float y; // latitude
+    private float z; // elevation
+
+    private GPSCoordinate gpsCoordinate;
 
     public Coordinate(float x, float y, float z) {
         setCoordinate(x, y, z);
+    }
+
+    public Coordinate(double x, double y, double z) {
+        setCoordinate((float) x, (float) y, (float) z);
     }
 
     public Coordinate(float x, float y) {
@@ -52,5 +58,13 @@ public class Coordinate {
 
     public void setCoordinate(float x, float y) {
         setCoordinate(x, y, 0);
+    }
+
+    public GPSCoordinate getGpsCoordinate() {
+        return gpsCoordinate;
+    }
+
+    public void setGpsCoordinate(GPSCoordinate gpsCoordinate) {
+        this.gpsCoordinate = gpsCoordinate;
     }
 }

@@ -1,15 +1,12 @@
 package com.drone.imavis.mvp.ui.tabs.flyplans;
 
 import com.drone.imavis.mvp.data.DataManager;
-import com.drone.imavis.mvp.data.model.Flyplan;
+import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.Task;
 import com.drone.imavis.mvp.di.ConfigPersistent;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.FlyPlan;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
 import com.drone.imavis.mvp.util.RxUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -47,32 +44,33 @@ public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
         if (subscription != null) subscription.unsubscribe();
     }
 
-    public void loadFlyplans(int projectId) {
-        if(projectId < 0) // show empty list
+    public void loadFlyplans(Project project) {
+        if(project == null) // show empty list
             return;
 
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
-        dataManager.syncFlyplans(String.valueOf(projectId))
+        dataManager.syncFlyplans(project)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(io.reactivex.schedulers.Schedulers.io())
                 //.retry() // authorization token is not finished
-                .subscribe(new Observer<List<Task>>() {
+                .subscribe(new Observer<List<FlyPlan>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {}
 
                     @Override
-                    public void onNext(@NonNull List<Task> taskList) {
-                        if (taskList == null || taskList.size() == 0) {
+                    public void onNext(@NonNull List<FlyPlan> flyplans) {
+                        if (flyplans == null || flyplans.size() == 0) {
                             getMvpView().showFlyplansEmpty();
                         } else {
                             // transformation wrapper
-                            List<FlyPlan> flyplanList = new ArrayList<FlyPlan>();
-                            for(Task task : taskList) {
-                                FlyPlan flyplan = new FlyPlan(task);
+                            /*List<FlyPlan> flyplanList = new ArrayList<FlyPlan>();
+                            for(FlyPlan flyplan : flyplans) {
+                                FlyPlan flyplan = new FlyPlan();
+                                flyplan.setTask(task);
                                 flyplanList.add(flyplan);
-                            }
-                            getMvpView().showFlyplans(flyplanList);
+                            }*/
+                            getMvpView().showFlyplans(flyplans);
                         }
                     }
 
@@ -82,16 +80,14 @@ public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
                     }
 
                     @Override
-                    public void onComplete() {
-
-                    }
+                    public void onComplete() {}
                 });
     }
 
     public void deleteFlyplan(FlyPlan flyplan) {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
-        dataManager.deleteFlyplan(flyplan.getTask().getId(), flyplan.getTask().getProject())
+        dataManager.deleteFlyplan(flyplan)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(io.reactivex.schedulers.Schedulers.io())
                 .subscribe(new CompletableObserver() {

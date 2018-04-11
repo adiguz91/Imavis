@@ -1,42 +1,85 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates;
 
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Generated;
+
 /**
  * Created by Adrian on 26.11.2016.
  */
 
+@Entity
 public class GPSCoordinate {
 
-    private float latitude;
-    private float longitude;
-    private float elevation; // höhendaten
+    @Id(autoincrement = true)
+    private Long id;
 
-    public GPSCoordinate(float latitude, float longitude, float elevation) {
-        setGPSCoordinate(latitude, longitude, elevation);
+    private double latitude; // y
+    private double longitude; // x
+    private double altitude; // höhendaten
+
+    public GPSCoordinate(double latitude, double longitude, double altitude) {
+        setGPSCoordinate(latitude, longitude, altitude);
     }
 
-    public GPSCoordinate(float latitude, float longitude) {
+    public GPSCoordinate(double latitude, double longitude) {
         setGPSCoordinate(latitude, longitude);
     }
 
-    public float getLatitude() {
+    @Generated(hash = 1972717532)
+    public GPSCoordinate(Long id, double latitude, double longitude, double altitude) {
+        this.id = id;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.altitude = altitude;
+    }
+
+    @Generated(hash = 1569993542)
+    public GPSCoordinate() {}
+
+    public double getLatitude() {
         return this.latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return this.longitude;
     }
 
-    public float getElevation() {
-        return this.elevation;
+    public double getAltitude() {
+        return this.altitude;
     }
 
-    public void setGPSCoordinate(float latitude, float longitude, float elevation) {
+    public void setGPSCoordinate(double latitude, double longitude, double altitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-        this.elevation = elevation;
+        this.altitude = altitude;
     }
 
-    public void setGPSCoordinate(float latitude, float longitude) {
-        setGPSCoordinate(latitude, longitude, Float.NaN);
+    public void setGPSCoordinate(double latitude, double longitude) {
+        setGPSCoordinate(latitude, longitude, Double.NaN);
+    }
+
+    public Coordinate convertToCoordinate() {
+        return new Coordinate(longitude, latitude, altitude);
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public void setAltitude(double altitude) {
+        this.altitude = altitude;
     }
 }

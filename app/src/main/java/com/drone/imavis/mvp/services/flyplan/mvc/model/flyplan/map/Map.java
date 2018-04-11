@@ -1,40 +1,38 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.map;
 
+import com.drone.imavis.mvp.data.model.MapData;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.dimension.Size;
-
-import java.io.Serializable;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 
 /**
  * Created by Adrian on 26.11.2016.
  */
 
-public class Map<T> implements Serializable {
+public abstract class Map<T> {
 
     private T map;
-    private Coordinate coordinate;
-    private Size size;
+    private MapData mapData;
 
-    public Map(Coordinate coordinate, Size size) {
-        this.coordinate = coordinate;
-        this.size = size;
+    public Map(T map) {
+        this.map = map;
+    }
+
+    public Map(T map, MapData mapData) {
+        this.map = map;
+        this.mapData = mapData;
     }
 
     public T getMap() { return map; }
 
-    public Coordinate getCoordinate() {
-        return coordinate;
+    public MapData getMapData() {
+        return mapData;
     }
 
-    public void setCoordinate(Coordinate coordinate) {
-        this.coordinate = coordinate;
+    public void setMapData(MapData mapData) {
+        this.mapData = mapData;
     }
 
-    public Size getSize() {
-        return size;
-    }
+    public abstract GPSCoordinate getGpsfromScreen(Coordinate coordinate);
 
-    public void setSize(Size size) {
-        this.size = size;
-    }
+    public abstract Coordinate getScreenCoordinatesfromGps(GPSCoordinate gpsCoordinate);
 }

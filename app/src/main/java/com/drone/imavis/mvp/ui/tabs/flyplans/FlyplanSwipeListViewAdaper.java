@@ -7,9 +7,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.data.model.Flyplan;
-import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.FlyPlan;
+import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.util.swipelistview.SwipeItemListViewAdapter;
 import com.drone.imavis.mvp.util.swipelistview.SwipeItemOnClickListener;
 
@@ -50,13 +48,21 @@ public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan
         //ButterKnife.bind(context, convertView);
         TextView textViewFlyplanName = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemFlyplanname);
         TextView textViewStatus = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemStatus);
-        textViewFlyplanName.setText(item.getTask().getName());
-        textViewStatus.setText(item.getTask().getStatusString());
-        //TextView textViewCreationDate = (TextView) convertView.findViewById(R.id.textViewFlyplanListViewItemCreatedDate);
 
-        badgeStatus.setText1("COMPLETED"); // flyplan.getTask().getStatus().name()
-        badgeImageCount.setText1("IMAGES");
-        badgeImageCount.setText2(String.valueOf(item.getTask().getImagesCount()));
+        textViewFlyplanName.setText(item.getName());
+
+        if(item.getTask() != null) {
+            textViewStatus.setText(item.getTask().getStatusString());
+            //TextView textViewCreationDate = (TextView) convertView.findViewById(R.id.textViewFlyplanListViewItemCreatedDate);
+            badgeStatus.setText1("UNTOUCHED"); // flyplan.getTask().getStatus().name()
+            badgeImageCount.setText1("IMAGES");
+            badgeImageCount.setText2(String.valueOf(item.getTask().getImagesCount()));
+        } else {
+            badgeStatus.setText1("UNTOUCHED"); // flyplan.getTask().getStatus().name()
+            badgeImageCount.setText1("NO IMAGES");
+            badgeImageCount.setText2("0");
+        }
+
         SpannableString spannableString =
                 new SpannableString(TextUtils.concat( badgeStatus.toSpannable(), " ",
                         badgeImageCount.toSpannable() ));

@@ -35,7 +35,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAddOrEditMvpView, IMvpView {
+public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAddOrEditMvpView {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.projects.ProjectsActivity.EXTRA_TRIGGER_SYNC_FLAG";
@@ -64,6 +64,7 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
     private Context context;
     private ProjectAction projectAction;
     private Project project;
+    private int result = RESULT_OK;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,9 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
 
         // get padded data
         project = getIntent().getParcelableExtra("Project");
+        if (project == null)
+            project = new Project();
+
         projectAction = (ProjectAction) getIntent().getSerializableExtra("ProjectAction");
 
         // hide app title
@@ -110,12 +114,12 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
 
     @OnClick(R.id.projectAdd_fab_close)
     public void onFabClicked() {
+        result = RESULT_CANCELED;
         onCloseClicked();
     }
 
     public void sendProject(ProjectAction projectAction) {
         if(projectName.validate()) {
-            ProjectShort project = new ProjectShort();
             project.setName(projectName.getEditableText().toString());
             project.setDescription(projectDescription.getEditableText().toString());
 
@@ -127,7 +131,7 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
             if(projectAction == ProjectAction.Add)
                 projectPresenter.addProject(project);
             else if (projectAction == ProjectAction.Edit) {
-                projectPresenter.editProject(Integer.toString(this.project.getId()), project);
+                projectPresenter.editProject(project);
             }
         }
     }
@@ -136,7 +140,7 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
         Intent intent = new Intent();
         intent.putExtra("project", project);
         intent.putExtra("ProjectAction", projectAction);
-        setResult(RESULT_OK, intent);
+        setResult(RESULT_CANCELED, intent);
         finish();
     }
 

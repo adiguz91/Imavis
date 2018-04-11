@@ -9,9 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -22,13 +20,13 @@ import android.widget.Toast;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.data.model.Flyplan;
+import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.FlyPlan;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
-import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAction;
-import com.drone.imavis.mvp.ui.tabs.projectAddOrEdit.ProjectAddOrEditActivity;
+import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
+import com.drone.imavis.mvp.ui.tabs.flyplanAddOrEdit.FlyplanAction;
+import com.drone.imavis.mvp.ui.tabs.flyplanAddOrEdit.FlyplanAddOrEditActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.swipelistview.SwipeActionButtons;
 import com.drone.imavis.mvp.util.swipelistview.SwipeItemOnClickListener;
@@ -69,6 +67,8 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
 
     @BindView(R.id.fabAddFlyplan)
     FloatingActionButton fabAddFlyplan;
+
+    private Project project;
 
     /**
      * Return an Intent to start this Activity.
@@ -119,14 +119,23 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
             showFlyplansEmpty();
             return;
         }
-        flyplansPresenter.loadFlyplans(project.getId());
+        ((ProjectsFlyplansActivity)getActivity()).getSupportActionBar().setTitle(project.getName() + ": Flyplans");
+        this.project = project;
+        flyplansPresenter.loadFlyplans(project);
     }
 
     private void loadListViewEvents() {
         flyplanListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                goToActivity(context, FlyplannerActivity.class, new Bundle());
+                //goToActivity(context, FlyplannerActivity.class, new Bundle());
+
+                FlyPlan flyplan = (FlyPlan) flyplanListView.getItemAtPosition(position);
+                // todo: find flyplan offline node data
+
+                Intent intent = new Intent(context, FlyplannerActivity.class);
+                intent.putExtra("Flyplan", flyplan);
+                startActivityForResult(intent, 2000);
             }
         });
     }
@@ -148,13 +157,14 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
 
     @OnClick(R.id.fabAddFlyplan)
     public void onFabClicked() {
-        Intent intent = new Intent(context, ProjectAddOrEditActivity.class);
-        intent.putExtra("ProjectAction", ProjectAction.Add);
-        startFlyplanActivity(fabAddFlyplan, intent, ProjectAction.Add, fabAddFlyplan.getTransitionName());
+        Intent intent = new Intent(context, FlyplanAddOrEditActivity.class);
+        intent.putExtra("FlyplanAction", FlyplanAction.Add);
+        intent.putExtra("Project", project);
+        startFlyplanActivity(fabAddFlyplan, intent, FlyplanAction.Add, fabAddFlyplan.getTransitionName());
     }
 
-    // TODO ProjectAction rename to swipeAction
-    private void startFlyplanActivity(View view, Intent intent, ProjectAction projectAction, String transitionName) {
+    // TODO FlyplanAction rename to swipeAction
+    private void startFlyplanActivity(View view, Intent intent, FlyplanAction flyplanAction, String transitionName) {
         int requestCode = 1;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity, view, transitionName);
@@ -164,18 +174,22 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
         }
     }
 
+    private int BACK_CODE = 2000;
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if(resultCode == Activity.RESULT_OK) {
-                FlyPlan flyplan = data.getParcelableExtra("project");
-                ProjectAction flyplanAction = (ProjectAction) data.getSerializableExtra("ProjectAction");
-                if(flyplanAction == ProjectAction.Add)
+                FlyPlan flyplan = data.getParcelableExtra("Flyplan");
+                FlyplanAction flyplanAction = (FlyplanAction) data.getSerializableExtra("FlyplanAction");
+                if(flyplanAction == FlyplanAction.Add)
                     flyplanListViewAdapter.addItem(flyplan);
-                else if (flyplanAction == ProjectAction.Edit)
+                else if (flyplanAction == FlyplanAction.Edit)
                     flyplanListViewAdapter.updateItem(selectedItem, flyplan);
                 selectedItem = -1;
             }
+        } else if (resultCode == BACK_CODE) {
+            //FlyPlan flyplan = data.getParcelableExtra("Flyplan");
         }
     }
 
@@ -184,7 +198,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
         // TODO
         flyplanListViewAdapter.setItems(flyplanList);
         flyplanListViewAdapter.notifyDataSetChanged();
-        Toast.makeText(this.context, "projects sync successfully", Toast.LENGTH_LONG).show();
+        Toast.makeText(this.context, "flyplans sync successfully", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -193,7 +207,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
         List<FlyPlan> flyplanList = new ArrayList<>();
         flyplanListViewAdapter.setItems(flyplanList);
         flyplanListViewAdapter.notifyDataSetChanged();
-        Toast.makeText(this.context, "projects empty", Toast.LENGTH_LONG).show();
+        Toast.makeText(this.context, "flyplans empty", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -203,8 +217,8 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
     }
 
     @Override
-    public void onDeleteSuccess(FlyPlan project) {
-
+    public void onDeleteSuccess(FlyPlan flyplan) {
+        flyplanListViewAdapter.deleteItem(flyplan);
     }
 
     @Override
@@ -213,7 +227,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
     }
 
     @Override
-    public void onEditSuccess(int position, FlyPlan project) {
+    public void onEditSuccess(int position, FlyPlan flyplan) {
 
     }
 
@@ -225,12 +239,12 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
     @Override
     public void onCallback(View view, SwipeActionButtons action, int position, FlyPlan item) {
         selectedItem = position;
-        SwipeLayout swipeView = (SwipeLayout) findParentRecursively(view, R.id.projectItemSwipe);
+        SwipeLayout swipeView = (SwipeLayout) findParentRecursively(view, R.id.flyplanItemSwipe);
 
         switch (action) {
             case Delete:
                 String title = "Hinweis";
-                String message = "Wollen Sie das Project wirklich löschen?";
+                String message = "Wollen Sie den Flugplan wirklich löschen?";
                 Map<Integer,String> buttons =  new HashMap<Integer,String>();
                 buttons.put(DialogInterface.BUTTON_POSITIVE, "Ja");
                 buttons.put(DialogInterface.BUTTON_NEGATIVE, "Nein");
@@ -250,10 +264,11 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
                 break;
             case Edit:
                 swipeView.close();
-                Intent intent = new Intent(context, ProjectAddOrEditActivity.class);
-                intent.putExtra("SwipeAction", ProjectAction.Edit);
+                Intent intent = new Intent(context, FlyplanAddOrEditActivity.class);
+                intent.putExtra("FlyplanAction", FlyplanAction.Edit);
+                intent.putExtra("Project", project);
                 intent.putExtra("Flyplan", item); // TODO PARCEABLE!
-                startFlyplanActivity(view, intent, ProjectAction.Edit, fabAddFlyplan.getTransitionName());
+                startFlyplanActivity(view, intent, FlyplanAction.Edit, fabAddFlyplan.getTransitionName());
                 break;
         }
     }
