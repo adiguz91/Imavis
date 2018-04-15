@@ -589,7 +589,7 @@ public class DroneDeviceControllerManager {
                     ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE_ENUM type = ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE_ENUM.getFromValue((Integer)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE));
                     mHandler.post(new Runnable() {
                         @Override public void run() {
-                            listener.notifyWitheBalanceModeChanged(type);
+                            listener.notifyWhiteBalanceModeChanged(type);
                         }
                     });
                 }

@@ -74,6 +74,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -133,6 +134,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
         mSDCardModule = new SDCardModule(mFtpUploadManager, mFtpQueueManager);
         droneDeviceController = new DroneDeviceControllerManager(context, mSDCardModule);
+        droneDeviceController.setListener(this);
 
         // if the product type of the deviceService match with the types supported
         ARDISCOVERY_PRODUCT_ENUM productType = ARDiscoveryService.getProductFromProductID(deviceService.getProductID());
@@ -523,7 +525,9 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         }
 
         int count = 0;
-        for (Waypoint waypoint : nodes.getWaypoints()) {
+        ListIterator<Waypoint>  iterator = nodes.getWaypoints().listIterator();
+        while (iterator.hasNext()) {
+            Waypoint waypoint = iterator.next();
             if ((0 < count) && (count < (nodes.getWaypoints().size() - 1))) {
                 // convert coordinate to gpsCoordinates waypoint.getShape().getCoordinate(); lat == y; lng == x; alt == z
                 GPSCoordinate gpsCoordinate = waypoint.getShape().getCoordinate().getGpsCoordinate();
@@ -772,9 +776,8 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         mListener.notifyPictureFormatChanged(type);
     }
 
-    public void notifyWitheBalanceModeChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE_ENUM type) {
-        //mListener.notifyWitheBalanceModeChanged(type);
-        throw new UnsupportedOperationException();
+    public void notifyWhiteBalanceModeChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE_ENUM type) {
+        mListener.notifyWhiteBalanceModeChanged(type);
     }
 
     public void notifyPictureIntervalChanged(boolean enabled, float interval, float minInterval, float maxInterval) {

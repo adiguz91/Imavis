@@ -4,10 +4,10 @@
     android:layout_height="match_parent">
 
     <fragment
-    android:name="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment"
-    android:id="@+id/flyplanner"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+        android:name="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment"
+        android:id="@+id/flyplanner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <!--
     <fragment

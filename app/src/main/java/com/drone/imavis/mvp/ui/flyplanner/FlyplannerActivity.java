@@ -2,6 +2,7 @@ package com.drone.imavis.mvp.ui.flyplanner;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -10,7 +11,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -55,6 +59,7 @@ import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURES
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIASTREAMINGSTATE_VIDEOENABLECHANGED_ENABLED_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_PICTUREFORMATCHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEOFRAMERATECHANGED_FRAMERATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEORESOLUTIONSCHANGED_TYPE_ENUM;
@@ -146,13 +151,40 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @BindView(R.id.flyplanner_fab_start)
     FloatingActionButton fabStart;
 
+    // This snippet hides the system bars.
+    private void hideStatusBar() {
+        // Set the IMMERSIVE flag.
+        // Set the content to appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
+    // This snippet shows the system bars. It does this by removing all the flags
+// except for the ones that make the content appear under the system bars.
+    private void showStatusBar() {
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityComponent().inject(this);
-        flyplan = (FlyPlan) getIntent().getParcelableExtra("Flyplan");
+        //hideStatusBar();
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
+        getSupportActionBar().setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
+
+        flyplan = (FlyPlan) getIntent().getParcelableExtra("Flyplan");
         if(flyplan == null)
             flyplan = new FlyPlan();
 
@@ -227,10 +259,41 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                 ImageView imageView = findViewById(R.id.droneFlyingState);
                 moveViewAlongPath(imageView, flyplan.getPathRoute(imageView.getWidth()/2, imageView.getHeight()/2), duration);
 
-                String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
-                autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
-                autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
+                String serviceName = "BebopDrone-C074449"; // SSID wlan of the drone
+                for (ARDiscoveryDeviceService droneService : dronesList)
+                {
+                    if(droneService.getName().equals(serviceName)) {
+                        drone = droneService;
+                        break;
+                    }
+                }
+                if (drone != null) {
+                    autonomController = null;
+                    try {
+                        autonomController = new AutonomousFlightController(context, drone);
+                    } catch (ARUtilsException e) {
+                        e.printStackTrace();
+                    }
 
+                    autonomController.setListener(autonomousFlightControllerListener);
+                    autonomController.getConnectionState();
+                    autonomController.connect();
+                    //autonomController.takePicture();
+
+                    flyplannerFragment.getGoogleMapFragment();
+
+                    lastKnownLocationObservable.subscribe(x -> {
+                        GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
+                        autonomController.setHomeLocation(homeLocation);
+                    });
+
+                    String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
+                    autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
+                    autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
+
+                    // TODO shape design pattern
+                    // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
+                }
             }
         });
 
@@ -476,15 +539,16 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             Toast.makeText(this, "No Drones found", Toast.LENGTH_SHORT).show();
             return;
         }
-
-
         this.dronesList = dronesList;
 
+        /*
         List<String> drones = new ArrayList<>();
         for (ARDiscoveryDeviceService drone : dronesList) {
             drones.add(drone.getName());
         }
+        */
 
+        /*
         dialogUtil.showDialog(FlyplannerActivity.this, "Found Drones", drones, new String[] { "OK", "Abbrechen" },
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -529,6 +593,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
                     }
                 });
+        */
     }
 
     @Override
@@ -541,7 +606,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         droneDiscoverer.addListener(this); // onDronesListUpdated
 
         // start discovering
-        //droneDiscoverer.startDiscovering();
+        droneDiscoverer.startDiscovering();
     }
 
     @Override
@@ -606,7 +671,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         @Override
         public void notifyBatteryProgressChanged(int batteryProgress) {
-            Log.d("AFCL", "notifyBatteryProgressChanged");
+            Log.d("AFCL", "notifyBatteryProgressChanged " + batteryProgress);
         }
 
         @Override
@@ -621,17 +686,17 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         @Override
         public void notifyNumberOfSatellitesChanged(int statellites) {
-            Log.d("AFCL", "notifyNumberOfSatellitesChanged");
+            Log.d("AFCL", "notifyNumberOfSatellitesChanged: " + statellites);
         }
 
         @Override
         public void notifySpeedChanged(float speedX, float speedY, float speedZ) {
-            Log.d("AFCL", "notifySpeedChanged");
+            //Log.d("AFCL", "notifySpeedChanged");
         }
 
         @Override
         public void notifyAltitudeChanged(double altitude) {
-            Log.d("AFCL", "notifyAltitudeChanged");
+            //Log.d("AFCL", "notifyAltitudeChanged");
         }
 
         @Override
@@ -680,6 +745,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         }
 
         @Override
+        public void notifyWhiteBalanceModeChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE_ENUM type) {
+            Log.d("AFCL", "notifyWhiteBalanceModeChanged");
+        }
+
+        @Override
         public void notifyWifiSettingsCountryChanged(String countryCode) {
             Log.d("AFCL", "notifyWifiSettingsCountryChanged");
         }
@@ -701,7 +771,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         @Override
         public void notifyHomeTypeChanged(ARCOMMANDS_ARDRONE3_GPSSETTINGSSTATE_HOMETYPECHANGED_TYPE_ENUM type) {
-            Log.d("AFCL", "notifyHomeTypeChanged");
+            Log.d("AFCL", "notifyHomeTypeChanged: " + type.toString());
         }
 
         @Override
@@ -711,7 +781,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         @Override
         public void notifyHomeLocationChanged(boolean isFixed) {
-            Log.d("AFCL", "notifyHomeLocationChanged");
+            Log.d("AFCL", "notifyHomeLocationChanged: " + isFixed);
         }
 
         @Override
@@ -726,52 +796,57 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         @Override
         public void notifyCalibrationRequiredChanged(boolean isRequired) {
-            Log.d("AFCL", "notifyCalibrationRequiredChanged");
+            Log.d("AFCL", "notifyCalibrationRequiredChanged: " + isRequired);
         }
 
         @Override
         public void notifyCalibrationAxisChanged(ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM axis) {
-            Log.d("AFCL", "notifyCalibrationAxisChanged");
+            Log.d("AFCL", "notifyCalibrationAxisChanged: " + axis.toString());
         }
 
         @Override
         public void notifyCalibrationStateChanged(boolean started) {
-            Log.d("AFCL", "notifyCalibrationStateChanged");
+            Log.d("AFCL", "notifyCalibrationStateChanged: " + started);
         }
 
         @Override
         public void notifyCalibrationAxisStateChanged(boolean xAxisIsCalibrated, boolean yAxisIsCalibrated, boolean zAxisIsCalibrated, boolean calibrationFailed) {
-            Log.d("AFCL", "notifyCalibrationAxisStateChanged");
+            Log.d("AFCL", "notifyCalibrationAxisStateChanged xAxisIsCalibrated: " + xAxisIsCalibrated);
+            Log.d("AFCL", "notifyCalibrationAxisStateChanged yAxisIsCalibrated: " + yAxisIsCalibrated);
+            Log.d("AFCL", "notifyCalibrationAxisStateChanged zAxisIsCalibrated: " + zAxisIsCalibrated);
+            Log.d("AFCL", "notifyCalibrationAxisStateChanged calibrationFailed: " + calibrationFailed);
         }
 
         @Override
         public void notifyFlightPlanComponentStateListChanged(ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component, boolean state) {
-            Log.d("AFCL", "notifyFlightPlanComponentStateListChanged");
+            Log.d("AFCL", "notifyFlightPlanComponentStateListChanged: " + component.toString());
         }
 
         @Override
         public void notifyFlightPlanAvailabilityStateChanged(boolean state) {
-            Log.d("AFCL", "notifyFlightPlanAvailabilityStateChanged");
+            Log.d("AFCL", "notifyFlightPlanAvailabilityStateChanged: " + state);
         }
 
         @Override
         public void notifyAutonomousFlightChanged(ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM state, ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_TYPE_ENUM type, String filepath) {
-            Log.d("AFCL", "notifyAutonomousFlightChanged");
+            Log.d("AFCL", "notifyAutonomousFlightChanged STATE: " + state.toString());
+            Log.d("AFCL", "notifyAutonomousFlightChanged TYPE: " + type.toString());
+            Log.d("AFCL", "notifyAutonomousFlightChanged filepath: " + filepath);
         }
 
         @Override
         public void notifyCurrentRunIdChanged(String runId) {
-            Log.d("AFCL", "notifyCurrentRunIdChanged");
+            Log.d("AFCL", "notifyCurrentRunIdChanged: " + runId);
         }
 
         @Override
         public void notifyMassStorageContentChanged(Map<Byte, Short> massContentTypeCount) {
-            Log.d("AFCL", "notifyMassStorageContentChanged");
+            Log.d("AFCL", "notifyMassStorageContentChanged: ");
         }
 
         @Override
         public void notifyFlyingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-            Log.d("AFCL", "notifyFlyingStateChanged");
+            Log.d("AFCL", "notifyFlyingStateChanged: " + state.toString());
         }
 
         @Override
@@ -791,17 +866,17 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         @Override
         public void notifyMissionItemExecutedChanged(int missionItemId) {
-            Log.d("AFCL", "notifyMissionItemExecutedChanged");
+            Log.d("AFCL", "notifyMissionItemExecutedChanged: " + missionItemId);
         }
 
         @Override
         public void notifyMotorErrorChanged(byte motorIds, ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORSTATECHANGED_MOTORERROR_ENUM motorError) {
-            Log.d("AFCL", "notifyMotorErrorChanged");
+            Log.d("AFCL", "notifyMotorErrorChanged: " + motorError.toString());
         }
 
         @Override
         public void notifyLastMotorErrorChanged(ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORLASTERRORCHANGED_MOTORERROR_ENUM motorError) {
-            Log.d("AFCL", "notifyLastMotorErrorChanged");
+            Log.d("AFCL", "notifyLastMotorErrorChanged: " + motorError.toString());
         }
     };
 }

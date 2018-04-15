@@ -90,32 +90,17 @@
             android:name="com.drone.imavis.mvp.services.FlyplanNotificationService"
             android:exported="false"/>
 
-        <!--
-        <activity
-            android:name=".uav.control.activity.BebopActivity"
-            android:screenOrientation="landscape"/>
-
-        <activity
-            android:name=".ui.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-
-        <activity
-            android:name="com.drone.imavis.mvp.ui.old.MainFlyplanner"
-            android:label="@string/title_activity_main_flyplanner"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        -->
         <activity
             android:name=".ui.tabs.ProjectsFlyplansActivity"
             android:label="Imavis"
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
-        <!--<activity
-            android:name=".ui.tabs.projects.ProjectsActivity"
-            android:label="Projects"></activity>-->
         <activity
             android:name=".ui.flyplanner.FlyplannerActivity"
-            android:label="Flyplanner"> <!-- android:screenOrientation="landscape" -->
+            android:label="Flyplanner"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.TransparentStatusBar">
         </activity>
         <activity
             android:name=".ui.searchwlan.SearchWlanActivity"
