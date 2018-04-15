@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.dronecontrol.AutonomousFlightController;
+import com.drone.imavis.mvp.services.dronecontrol.AutonomousFlightControllerListener;
 import com.drone.imavis.mvp.services.dronecontrol.DronePermissionRequestHelper;
 import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.BebopDrone;
 import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.BebopVideoView;
@@ -47,13 +48,38 @@ import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.parrot.arsdk.ARSDK;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGSSTATE_HOMETYPECHANGED_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIASTREAMINGSTATE_VIDEOENABLECHANGED_ENABLED_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_PICTUREFORMATCHANGED_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEOFRAMERATECHANGED_FRAMERATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEORESOLUTIONSCHANGED_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_ORIENTATION_MODE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_STATUS_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORLASTERRORCHANGED_MOTORERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORSTATECHANGED_MOTORERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_WIFI_SECURITY_TYPE_ENUM;
+import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.arsdk.arutils.ARUtilsException;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -200,6 +226,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                 long duration = 10000; // calculate duration alonge
                 ImageView imageView = findViewById(R.id.droneFlyingState);
                 moveViewAlongPath(imageView, flyplan.getPathRoute(imageView.getWidth()/2, imageView.getHeight()/2), duration);
+
+                String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
+                autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
+                autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
+
             }
         });
 
@@ -478,6 +509,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                 } catch (ARUtilsException e) {
                                     e.printStackTrace();
                                 }
+
+                                autonomController.setListener(autonomousFlightControllerListener);
                                 autonomController.getConnectionState();
                                 autonomController.connect();
                                 //autonomController.takePicture();
@@ -488,11 +521,6 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                                     GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
                                     autonomController.setHomeLocation(homeLocation);
                                 });
-
-                                String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
-                                autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
-                                autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
-
 
                                 // TODO shape design pattern
                                 // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
@@ -544,4 +572,236 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         super.onStop();
         UnsubscribeIfPresent.dispose(lastKnownLocationDisposable);
     }
+
+    // #############################################################
+    // AutonomousFlightControllerListener
+    // #############################################################
+
+    private AutonomousFlightControllerListener autonomousFlightControllerListener = new AutonomousFlightControllerListener() {
+        @Override
+        public void notifyMatchingMediasFoundChanged(int numberOfMedias) {
+            Log.d("AFCL", "notifyMatchingMediasFoundChanged");
+
+        }
+
+        @Override
+        public void notifyDownloadProgressedChanged(String mediaName, int progress) {
+            Log.d("AFCL", "notifyDownloadProgressedChanged");
+        }
+
+        @Override
+        public void notifyDownloadCompleteChanged(String mediaName) {
+            Log.d("AFCL", "notifyDownloadCompleteChanged");
+        }
+
+        @Override
+        public void notifyCurrentDateTimeChanged(Date dateTime) {
+            Log.d("AFCL", "notifyCurrentDateTimeChanged");
+        }
+
+        @Override
+        public void notifyConnectionStateChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
+            Log.d("AFCL", "notifyConnectionStateChanged");
+        }
+
+        @Override
+        public void notifyBatteryProgressChanged(int batteryProgress) {
+            Log.d("AFCL", "notifyBatteryProgressChanged");
+        }
+
+        @Override
+        public void notifyMaxDistanceChanged(float current, float min, float max) {
+            Log.d("AFCL", "notifyMaxDistanceChanged");
+        }
+
+        @Override
+        public void notifyMaxAltitudeChanged(float current, float min, float max) {
+            Log.d("AFCL", "notifyMaxAltitudeChanged");
+        }
+
+        @Override
+        public void notifyNumberOfSatellitesChanged(int statellites) {
+            Log.d("AFCL", "notifyNumberOfSatellitesChanged");
+        }
+
+        @Override
+        public void notifySpeedChanged(float speedX, float speedY, float speedZ) {
+            Log.d("AFCL", "notifySpeedChanged");
+        }
+
+        @Override
+        public void notifyAltitudeChanged(double altitude) {
+            Log.d("AFCL", "notifyAltitudeChanged");
+        }
+
+        @Override
+        public void notifyMoveToChanged(GPSCoordinate location, float heading, ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_ORIENTATION_MODE_ENUM orientationMode, ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_STATUS_ENUM status) {
+            Log.d("AFCL", "notifyMoveToChanged");
+        }
+
+        @Override
+        public void notifyPictureAndVideoSettingsChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEORESOLUTIONSCHANGED_TYPE_ENUM type, ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEOFRAMERATECHANGED_FRAMERATE_ENUM framerate) {
+            Log.d("AFCL", "notifyPictureAndVideoSettingsChanged");
+        }
+
+        @Override
+        public void notifyAutoVideoRecordStatusChanged(boolean enabled, byte massStorageId) {
+            Log.d("AFCL", "notifyAutoVideoRecordStatusChanged");
+        }
+
+        @Override
+        public void notifyVideoStreamingStatusChanged(ARCOMMANDS_ARDRONE3_MEDIASTREAMINGSTATE_VIDEOENABLECHANGED_ENABLED_ENUM enabledStatus) {
+            Log.d("AFCL", "notifyVideoStreamingStatusChanged");
+        }
+
+        @Override
+        public void notifyPictureStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_STATE_ENUM state, ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR_ENUM error) {
+            Log.d("AFCL", "notifyPictureStateChanged");
+        }
+
+        @Override
+        public void notifyRecordVideoOrTakePicturesStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state, ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_ERROR_ENUM error) {
+            Log.d("AFCL", "notifyRecordVideoOrTakePicturesStateChanged");
+        }
+
+        @Override
+        public void notifyPictureTakenChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
+            Log.d("AFCL", "notifyPictureTakenChanged");
+        }
+
+        @Override
+        public void notifyPictureFormatChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_PICTUREFORMATCHANGED_TYPE_ENUM type) {
+            Log.d("AFCL", "notifyPictureFormatChanged");
+        }
+
+        @Override
+        public void notifyPictureIntervalChanged(boolean enabled, float interval, float minInterval, float maxInterval) {
+            Log.d("AFCL", "notifyPictureIntervalChanged");
+        }
+
+        @Override
+        public void notifyWifiSettingsCountryChanged(String countryCode) {
+            Log.d("AFCL", "notifyWifiSettingsCountryChanged");
+        }
+
+        @Override
+        public void notifyWifiSettingsAutoCountryStatusChanged(boolean automatic) {
+            Log.d("AFCL", "notifyWifiSettingsAutoCountryStatusChanged");
+        }
+
+        @Override
+        public void notifyWifiSecurityChanged(String key, ARCOMMANDS_WIFI_SECURITY_TYPE_ENUM keyType) {
+            Log.d("AFCL", "notifyWifiSecurityChanged");
+        }
+
+        @Override
+        public void notifyReturnHomeDelayAfterDisconnectChanged(short delay) {
+            Log.d("AFCL", "notifyReturnHomeDelayAfterDisconnectChanged");
+        }
+
+        @Override
+        public void notifyHomeTypeChanged(ARCOMMANDS_ARDRONE3_GPSSETTINGSSTATE_HOMETYPECHANGED_TYPE_ENUM type) {
+            Log.d("AFCL", "notifyHomeTypeChanged");
+        }
+
+        @Override
+        public void notifyReturnHomeOnDisconnectStatusChanged(boolean enabled, boolean isReadOnly) {
+            Log.d("AFCL", "notifyReturnHomeOnDisconnectStatusChanged");
+        }
+
+        @Override
+        public void notifyHomeLocationChanged(boolean isFixed) {
+            Log.d("AFCL", "notifyHomeLocationChanged");
+        }
+
+        @Override
+        public void notifyHomeLocationChanged(GPSCoordinate location) {
+            Log.d("AFCL", "notifyHomeLocationChanged");
+        }
+
+        @Override
+        public void notifyReturnHomeStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM state, ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM reason) {
+            Log.d("AFCL", "notifyReturnHomeStateChanged");
+        }
+
+        @Override
+        public void notifyCalibrationRequiredChanged(boolean isRequired) {
+            Log.d("AFCL", "notifyCalibrationRequiredChanged");
+        }
+
+        @Override
+        public void notifyCalibrationAxisChanged(ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM axis) {
+            Log.d("AFCL", "notifyCalibrationAxisChanged");
+        }
+
+        @Override
+        public void notifyCalibrationStateChanged(boolean started) {
+            Log.d("AFCL", "notifyCalibrationStateChanged");
+        }
+
+        @Override
+        public void notifyCalibrationAxisStateChanged(boolean xAxisIsCalibrated, boolean yAxisIsCalibrated, boolean zAxisIsCalibrated, boolean calibrationFailed) {
+            Log.d("AFCL", "notifyCalibrationAxisStateChanged");
+        }
+
+        @Override
+        public void notifyFlightPlanComponentStateListChanged(ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component, boolean state) {
+            Log.d("AFCL", "notifyFlightPlanComponentStateListChanged");
+        }
+
+        @Override
+        public void notifyFlightPlanAvailabilityStateChanged(boolean state) {
+            Log.d("AFCL", "notifyFlightPlanAvailabilityStateChanged");
+        }
+
+        @Override
+        public void notifyAutonomousFlightChanged(ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM state, ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_TYPE_ENUM type, String filepath) {
+            Log.d("AFCL", "notifyAutonomousFlightChanged");
+        }
+
+        @Override
+        public void notifyCurrentRunIdChanged(String runId) {
+            Log.d("AFCL", "notifyCurrentRunIdChanged");
+        }
+
+        @Override
+        public void notifyMassStorageContentChanged(Map<Byte, Short> massContentTypeCount) {
+            Log.d("AFCL", "notifyMassStorageContentChanged");
+        }
+
+        @Override
+        public void notifyFlyingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
+            Log.d("AFCL", "notifyFlyingStateChanged");
+        }
+
+        @Override
+        public void notifyDroneLocationChanged(GPSCoordinate location, byte latitudeAccuracy, byte longitudeAccuracy, byte altitudeAccuracy) {
+            Log.d("AFCL", "notifyDroneLocationChanged");
+        }
+
+        @Override
+        public void notifyMotorFlightStatusChanged(short numberOfFlights, short lastFlightDuration, int totalFlightDuration) {
+            Log.d("AFCL", "notifyMotorFlightStatusChanged");
+        }
+
+        @Override
+        public void notifyGeofencingChanged(boolean shouldNotFlyOver) {
+            Log.d("AFCL", "notifyGeofencingChanged");
+        }
+
+        @Override
+        public void notifyMissionItemExecutedChanged(int missionItemId) {
+            Log.d("AFCL", "notifyMissionItemExecutedChanged");
+        }
+
+        @Override
+        public void notifyMotorErrorChanged(byte motorIds, ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORSTATECHANGED_MOTORERROR_ENUM motorError) {
+            Log.d("AFCL", "notifyMotorErrorChanged");
+        }
+
+        @Override
+        public void notifyLastMotorErrorChanged(ARCOMMANDS_ARDRONE3_SETTINGSSTATE_MOTORERRORLASTERRORCHANGED_MOTORERROR_ENUM motorError) {
+            Log.d("AFCL", "notifyLastMotorErrorChanged");
+        }
+    };
 }

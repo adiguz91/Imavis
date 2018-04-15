@@ -35,7 +35,7 @@ import retrofit2.http.Query;
 
 public interface IWebOdmApiEndpoint {
 
-    String ENDPOINT = "http://192.168.99.100:8000/api/";
+    String ENDPOINT = "http://10.0.0.9:8000/api/";
 
     @Headers("@: NoAuth")
     @POST("token-auth/")
