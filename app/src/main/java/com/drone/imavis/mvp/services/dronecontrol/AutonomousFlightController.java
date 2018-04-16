@@ -568,7 +568,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
      * http://developer.parrot.com/docs/reference/bebop_2/#start-a-flightplan
      */
     public void startAutonomousFlight(){
-        String filename = "";
+        String filename = "flightPlan.mavlink";
         mDeviceController.getFeatureCommon().sendMavlinkStart(filename, ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_FLIGHTPLAN);
         Log.d(TAG,"sending autoFlight Mavlink file");
     }

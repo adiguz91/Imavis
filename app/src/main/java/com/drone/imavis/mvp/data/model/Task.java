@@ -3,22 +3,12 @@ package com.drone.imavis.mvp.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import org.greenrobot.greendao.annotation.Convert;
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Transient;
-import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.util.Date;
 import java.util.List;
-import org.greenrobot.greendao.annotation.Generated;
 
 import okhttp3.MultipartBody;
-import retrofit2.http.Part;
 
 /**
  * Created by adigu on 06.05.2017.
@@ -203,6 +193,10 @@ public class Task implements Parcelable {
         return pendingAction;
     }
 
+    public boolean getAutoProcessingNode() {
+        return this.autoProcessingNode;
+    }
+
     public void setPendingAction(TaskPendingAction pendingAction) {
         this.pendingAction = pendingAction;
     }
@@ -232,10 +226,6 @@ public class Task implements Parcelable {
         dest.writeString(groundControlPoints);
         dest.writeLong(createdAt.getTime());
         dest.writeInt(pendingAction == null ? -1 : pendingAction.ordinal());
-    }
-
-    public boolean getAutoProcessingNode() {
-        return this.autoProcessingNode;
     }
 
     /**

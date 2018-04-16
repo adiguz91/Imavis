@@ -10,6 +10,7 @@ import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Nodes;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
+import com.drone.imavis.mvp.util.StringUtil;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan.UnitOfLength;
 import com.google.gson.Gson;
@@ -36,6 +37,9 @@ import java.util.ListIterator;
         @Index(value = "name", unique = true)
 })
 public class FlyPlan implements Parcelable {
+
+    @Transient
+    private static Gson gson = new Gson();
 
     @Id(autoincrement = true)
     private Long id;
@@ -71,6 +75,9 @@ public class FlyPlan implements Parcelable {
 
     @Transient
     private Task task;
+
+    @Transient
+    private String taskSerialized;
 
     @NotNull private String name; // task name
     @NotNull private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
@@ -201,10 +208,22 @@ public class FlyPlan implements Parcelable {
     }
 
     public Task getTask() {
-        return task;
+        if (task != null)
+            return task;
+        else if (!StringUtil.isNullOrEmpty(taskSerialized))
+           return gson.fromJson(taskSerialized, Task.class); // deserialized Task
+        return new Task(); // dummy empty task
     }
+
     public void setTask(Task task) {
         this.task = task;
+    }
+
+    public String getTaskSerialized() {
+        return taskSerialized;
+    }
+    public void setTaskSerialized(String taskSerialized) {
+        this.taskSerialized = taskSerialized;
     }
 
     /* PARCELABLE PART */
@@ -226,6 +245,7 @@ public class FlyPlan implements Parcelable {
         dest.writeString(nodesJson);
         dest.writeParcelable(task, flags);
         dest.writeLong(projectId == null ? 0 : projectId);
+        dest.writeString(taskSerialized);
     }
 
     public Long getId() {
@@ -375,6 +395,7 @@ public class FlyPlan implements Parcelable {
         this.nodesJson = parcelIn.readString();
         this.task = parcelIn.readParcelable(Task.class.getClassLoader());
         this.projectId = parcelIn.readLong();
+        this.taskSerialized = parcelIn.readString();
     }
 
     @Generated(hash = 111111680)

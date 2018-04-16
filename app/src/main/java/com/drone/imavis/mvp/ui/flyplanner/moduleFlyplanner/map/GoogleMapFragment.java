@@ -165,6 +165,20 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
     }
 
+    public void setMarker(LatLng location) {
+        if(marker != null)
+            marker.remove();
+
+        //googleMap.setMinZoomPreference(0.5f);
+        //googleMap.setMaxZoomPreference(2.0f);
+        markerOptions = new MarkerOptions().position(location).title("Current Location");
+        marker = googleMap.addMarker(markerOptions);
+        marker.setPosition(location);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+        // Zoom in the Google Map
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+    }
+
     // centralize?
     public LatLng getGpsfromScreen(Coordinate coordinate) {
         Projection projection = this.googleMap.getProjection();

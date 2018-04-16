@@ -129,13 +129,15 @@ public class DataManager {
                 @Override
                 public List<FlyPlan> apply(List<FlyPlan> flyplans, List<Task> tasks) throws Exception {
                     Stream.of(flyplans).forEach(flyplan -> {
-                        if(flyplan.getTaskId() != null)  {
+                        if (flyplan.getTaskId() != null)  {
                             Stream.of(tasks).forEach(task -> {
-                                if(flyplan.getTaskId().intValue() == task.getId())
+                                if (flyplan.getTaskId().intValue() == task.getId())
                                     flyplan.setTask(task);
+                                    tasks.remove(task);
                             });
                         }
                     });
+                    // TODO: remaining tasks should be saved into db as flyplans
                     return flyplans;
                 }
             });

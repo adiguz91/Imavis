@@ -48,6 +48,7 @@ import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.UnsubscribeIfPresent;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.github.jorgecastilloprz.listeners.FABProgressListener;
+import com.google.android.gms.maps.model.LatLng;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
@@ -111,9 +112,6 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     private FlyPlan flyplan;
 
     private AutonomousFlightController autonomController;
-
-    private BebopDrone bebopDrone;
-    private BebopVideoView bebopVideoView;
 
     @Inject
     DronePermissionRequestHelper dronePermissionRequestHelper;
@@ -289,7 +287,12 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
                     String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
                     autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
-                    autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
+                    try {
+                        Thread.sleep(2000);
+                        autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
                     // TODO shape design pattern
                     // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
@@ -432,6 +435,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                 return true;
             case R.id.menu_flyplanner_action_findgps:
                 // TODO
+                lastKnownLocationObservable.subscribe(x -> {
+                    //GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
+                    LatLng location = new LatLng(x.getLatitude(), x.getLongitude());
+                    flyplannerFragment.getGoogleMapFragment().setMarker(location);
+                });
                 return true;
             case R.id.menu_flyplanner_action_lock:
                 FlyPlanView flyplannerDrawer = (FlyPlanView) ((Activity) context).findViewById(R.id.flyplannerDraw);
@@ -819,7 +827,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         @Override
         public void notifyFlightPlanComponentStateListChanged(ARCOMMANDS_COMMON_FLIGHTPLANSTATE_COMPONENTSTATELISTCHANGED_COMPONENT_ENUM component, boolean state) {
-            Log.d("AFCL", "notifyFlightPlanComponentStateListChanged: " + component.toString());
+            Log.d("AFCL", "notifyFlightPlanComponentStateListChanged: " + component.toString() + "; state: " + state);
         }
 
         @Override
