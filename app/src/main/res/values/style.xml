@@ -16,7 +16,7 @@
 
     <style name="AppTheme.TransparentStatusBar" parent="Theme.AppCompat.Light">
         <item name="android:actionBarStyle">@style/MyActionBar</item>
-        <item name="android:windowActionBarOverlay">true</item>
+        <!--<item name="android:windowActionBarOverlay">true</item>-->
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/transparentLight</item>
@@ -27,9 +27,9 @@
         <item name="android:statusBarColor">@color/transparentLight</item>
 
         <!-- transparent status bar -->
-        <item name="android:windowTranslucentStatus">true</item>
+        <!--<item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
         <!--<item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>-->
     </style>

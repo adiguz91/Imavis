@@ -48,7 +48,6 @@ public class FlyPlanView extends View {
         init(context);
     }
 
-
     public FlyPlanView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         init(context);

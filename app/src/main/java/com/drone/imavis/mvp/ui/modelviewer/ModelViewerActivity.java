@@ -113,8 +113,8 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
                                             "var search = 'login';" +
                                             "if(url.includes(search)) {" +
                                                 "var form = document.getElementsByTagName('form')[0];" +
-                                                "document.getElementById('id_username').value = username;" +
-                                                "document.getElementById('id_password').value = password;" +
+                                                "document.getElementById('id_username').value = 'admin';" +
+                                                "document.getElementById('id_password').value = 'admin';" +
                                                 "form.submit();" +
                                             "}" +
                                         //"});"
@@ -160,7 +160,7 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
 
         //xWalkWebView.getSettings().setInitialPageScale(100);
 
-        xWalkWebView.load("http://192.168.99.100:8000/3d/project/38/task/3/", null);
+        xWalkWebView.load("http://10.0.0.9:8000/3d/project/38/task/3/", null);
     }
 
     @Override

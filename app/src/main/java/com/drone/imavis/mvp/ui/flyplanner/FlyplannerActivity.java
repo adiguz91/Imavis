@@ -2,18 +2,13 @@ package com.drone.imavis.mvp.ui.flyplanner;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Path;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,12 +16,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.drone.imavis.mvp.R;
@@ -34,22 +25,23 @@ import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.dronecontrol.AutonomousFlightController;
 import com.drone.imavis.mvp.services.dronecontrol.AutonomousFlightControllerListener;
 import com.drone.imavis.mvp.services.dronecontrol.DronePermissionRequestHelper;
-import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.BebopDrone;
-import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.BebopVideoView;
 import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.DroneDiscoverer;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.SheetFab;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
-import com.drone.imavis.mvp.ui.modelviewer.ModelViewerActivity;
 import com.drone.imavis.mvp.ui.searchwlan.SearchWlanActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
 import com.drone.imavis.mvp.util.UnsubscribeIfPresent;
+import com.github.clans.fab.FloatingActionMenu;
+import com.github.florent37.viewtooltip.ViewTooltip;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.github.jorgecastilloprz.listeners.FABProgressListener;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
+import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.parrot.arsdk.ARSDK;
@@ -82,7 +74,6 @@ import com.parrot.arsdk.arutils.ARUtilsException;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +82,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -146,6 +138,28 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @BindView(R.id.flyplanner_fab_pc_start)
     FABProgressCircle fabProgressCircleStart;
 
+    // header
+    @BindView(R.id.flyplanner_fab_back)
+    FloatingActionButton fabBack;
+    @BindView(R.id.flyplanner_fab_droneCalibration)
+    FloatingActionButton fabDroneCalibration;
+    @BindView(R.id.flyplanner_fab_currentGpsPosition)
+    FloatingActionButton fabCurrentGpsPosition;
+    @BindView(R.id.flyplanner_fab_droneConnectWifi)
+    FloatingActionButton fabDroneConnectWifi;
+    @BindView(R.id.flyplanner_fab_flyplanSettings)
+    FloatingActionButton fabFlyplanSettings;
+    @BindView(R.id.flyplanner_fab_mapLock)
+    FloatingActionButton fabMapLock;
+    @BindView(R.id.flyplanner_fab_mapType_menu)
+    FloatingActionMenu fabMapTypeMenu;
+    @BindView(R.id.flyplanner_fab_mapType_menu_terrain)
+    com.github.clans.fab.FloatingActionButton fabMapTypeTerrain;
+    @BindView(R.id.flyplanner_fab_mapType_menu_satellite)
+    com.github.clans.fab.FloatingActionButton fabMapTypeSatellite;
+
+    private boolean mapIsLocked = true;
+
     @BindView(R.id.flyplanner_fab_start)
     FloatingActionButton fabStart;
 
@@ -176,11 +190,13 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityComponent().inject(this);
-        //hideStatusBar();
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
-        getSupportActionBar().setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
+        getSupportActionBar().hide();
+        //hideStatusBar();
+        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+
+        //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
+        //getSupportActionBar().setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
 
         flyplan = (FlyPlan) getIntent().getParcelableExtra("Flyplan");
         if(flyplan == null)
@@ -188,6 +204,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         setContentView(R.layout.activity_flyplanner);
         ButterKnife.bind(this);
+
+        setHeader();
 
         flyplannerFragment = (FlyplannerFragment) getSupportFragmentManager().findFragmentById(R.id.flyplanner);
         context = this;
@@ -316,6 +334,48 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         }
     }
 
+    public void setHeader() {
+        fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_map)
+                .colorRes(R.color.icons)
+                .actionBarSize());
+
+        fabBack.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_arrow_left)
+                .colorRes(R.color.icons)
+                .actionBarSize());
+
+        fabCurrentGpsPosition.setImageDrawable(
+                new IconDrawable(this, FontAwesomeIcons.fa_crosshairs)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
+        Icon icon = FontAwesomeIcons.fa_unlock_alt;
+        if (mapIsLocked)
+            icon = FontAwesomeIcons.fa_lock;
+        fabMapLock.setImageDrawable(new IconDrawable(this, icon)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
+        fabDroneConnectWifi.setImageDrawable(
+                new IconDrawable(this, FontAwesomeIcons.fa_wifi)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
+        fabFlyplanSettings.setImageDrawable(
+                new IconDrawable(this, FontAwesomeIcons.fa_cog)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
+        ViewTooltip.on(this, fabDroneCalibration)
+                .corner(30)
+                .autoHide(false, 1000)
+                .position(ViewTooltip.Position.BOTTOM)
+                .text("Calibrate!")
+                .clickToHide(false)
+                .textColor(Color.WHITE)
+                .color(getResources().getColor(R.color.colorPrimary))
+                .show();
+    }
+
     public FlyPlan getFlyplan() {
         return flyplan;
     }
@@ -382,92 +442,66 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         return file2.getPath();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_flyplanner, menu);
-        return true;
-    }
+    @OnClick(R.id.flyplanner_fab_mapLock)
+    public void onFabClickMapLock(FloatingActionButton button) {
+        mapIsLocked = mapIsLocked ? false : true;
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-
-        menu.findItem(R.id.menu_flyplanner_action_maptype).setIcon(
-                new IconDrawable(this, FontAwesomeIcons.fa_map)
-                        .colorRes(R.color.icons)
-                        .actionBarSize());
-
-        menu.findItem(R.id.menu_flyplanner_action_findgps).setIcon(
-                new IconDrawable(this, FontAwesomeIcons.fa_crosshairs)
-                        .colorRes(R.color.icons)
-                        .actionBarSize());
-
-        menu.findItem(R.id.menu_flyplanner_action_lock).setIcon(
-                new IconDrawable(this, FontAwesomeIcons.fa_unlock_alt)
-                        .colorRes(R.color.icons)
-                        .actionBarSize());
-
-        menu.findItem(R.id.drones_spinner).setIcon(
-                new IconDrawable(this, FontAwesomeIcons.fa_wifi)
-                        .colorRes(R.color.icons)
-                        .actionBarSize());
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Intent intent = new Intent();
-                intent.putExtra("Flyplan", flyplan);
-                setResult(RESULT_BACK_PRESSED, intent);
-                //super.onBackPressed();
-                finish();
-                return true;
-            case R.id.menu_flyplanner_action_maptype:
-                goToActivity(this, ModelViewerActivity.class, new Bundle());
-                return true;
-            case R.id.menu_flyplanner_action_findgps:
-                // TODO
-                lastKnownLocationObservable.subscribe(x -> {
-                    //GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
-                    LatLng location = new LatLng(x.getLatitude(), x.getLongitude());
-                    flyplannerFragment.getGoogleMapFragment().setMarker(location);
-                });
-                return true;
-            case R.id.menu_flyplanner_action_lock:
-                FlyPlanView flyplannerDrawer = (FlyPlanView) ((Activity) context).findViewById(R.id.flyplannerDraw);
-                if (item.getTitle().equals("Lock")) {
-                    // unlock
-                    if (flyplannerDrawer != null)
-                        flyplannerDrawer.setIsLocked(false);
-                    item.setTitle("Unlock");
-                    item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_unlock_alt)
-                            .colorRes(R.color.icons)
-                            .actionBarSize());
-                } else {
-                    // lock
-                    if (flyplannerDrawer != null)
-                        flyplannerDrawer.setIsLocked(true);
-                    item.setTitle("Lock");
-                    item.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_lock)
-                            .colorRes(R.color.icons)
-                            .actionBarSize());
-                }
-                return true;
-            case R.id.drones_spinner:
-                goToActivity(this, SearchWlanActivity.class, new Bundle());
-                //droneDiscoverer.startDiscovering();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        FlyPlanView flyplannerDrawer = (FlyPlanView) ((Activity) context).findViewById(R.id.flyplannerDraw);
+        if (flyplannerDrawer != null) {
+            flyplannerDrawer.setIsLocked(mapIsLocked);
         }
+
+        Icon icon = FontAwesomeIcons.fa_unlock_alt;
+        if (mapIsLocked)
+            icon = FontAwesomeIcons.fa_lock;
+        fabMapLock.setImageDrawable(new IconDrawable(this, icon)
+                .colorRes(R.color.icons)
+                .actionBarSize());
+    }
+
+    @OnClick(R.id.flyplanner_fab_droneConnectWifi)
+    public void onFabClickDroneConnectWifi(FloatingActionButton button) {
+        goToActivity(this, SearchWlanActivity.class, new Bundle());
+    }
+
+    @OnClick(R.id.flyplanner_fab_droneCalibration)
+    public void onFabClickDroneCalibration(FloatingActionButton button) {
+        // TODO start drone calibration
+    }
+
+    @OnClick(R.id.flyplanner_fab_back)
+    public void onFabClickBack(FloatingActionButton button) {
+        Intent intent = new Intent();
+        intent.putExtra("Flyplan", flyplan);
+        setResult(RESULT_BACK_PRESSED, intent);
+        //super.onBackPressed();
+        finish();
+    }
+
+    @OnClick(R.id.flyplanner_fab_mapType_menu)
+    public void onFabClickMapType(FloatingActionMenu button) {
+        //goToActivity(this, ModelViewerActivity.class, new Bundle());
+    }
+
+    @OnClick(R.id.flyplanner_fab_mapType_menu_satellite)
+    public void onMapTypeSatelliteClicked(com.github.clans.fab.FloatingActionButton button) {
+        flyplannerFragment.getGoogleMapFragment().setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        //fabMapTypeMenu.getMenuIconView().setImageResource(R.drawable.ic_modern_satellite);
+    }
+
+    @OnClick(R.id.flyplanner_fab_mapType_menu_terrain)
+    public void onMapTypeTerrainClicked(com.github.clans.fab.FloatingActionButton button) {
+        flyplannerFragment.getGoogleMapFragment().setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        //fabMapTypeMenu.getMenuIconView().setImageResource(R.drawable.ic_mountain_range);
+    }
+
+    @OnClick(R.id.flyplanner_fab_currentGpsPosition)
+    public void onFabClickCurrentGpsPosition(FloatingActionButton button) {
+        lastKnownLocationObservable.subscribe(x -> {
+            //GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
+            LatLng location = new LatLng(x.getLatitude(), x.getLongitude());
+            flyplannerFragment.getGoogleMapFragment().setMarker(location);
+        });
     }
 
     private void moveViewAlongPath(final View view, final Path path, long duration) {

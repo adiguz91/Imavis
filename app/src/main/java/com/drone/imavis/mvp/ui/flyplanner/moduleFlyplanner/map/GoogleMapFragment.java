@@ -29,6 +29,8 @@ import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +106,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         googleMap.setTrafficEnabled(true);
         googleMap.setIndoorEnabled(true);
         googleMap.setBuildingsEnabled(true);
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setZoomControlsEnabled(false);
         googleMap.setOnCameraIdleListener(this);
 
         //CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18);
@@ -112,6 +114,11 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         this.googleMap = googleMap;
         updateMarker(getLocation());
         //flyplannerMap.mapTouchView.setFlyplannerMapListener(this);
+    }
+
+    public void setMapType(int mapType) {
+        if (googleMap != null)
+            googleMap.setMapType(mapType);
     }
 
     public MapView getMapView() {
