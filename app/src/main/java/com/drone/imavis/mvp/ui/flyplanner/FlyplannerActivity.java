@@ -1,6 +1,9 @@
 package com.drone.imavis.mvp.ui.flyplanner;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -9,12 +12,17 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -206,6 +214,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         ButterKnife.bind(this);
 
         setHeader();
+        setUpCustomFabMenuAnimation();
 
         flyplannerFragment = (FlyplannerFragment) getSupportFragmentManager().findFragmentById(R.id.flyplanner);
         context = this;
@@ -335,6 +344,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     }
 
     public void setHeader() {
+
         fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_map)
                 .colorRes(R.color.icons)
                 .actionBarSize());
@@ -348,11 +358,15 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         .colorRes(R.color.icons)
                         .actionBarSize());
 
-        Icon icon = FontAwesomeIcons.fa_unlock_alt;
-        if (mapIsLocked)
-            icon = FontAwesomeIcons.fa_lock;
-        fabMapLock.setImageDrawable(new IconDrawable(this, icon)
-                        .colorRes(R.color.icons)
+        Icon lockingIcon = FontAwesomeIcons.fa_unlock_alt;
+        int ressourceColor = R.color.md_yellow_500;
+        if (mapIsLocked) {
+            lockingIcon = FontAwesomeIcons.fa_lock;
+            ressourceColor = R.color.md_red_500;
+        }
+
+        fabMapLock.setImageDrawable(new IconDrawable(this, lockingIcon)
+                        .colorRes(ressourceColor)
                         .actionBarSize());
 
         fabDroneConnectWifi.setImageDrawable(
@@ -442,6 +456,63 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         return file2.getPath();
     }
 
+    private static final int ANIMATION_DURATION = 300;
+    private static final float ROTATION_ANGLE = -45f;
+    private AnimatorSet mOpenAnimatorSet;
+    private AnimatorSet mCloseAnimatorSet;
+
+    private void setUpCustomFabMenuAnimation() {
+        mOpenAnimatorSet = new AnimatorSet();
+        mCloseAnimatorSet = new AnimatorSet();
+
+        ObjectAnimator collapseAnimator =  ObjectAnimator.ofFloat(fabMapTypeMenu.getMenuIconView(),
+                "rotation",
+                -90f + ROTATION_ANGLE, 0f);
+        ObjectAnimator expandAnimator = ObjectAnimator.ofFloat(fabMapTypeMenu.getMenuIconView(),
+                "rotation",
+                0f, -90f + ROTATION_ANGLE);
+
+        expandAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                // this will be rotated so that the plus icon will be seen as "x"
+                fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_plus)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+                fabMapTypeMenu.setIconToggleAnimatorSet(mCloseAnimatorSet);
+            }
+        });
+
+        collapseAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_map)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+                fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
+            }
+        });
+
+        mOpenAnimatorSet.play(expandAnimator);
+        mCloseAnimatorSet.play(collapseAnimator);
+
+        mOpenAnimatorSet.setDuration(ANIMATION_DURATION);
+        mCloseAnimatorSet.setDuration(ANIMATION_DURATION);
+
+        fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
+    }
+
+    private boolean checkConnectionStateToDrone(String checkSsid) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        if (WifiInfo.getDetailedStateOf(wifiInfo.getSupplicantState()) == NetworkInfo.DetailedState.CONNECTED) {
+            String droneSsid = wifiInfo.getSSID();
+            if (droneSsid.equals(checkSsid))
+                return true;
+        }
+        return false;
+    }
+
     @OnClick(R.id.flyplanner_fab_mapLock)
     public void onFabClickMapLock(FloatingActionButton button) {
         mapIsLocked = mapIsLocked ? false : true;
@@ -451,11 +522,14 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             flyplannerDrawer.setIsLocked(mapIsLocked);
         }
 
-        Icon icon = FontAwesomeIcons.fa_unlock_alt;
-        if (mapIsLocked)
-            icon = FontAwesomeIcons.fa_lock;
-        fabMapLock.setImageDrawable(new IconDrawable(this, icon)
-                .colorRes(R.color.icons)
+        Icon lockingIcon = FontAwesomeIcons.fa_unlock_alt;
+        int ressourceColor = R.color.md_yellow_500;
+        if (mapIsLocked) {
+            lockingIcon = FontAwesomeIcons.fa_lock;
+            ressourceColor = R.color.md_red_500;
+        }
+        fabMapLock.setImageDrawable(new IconDrawable(this, lockingIcon)
+                .colorRes(ressourceColor)
                 .actionBarSize());
     }
 
@@ -486,13 +560,13 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @OnClick(R.id.flyplanner_fab_mapType_menu_satellite)
     public void onMapTypeSatelliteClicked(com.github.clans.fab.FloatingActionButton button) {
         flyplannerFragment.getGoogleMapFragment().setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        //fabMapTypeMenu.getMenuIconView().setImageResource(R.drawable.ic_modern_satellite);
+        fabMapTypeMenu.close(true);
     }
 
     @OnClick(R.id.flyplanner_fab_mapType_menu_terrain)
     public void onMapTypeTerrainClicked(com.github.clans.fab.FloatingActionButton button) {
         flyplannerFragment.getGoogleMapFragment().setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        //fabMapTypeMenu.getMenuIconView().setImageResource(R.drawable.ic_mountain_range);
+        fabMapTypeMenu.close(true);
     }
 
     @OnClick(R.id.flyplanner_fab_currentGpsPosition)

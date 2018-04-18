@@ -56,8 +56,8 @@
                     fab:menu_shadowXOffset="0dp"
                     fab:menu_shadowYOffset="0dp"
                     fab:menu_fab_size="mini"
-                    fab:menu_colorNormal="#DA4336"
-                    fab:menu_colorPressed="#E75043"
+                    fab:menu_colorNormal="@color/colorPrimaryDark"
+                    fab:menu_colorPressed="@color/colorPrimary"
                     fab:menu_colorRipple="#99FFFFFF"
                     fab:menu_animationDelayPerItem="50"
                     fab:menu_icon="@drawable/fab_add"
@@ -73,8 +73,8 @@
                     fab:menu_labels_textColor="#FFFFFF"
                     fab:menu_labels_textSize="14sp"
                     fab:menu_labels_cornerRadius="3dp"
-                    fab:menu_labels_colorNormal="#333333"
-                    fab:menu_labels_colorPressed="#444444"
+                    fab:menu_labels_colorNormal="@color/colorPrimary"
+                    fab:menu_labels_colorPressed="@color/colorPrimary"
                     fab:menu_labels_colorRipple="#66FFFFFF"
                     fab:menu_labels_showShadow="true"
                     fab:menu_labels_singleLine="false"
@@ -88,6 +88,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_modern_satellite"
+                        fab:fab_colorNormal="@color/colorPrimary"
+                        fab:fab_colorPressed="@color/colorPrimary"
                         fab:fab_size="mini"
                         fab:fab_label="Satellite" />
 
@@ -96,6 +98,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_mountain_range"
+                        fab:fab_colorNormal="@color/colorPrimary"
+                        fab:fab_colorPressed="@color/colorPrimary"
                         fab:fab_size="mini"
                         fab:fab_label="Terrain" />
 

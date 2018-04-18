@@ -130,6 +130,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:borderWidth="0dp"
+            app:fab_size="mini"
             app:elevation="4dp"
             app:rippleColor="#ffffff" />
     </com.github.jorgecastilloprz.FABProgressCircle>
