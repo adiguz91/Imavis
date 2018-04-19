@@ -6,11 +6,13 @@ import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.util.constants.classes.CMap;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Created by adigu on 05.02.2017.
  */
 
+@Singleton
 public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
     private PreferencesHelper preferencesHelper;
@@ -28,7 +30,6 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
 
         // save to preferences
         preferencesHelper.setFlyplanViewScaleFactor(scaleFactor);
-
         return true;
     }
 }

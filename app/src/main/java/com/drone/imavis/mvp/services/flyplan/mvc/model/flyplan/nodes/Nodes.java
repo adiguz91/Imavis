@@ -111,8 +111,10 @@ public class Nodes implements Serializable {
     }
 
     private void setGPSCoordinateFromNode(Node node) {
-        GPSCoordinate gpsCoordinate = map.getGpsfromScreen(node.getShape().getCoordinate());
-        node.getShape().getCoordinate().setGpsCoordinate(gpsCoordinate);
+        if (map != null) {
+            GPSCoordinate gpsCoordinate = map.getGpsfromScreen(node.getShape().getCoordinate());
+            node.getShape().getCoordinate().setGpsCoordinate(gpsCoordinate);
+        }
     }
 
     public void addNode(Node node) {

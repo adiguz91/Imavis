@@ -166,7 +166,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @BindView(R.id.flyplanner_fab_mapType_menu_satellite)
     com.github.clans.fab.FloatingActionButton fabMapTypeSatellite;
 
-    private boolean mapIsLocked = true;
+    private boolean mapIsLocked = false;
 
     @BindView(R.id.flyplanner_fab_start)
     FloatingActionButton fabStart;
@@ -193,6 +193,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
+
+    private boolean isFlyplanStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -245,15 +247,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         MaterialSheetFab materialSheetFab = new MaterialSheetFab<>(fab, sheetView, overlay,
                 sheetColor, fabColor);
 
-        // Default reveal direction is up and to the left (for FABs in the bottom right corner)
-        //revealXDirection = RevealXDirection.LEFT;
-        //revealYDirection = RevealYDirection.UP;
-
-        //fabProgressCircleStart = (FABProgressCircle) findViewById(R.id.flyplanner_fab_pc_start);
         fabProgressCircleStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fabProgressCircleStart.show();
+                /*
                 // todo start the drone to fly
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -261,7 +258,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         // Actions to do after 10 seconds
                         fabProgressCircleStart.beginFinalAnimation();
                     }
-                }, 5 * 1000);
+                }, 5 * 1000);*/
             }
         });
 
@@ -273,57 +270,73 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         fabStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //String appDirectory = getApplicationInfo().dataDir;
-                /*String imageDirectory = "/storage/emulated/0/Android/data/com.drone.imavis/images/castle/";
-                File imageFileDirectory = new File(imageDirectory);
-                Uri imageUriDirectory = Uri.fromFile(imageFileDirectory);
-                flyplan.setImageFolderUrl(imageUriDirectory);
-                flyplannerPresenter.startFlyplanTask(flyplan);*/
 
-                long duration = 10000; // calculate duration alonge
-                ImageView imageView = findViewById(R.id.droneFlyingState);
-                moveViewAlongPath(imageView, flyplan.getPathRoute(imageView.getWidth()/2, imageView.getHeight()/2), duration);
+                if (!isFlyplanStarted) {
+                    fabProgressCircleStart.show();
+                    // change icon to "x" cancel
+                    fabStart.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_times)
+                            .colorRes(R.color.icons)
+                            .actionBarSize());
 
-                String serviceName = lasKnownSSID; // SSID wlan of the drone
-                for (ARDiscoveryDeviceService droneService : dronesList)
-                {
-                    if(droneService.getName().equals(serviceName)) {
-                        drone = droneService;
-                        break;
+                    long duration = 10000; // calculate duration alonge
+                    ImageView imageView = findViewById(R.id.droneFlyingState);
+                    moveViewAlongPath(imageView, flyplan.getPathRoute(imageView.getWidth()/2, imageView.getHeight()/2), duration);
+
+                    String serviceName = lasKnownSSID; // SSID wlan of the drone
+                    if(dronesList != null) {
+                        for (ARDiscoveryDeviceService droneService : dronesList)
+                        {
+                            if(droneService.getName().equals(serviceName)) {
+                                drone = droneService;
+                                break;
+                            }
+                        }
+                        if (drone != null) {
+                            autonomController = null;
+                            try {
+                                autonomController = new AutonomousFlightController(context, drone);
+                            } catch (ARUtilsException e) {
+                                e.printStackTrace();
+                            }
+
+                            autonomController.setListener(autonomousFlightControllerListener);
+                            autonomController.getConnectionState();
+                            autonomController.connect();
+                            //autonomController.takePicture();
+
+                            flyplannerFragment.getGoogleMapFragment();
+
+                            lastKnownLocationObservable.subscribe(x -> {
+                                GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
+                                autonomController.setHomeLocation(homeLocation);
+                            });
+
+                            String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
+                            autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
+                            try {
+                                Thread.sleep(2000);
+                                autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            // TODO shape design pattern
+                            // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
+
+                        }
                     }
+                    isFlyplanStarted = true;
+                } else {
+                    fabProgressCircleStart.hide();
+                    // cancel mode
+                    if (autonomController != null)
+                        autonomController.stopAutonomousFlight();
+                    fabStart.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_play)
+                            .colorRes(R.color.icons)
+                            .actionBarSize());
+                    isFlyplanStarted = false;
                 }
-                if (drone != null) {
-                    autonomController = null;
-                    try {
-                        autonomController = new AutonomousFlightController(context, drone);
-                    } catch (ARUtilsException e) {
-                        e.printStackTrace();
-                    }
 
-                    autonomController.setListener(autonomousFlightControllerListener);
-                    autonomController.getConnectionState();
-                    autonomController.connect();
-                    //autonomController.takePicture();
-
-                    flyplannerFragment.getGoogleMapFragment();
-
-                    lastKnownLocationObservable.subscribe(x -> {
-                        GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
-                        autonomController.setHomeLocation(homeLocation);
-                    });
-
-                    String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
-                    autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
-                    try {
-                        Thread.sleep(2000);
-                        autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    // TODO shape design pattern
-                    // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
-                }
             }
         });
 
@@ -584,6 +597,9 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     }
 
     private void moveViewAlongPath(final View view, final Path path, long duration) {
+        if (path == null || path.isEmpty())
+            return;
+
         ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(view, View.X, View.Y, path);
         objectAnimator.setDuration(duration);
         objectAnimator.setAutoCancel(true);

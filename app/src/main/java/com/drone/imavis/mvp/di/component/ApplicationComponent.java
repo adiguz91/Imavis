@@ -30,7 +30,8 @@ import dagger.Provides;
 @Component(modules = {ApplicationModule.class})
 public interface ApplicationComponent {
 
-    void inject(SyncService syncService);
+    //void inject(); // void inject(SyncService syncService);
+
 
     @ApplicationContext Context context();
     Application application();
