@@ -284,7 +284,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                 ImageView imageView = findViewById(R.id.droneFlyingState);
                 moveViewAlongPath(imageView, flyplan.getPathRoute(imageView.getWidth()/2, imageView.getHeight()/2), duration);
 
-                String serviceName = "BebopDrone-C074449"; // SSID wlan of the drone
+                String serviceName = lasKnownSSID; // SSID wlan of the drone
                 for (ARDiscoveryDeviceService droneService : dronesList)
                 {
                     if(droneService.getName().equals(serviceName)) {
@@ -359,19 +359,22 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         .actionBarSize());
 
         Icon lockingIcon = FontAwesomeIcons.fa_unlock_alt;
-        int ressourceColor = R.color.md_yellow_500;
+        int ressourceColor = R.color.md_yellow_400;
         if (mapIsLocked) {
             lockingIcon = FontAwesomeIcons.fa_lock;
-            ressourceColor = R.color.md_red_500;
+            ressourceColor = R.color.md_red_400;
         }
 
         fabMapLock.setImageDrawable(new IconDrawable(this, lockingIcon)
                         .colorRes(ressourceColor)
                         .actionBarSize());
 
+        int wifiColor = R.color.md_red_400;
+        if(isWifiDroneConnectionActive(lasKnownSSID))
+            wifiColor= R.color.md_green_400;
         fabDroneConnectWifi.setImageDrawable(
                 new IconDrawable(this, FontAwesomeIcons.fa_wifi)
-                        .colorRes(R.color.icons)
+                        .colorRes(wifiColor)
                         .actionBarSize());
 
         fabFlyplanSettings.setImageDrawable(
@@ -502,8 +505,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
     }
 
-    private boolean checkConnectionStateToDrone(String checkSsid) {
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+    private String lasKnownSSID = "BebopDrone-C074449";
+
+    private boolean isWifiDroneConnectionActive(String checkSsid) {
+        WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         if (WifiInfo.getDetailedStateOf(wifiInfo.getSupplicantState()) == NetworkInfo.DetailedState.CONNECTED) {
             String droneSsid = wifiInfo.getSSID();
@@ -523,10 +528,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         }
 
         Icon lockingIcon = FontAwesomeIcons.fa_unlock_alt;
-        int ressourceColor = R.color.md_yellow_500;
+        int ressourceColor = R.color.md_yellow_400;
         if (mapIsLocked) {
             lockingIcon = FontAwesomeIcons.fa_lock;
-            ressourceColor = R.color.md_red_500;
+            ressourceColor = R.color.md_red_400;
         }
         fabMapLock.setImageDrawable(new IconDrawable(this, lockingIcon)
                 .colorRes(ressourceColor)
