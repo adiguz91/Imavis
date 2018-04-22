@@ -39,7 +39,7 @@ public class Project implements Parcelable {
 
     @Transient
     @SerializedName("tasks")
-    private List<Integer> tasks;
+    private List<String> tasks; // UUIDs
 
     @SerializedName("created_at")
     private Date createdAt;
@@ -71,10 +71,10 @@ public class Project implements Parcelable {
         this.onlineId = onlineId;
     }
 
-    public List<Integer> getTasks() {
+    public List<String> getTasks() {
         return tasks;
     }
-    private void setTasks(List<Integer> tasks) {
+    private void setTasks(List<String> tasks) {
         this.tasks = tasks;
     }
 
@@ -196,10 +196,8 @@ public class Project implements Parcelable {
         this.onlineId = parcelIn.readInt();
         this.name = parcelIn.readString();
         this.description = parcelIn.readString();
-
-        this.tasks = new ArrayList<Integer>();
+        this.tasks = new ArrayList<String>();
         parcelIn.readList(tasks, null);
-
         long temp = parcelIn.readLong();
         this.createdAt = (temp == 0) ? null : new Date(temp);
     }

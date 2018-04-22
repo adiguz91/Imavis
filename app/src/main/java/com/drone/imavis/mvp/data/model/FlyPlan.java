@@ -28,6 +28,7 @@ import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.util.Date;
 import java.util.ListIterator;
+import java.util.UUID;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -71,7 +72,7 @@ public class FlyPlan implements Parcelable {
 
     private String nodesJson;
 
-    private Long taskId;
+    private String taskId;
 
     @Transient
     private Task task;
@@ -139,11 +140,11 @@ public class FlyPlan implements Parcelable {
         return new Gson().toJson(this);
     }
 
-    public Long getTaskId() {
+    public String getTaskId() {
         return taskId;
     }
 
-    public void setTaskId(Long taskId) {
+    public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
 
@@ -398,8 +399,8 @@ public class FlyPlan implements Parcelable {
         this.taskSerialized = parcelIn.readString();
     }
 
-    @Generated(hash = 111111680)
-    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, Date createdAt, String nodesJson, Long taskId,
+    @Generated(hash = 955028436)
+    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, Date createdAt, String nodesJson, String taskId,
             @NotNull String name, int minFlyHeight, int minSpeed) {
         this.id = id;
         this.unitOfLength = unitOfLength;

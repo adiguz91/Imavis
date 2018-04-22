@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import okhttp3.MultipartBody;
 
@@ -17,7 +18,7 @@ import okhttp3.MultipartBody;
 public class Task implements Parcelable {
 
     @SerializedName("id")
-    private int id;
+    private String id;
 
     @SerializedName("project")
     private int project;
@@ -62,11 +63,11 @@ public class Task implements Parcelable {
         // http://stackoverflow.com/questions/34562950/post-multipart-form-data-using-retrofit-2-0-including-image
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -210,7 +211,7 @@ public class Task implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
+        dest.writeString(id);
         dest.writeInt(project);
         dest.writeInt(processingNode);
         dest.writeInt(imagesCount);
@@ -233,7 +234,7 @@ public class Task implements Parcelable {
      * @param parcelIn Source Parcel
      */
     public Task (Parcel parcelIn) {
-        this.id = parcelIn.readInt();
+        this.id = parcelIn.readString();
         this.project = parcelIn.readInt();
         this.processingNode = parcelIn.readInt();
         this.imagesCount = parcelIn.readInt();

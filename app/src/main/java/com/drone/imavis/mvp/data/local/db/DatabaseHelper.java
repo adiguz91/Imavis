@@ -4,7 +4,10 @@ import com.drone.imavis.mvp.data.model.DaoMaster;
 import com.drone.imavis.mvp.data.model.DaoSession;
 import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.data.model.FlyPlanDao;
+import com.drone.imavis.mvp.data.model.MapDataDao;
 import com.drone.imavis.mvp.data.model.Project;
+import com.drone.imavis.mvp.data.model.ProjectDao;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinateDao;
 
 import java.util.Date;
 import java.util.List;
@@ -30,6 +33,7 @@ public class DatabaseHelper implements IDatabaseHelper {
     public DatabaseHelper(DatabaseOpenHelper dbOpenHelper) {
         // TODO pref with attribute ENCRYPTED, return getEncryptedWritableDb
         mDaoSession = new DaoMaster(dbOpenHelper.getWritableDb()).newSession();
+        //DaoMaster.createAllTables(mDaoSession.getDatabase(), true) ;
     }
 
     /* FLYPLAN */

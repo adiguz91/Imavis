@@ -125,7 +125,7 @@ android {
 }
 
 greendao {
-    schemaVersion 2
+    schemaVersion 6
 }
 
 repositories {

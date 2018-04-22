@@ -131,7 +131,7 @@ public class DataManager {
                     Stream.of(flyplans).forEach(flyplan -> {
                         if (flyplan.getTaskId() != null)  {
                             Stream.of(tasks).forEach(task -> {
-                                if (flyplan.getTaskId().intValue() == task.getId())
+                                if (flyplan.getTaskId().equals(task.getId()))
                                     flyplan.setTask(task);
                                     tasks.remove(task);
                             });
