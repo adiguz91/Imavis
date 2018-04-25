@@ -33,7 +33,7 @@ public class DatabaseHelper implements IDatabaseHelper {
     public DatabaseHelper(DatabaseOpenHelper dbOpenHelper) {
         // TODO pref with attribute ENCRYPTED, return getEncryptedWritableDb
         mDaoSession = new DaoMaster(dbOpenHelper.getWritableDb()).newSession();
-        //DaoMaster.createAllTables(mDaoSession.getDatabase(), true) ;
+        DaoMaster.createAllTables(mDaoSession.getDatabase(), true) ;
     }
 
     /* FLYPLAN */

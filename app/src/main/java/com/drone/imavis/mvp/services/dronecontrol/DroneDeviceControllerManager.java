@@ -487,7 +487,7 @@ public class DroneDeviceControllerManager {
                     });
                 }
             }
-            /*else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_POSITIONCHANGED) && (elementDictionary != null)){
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_POSITIONCHANGED) && (elementDictionary != null)){
                 // deprecated!!!
                 // http://developer.parrot.com/docs/reference/bebop_2/#drone-39-s-position-changed
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARCONTROLLER_DICTIONARY_SINGLE_KEY);
@@ -499,11 +499,11 @@ public class DroneDeviceControllerManager {
                     mHandler.post(new Runnable(){
                         @Override
                         public void run() {
-                            notifyGPSChange(latitude,longtitude,altitude);
+                            listener.notifyGpsPositionChanged(latitude,longtitude,altitude);
                         }
                     });
                 }
-            }*/
+            }
             else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED) && (elementDictionary != null)) {
                 // http://developer.parrot.com/docs/reference/bebop_2/#drone-39-s-speed-changed
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARCONTROLLER_DICTIONARY_SINGLE_KEY);

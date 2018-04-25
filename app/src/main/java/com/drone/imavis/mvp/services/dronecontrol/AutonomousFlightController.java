@@ -3,6 +3,7 @@ package com.drone.imavis.mvp.services.dronecontrol;
 import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -231,13 +232,21 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
             ARDataTransferUploader uploader = dataTransferManager.getARDataTransferUploader();
             mFtpUploadManager = new ARUtilsManager();
 
-            final UploadListener listener = new UploadListener(null, uploader);
+            final UploadListener listener = new UploadListener(mDeviceController.getFeatureCommon(), uploader);
             uploader.createUploader(mFtpUploadManager, "flightPlan.mavlink", localFilepath, listener, null, listener, null, ARDATATRANSFER_UPLOADER_RESUME_ENUM.ARDATATRANSFER_UPLOADER_RESUME_FALSE);
 
+            HandlerThread uploadHandlerThread = new HandlerThread("mavlink_uploader");
+            uploadHandlerThread.start();
+
+            Runnable uploadRunnable = uploader.getUploaderRunnable();
+            Handler uploadHandler = new Handler(uploadHandlerThread.getLooper());
+            uploadHandler.post(uploadRunnable);
+            Log.i(TAG, "transmit is success");
+
         } catch (ARUtilsException e) {
-            e.printStackTrace();
+            Log.e(TAG, "ARUtilsException exception: " + e.getMessage(), e);
         } catch (ARDataTransferException e) {
-            e.printStackTrace();
+            Log.e(TAG, "ARDataTransferException exception: " + e.getMessage(), e);
         }
     }
 
@@ -661,6 +670,13 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
     public void notifyMoveToChanged(GPSCoordinate location, float heading, ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_ORIENTATION_MODE_ENUM orientationMode, ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_STATUS_ENUM status) {
         mListener.notifyMoveToChanged(location, heading, orientationMode, status);
+    }
+
+    @Override
+    public void notifyGpsPositionChanged(double latitude, double longtitude, double altitude) {
+        GPSCoordinate location = new GPSCoordinate();
+        location.setGPSCoordinate(latitude, longtitude, altitude);
+        mListener.notifyGpsPositionChanged(location);
     }
 
     public void notifyCurrentDateChanged(String date) {

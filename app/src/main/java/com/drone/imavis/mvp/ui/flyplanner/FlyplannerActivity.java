@@ -842,6 +842,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         }
 
         @Override
+        public void notifyGpsPositionChanged(GPSCoordinate location) {
+            Log.d("AFCL", "notifyGpsPositionChanged");
+        }
+
+        @Override
         public void notifyPictureAndVideoSettingsChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEORESOLUTIONSCHANGED_TYPE_ENUM type, ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEOFRAMERATECHANGED_FRAMERATE_ENUM framerate) {
             Log.d("AFCL", "notifyPictureAndVideoSettingsChanged");
         }

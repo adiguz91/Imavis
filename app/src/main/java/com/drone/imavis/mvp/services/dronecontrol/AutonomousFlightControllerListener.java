@@ -55,6 +55,7 @@ public interface AutonomousFlightControllerListener {
     void notifyMoveToChanged(GPSCoordinate location, float heading,
                              ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_ORIENTATION_MODE_ENUM orientationMode,
                              ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_STATUS_ENUM status);
+    void notifyGpsPositionChanged(GPSCoordinate location);
 
     // Image, Video and Streaming
     void notifyPictureAndVideoSettingsChanged(ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEORESOLUTIONSCHANGED_TYPE_ENUM type,

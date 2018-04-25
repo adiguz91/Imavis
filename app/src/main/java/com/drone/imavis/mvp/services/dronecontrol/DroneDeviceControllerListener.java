@@ -46,6 +46,7 @@ public interface DroneDeviceControllerListener {
     void notifyMoveToChanged(GPSCoordinate location, float heading,
                              ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_ORIENTATION_MODE_ENUM orientationMode,
                              ARCOMMANDS_ARDRONE3_PILOTINGSTATE_MOVETOCHANGED_STATUS_ENUM status);
+    void notifyGpsPositionChanged(double latitude, double longtitude, double altitude);
 
     void notifyCurrentDateChanged(String date);
     void notifyCurrentTimeChanged(String time);
