@@ -26,6 +26,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.drone.imavis.mvp.R;
@@ -33,6 +34,7 @@ import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.dronecontrol.AutonomousFlightController;
 import com.drone.imavis.mvp.services.dronecontrol.AutonomousFlightControllerListener;
 import com.drone.imavis.mvp.services.dronecontrol.DronePermissionRequestHelper;
+import com.drone.imavis.mvp.services.dronecontrol.MavlinkFileInfo;
 import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.DroneDiscoverer;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
@@ -54,11 +56,13 @@ import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.parrot.arsdk.ARSDK;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGSSTATE_HOMETYPECHANGED_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIASTREAMINGSTATE_VIDEOENABLECHANGED_ENABLED_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_AUTOWHITEBALANCECHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_PICTUREFORMATCHANGED_TYPE_ENUM;
@@ -112,6 +116,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     private FlyPlan flyplan;
 
     private AutonomousFlightController autonomController;
+    private GPSCoordinate currentDronePosition;
+    private float beforeTakeOffElevation;
 
     @Inject
     DronePermissionRequestHelper dronePermissionRequestHelper;
@@ -145,6 +151,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
     @BindView(R.id.flyplanner_fab_pc_start)
     FABProgressCircle fabProgressCircleStart;
+
+
+    @BindView(R.id.batteryLevel)
+    TextView batteryLevel;
 
     // header
     @BindView(R.id.flyplanner_fab_back)
@@ -282,55 +292,44 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                     ImageView imageView = findViewById(R.id.droneFlyingState);
                     moveViewAlongPath(imageView, flyplan.getPathRoute(imageView.getWidth()/2, imageView.getHeight()/2), duration);
 
-                    String serviceName = lasKnownSSID; // SSID wlan of the drone
-                    if(dronesList != null) {
-                        for (ARDiscoveryDeviceService droneService : dronesList)
-                        {
-                            if(droneService.getName().equals(serviceName)) {
-                                drone = droneService;
-                                break;
-                            }
+                    if (autonomController != null) {
+                        flyplannerFragment.getGoogleMapFragment(); //?
+
+                        ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM homeType = ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_TAKEOFF;
+                        autonomController.setHomeType(homeType);
+
+                        lastKnownLocationObservable.subscribe(x -> {
+                            GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
+                            autonomController.setHomeLocation(homeLocation);
+                        });
+
+                        //for test purpose
+                        autonomController.setMaxAltitude(2);
+
+                        float maxAltitude = 2; // current + offset; //autonomController.setMaxAltitude(maxAltitude);
+                        //String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
+                        MavlinkFileInfo mavlinkFileInfo = autonomController.generateMavlinkFileTest(currentDronePosition, (short)3, maxAltitude);
+                        autonomController.uploadAutonomousFlightPlan(flyplan, mavlinkFileInfo.getFilePath());
+                        try {
+                            Thread.sleep(2000);
+                            float pictureInterval = 4;
+                            autonomController.recordVideoOrTakePictures(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START, 1, pictureInterval);
+                            autonomController.startAutonomousFlight(); // "flightPlan.mavlink" maxAltitude
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
-                        if (drone != null) {
-                            autonomController = null;
-                            try {
-                                autonomController = new AutonomousFlightController(context, drone);
-                            } catch (ARUtilsException e) {
-                                e.printStackTrace();
-                            }
-
-                            autonomController.setListener(autonomousFlightControllerListener);
-                            autonomController.getConnectionState();
-                            autonomController.connect();
-                            //autonomController.takePicture();
-
-                            flyplannerFragment.getGoogleMapFragment();
-
-                            lastKnownLocationObservable.subscribe(x -> {
-                                GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
-                                autonomController.setHomeLocation(homeLocation);
-                            });
-
-                            String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
-                            autonomController.uploadAutonomousFlightPlan(flyplan, localFilepath);
-                            try {
-                                Thread.sleep(2000);
-                                autonomController.startAutonomousFlight(); // "flightPlan.mavlink"
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-
-                            // TODO shape design pattern
-                            // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
-
-                        }
+                        // TODO shape design pattern
+                        // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
                     }
                     isFlyplanStarted = true;
                 } else {
                     fabProgressCircleStart.hide();
                     // cancel mode
-                    if (autonomController != null)
+                    if (autonomController != null) {
                         autonomController.stopAutonomousFlight();
+                        autonomController.returnHome();
+                    }
+
                     fabStart.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_play)
                             .colorRes(R.color.icons)
                             .actionBarSize());
@@ -383,8 +382,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         .actionBarSize());
 
         int wifiColor = R.color.md_red_400;
-        if(isWifiDroneConnectionActive(lasKnownSSID))
+        if(isWifiDroneConnectionActive(lasKnownSSID)) {
             wifiColor= R.color.md_green_400;
+        }
+
         fabDroneConnectWifi.setImageDrawable(
                 new IconDrawable(this, FontAwesomeIcons.fa_wifi)
                         .colorRes(wifiColor)
@@ -404,6 +405,30 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                 .textColor(Color.WHITE)
                 .color(getResources().getColor(R.color.colorPrimary))
                 .show();
+    }
+
+    private void connectToDrone() {
+        String serviceName = lasKnownSSID; // SSID wlan of the drone
+        if (dronesList != null) {
+            for (ARDiscoveryDeviceService droneService : dronesList) {
+                if (droneService.getName().equals(serviceName)) {
+                    drone = droneService;
+                    break;
+                }
+            }
+            if (drone != null) {
+                autonomController = null;
+                try {
+                    autonomController = new AutonomousFlightController(context, drone);
+                } catch (ARUtilsException e) {
+                    e.printStackTrace();
+                }
+
+                autonomController.setListener(autonomousFlightControllerListener);
+                autonomController.getConnectionState();
+                autonomController.connect();
+            }
+        }
     }
 
     public FlyPlan getFlyplan() {
@@ -516,6 +541,28 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         mCloseAnimatorSet.setDuration(ANIMATION_DURATION);
 
         fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
+    }
+
+    private void changeBatteryLevel(int percentage) {
+
+        batteryLevel.setText(percentage + "%");
+        if (percentage >= 75) {
+            // green
+            batteryLevel.setTextColor(getResources().getColor(R.color.white));
+            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_green_700)));
+        } else if (75 > percentage && percentage >= 50) {
+            // yellow
+            batteryLevel.setTextColor(getResources().getColor(R.color.md_black_1000));
+            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_yellow_600)));
+        } else if (50 > percentage && percentage >= 25) {
+            // orange
+            batteryLevel.setTextColor(getResources().getColor(R.color.white));
+            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_orange_800)));
+        } else if(25 > percentage) {
+            //red
+            batteryLevel.setTextColor(getResources().getColor(R.color.white));
+            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_red_800)));
+        }
     }
 
     private String lasKnownSSID = "BebopDrone-C074449";
@@ -678,59 +725,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         }
         this.dronesList = dronesList;
 
-        /*
-        List<String> drones = new ArrayList<>();
-        for (ARDiscoveryDeviceService drone : dronesList) {
-            drones.add(drone.getName());
-        }
-        */
-
-        /*
-        dialogUtil.showDialog(FlyplannerActivity.this, "Found Drones", drones, new String[] { "OK", "Abbrechen" },
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int button) {
-
-                        if (button == Dialog.BUTTON_POSITIVE) {
-
-                            ListView lw = ((AlertDialog)dialog).getListView();
-                            String serviceName = (String) lw.getAdapter().getItem(lw.getCheckedItemPosition());
-
-                            for (ARDiscoveryDeviceService droneService : dronesList)
-                            {
-                                if(droneService.getName().equals(serviceName)) {
-                                    drone = droneService;
-                                    break;
-                                }
-                            }
-                            if (drone != null) {
-                                autonomController = null;
-                                try {
-                                    autonomController = new AutonomousFlightController(context, drone);
-                                } catch (ARUtilsException e) {
-                                    e.printStackTrace();
-                                }
-
-                                autonomController.setListener(autonomousFlightControllerListener);
-                                autonomController.getConnectionState();
-                                autonomController.connect();
-                                //autonomController.takePicture();
-
-                                flyplannerFragment.getGoogleMapFragment();
-
-                                lastKnownLocationObservable.subscribe(x -> {
-                                    GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
-                                    autonomController.setHomeLocation(homeLocation);
-                                });
-
-                                // TODO shape design pattern
-                                // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
-                            }
-                        }
-
-                    }
-                });
-        */
+        connectToDrone();
     }
 
     @Override
@@ -809,6 +804,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         @Override
         public void notifyBatteryProgressChanged(int batteryProgress) {
             Log.d("AFCL", "notifyBatteryProgressChanged " + batteryProgress);
+            changeBatteryLevel(batteryProgress);
         }
 
         @Override
@@ -818,7 +814,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         @Override
         public void notifyMaxAltitudeChanged(float current, float min, float max) {
-            Log.d("AFCL", "notifyMaxAltitudeChanged");
+            Log.d("AFCL", "notifyMaxAltitudeChanged: min-"+min + " max-"+max + " current-"+current);
+            beforeTakeOffElevation = current;
         }
 
         @Override
@@ -844,6 +841,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         @Override
         public void notifyGpsPositionChanged(GPSCoordinate location) {
             Log.d("AFCL", "notifyGpsPositionChanged");
+            currentDronePosition = location;
         }
 
         @Override

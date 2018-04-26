@@ -230,7 +230,6 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
             ARDataTransferManager dataTransferManager = new ARDataTransferManager();
             ARDataTransferUploader uploader = dataTransferManager.getARDataTransferUploader();
-            mFtpUploadManager = new ARUtilsManager();
 
             final UploadListener listener = new UploadListener(mDeviceController.getFeatureCommon(), uploader);
             uploader.createUploader(mFtpUploadManager, "flightPlan.mavlink", localFilepath, listener, null, listener, null, ARDATATRANSFER_UPLOADER_RESUME_ENUM.ARDATATRANSFER_UPLOADER_RESUME_FALSE);
@@ -243,8 +242,6 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
             uploadHandler.post(uploadRunnable);
             Log.i(TAG, "transmit is success");
 
-        } catch (ARUtilsException e) {
-            Log.e(TAG, "ARUtilsException exception: " + e.getMessage(), e);
         } catch (ARDataTransferException e) {
             Log.e(TAG, "ARDataTransferException exception: " + e.getMessage(), e);
         }
@@ -509,6 +506,47 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureCommon().sendCalibrationMagnetoCalibration((byte)(start?1:0));
     }
 
+    public MavlinkFileInfo generateMavlinkFileTest(GPSCoordinate currentDronePosition, short delayBeforStart, float elevation) {
+
+        if(currentDronePosition == null)
+            return null;
+
+        final ARMavlinkFileGenerator generator;
+        try {
+            generator = new ARMavlinkFileGenerator();
+        } catch (ARMavlinkException e) {
+            return null;
+        }
+
+        int missionItemCounter = 0;
+
+        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkDelay(delayBeforStart));
+        missionItemCounter++;
+
+        GPSCoordinate takeOff = currentDronePosition;
+        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float)takeOff.getLatitude(), (float)takeOff.getLongitude(), elevation, 0, 0));
+        missionItemCounter++;
+
+        GPSCoordinate landing = currentDronePosition;
+        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float)landing.getLatitude(), (float)landing.getLongitude(), 1, 0));
+        missionItemCounter++;
+
+        // save our mavlink file
+        //final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.MAVLINK_STORAGE_DIRECTORY));
+        final File file = new File(MAVLINK_STORAGE_DIRECTORY);
+        //noinspection ResultOfMethodCallIgnored
+        file.mkdirs();
+
+        final String filename = MAVLINK_STORAGE_DIRECTORY + File.separator + "flightPlan.mavlink";
+        final File mavFile = new File(filename);
+
+        //noinspection ResultOfMethodCallIgnored
+        //mavFile.delete();
+        generator.CreateMavlinkFile(filename);
+
+        return new MavlinkFileInfo(filename, missionItemCounter);
+    }
+
     public String generateMavlinkFile(Nodes nodes, short delayBeforStart) {
 
         if (nodes.getWaypoints() == null || nodes.getWaypoints().size() == 0) {
@@ -523,14 +561,16 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
             return null;
         }
 
+        float elevation = 2; // height in m
+
         generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkDelay(delayBeforStart));
 
         if (nodes.getWaypoints().size() <= 2) {
             GPSCoordinate takeOff = nodes.getWaypoints().getFirst().getShape().getCoordinate().getGpsCoordinate();
-            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float)takeOff.getLatitude(), (float)takeOff.getLongitude(), (float)takeOff.getAltitude(), 0, 0));
+            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float)takeOff.getLatitude(), (float)takeOff.getLongitude(), (float)takeOff.getAltitude() + elevation, 0, 0));
 
             GPSCoordinate landing = nodes.getWaypoints().getLast().getShape().getCoordinate().getGpsCoordinate();
-            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float)landing.getLatitude(), (float)landing.getLongitude(), (float)landing.getAltitude(), 0));
+            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float)landing.getLatitude(), (float)landing.getLongitude(), (float)landing.getAltitude() + elevation, 0));
         }
 
         int count = 0;
@@ -540,7 +580,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
             if ((0 < count) && (count < (nodes.getWaypoints().size() - 1))) {
                 // convert coordinate to gpsCoordinates waypoint.getShape().getCoordinate(); lat == y; lng == x; alt == z
                 GPSCoordinate gpsCoordinate = waypoint.getShape().getCoordinate().getGpsCoordinate();
-                generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkNavWaypointMissionItem((float)gpsCoordinate.getLatitude(), (float)gpsCoordinate.getLongitude(), (float)gpsCoordinate.getAltitude(), 0));
+                generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkNavWaypointMissionItem((float)gpsCoordinate.getLatitude(), (float)gpsCoordinate.getLongitude(), (float)gpsCoordinate.getAltitude() + elevation, 0));
 
                 if (((WaypointData)waypoint.getData()).getPoi() != null) {
                     //generator.GetCurrentMissionItemList().getMissionItem(count).
@@ -550,7 +590,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
                         generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkSetROI(MAV_ROI.MAV_ROI_WPNEXT, 0, 0, 0, 0, 0));
                     }
                     else {
-                        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkSetROI(MAV_ROI.MAV_ROI_LOCATION, 0, 0, (float)poiCoordinate.getLatitude(), (float)poiCoordinate.getLongitude(), (float)poiCoordinate.getAltitude()));
+                        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkSetROI(MAV_ROI.MAV_ROI_LOCATION, 0, 0, (float)poiCoordinate.getLatitude(), (float)poiCoordinate.getLongitude(), (float)poiCoordinate.getAltitude() + elevation));
                     }
                 }
             }

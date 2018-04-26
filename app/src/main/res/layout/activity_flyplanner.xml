@@ -35,6 +35,19 @@
                     app:backgroundTint="@color/colorPrimaryDark"
                     android:tint="@color/white"
                     app:fabSize="mini" />
+
+                <TextView
+                    android:id="@+id/batteryLevel"
+                    android:layout_width="56dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ic_battery"
+                    android:layout_margin="4dp"
+                    android:textAlignment="center"
+                    android:paddingTop="12dp"
+                    android:paddingRight="2dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/white"
+                    android:text="100%" android:backgroundTint="@color/md_green_700"/>
             </LinearLayout>
 
             <LinearLayout
@@ -49,7 +62,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:layout_gravity="center_vertical"
+                    android:layout_gravity="end|center_vertical"
+                    android:clickable="false"
+                    android:fillAfter="false"
                     fab:menu_showShadow="true"
                     fab:menu_shadowColor="#66000000"
                     fab:menu_shadowRadius="2dp"
@@ -88,6 +103,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_modern_satellite"
+                        android:clickable="false"
+                        android:fillAfter="false"
                         fab:fab_colorNormal="@color/colorPrimary"
                         fab:fab_colorPressed="@color/colorPrimary"
                         fab:fab_size="mini"
@@ -98,6 +115,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_mountain_range"
+                        android:clickable="false"
+                        android:fillAfter="false"
                         fab:fab_colorNormal="@color/colorPrimary"
                         fab:fab_colorPressed="@color/colorPrimary"
                         fab:fab_size="mini"
