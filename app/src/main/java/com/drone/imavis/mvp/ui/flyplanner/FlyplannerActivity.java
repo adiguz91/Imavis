@@ -24,6 +24,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -51,6 +52,7 @@ import com.github.jorgecastilloprz.listeners.FABProgressListener;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
+import com.gordonwong.materialsheetfab.MaterialSheetFabEventListener;
 import com.joanzapata.iconify.Icon;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
@@ -118,6 +120,9 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     private AutonomousFlightController autonomController;
     private GPSCoordinate currentDronePosition;
     private float beforeTakeOffElevation;
+
+    private MaterialSheetFab actionFabSheetMenu;
+    private SheetFab fabSheet;
 
     @Inject
     DronePermissionRequestHelper dronePermissionRequestHelper;
@@ -227,6 +232,11 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         setHeader();
         setUpCustomFabMenuAnimation();
+        if(fabMapTypeMenu.isOpened()){
+            fabMapTypeMenu.setClickable(true);
+        } else {
+            fabMapTypeMenu.setClickable(false);
+        }
 
         flyplannerFragment = (FlyplannerFragment) getSupportFragmentManager().findFragmentById(R.id.flyplanner);
         context = this;
@@ -242,20 +252,42 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        SheetFab fab = (SheetFab) findViewById(R.id.fabSheet);
-        View sheetView = findViewById(R.id.fab_sheet);
+        fabSheet = (SheetFab) findViewById(R.id.fabSheet);
+        View sheetView = findViewById(R.id.fabSheetCardView);
         View overlay = findViewById(R.id.overlay);
-        int sheetColor = getResources().getColor(R.color.blue_normal);
+        int sheetColor = getResources().getColor(R.color.white);
         int fabColor = getResources().getColor(R.color.accent_color);
 
-        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.transparent)));
-        fab.setRippleColor(getResources().getColor(R.color.transparent));
-        fab.setElevation(0);
-        fab.setCompatElevation(0);
+        fabSheet.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.transparent)));
+        fabSheet.setRippleColor(getResources().getColor(R.color.transparent));
+        fabSheet.setElevation(0);
+        fabSheet.setCompatElevation(0);
 
         // Initialize material sheet FAB
-        MaterialSheetFab materialSheetFab = new MaterialSheetFab<>(fab, sheetView, overlay,
+        actionFabSheetMenu = new MaterialSheetFab<>(fabSheet, sheetView, overlay,
                 sheetColor, fabColor);
+
+        actionFabSheetMenu.setEventListener(new MaterialSheetFabEventListener() {
+            @Override
+            public void onShowSheet() {
+                // Called when the material sheet's "show" animation starts.
+            }
+
+            @Override
+            public void onSheetShown() {
+                // Called when the material sheet's "show" animation ends.
+            }
+
+            @Override
+            public void onHideSheet() {
+                // Called when the material sheet's "hide" animation starts.
+            }
+
+            public void onSheetHidden() {
+                // Called when the material sheet's "hide" animation ends.
+                fabSheet.setVisibility(View.GONE);
+            }
+        });
 
         fabProgressCircleStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -353,6 +385,14 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
+    }
+
+    public MaterialSheetFab getActionFabSheetMenu() {
+        return actionFabSheetMenu;
+    }
+
+    public SheetFab getActionFabSheet() {
+        return fabSheet;
     }
 
     public void setHeader() {
@@ -521,6 +561,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         .colorRes(R.color.icons)
                         .actionBarSize());
                 fabMapTypeMenu.setIconToggleAnimatorSet(mCloseAnimatorSet);
+                fabMapTypeMenu.setClickable(true);
             }
         });
 
@@ -531,6 +572,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         .colorRes(R.color.icons)
                         .actionBarSize());
                 fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
+                fabMapTypeMenu.setClickable(false);
             }
         });
 

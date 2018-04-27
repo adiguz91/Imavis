@@ -1,14 +1,31 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.view.listener;
 
+import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsoluteLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
+import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Line;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoints;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
+
+import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by adigu on 23.02.2017.
@@ -19,6 +36,11 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
     private Coordinate touchCoordinate;
     private Node touchedNode;
     private int pointerId;
+    private FlyPlanView parentView;
+
+    public GestureListener(FlyPlanView parentView) {
+        this.parentView = parentView;
+    }
 
     @Override
     public boolean onDown(MotionEvent event) {
@@ -51,6 +73,8 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
             return false;
     }
 
+    private LinearLayout.LayoutParams fabSheetCardViewLayout;
+
     @Override
     public void onLongPress(MotionEvent event) {
         //super.onLongPress(event);
@@ -73,10 +97,28 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                 if(isObtained) {
                     FlyPlanView.getNodes().put(pointerId, touchedNode);
                 } else {
-                    //checkSelected(touchedNode.getClass());
-                    // ##################################################
-                    //MainFlyplanner.addActionButtons(touchedNode.getShape().getCoordinate());
-                    // ##################################################
+                    // ACTION BUTTONs open
+                    ((FlyplannerActivity)parentView.getContext()).getActionFabSheet().setVisibility(View.VISIBLE);
+                    float radius = ((Circle)(touchedNode).getShape()).getRadius();
+                    LinearLayout fabSheetItemClose = ((Activity)parentView.getContext()).findViewById(R.id.fabSheetItemClose);
+                    if(touchedNode.getClass().equals(Waypoint.class)) {
+                        // Waypoint
+                        fabSheetItemClose.setVisibility(View.VISIBLE);
+                    } else {
+                        // POI
+                        fabSheetItemClose.setVisibility(View.GONE);
+                    }
+                    Coordinate centeredCoordinate = new Coordinate(touchedNode.getShape().getCoordinate().getX() - radius, touchedNode.getShape().getCoordinate().getY() - radius);
+                    //((FlyplannerActivity)parentView.getContext()).getActionFabSheetMenu().showFab(centeredCoordinate.getX(), centeredCoordinate.getY());
+                    CardView fabSheedCardView = ((FlyplannerActivity)parentView.getContext()).findViewById(R.id.fabSheetCardView);
+
+                    if (fabSheetCardViewLayout == null)
+                        fabSheetCardViewLayout = (LinearLayout.LayoutParams) fabSheedCardView.getLayoutParams();
+
+                    LinearLayout.LayoutParams layoutParams = fabSheetCardViewLayout;
+                    layoutParams.setMargins((int)centeredCoordinate.getX(), (int)centeredCoordinate.getY(), 0, 0);
+                    fabSheedCardView.setLayoutParams(layoutParams);
+                    ((FlyplannerActivity)parentView.getContext()).getActionFabSheetMenu().showSheet();
                 }
             }
         }

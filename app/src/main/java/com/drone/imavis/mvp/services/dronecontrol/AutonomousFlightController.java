@@ -528,7 +528,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         missionItemCounter++;
 
         GPSCoordinate landing = currentDronePosition;
-        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float)landing.getLatitude(), (float)landing.getLongitude(), 1, 0));
+        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float)landing.getLatitude(), (float)landing.getLongitude(), 0, 0));
         missionItemCounter++;
 
         // save our mavlink file

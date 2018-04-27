@@ -48,12 +48,39 @@
                     android:textSize="12sp"
                     android:textColor="@color/white"
                     android:text="100%" android:backgroundTint="@color/md_green_700"/>
+
+                <!--<RelativeLayout
+                    android:layout_height="match_parent"
+                    android:layout_width="56dp"
+                    android:layout_margin="4dp">
+                    <ImageView
+                        android:id="@+id/myImageView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_battery"
+                        android:scaleType="fitXY"
+                        android:tint="@color/md_green_700"/>
+
+                    <TextView
+                        android:id="@+id/myImageViewText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@+id/myImageView"
+                        android:layout_alignTop="@+id/myImageView"
+                        android:layout_alignRight="@+id/myImageView"
+                        android:layout_alignBottom="@+id/myImageView"
+                        android:textAlignment="center"
+                        android:textSize="12sp"
+                        android:textColor="@color/white"
+                        android:text="100%"
+                        android:gravity="center_horizontal|center_vertical" />
+                </RelativeLayout>-->
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="right"
+                android:gravity="end|right"
                 android:layout_alignParentRight="true"
                 android:orientation="horizontal">
 
@@ -103,8 +130,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_modern_satellite"
-                        android:clickable="false"
-                        android:fillAfter="false"
                         fab:fab_colorNormal="@color/colorPrimary"
                         fab:fab_colorPressed="@color/colorPrimary"
                         fab:fab_size="mini"
@@ -115,8 +140,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_mountain_range"
-                        android:clickable="false"
-                        android:fillAfter="false"
                         fab:fab_colorNormal="@color/colorPrimary"
                         fab:fab_colorPressed="@color/colorPrimary"
                         fab:fab_size="mini"

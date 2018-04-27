@@ -1,5 +1,6 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.view;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -13,6 +14,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import com.drone.imavis.mvp.AppStartup;
+import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.SyncService;
 import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.model.FlyPlan;
@@ -29,8 +31,12 @@ import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CMap;
+import com.joanzapata.iconify.widget.IconTextView;
 
 import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class FlyPlanView extends View {
 
@@ -41,6 +47,7 @@ public class FlyPlanView extends View {
     private Rect viewRect;
 
     private FlyplannerFragment flyplannerFragment;
+    private SheetFab actionSheetMenu;
 
     private static final String TAG = "FlyPlanView";
     private static ScaleGestureDetector scaleDetector;
@@ -72,8 +79,14 @@ public class FlyPlanView extends View {
         ((FlyplannerActivity) getContext()).activityComponent().inject(this);
 
         nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
-        gestureDetector = new GestureDetector(getContext(), new GestureListener());
+        gestureDetector = new GestureDetector(getContext(), new GestureListener(FlyPlanView.this));
         scaleDetector = new ScaleGestureDetector(getContext(), scaleListener);
+    }
+
+    public SheetFab getActionSheetMenu() {
+        if (actionSheetMenu == null)
+            actionSheetMenu = ((Activity) getContext()).findViewById(R.id.fabSheet);
+        return actionSheetMenu;
     }
 
     public void setFlyPlan(FlyPlan flyPlan) {
