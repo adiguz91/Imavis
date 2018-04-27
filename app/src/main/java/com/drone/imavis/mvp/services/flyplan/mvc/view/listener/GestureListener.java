@@ -3,6 +3,8 @@ package com.drone.imavis.mvp.services.flyplan.mvc.view.listener;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.CardView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -75,6 +77,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
     private LinearLayout.LayoutParams fabSheetCardViewLayout;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onLongPress(MotionEvent event) {
         //super.onLongPress(event);
@@ -106,10 +109,12 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                         fabSheetItemClose.setVisibility(View.VISIBLE);
                     } else {
                         // POI
-                        fabSheetItemClose.setVisibility(View.GONE);
+                        fabSheetItemClose.setVisibility(View.INVISIBLE);
                     }
                     Coordinate centeredCoordinate = new Coordinate(touchedNode.getShape().getCoordinate().getX() - radius, touchedNode.getShape().getCoordinate().getY() - radius);
-                    //((FlyplannerActivity)parentView.getContext()).getActionFabSheetMenu().showFab(centeredCoordinate.getX(), centeredCoordinate.getY());
+                    ((FlyplannerActivity)parentView.getContext()).getActionFabSheetMenu().showFab(centeredCoordinate.getX(), centeredCoordinate.getY());
+
+                    //((FlyplannerActivity)parentView.getContext()).getActionFabSheet().performContextClick(touchedNode.getShape().getCoordinate().getX(), touchedNode.getShape().getCoordinate().getY());
                     CardView fabSheedCardView = ((FlyplannerActivity)parentView.getContext()).findViewById(R.id.fabSheetCardView);
 
                     if (fabSheetCardViewLayout == null)
@@ -117,7 +122,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
                     LinearLayout.LayoutParams layoutParams = fabSheetCardViewLayout;
                     layoutParams.setMargins((int)centeredCoordinate.getX(), (int)centeredCoordinate.getY(), 0, 0);
-                    fabSheedCardView.setLayoutParams(layoutParams);
+                    ((FlyplannerActivity)parentView.getContext()).getActionFabSheetCardView().setLayoutParams(layoutParams);
                     ((FlyplannerActivity)parentView.getContext()).getActionFabSheetMenu().showSheet();
                 }
             }

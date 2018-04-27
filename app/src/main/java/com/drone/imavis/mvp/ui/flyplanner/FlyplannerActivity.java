@@ -183,6 +183,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
     private boolean mapIsLocked = false;
 
+    private View sheetView;
+
     @BindView(R.id.flyplanner_fab_start)
     FloatingActionButton fabStart;
 
@@ -253,7 +255,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         fabSheet = (SheetFab) findViewById(R.id.fabSheet);
-        View sheetView = findViewById(R.id.fabSheetCardView);
+        sheetView = findViewById(R.id.fabSheetCardView);
         View overlay = findViewById(R.id.overlay);
         int sheetColor = getResources().getColor(R.color.white);
         int fabColor = getResources().getColor(R.color.accent_color);
@@ -393,6 +395,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
     public SheetFab getActionFabSheet() {
         return fabSheet;
+    }
+
+    public View getActionFabSheetCardView() {
+        return sheetView;
     }
 
     public void setHeader() {
