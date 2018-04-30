@@ -84,6 +84,7 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
 
         activity.getFlyplan().getPoints(); // load nodes
         flyplannerDrawer.setIsLoading(false);
+
         activity.getLoadingDialog().close();
     }
 
