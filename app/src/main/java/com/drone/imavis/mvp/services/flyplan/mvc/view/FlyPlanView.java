@@ -46,6 +46,8 @@ public class FlyPlanView extends View {
     private GestureDetector gestureDetector;
     private Rect viewRect;
 
+    private boolean isLoading = true;
+
     private FlyplannerFragment flyplannerFragment;
     private SheetFab actionSheetMenu;
 
@@ -118,6 +120,14 @@ public class FlyPlanView extends View {
         canvas.restore();
     }
 
+    public boolean isIsLoading() {
+        return isLoading;
+    }
+
+    public void setIsLoading(boolean isLoading) {
+        this.isLoading = isLoading;
+    }
+
     private static boolean isLocked = false;
     public static boolean isLocked() {
         return isLocked;
@@ -127,6 +137,9 @@ public class FlyPlanView extends View {
     }
 
     public boolean doOnTouch(MotionEvent event) {
+        if(isIsLoading())
+            return false;
+
         if(isLocked)
             return super.onTouchEvent(event);
         Log.w(TAG, "onTouchEvent: " + event);

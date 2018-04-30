@@ -45,6 +45,7 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_flyplanner, container, false);
         activity = (FlyplannerActivity) getActivity();
+        activity.getLoadingDialog().show();
         return view;
     }
 
@@ -74,12 +75,16 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     public void onMapReady(GoogleMap googleMap) {
         getGoogleMapFragment().onMapReady(googleMap);
 
-
         // TODO GoogleMapExtension can be initialized in the GoogleMapFragment
         GoogleMapExtension googleMapExtension = new GoogleMapExtension(getGoogleMapFragment().getMap());
         activity.getFlyplan().setMap(googleMapExtension);
 
+        // TODO: activate toGPS of each node in the flyplan
         googleMapFragment.setOnMapLoadedCallback(this);
+
+        activity.getFlyplan().getPoints(); // load nodes
+        flyplannerDrawer.setIsLoading(false);
+        activity.getLoadingDialog().close();
     }
 
     @Override

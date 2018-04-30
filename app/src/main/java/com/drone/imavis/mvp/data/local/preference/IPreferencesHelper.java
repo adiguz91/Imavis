@@ -14,4 +14,7 @@ public interface IPreferencesHelper {
 
     float getFlyplanViewScaleFactor();
     void setFlyplanViewScaleFactor(float scaleFactor);
+
+    String getDroneWifiSsid();
+    void setDroneWifiSsid(String ssid);
 }

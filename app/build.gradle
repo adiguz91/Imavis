@@ -238,7 +238,7 @@ dependencies {
     compile 'org.greenrobot:greendao:3.2.2'
 
     compile 'com.github.florent37:viewtooltip:1.1.5'
-
+    compile 'com.github.ybq:Android-SpinKit:1.1.0'
     compile 'com.gordonwong:material-sheet-fab:1.2.1'
     compile 'com.skyfishjy.ripplebackground:library:1.0.1'
     //wifi scan and connect

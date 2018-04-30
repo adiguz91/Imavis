@@ -22,6 +22,7 @@ public class PreferencesHelper implements IPreferencesHelper {
     private static final String PREF_KEY_CURRENT_USER_ID = "PREF_KEY_CURRENT_USER_ID";
     private static final String PREF_KEY_AUTHORIZATION_TOKEN = "PREF_KEY_AUTHORIZATION_TOKEN";
     private static final String PREF_KEY_FLYPLANVIEW_SCALEFACTOR = "PREF_KEY_FLYPLANVIEW_SCALEFACTOR";
+    private static final String PREF_KEY_DRONE_WIFI_SSID = "PREF_KEY_DRONE_WIFI_SSID";
 
     @Inject
     public PreferencesHelper(@ApplicationContext Context context) {
@@ -61,5 +62,16 @@ public class PreferencesHelper implements IPreferencesHelper {
     @Override
     public void setFlyplanViewScaleFactor(float scaleFactor) {
         preferences.edit().putFloat(PREF_KEY_FLYPLANVIEW_SCALEFACTOR, scaleFactor).apply();
+    }
+
+    @Override
+    public String getDroneWifiSsid() {
+        return preferences.getString(PREF_KEY_DRONE_WIFI_SSID, "");
+    }
+
+    @Override
+    public void setDroneWifiSsid(String ssid) {
+        if(ssid == null) ssid = "";
+        preferences.edit().putString(PREF_KEY_DRONE_WIFI_SSID, ssid).apply();
     }
 }

@@ -100,18 +100,18 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     public void onMapReady(GoogleMap googleMap) {
         // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
         MapsInitializer.initialize(this.getContext());
+        this.googleMap = googleMap;
 
         //LocationEnable();
-        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        googleMap.setTrafficEnabled(true);
-        googleMap.setIndoorEnabled(true);
-        googleMap.setBuildingsEnabled(true);
-        googleMap.getUiSettings().setZoomControlsEnabled(false);
-        googleMap.setOnCameraIdleListener(this);
+        this.googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        this.googleMap.setTrafficEnabled(true);
+        this.googleMap.setIndoorEnabled(true);
+        this.googleMap.setBuildingsEnabled(true);
+        this.googleMap.getUiSettings().setZoomControlsEnabled(false);
+        this.googleMap.setOnCameraIdleListener(this);
 
         //CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18);
         //googleMap.moveCamera(cameraUpdateFactory);
-        this.googleMap = googleMap;
         updateMarker(getLocation());
         //flyplannerMap.mapTouchView.setFlyplannerMapListener(this);
     }

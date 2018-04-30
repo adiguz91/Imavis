@@ -11,8 +11,10 @@ import android.graphics.Point;
 import android.graphics.Typeface;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
@@ -38,8 +40,11 @@ import com.afollestad.materialdialogs.internal.ThemeSingleton;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.annimon.stream.Stream;
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.util.CircleMath;
+import com.drone.imavis.mvp.util.IWifiUtilCallback;
+import com.drone.imavis.mvp.util.WifiUtil;
 import com.skyfishjy.library.RippleBackground;
 import com.thanosfisherman.wifiutils.WifiUtils;
 
@@ -65,6 +70,10 @@ public class SearchWlanActivity extends BaseActivity {
 
     @Inject
     SearchWlanPresenter searchWlanPresenter;
+    @Inject
+    PreferencesHelper preferencesHelper;
+    @Inject
+    WifiUtil wifiUtil;
     private Context context;
 
     @BindView(R.id.wlanMap)
@@ -80,19 +89,6 @@ public class SearchWlanActivity extends BaseActivity {
     private boolean isNeverClicked = true;
     private long maxFoundDevices = 6;
 
-    /*
-    @BindView(R.id.fabWifiDevice)
-    SheetFab fabWifiDevice;
-    @BindView(R.id.fabWifiSheet)
-    View sheetViewWifi;
-    @BindView(R.id.overlayWifi)
-    View overlayWifi;
-    @BindView(R.id.editTextFabSheetPassword)
-    MaterialEditText editTextFabSheetPassword;
-    @BindView(R.id.wifiFabSheetSSID)
-    TextView wifiFabSheetSSID;
-    */
-
     final Handler wlanMapHandler = new Handler();
 
     // https://wwija.com/computer-internet-technology/46004_scan-results-available-action-return-empty-list-in-android-6-0.html
@@ -106,6 +102,18 @@ public class SearchWlanActivity extends BaseActivity {
 
     private boolean busy = false;
 
+    private IWifiUtilCallback wifiUtilCallback = new IWifiUtilCallback() {
+        @Override
+        public void onSuccess() {
+            showToast("Connection succeeded!");
+        }
+
+        @Override
+        public void onFail() {
+            showToast("Connection failed!");
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,14 +125,15 @@ public class SearchWlanActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+        // set listeners
+        wifiUtil.setWifiUtilCallback(wifiUtilCallback);
+
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
-
-        //Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        //startActivity(intent);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         int[] location = new int[2];
@@ -163,6 +172,7 @@ public class SearchWlanActivity extends BaseActivity {
     }
 
     // call this method only if you are on 6.0 and up, otherwise call doGetWifi()
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void getWifi() {
         if (checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
@@ -174,6 +184,7 @@ public class SearchWlanActivity extends BaseActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION) {
@@ -243,19 +254,21 @@ public class SearchWlanActivity extends BaseActivity {
         animatorSet.start();
     }
 
-    private void onWifiConnect(String ssid, String password) {
+    /*private void onWifiConnect(String ssid, String password) {
         // connect to wifi
         WifiUtils.withContext(getApplicationContext())
                 .connectWith(ssid, password)
                 .onConnectionResult(isSuccess -> {
                     // success toast message, goBack
-                    if (isSuccess)
+                    if (isSuccess) {
                         showToast("Connection succeeded!");
+                        preferencesHelper.setDroneWifiSsid(ssid);
+                    }
                     else
                         showToast("Connection failed!");
                 })
                 .start();
-    }
+    }*/
 
     private void showToast(String message) {
         Toast toast = new Toast(this);
@@ -267,7 +280,7 @@ public class SearchWlanActivity extends BaseActivity {
         toast.show();
     }
 
-    public void showDialogWifiConnector(ScanResult scanResult) {
+    /*public void showDialogWifiConnector(ScanResult scanResult) {
         MaterialDialog dialog =
                 new MaterialDialog.Builder(this)
                         .title("Wifi connector")
@@ -327,7 +340,7 @@ public class SearchWlanActivity extends BaseActivity {
 
         dialog.show();
         positiveAction.setEnabled(false); // disabled by default
-    }
+    }*/
 
     private ImageView addImageViewToRoot(ViewGroup root, ScanResult scanResult, Point point) {
         point = CircleMath.centerPoint(point, (int) centerPointRadius);
@@ -336,7 +349,8 @@ public class SearchWlanActivity extends BaseActivity {
         imageView.setImageDrawable(getTextDrawable(scanResult.SSID));
         imageView.setVisibility(View.INVISIBLE);
         imageView.setOnClickListener(view -> {
-            showDialogWifiConnector(scanResult);
+            //showDialogWifiConnector(scanResult);
+            wifiUtil.showDialogConnect(scanResult);
         });
 
         int diameter = (int) centerPointRadius * 2;
@@ -384,6 +398,7 @@ public class SearchWlanActivity extends BaseActivity {
         super.onDestroy();
         searchWlanPresenter.detachView();
     }
+
 }
 
 

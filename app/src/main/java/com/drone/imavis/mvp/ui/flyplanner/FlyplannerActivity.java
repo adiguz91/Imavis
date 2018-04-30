@@ -15,6 +15,7 @@ import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.NetworkInfo;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.dronecontrol.AutonomousFlightController;
 import com.drone.imavis.mvp.services.dronecontrol.AutonomousFlightControllerListener;
@@ -44,7 +46,11 @@ import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.ui.searchwlan.SearchWlanActivity;
 import com.drone.imavis.mvp.util.DialogUtil;
+import com.drone.imavis.mvp.util.IWifiUtilCallback;
+import com.drone.imavis.mvp.util.LoadingDialogUtil;
+import com.drone.imavis.mvp.util.StringUtil;
 import com.drone.imavis.mvp.util.UnsubscribeIfPresent;
+import com.drone.imavis.mvp.util.WifiUtil;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.florent37.viewtooltip.ViewTooltip;
 import com.github.jorgecastilloprz.FABProgressCircle;
@@ -86,6 +92,7 @@ import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.arsdk.arutils.ARUtilsException;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+import com.thanosfisherman.wifiutils.WifiUtils;
 
 import java.io.File;
 import java.util.Date;
@@ -113,7 +120,13 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             "com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
     @Inject
+    LoadingDialogUtil loadingDialogUtil;
+    @Inject
     FlyplannerPresenter flyplannerPresenter;
+    @Inject
+    PreferencesHelper preferencesHelper;
+    @Inject
+    WifiUtil wifiUtil;
     Context context;
     private FlyPlan flyplan;
 
@@ -212,6 +225,32 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     }
 
     private boolean isFlyplanStarted = false;
+
+    public LoadingDialogUtil getLoadingDialog() {
+        return loadingDialogUtil;
+    }
+
+    private IWifiUtilCallback wifiUtilCallback = new IWifiUtilCallback() {
+        @Override
+        public void onSuccess() {
+            showToast("Connection succeeded!");
+        }
+
+        @Override
+        public void onFail() {
+            showToast("Connection failed!");
+        }
+    };
+
+    private void showToast(String message) {
+        Toast toast = new Toast(this);
+        if (toast != null) {
+            toast.cancel();
+            toast = null;
+        }
+        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        toast.show();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -382,11 +421,34 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         initLocation();
 
+        wifiUtil.setWifiUtilCallback(wifiUtilCallback);
+
+        if (StringUtil.isNullOrEmpty(preferencesHelper.getDroneWifiSsid()))
+            findSsid(preferencesHelper.getDroneWifiSsid());
+
         // todo: init flyplanner fragment instance
 
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
+    }
+
+    private void findSsid(String ssid) {
+        WifiUtils.withContext(context).enableWifi(isSuccess -> {
+            if (isSuccess) {
+                WifiUtils.withContext(context).scanWifi(scanResults -> {
+                    for (ScanResult scanResult : scanResults) {
+                        if (scanResult.equals(ssid)) {
+                            // found
+                            wifiUtil.showDialogConnect(scanResult);
+                            break;
+                        }
+                    }
+                }).start();
+            } else {
+                // not found
+            }
+        });
     }
 
     public MaterialSheetFab getActionFabSheetMenu() {
