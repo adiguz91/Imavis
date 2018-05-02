@@ -393,6 +393,9 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         }
                         // TODO shape design pattern
                         // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
+
+                        //TODO: if finished then upload images
+                        flyplannerPresenter.startFlyplanTask(flyplan);
                     }
                     isFlyplanStarted = true;
                 } else {

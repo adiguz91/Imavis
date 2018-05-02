@@ -67,8 +67,8 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
         Typeface fontLobster = Typeface.createFromAsset(getAssets(),  "fonts/Lobster_1.3.ttf");
         iconTextViewAppLogo.setTypeface(fontLobster);
 
-        IconDrawable iconDrawableUsername = new IconDrawable(this, FontAwesomeIcons.fa_user).actionBarSize();
-        IconDrawable iconDrawablePassword = new IconDrawable(this, FontAwesomeIcons.fa_lock).actionBarSize();
+        IconDrawable iconDrawableUsername = new IconDrawable(this, FontAwesomeIcons.fa_user).colorRes(R.color.md_white_1000).actionBarSize();
+        IconDrawable iconDrawablePassword = new IconDrawable(this, FontAwesomeIcons.fa_lock).colorRes(R.color.md_white_1000).actionBarSize();
         textUsername.setIconLeft(iconDrawableUsername);
         textPassword.setIconLeft(iconDrawablePassword);
 

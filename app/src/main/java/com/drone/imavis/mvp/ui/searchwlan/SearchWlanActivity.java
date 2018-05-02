@@ -4,16 +4,24 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
@@ -122,8 +130,11 @@ public class SearchWlanActivity extends BaseActivity {
         ButterKnife.bind(this);
         context = this;
 
+        // set backbutton color
+        final Drawable leftArrow =  getDrawable(R.drawable.abc_ic_ab_back_material);
+        leftArrow.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+        getSupportActionBar().setHomeAsUpIndicator(leftArrow);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
 
         // set listeners
         wifiUtil.setWifiUtilCallback(wifiUtilCallback);
@@ -131,6 +142,34 @@ public class SearchWlanActivity extends BaseActivity {
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
             //startService(SyncService.getStartIntent(this));
         }
+    }
+
+    private void enableLocation() {
+        if (!isEnabledLocation()) {
+            String message = "Please enable GPS to find Wifi-Devices.";
+            openDialogSettings(Settings.ACTION_LOCATION_SOURCE_SETTINGS, message);
+        } else {
+            scanWifi();
+        }
+    }
+
+    private void scanWifi() {
+        WifiUtils.withContext(getApplicationContext()).enableWifi(isSuccess -> {
+            if (isSuccess) {
+                if(rootLayout.getChildCount() > 0)
+                    rootLayout.removeAllViews();
+                devicePositions = new ArrayList<>();
+                devicePositions.add(centerPoint);
+                wlanMapView.startRippleAnimation();
+                WifiUtils.withContext(getApplicationContext()).scanWifi(scanResults -> {
+                    List<ScanResult> filteredScanResults = Stream.of(scanResults).sortBy(scanResult -> Math.abs(scanResult.level)).limit(maxFoundDevices).toList();
+                    //List<ScanResult> filteredScanResult = (List) scanResults.stream().sorted(Comparator.comparing(o -> o.level)).limit(maxFoundDevices);
+                    Stream.of(filteredScanResults).forEach(scanResult -> createDevice(scanResult, getRandomPointFromRipple()));
+                    wlanMapView.stopRippleAnimation();
+                    busy = false;
+                }).start();
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -203,22 +242,7 @@ public class SearchWlanActivity extends BaseActivity {
                 return;
             busy = true;
             wlanMapHandler.postDelayed(() -> {
-                WifiUtils.withContext(getApplicationContext()).enableWifi(isSuccess -> {
-                    if (isSuccess) {
-                        if(rootLayout.getChildCount() > 0)
-                            rootLayout.removeAllViews();
-                        devicePositions = new ArrayList<>();
-                        devicePositions.add(centerPoint);
-                        wlanMapView.startRippleAnimation();
-                        WifiUtils.withContext(getApplicationContext()).scanWifi(scanResults -> {
-                            List<ScanResult> filteredScanResults = Stream.of(scanResults).sortBy(scanResult -> Math.abs(scanResult.level)).limit(maxFoundDevices).toList();
-                            //List<ScanResult> filteredScanResult = (List) scanResults.stream().sorted(Comparator.comparing(o -> o.level)).limit(maxFoundDevices);
-                            Stream.of(filteredScanResults).forEach(scanResult -> createDevice(scanResult, getRandomPointFromRipple()));
-                            wlanMapView.stopRippleAnimation();
-                            busy = false;
-                        }).start();
-                    }
-                });
+                enableLocation();
             }, 0);
         });
     }
@@ -254,21 +278,55 @@ public class SearchWlanActivity extends BaseActivity {
         animatorSet.start();
     }
 
-    /*private void onWifiConnect(String ssid, String password) {
-        // connect to wifi
-        WifiUtils.withContext(getApplicationContext())
-                .connectWith(ssid, password)
-                .onConnectionResult(isSuccess -> {
-                    // success toast message, goBack
-                    if (isSuccess) {
-                        showToast("Connection succeeded!");
-                        preferencesHelper.setDroneWifiSsid(ssid);
-                    }
-                    else
-                        showToast("Connection failed!");
-                })
-                .start();
-    }*/
+    private int REQUEST_CODE_SETTINGS_LOCATION = 0;
+
+    /**
+     *
+     * @param action: example Settings.ACTION_LOCATION_SOURCE_SETTINGS
+     */
+    private void openDialogSettings(String action, String message) {
+        MaterialDialog dialog = new MaterialDialog.Builder(context)
+            .title("Open Settings") // R.string.title
+            .content(message) // R.string.content
+            .positiveText("AGREE") // R.string.agree
+            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                @Override
+                public void onClick(MaterialDialog dialog, DialogAction which) {
+                    // TODO
+                    startActivityForResult(new Intent(action), REQUEST_CODE_SETTINGS_LOCATION);
+                }
+            })
+            .cancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    busy = false;
+                }
+            })
+            .dismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    busy = false;
+                }
+            })
+            .show();
+    }
+
+    private boolean isEnabledLocation() {
+        //LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        return ((LocationManager)context.getSystemService(Context.LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == REQUEST_CODE_SETTINGS_LOCATION) {
+            // Make sure the request was successful
+            //if (resultCode == RESULT_OK || resultCode == RESULT_CANCELED) { }
+            if (!isEnabledLocation())
+                return;
+            scanWifi();
+        }
+    }
 
     private void showToast(String message) {
         Toast toast = new Toast(this);
@@ -279,68 +337,6 @@ public class SearchWlanActivity extends BaseActivity {
         toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
         toast.show();
     }
-
-    /*public void showDialogWifiConnector(ScanResult scanResult) {
-        MaterialDialog dialog =
-                new MaterialDialog.Builder(this)
-                        .title("Wifi connector")
-                        .customView(R.layout.dialog_wifi_connector, true)
-                        .positiveText("Connect")
-                        .negativeText(android.R.string.cancel)
-                        .onPositive(
-                            (dialog1, which) -> {
-                                EditText passwordInput = dialog1.getCustomView().findViewById(R.id.password);
-                                onWifiConnect(scanResult.SSID, passwordInput.getText().toString());
-                            })
-                        .build();
-
-        positiveAction = dialog.getActionButton(DialogAction.POSITIVE);
-        //noinspection ConstantConditions
-
-        TextView textViewSSID = dialog.getCustomView().findViewById(R.id.textViewSSID);
-        textViewSSID.setText(scanResult.SSID);
-        TextView textViewSecurity = dialog.getCustomView().findViewById(R.id.textViewSecurity);
-        textViewSecurity.setText(scanResult.capabilities);
-        TextView textViewSignalStrength = dialog.getCustomView().findViewById(R.id.textViewSignalStrength);
-        int signalStrengthLevel = WifiManager.calculateSignalLevel(scanResult.level, SignalStrength.values().length);
-        textViewSignalStrength.setText(SignalStrength.values()[signalStrengthLevel].toString());
-
-        passwordInput = dialog.getCustomView().findViewById(R.id.password);
-        passwordInput.addTextChangedListener(
-                new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        positiveAction.setEnabled(s.toString().trim().length() > 0);
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {}
-                });
-
-        // Toggling the show password CheckBox will mask or unmask the password input EditText
-        CheckBox checkbox = dialog.getCustomView().findViewById(R.id.showPassword);
-        checkbox.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> {
-                    passwordInput.setInputType(
-                            !isChecked ? InputType.TYPE_TEXT_VARIATION_PASSWORD : InputType.TYPE_CLASS_TEXT);
-                    passwordInput.setTransformationMethod(
-                            !isChecked ? PasswordTransformationMethod.getInstance() : null);
-                });
-
-        int widgetColor = ThemeSingleton.get().widgetColor;
-        MDTintHelper.setTint(
-                checkbox, widgetColor == 0 ? ContextCompat.getColor(this, R.color.accent) : widgetColor);
-
-        MDTintHelper.setTint(
-                passwordInput,
-                widgetColor == 0 ? ContextCompat.getColor(this, R.color.accent) : widgetColor);
-
-        dialog.show();
-        positiveAction.setEnabled(false); // disabled by default
-    }*/
 
     private ImageView addImageViewToRoot(ViewGroup root, ScanResult scanResult, Point point) {
         point = CircleMath.centerPoint(point, (int) centerPointRadius);

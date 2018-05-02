@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@drawable/gradient_activity_login"
     tools:context="com.drone.imavis.mvp.ui.login.LoginActivity">
 
     <LinearLayout
@@ -14,66 +14,79 @@
         android:layout_centerVertical="true"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp">
+        android:layout_marginLeft="@dimen/materialize_baseline_grid_x4"
+        android:layout_marginRight="@dimen/materialize_baseline_grid_x4">
 
-        <com.joanzapata.iconify.widget.IconTextView
-            android:layout_margin="20dp"
-            android:id="@+id/iconTextViewLoginAppIcon"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="{fa-paper-plane-o} Imavis"
-            android:padding="10dp"
-            android:shadowRadius="0"
-            android:textSize="40sp"
-            android:background="@color/colorPrimary"
-            android:textColor="#ffffff"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:gravity="center_horizontal|center_vertical">
 
-        <com.rengwuxian.materialedittext.MaterialEditText
-            android:id="@+id/editTextLoginUsername"
+            <com.joanzapata.iconify.widget.IconTextView
+                android:id="@+id/iconTextViewLoginAppIcon"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="{fa-paper-plane-o} Imavis"
+                android:padding="10dp"
+                android:shadowRadius="0"
+                android:textSize="40sp"
+                android:textColor="#ffffff"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
-            android:minLines="1"
-            android:inputType="textAutoComplete"
-            app:met_iconPadding="2dp"
-            app:met_minCharacters="6"
-            app:met_maxCharacters="16"
-            app:met_floatingLabelText="Username"
-            app:met_floatingLabel="none"
-            app:met_baseColor="#ffffff"
-            app:met_primaryColor="#ffffff"
-            app:met_errorColor="#FFA0AC"
-            />
+            android:layout_marginBottom="@dimen/materialize_baseline_grid_x4">
 
-        <com.rengwuxian.materialedittext.MaterialEditText
-            android:id="@+id/editTextLoginPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Password"
-            android:minLines="1"
-            android:inputType="textPassword"
-            app:met_iconPadding="2dp"
-            app:met_minCharacters="6"
-            app:met_maxCharacters="16"
-            app:met_floatingLabelText="Password"
-            app:met_floatingLabel="none"
-            app:met_baseColor="#ffffff"
-            app:met_primaryColor="#ffffff"
-            app:met_errorColor="#FFA0AC"/>
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/editTextLoginUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/materialize_baseline_grid"
+                android:hint="Username"
+                android:minLines="1"
+                android:inputType="textAutoComplete"
+                android:textCursorDrawable="@null"
+                app:met_underlineColor="@color/colorPrimaryVeryLight"
+                app:met_iconPadding="2dp"
+                app:met_floatingLabelText="Username"
+                app:met_floatingLabel="none"
+                app:met_baseColor="@color/colorPrimaryVeryLight"
+                app:met_primaryColor="@color/colorPrimaryVeryLight"
+                app:met_errorColor="@color/colorPrimaryVeryLight" />
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/editTextLoginPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:minLines="1"
+                android:inputType="textPassword"
+                android:textCursorDrawable="@null"
+                app:met_underlineColor="@color/colorPrimaryVeryLight"
+                app:met_iconPadding="2dp"
+                app:met_floatingLabelText="Password"
+                app:met_floatingLabel="none"
+                app:met_baseColor="@color/colorPrimaryVeryLight"
+                app:met_primaryColor="@color/colorPrimaryVeryLight"
+                app:met_errorColor="@color/colorPrimaryVeryLight"/>
+            <!-- app:met_minCharacters="6"
+                app:met_maxCharacters="16"-->
+        </LinearLayout>
+
 
         <com.dd.processbutton.iml.ActionProcessButton
             android:id="@+id/buttonLogin"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginBottom="16dp"
             android:text="@string/activity_login_button_default"
-            android:textColor="@android:color/white"
+            android:textColor="@color/white"
             android:textSize="18sp"
             custom:pb_colorComplete="@color/green_complete"
-            custom:pb_colorNormal="@color/colorPrimaryDark"
-            custom:pb_colorPressed="@color/colorPrimary"
-            custom:pb_colorProgress="@color/purple_progress"
+            custom:pb_colorNormal="@color/colorPrimaryLight"
+            custom:pb_colorPressed="@color/colorPrimaryLight"
+            custom:pb_colorProgress="@color/colorPrimaryLight"
             custom:pb_textComplete="@string/activity_login_button_success"
             custom:pb_textProgress="@string/activity_login_button_loading"
             custom:pb_textError="@string/activity_login_button_error"/>

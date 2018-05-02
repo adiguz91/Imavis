@@ -137,11 +137,12 @@ public class FlyPlanView extends View {
     }
 
     public boolean doOnTouch(MotionEvent event) {
-        if(isIsLoading())
+        if (isIsLoading())
             return false;
 
-        if(isLocked)
+        if (isLocked)
             return super.onTouchEvent(event);
+
         Log.w(TAG, "onTouchEvent: " + event);
         //int actionIndex; // event.getActionIndex()
         isHandledTouch = false;
@@ -167,6 +168,7 @@ public class FlyPlanView extends View {
         //if(event.getActionMasked() == MotionEvent.ACTION_DOWN)
         //    isHandledTouch = true;
         Log.i("LogFlyplan", "isHandled: " + isHandledTouch + " | event: " + event.getActionMasked());
+
         return isHandledTouch;
     }
 
