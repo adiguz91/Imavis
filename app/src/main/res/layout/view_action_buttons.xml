@@ -31,7 +31,7 @@
         <android.support.v7.widget.CardView
             android:id="@+id/fabSheetCardView"
             android:layout_width="100dp"
-            android:layout_height="wrap_content"
+            android:layout_height="76dp"
             android:padding="10px"
             style="@style/Widget.MaterialSheetFab.Sheet"
             xmlns:android="http://schemas.android.com/apk/res/android">

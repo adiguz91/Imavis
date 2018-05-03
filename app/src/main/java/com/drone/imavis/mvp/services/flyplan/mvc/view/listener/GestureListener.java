@@ -3,9 +3,11 @@ package com.drone.imavis.mvp.services.flyplan.mvc.view.listener;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Point;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.CardView;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -71,8 +73,9 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
             }
             return true;
             //else checkSelected(touchedNode.getClass());
-        } else
-            return false;
+        } else {
+            return false; // global move, save this point,
+        }
     }
 
     private LinearLayout.LayoutParams fabSheetCardViewLayout;
@@ -111,7 +114,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                         // POI
                         fabSheetItemClose.setVisibility(View.INVISIBLE);
                     }
-                    Coordinate centeredCoordinate = new Coordinate(touchedNode.getShape().getCoordinate().getX() - radius, touchedNode.getShape().getCoordinate().getY() - radius);
+                    Coordinate centeredCoordinate = new Coordinate(touchedNode.getShape().getCoordinate().getX(), touchedNode.getShape().getCoordinate().getY());
                     ((FlyplannerActivity)parentView.getContext()).getActionFabSheetMenu().showFab(centeredCoordinate.getX(), centeredCoordinate.getY());
 
                     //((FlyplannerActivity)parentView.getContext()).getActionFabSheet().performContextClick(touchedNode.getShape().getCoordinate().getX(), touchedNode.getShape().getCoordinate().getY());
@@ -120,7 +123,18 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                     if (fabSheetCardViewLayout == null)
                         fabSheetCardViewLayout = (LinearLayout.LayoutParams) fabSheedCardView.getLayoutParams();
 
+                    Display display = ((FlyplannerActivity)parentView.getContext()).getWindowManager().getDefaultDisplay();
+                    Point size = new Point();
+                    display.getSize(size);
+                    int screenWidth = size.x;
+                    int screenHeight = size.y;
+
                     LinearLayout.LayoutParams layoutParams = fabSheetCardViewLayout;
+                    if ((centeredCoordinate.getX() + layoutParams.width) >= screenWidth) // correction x
+                        centeredCoordinate.setCoordinate(centeredCoordinate.getX() - layoutParams.width, centeredCoordinate.getY());
+                    if ((centeredCoordinate.getY() + layoutParams.height) >= screenHeight) // correction y
+                        centeredCoordinate.setCoordinate(centeredCoordinate.getX(), centeredCoordinate.getY() - layoutParams.height);
+
                     layoutParams.setMargins((int)centeredCoordinate.getX(), (int)centeredCoordinate.getY(), 0, 0);
                     ((FlyplannerActivity)parentView.getContext()).getActionFabSheetCardView().setLayoutParams(layoutParams);
                     ((FlyplannerActivity)parentView.getContext()).getActionFabSheetMenu().showSheet();
