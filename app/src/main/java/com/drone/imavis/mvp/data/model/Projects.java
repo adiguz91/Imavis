@@ -19,7 +19,8 @@ public class Projects {
     @SerializedName("results")
     private List<Project> projectList;
 
-    public Projects() {}
+    public Projects() {
+    }
 
     public Projects(List<Project> projectList) {
         this.projectList = projectList;

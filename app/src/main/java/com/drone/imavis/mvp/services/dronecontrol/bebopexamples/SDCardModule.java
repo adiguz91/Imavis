@@ -32,33 +32,19 @@ public class SDCardModule {
 
     private static final String DRONE_MEDIA_FOLDER = "internal_000";
     private static final String MOBILE_MEDIA_FOLDER = "/ARSDKMedias/";
-
-    public interface Listener {
-        /**
-         * Called before medias will be downloaded
-         * Called on a separate thread
-         * @param nbMedias the number of medias that will be downloaded
-         */
-        void onMatchingMediasFound(int nbMedias);
-
-        /**
-         * Called each time the progress of a download changes
-         * Called on a separate thread
-         * @param mediaName the name of the media
-         * @param progress the progress of its download (from 0 to 100)
-         */
-        void onDownloadProgressed(String mediaName, int progress);
-
-        /**
-         * Called when a media download has ended
-         * Called on a separate thread
-         * @param mediaName the name of the media
-         */
-        void onDownloadComplete(String mediaName);
-    }
-
     private final List<Listener> mListeners;
+    private final ARDataTransferMediasDownloaderProgressListener mDLProgressListener = new ARDataTransferMediasDownloaderProgressListener() {
+        private int mLastProgressSent = -1;
 
+        @Override
+        public void didMediaProgress(Object arg, ARDataTransferMedia media, float percent) {
+            final int progressInt = (int) Math.floor(percent);
+            if (mLastProgressSent != progressInt) {
+                mLastProgressSent = progressInt;
+                notifyDownloadProgressed(media.getName(), progressInt);
+            }
+        }
+    };
     private ARDataTransferManager mDataTransferManager;
     private ARUtilsManager mFtpList;
     private ARUtilsManager mFtpQueue;
@@ -68,6 +54,26 @@ public class SDCardModule {
 
     private int mNbMediasToDownload;
     private int mCurrentDownloadIndex;
+    private final ARDataTransferMediasDownloaderCompletionListener mDLCompletionListener = new ARDataTransferMediasDownloaderCompletionListener() {
+        @Override
+        public void didMediaComplete(Object arg, ARDataTransferMedia media, ARDATATRANSFER_ERROR_ENUM error) {
+            notifyDownloadComplete(media.getName());
+
+            // when all download are finished, stop the download runnable
+            // in order to get out of the downloadMedias function
+            mCurrentDownloadIndex++;
+            if (mCurrentDownloadIndex > mNbMediasToDownload) {
+                ARDataTransferMediasDownloader mediasDownloader = null;
+                if (mDataTransferManager != null) {
+                    mediasDownloader = mDataTransferManager.getARDataTransferMediasDownloader();
+                }
+
+                if (mediasDownloader != null) {
+                    mediasDownloader.cancelQueueThread();
+                }
+            }
+        }
+    };
 
     public SDCardModule(@NonNull ARUtilsManager ftpListManager, @NonNull ARUtilsManager ftpQueueManager) {
 
@@ -91,7 +97,7 @@ public class SDCardModule {
 
             // if the directory doesn't exist, create it
             File f = new File(externalDirectory);
-            if(!(f.exists() && f.isDirectory())) {
+            if (!(f.exists() && f.isDirectory())) {
                 boolean success = f.mkdir();
                 if (!success) {
                     Log.e(TAG, "Failed to create the folder " + externalDirectory);
@@ -116,11 +122,11 @@ public class SDCardModule {
     public void addListener(Listener listener) {
         mListeners.add(listener);
     }
+    //endregion Listener
 
     public void removeListener(Listener listener) {
         mListeners.remove(listener);
     }
-    //endregion Listener
 
     public void getFlightMedias(final String runId) {
         if (!mThreadIsRunning) {
@@ -197,25 +203,19 @@ public class SDCardModule {
         ArrayList<ARDataTransferMedia> mediaList = null;
 
         ARDataTransferMediasDownloader mediasDownloader = null;
-        if (mDataTransferManager != null)
-        {
+        if (mDataTransferManager != null) {
             mediasDownloader = mDataTransferManager.getARDataTransferMediasDownloader();
         }
 
-        if (mediasDownloader != null)
-        {
-            try
-            {
+        if (mediasDownloader != null) {
+            try {
                 int mediaListCount = mediasDownloader.getAvailableMediasSync(false);
                 mediaList = new ArrayList<>(mediaListCount);
-                for (int i = 0; ((i < mediaListCount) && !mIsCancelled) ; i++)
-                {
+                for (int i = 0; ((i < mediaListCount) && !mIsCancelled); i++) {
                     ARDataTransferMedia currentMedia = mediasDownloader.getAvailableMediaAtIndex(i);
                     mediaList.add(currentMedia);
                 }
-            }
-            catch (ARDataTransferException e)
-            {
+            } catch (ARDataTransferException e) {
                 Log.e(TAG, "Exception", e);
                 mediaList = null;
             }
@@ -223,7 +223,8 @@ public class SDCardModule {
         return mediaList;
     }
 
-    private @NonNull ArrayList<ARDataTransferMedia> getRunIdMatchingMedias(
+    private @NonNull
+    ArrayList<ARDataTransferMedia> getRunIdMatchingMedias(
             ArrayList<ARDataTransferMedia> mediaList,
             String runId) {
         ArrayList<ARDataTransferMedia> matchingMedias = new ArrayList<>();
@@ -276,13 +277,11 @@ public class SDCardModule {
         mCurrentDownloadIndex = 1;
 
         ARDataTransferMediasDownloader mediasDownloader = null;
-        if (mDataTransferManager != null)
-        {
+        if (mDataTransferManager != null) {
             mediasDownloader = mDataTransferManager.getARDataTransferMediasDownloader();
         }
 
-        if (mediasDownloader != null)
-        {
+        if (mediasDownloader != null) {
             for (ARDataTransferMedia media : matchingMedias) {
                 try {
                     mediasDownloader.addMediaToQueue(media, mDLProgressListener, null, mDLCompletionListener, null);
@@ -316,6 +315,7 @@ public class SDCardModule {
             listener.onDownloadProgressed(mediaName, progress);
         }
     }
+    //endregion notify listener block
 
     private void notifyDownloadComplete(String mediaName) {
         List<Listener> listenersCpy = new ArrayList<>(mListeners);
@@ -323,38 +323,31 @@ public class SDCardModule {
             listener.onDownloadComplete(mediaName);
         }
     }
-    //endregion notify listener block
 
-    private final ARDataTransferMediasDownloaderProgressListener mDLProgressListener = new ARDataTransferMediasDownloaderProgressListener() {
-        private int mLastProgressSent = -1;
-        @Override
-        public void didMediaProgress(Object arg, ARDataTransferMedia media, float percent) {
-            final int progressInt = (int) Math.floor(percent);
-            if (mLastProgressSent != progressInt) {
-                mLastProgressSent = progressInt;
-                notifyDownloadProgressed(media.getName(), progressInt);
-            }
-        }
-    };
+    public interface Listener {
+        /**
+         * Called before medias will be downloaded
+         * Called on a separate thread
+         *
+         * @param nbMedias the number of medias that will be downloaded
+         */
+        void onMatchingMediasFound(int nbMedias);
 
-    private final ARDataTransferMediasDownloaderCompletionListener mDLCompletionListener = new ARDataTransferMediasDownloaderCompletionListener() {
-        @Override
-        public void didMediaComplete(Object arg, ARDataTransferMedia media, ARDATATRANSFER_ERROR_ENUM error) {
-            notifyDownloadComplete(media.getName());
+        /**
+         * Called each time the progress of a download changes
+         * Called on a separate thread
+         *
+         * @param mediaName the name of the media
+         * @param progress  the progress of its download (from 0 to 100)
+         */
+        void onDownloadProgressed(String mediaName, int progress);
 
-            // when all download are finished, stop the download runnable
-            // in order to get out of the downloadMedias function
-            mCurrentDownloadIndex ++;
-            if (mCurrentDownloadIndex > mNbMediasToDownload ) {
-                ARDataTransferMediasDownloader mediasDownloader = null;
-                if (mDataTransferManager != null) {
-                    mediasDownloader = mDataTransferManager.getARDataTransferMediasDownloader();
-                }
-
-                if (mediasDownloader != null) {
-                    mediasDownloader.cancelQueueThread();
-                }
-            }
-        }
-    };
+        /**
+         * Called when a media download has ended
+         * Called on a separate thread
+         *
+         * @param mediaName the name of the media
+         */
+        void onDownloadComplete(String mediaName);
+    }
 }

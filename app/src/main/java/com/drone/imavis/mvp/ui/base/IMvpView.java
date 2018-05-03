@@ -4,10 +4,6 @@ package com.drone.imavis.mvp.ui.base;
  * Created by adigu on 10.05.2017.
  */
 
-import android.os.Bundle;
-
-import java.lang.reflect.Type;
-
 /**
  * Base interface that any class that wants to act as a View in the MVP (Model View Presenter)
  * pattern must implement. Generally this interface will be extended by a more specific interface

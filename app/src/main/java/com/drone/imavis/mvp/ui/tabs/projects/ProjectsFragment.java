@@ -47,27 +47,21 @@ import butterknife.OnClick;
 
 public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, SwipeItemOnClickListener<Project> {
 
-    public interface ProjectSelected{
-        void onSendProject(Project project);
-    }
-
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.tabs.projects.ProjectsFragment.EXTRA_TRIGGER_SYNC_FLAG";
-
+    @Inject
+    DialogUtil dialogUtil;
+    @Inject
+    ProjectsPresenter projectsPresenter;
+    @BindView(R.id.fabAddProject)
+    FloatingActionButton fabAddProject;
     private ProjectSelected projectSelectedCallback;
     private int selectedItem = -1;
-
-
-    @Inject DialogUtil dialogUtil;
-    @Inject ProjectsPresenter projectsPresenter;
     private ProjectSwipeListViewAdaper projectsListViewAdapter;
 
     private ListView projectsListView;
     private Context context;
     private Activity activity;
-
-    @BindView(R.id.fabAddProject)
-    FloatingActionButton fabAddProject;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,7 +87,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
 
     public ViewParent findParentRecursively(View view, int targetId) {
         if (view.getId() == targetId)
-            return (ViewParent)view;
+            return (ViewParent) view;
         View parent = (View) view.getParent();
         if (parent == null)
             return null;
@@ -109,7 +103,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
             case Delete:
                 String title = "Hinweis";
                 String message = "Wollen Sie das Project wirklich löschen?";
-                Map<Integer,String> buttons =  new HashMap<Integer,String>();
+                Map<Integer, String> buttons = new HashMap<Integer, String>();
                 buttons.put(DialogInterface.BUTTON_POSITIVE, "Ja");
                 buttons.put(DialogInterface.BUTTON_NEGATIVE, "Nein");
                 dialogUtil.showSimpleDialogMessage(title, message, buttons, new DialogInterface.OnClickListener() {
@@ -137,7 +131,8 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //setContentView(R.layout.activity_projects);
         context = this.getContext();
@@ -147,7 +142,7 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
                 .colorRes(R.color.icons)
                 .actionBarSize());
 
-        projectsListView = (ListView) view.findViewById(R.id.projectSwipeListView);
+        projectsListView = view.findViewById(R.id.projectSwipeListView);
         projectsListViewAdapter = new ProjectSwipeListViewAdaper(getContext(), this);
         projectsListView.setAdapter(projectsListViewAdapter);
         projectsListViewAdapter.setMode(Attributes.Mode.Single);
@@ -181,10 +176,10 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
-            if(resultCode == Activity.RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK) {
                 Project project = data.getParcelableExtra("project");
                 ProjectAction projectAction = (ProjectAction) data.getSerializableExtra("ProjectAction");
-                if(projectAction == ProjectAction.Add)
+                if (projectAction == ProjectAction.Add)
                     projectsListViewAdapter.addItem(project);
                 else if (projectAction == ProjectAction.Edit)
                     projectsListViewAdapter.updateItem(selectedItem, project);
@@ -252,7 +247,8 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
     }
 
     @Override
-    public void onDeleteFailed() {}
+    public void onDeleteFailed() {
+    }
 
     @Override
     public void onEditSuccess(int position, Project project) {
@@ -262,5 +258,9 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
     @Override
     public void onEditFailed() {
 
+    }
+
+    public interface ProjectSelected {
+        void onSendProject(Project project);
     }
 }

@@ -9,6 +9,13 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.ISha
 
 public abstract class GeometricShape<T> implements IShape {
 
+    private int border;
+    private int backgroundColor;
+    private int higherBackgroundColor;
+    private int borderColor;
+    private Coordinate coordinate;
+    private Class<T> classT;
+
     public GeometricShape(Class<T> classNode, Coordinate coordinate) {
         this.classT = classNode;
         this.coordinate = coordinate;
@@ -17,17 +24,20 @@ public abstract class GeometricShape<T> implements IShape {
     public Coordinate getCoordinate() {
         return coordinate;
     }
+
     public void setCoordinate(Coordinate coordinate) {
         this.coordinate = coordinate;
     }
-/*
-    public LatLng getCoordinateGPS() {
-        return MainActivity.getGPSfromScreen(getCoordinate());
-    }
-*/
+
+    /*
+        public LatLng getCoordinateGPS() {
+            return MainActivity.getGPSfromScreen(getCoordinate());
+        }
+    */
     public int getBorder() {
         return border;
     }
+
     public void setBorder(int border) {
         this.border = border;
     }
@@ -35,6 +45,7 @@ public abstract class GeometricShape<T> implements IShape {
     public int getBackgroundColor() {
         return backgroundColor;
     }
+
     public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
@@ -42,6 +53,7 @@ public abstract class GeometricShape<T> implements IShape {
     public int getHigherBackgroundColor() {
         return higherBackgroundColor;
     }
+
     public void setHigherBackgroundColor(int higherBackgroundColor) {
         this.higherBackgroundColor = higherBackgroundColor;
     }
@@ -49,16 +61,10 @@ public abstract class GeometricShape<T> implements IShape {
     public int getBorderColor() {
         return borderColor;
     }
+
     public void setBorderColor(int borderColor) {
         this.borderColor = borderColor;
     }
-
-    private int border;
-    private int backgroundColor;
-    private int higherBackgroundColor;
-    private int borderColor;
-    private Coordinate coordinate;
-    private Class<T> classT;
 
     /*
     private T getInstance() {

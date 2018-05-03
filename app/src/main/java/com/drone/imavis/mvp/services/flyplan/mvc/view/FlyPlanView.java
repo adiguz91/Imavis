@@ -1,7 +1,6 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.view;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -13,15 +12,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import com.drone.imavis.mvp.AppStartup;
 import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.data.SyncService;
-import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.data.model.FlyPlan;
-import com.drone.imavis.mvp.di.ApplicationContext;
-import com.drone.imavis.mvp.di.component.ApplicationComponent;
-import com.drone.imavis.mvp.di.component.DaggerApplicationComponent;
-import com.drone.imavis.mvp.di.module.ApplicationModule;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
@@ -31,37 +23,27 @@ import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CMap;
-import com.joanzapata.iconify.widget.IconTextView;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 public class FlyPlanView extends View {
 
-    @Inject
-    ScaleListener scaleListener;
-
-    private GestureDetector gestureDetector;
-    private Rect viewRect;
-
-    private boolean isLoading = true;
-
-    private FlyplannerFragment flyplannerFragment;
-    private SheetFab actionSheetMenu;
-
     private static final String TAG = "FlyPlanView";
+    private static Coordinate globalMoveCoordinate;
     private static ScaleGestureDetector scaleDetector;
     private static SparseArray<Node> nodes;
-    public static SparseArray<Node> getNodes() {
-        return nodes;
-    }
-
     private static boolean isHandledTouch;
-    public static boolean getIsHandledTouch() {
-        return isHandledTouch;
-    }
+    private static boolean isLocked = false;
+    @Inject
+    ScaleListener scaleListener;
+    // draw outside
+    Rect newRect = new Rect();
+    private GestureDetector gestureDetector;
+    private Rect viewRect;
+    private boolean isLoading = true;
+    private FlyplannerFragment flyplannerFragment;
+    private SheetFab actionSheetMenu;
+    private Coordinate dragCoordinate;
 
     public FlyPlanView(final Context context) {
         super(context);
@@ -73,6 +55,57 @@ public class FlyPlanView extends View {
 
     public FlyPlanView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    public static SparseArray<Node> getNodes() {
+        return nodes;
+    }
+
+    public static boolean getIsHandledTouch() {
+        return isHandledTouch;
+    }
+
+    public static float getScaleFactor() {
+        if (scaleDetector != null)
+            return scaleDetector.getScaleFactor();
+        return CMap.SCALE_FACTOR_DEFAULT;
+    }
+
+    public static Coordinate getGlobalMoveCoordinate() {
+        return globalMoveCoordinate;
+    }
+
+    public static void setGlobalMoveCoordinate(Coordinate coordinate) {
+        globalMoveCoordinate = coordinate;
+    }
+
+    public static boolean isLocked() {
+        return isLocked;
+    }
+
+    public static void setIsLocked(boolean isLocked) {
+        FlyPlanView.isLocked = isLocked;
+    }
+
+    public static boolean actionUp(MotionEvent event) {
+
+        int pointerCount = event.getPointerCount();
+        boolean isHandled = true;
+        for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
+            //pointerId = event.getPointerId(actionIndex);
+            Coordinate coordinateTouched = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
+            Node touchedNode = FlyPlanController.getTouchedNode();
+            if (touchedNode != null) {
+                touchedNode.getShape().setCoordinate(coordinateTouched);
+                FlyPlanController.getInstance().getFlyPlan().getPoints().editNode(touchedNode);
+                break;
+            } else {
+                // drag map
+                isHandled &= false;
+                break;
+            }
+        }
+        return isHandled;
     }
 
     @Override
@@ -95,15 +128,6 @@ public class FlyPlanView extends View {
         FlyPlanController.getInstance().setFlyPlan(flyPlan);
     }
 
-    public static float getScaleFactor() {
-        if(scaleDetector != null)
-            return scaleDetector.getScaleFactor();
-        return CMap.SCALE_FACTOR_DEFAULT;
-    }
-
-    // draw outside
-    Rect newRect = new Rect();
-
     @Override
     public void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
@@ -116,6 +140,8 @@ public class FlyPlanView extends View {
         canvas.save();
         // mainActivity.Zoom(mScaleFactor); // GoogleMap
         canvas.scale(getScaleFactor(), getScaleFactor());
+        if (dragCoordinate != null)
+            canvas.translate(dragCoordinate.getX(), dragCoordinate.getY());
         FlyPlanController.getInstance().draw(canvas);
         canvas.restore();
     }
@@ -126,14 +152,6 @@ public class FlyPlanView extends View {
 
     public void setIsLoading(boolean isLoading) {
         this.isLoading = isLoading;
-    }
-
-    private static boolean isLocked = false;
-    public static boolean isLocked() {
-        return isLocked;
-    }
-    public static void setIsLocked(boolean isLocked) {
-        FlyPlanView.isLocked = isLocked;
     }
 
     public boolean doOnTouch(MotionEvent event) {
@@ -151,8 +169,7 @@ public class FlyPlanView extends View {
         isHandledTouch = scaleDetector.onTouchEvent(event);
         isHandledTouch = gestureDetector.onTouchEvent(event);
 
-        switch (event.getActionMasked())
-        {
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_MOVE:
                 isHandledTouch = actionMove(event);
                 invalidate();
@@ -177,7 +194,7 @@ public class FlyPlanView extends View {
         return doOnTouch(event);
     }
 
-    public static boolean actionMove(MotionEvent event) {
+    public boolean actionMove(MotionEvent event) {
         int pointerCount = event.getPointerCount();
         boolean isHandled = true;
         for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
@@ -190,32 +207,18 @@ public class FlyPlanView extends View {
                 break;
             } else {
                 // drag map
+                if (globalMoveCoordinate != null) {
+                    dragCoordinate = new Coordinate(globalMoveCoordinate.getX() - coordinateTouched.getX(),
+                            globalMoveCoordinate.getY() - coordinateTouched.getY());
+                    FlyPlanController.getInstance().getFlyPlan().setDragCoordinate(dragCoordinate);
+                }
+
+
                 isHandled &= false;
                 break;
             }
         }
         //MainFlyplanner.removeActionButtons(); #### !!!! IMPORTANT UUUUSEEEEEE, callback!?=!=
-        return isHandled;
-    }
-
-    public static boolean actionUp(MotionEvent event) {
-
-        int pointerCount = event.getPointerCount();
-        boolean isHandled = true;
-        for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
-            //pointerId = event.getPointerId(actionIndex);
-            Coordinate coordinateTouched = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
-            Node touchedNode = FlyPlanController.getTouchedNode();
-            if (touchedNode != null) {
-                touchedNode.getShape().setCoordinate(coordinateTouched);
-                FlyPlanController.getInstance().getFlyPlan().getPoints().editNode(touchedNode);
-                break;
-            } else {
-                // drag map
-                isHandled &= false;
-                break;
-            }
-        }
         return isHandled;
     }
 

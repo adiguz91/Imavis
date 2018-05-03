@@ -2,9 +2,6 @@ package com.drone.imavis.mvp.data.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Date;
-import java.util.List;
-
 /**
  * Created by adigu on 28.07.2017.
  */

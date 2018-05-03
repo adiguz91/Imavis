@@ -15,20 +15,21 @@ public class LanguageController {
     private Locale locale = Locale.ENGLISH;
     private ResourceBundle resourceBundle;
 
-    public LanguageController() {}
+    public LanguageController() {
+    }
 
     private ResourceBundle LoadResourceBundle() {
         return ResourceBundle.getBundle(languagePropertieName, getLocale());
         //Enumeration<String> keys = resourceBundle.getKeys();
         //while (keys.hasMoreElements()) {
-            //String key = keys.nextElement();
-            //String value = rb.getString(key);
-            //System.out.println(key + ": " + value);
+        //String key = keys.nextElement();
+        //String value = rb.getString(key);
+        //System.out.println(key + ": " + value);
         //}
     }
 
     public ResourceBundle getResourceBundle() {
-        if(resourceBundle == null)
+        if (resourceBundle == null)
             resourceBundle = LoadResourceBundle();
         return resourceBundle;
     }

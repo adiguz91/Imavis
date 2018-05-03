@@ -13,9 +13,11 @@ import java.util.List;
 public interface IFlyplannerActivity extends IMvpView {
 
     void onSaveFlyplanSuccess(FlyPlan flyplan);
+
     void onSaveFlyplanFailed();
 
     void onStartFlyplanTaskSuccess(FlyPlan flyplan);
+
     void onStartFlyplanTaskFailed();
 
     void updateFlyplanNodes(List<GPSCoordinate> waypointGpsCoordinates, List<GPSCoordinate> poiGpsCoordinates);

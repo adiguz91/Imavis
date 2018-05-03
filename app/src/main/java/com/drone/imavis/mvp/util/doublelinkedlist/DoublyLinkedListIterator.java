@@ -4,7 +4,7 @@ package com.drone.imavis.mvp.util.doublelinkedlist;
  * An iterator for traversing the elements of a doubly linked list.
  * The iterator traverses the list beginning at the head, and heads toward
  * tail.
- *
+ * <p>
  * Typical use:
  * <pre>
  *      List l = new DoublyLinkedList();
@@ -43,12 +43,10 @@ public class DoublyLinkedListIterator<E> //extends Iterator<E>
     /**
      * Construct an iterator over a doubly linked list hanging from head.
      *
-     * @post constructs an iterator rooted at list head, h
-     *
      * @param h The head of the list to be traversed.
+     * @post constructs an iterator rooted at list head, h
      */
-    public DoublyLinkedListIterator(DoublyLinkedNode<E> h)
-    {
+    public DoublyLinkedListIterator(DoublyLinkedNode<E> h) {
         head = h;
         tail = null;
         reset();
@@ -56,8 +54,7 @@ public class DoublyLinkedListIterator<E> //extends Iterator<E>
 
 
     public DoublyLinkedListIterator(DoublyLinkedNode<E> headDummy,
-                                    DoublyLinkedNode<E> tailDummy)
-    {
+                                    DoublyLinkedNode<E> tailDummy) {
         head = headDummy.next();
         tail = tailDummy;
         reset();
@@ -68,32 +65,27 @@ public class DoublyLinkedListIterator<E> //extends Iterator<E>
      *
      * @post resets iterator to list head
      */
-    public void reset()
-    {
+    public void reset() {
         current = head;
     }
 
     /**
      * Determine if there are more elements to be considered.
      *
-     * @post returns true iff current element is valid
-     *
      * @return True iff there are more elements to be considered.
+     * @post returns true iff current element is valid
      */
-    public boolean hasNext()
-    {
+    public boolean hasNext() {
         return current != tail;
     }
 
     /**
      * Returns reference to the current element, then increments iterator.
      *
-     * @post returns current element and increments iterator
-     *
      * @return Reference to element that was current before increment.
+     * @post returns current element and increments iterator
      */
-    public E next()
-    {
+    public E next() {
         E result = current.value();
         current = current.next();
         return result;
@@ -102,13 +94,11 @@ public class DoublyLinkedListIterator<E> //extends Iterator<E>
     /**
      * Get reference to value that is current.
      *
+     * @return A reference to the value that is current.
      * @pre hasNext
      * @post returns current element
-     *
-     * @return A reference to the value that is current.
      */
-    public E get()
-    {
+    public E get() {
         return current.value();
     }
 }

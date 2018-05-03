@@ -21,7 +21,6 @@ import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.base.IMvpView;
 import com.drone.imavis.mvp.util.GUIUtils;
@@ -78,7 +77,7 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
         if (flyplan == null)
             flyplan = new FlyPlan();
         flyplanAction = (FlyplanAction) getIntent().getSerializableExtra("FlyplanAction");
-        project = (Project) getIntent().getParcelableExtra("Project");
+        project = getIntent().getParcelableExtra("Project");
 
         // hide app title
         getSupportActionBar().hide();
@@ -86,7 +85,7 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
 
         buttonFlyplanAction.setProgress(0);
         buttonFlyplanAction.setMode(ActionProcessButton.Mode.ENDLESS);
-        buttonFlyplanAction.setOnClickListener(onClick -> sendFlyplan(flyplanAction) );
+        buttonFlyplanAction.setOnClickListener(onClick -> sendFlyplan(flyplanAction));
 
         if (flyplanAction == FlyplanAction.Add) {
             buttonFlyplanAction.setText("Hinzufügen");
@@ -99,7 +98,7 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
                 .colorRes(R.color.icons)
                 .actionBarSize());
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setupEnterAnimation();
             setupExitAnimation();
         } else {
@@ -116,11 +115,11 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
     }
 
     public void sendFlyplan(FlyplanAction flyplanAction) {
-        if(flyplanName.validate()) {
+        if (flyplanName.validate()) {
             //FlyPlan flyplan = new FlyPlan();
             flyplan.setName(flyplanName.getEditableText().toString());
 
-            if(project != null) {
+            if (project != null) {
                 flyplan.setProject(project);
                 flyplan.setProjectId(project.getId());
             }
@@ -129,7 +128,7 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
             buttonFlyplanAction.setEnabled(false);
             flyplanName.setEnabled(false);
 
-            if(flyplanAction == FlyplanAction.Add)
+            if (flyplanAction == FlyplanAction.Add)
                 flyplanPresenter.addFlyplan(flyplan);
             else if (flyplanAction == FlyplanAction.Edit) {
                 flyplanPresenter.editFlyplan(flyplan);
@@ -172,18 +171,26 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
         getWindow().setSharedElementEnterTransition(transition);
         transition.addListener(new Transition.TransitionListener() {
             @Override
-            public void onTransitionStart(Transition transition) {}
+            public void onTransitionStart(Transition transition) {
+            }
+
             @Override
             public void onTransitionEnd(Transition transition) {
                 transition.removeListener(this);
                 animateRevealShow(container);
             }
+
             @Override
-            public void onTransitionCancel(Transition transition) {}
+            public void onTransitionCancel(Transition transition) {
+            }
+
             @Override
-            public void onTransitionPause(Transition transition) {}
+            public void onTransitionPause(Transition transition) {
+            }
+
             @Override
-            public void onTransitionResume(Transition transition) {}
+            public void onTransitionResume(Transition transition) {
+            }
         });
     }
 
@@ -191,14 +198,16 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
         int cx = (viewRoot.getLeft() + viewRoot.getRight()) / 2;
         int cy = (viewRoot.getTop() + viewRoot.getBottom()) / 2;
         GUIUtils.animateRevealShow(this, container, fabClose.getWidth() / 2, R.color.colorPrimary,
-            cx, cy, new OnRevealAnimationListener() {
-                @Override
-                public void onRevealHide() {}
-                @Override
-                public void onRevealShow() {
-                    initViews();
-                }
-            });
+                cx, cy, new OnRevealAnimationListener() {
+                    @Override
+                    public void onRevealHide() {
+                    }
+
+                    @Override
+                    public void onRevealShow() {
+                        initViews();
+                    }
+                });
     }
 
     private void initViews() {
@@ -216,19 +225,21 @@ public class FlyplanAddOrEditActivity extends BaseActivity implements IFlyplanAd
     public void onBackPressed() {
         passDataBack(flyplan);
         GUIUtils.animateRevealHide(this, container, R.color.colorPrimary, fabClose.getWidth() / 2,
-            new OnRevealAnimationListener() {
-                @Override
-                public void onRevealHide() {
-                    backPressed();
-                }
-                @Override
-                public void onRevealShow() {}
-            });
+                new OnRevealAnimationListener() {
+                    @Override
+                    public void onRevealHide() {
+                        backPressed();
+                    }
+
+                    @Override
+                    public void onRevealShow() {
+                    }
+                });
     }
 
     @OnClick(R.id.flyplanAdd_fab_close)
     public void onCloseClicked() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             onBackPressed();
         } else {
             backPressed();

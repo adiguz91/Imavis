@@ -4,9 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 
-import com.drone.imavis.mvp.util.constants.classes.CColor;
-import com.drone.imavis.mvp.util.constants.classes.CShape;
-import com.drone.imavis.mvp.services.flyplan.mvc.util.FlyPlanMath;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
@@ -16,6 +13,9 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geom
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Line;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Text;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
+import com.drone.imavis.mvp.services.flyplan.mvc.util.FlyPlanMath;
+import com.drone.imavis.mvp.util.constants.classes.CColor;
+import com.drone.imavis.mvp.util.constants.classes.CShape;
 
 /**
  * Created by adigu on 03.02.2017.
@@ -32,8 +32,13 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         //this.shape = createShape(CShape.WAYPOINT_SHAPE_TYPE, touchedCoordinate);
     }
 
-    public Line getLine() { return line; }
-    public Rect getLineTextRect() { return lineTextRect;}
+    public Line getLine() {
+        return line;
+    }
+
+    public Rect getLineTextRect() {
+        return lineTextRect;
+    }
 
     public void setShapePaint() {
         this.getShape().setBackgroundColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
@@ -62,12 +67,12 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         //                            getShape().getCoordinate().getY() - CShape.WAYPOINT_CIRCLE_ID_DISTANCE);
 
         int angleDirection = 45;
-        float distance = ((Circle)this.getShape()).getRadius() - 10; //  - CShape.WAYPOINT_CIRCLE_ID_DISTANCE
+        float distance = ((Circle) this.getShape()).getRadius() - 10; //  - CShape.WAYPOINT_CIRCLE_ID_DISTANCE
         //Coordinate idCoordinate = FlyPlanMath.getInstance().pointOnCircle(
         //                            getShape().getCoordinate(), distance, angleDirection);
         Coordinate scaled = this.getShape().getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
         Coordinate coordinateOnCircly = FlyPlanMath.getInstance().
-                                            pointOnCircle(scaled, distance, 360 - 45);
+                pointOnCircle(scaled, distance, 360 - 45);
 
         Circle idCircle = new Circle(Integer.class, coordinateOnCircly, CShape.WAYPOINT_CIRCLE_ID_RADIUS);
         idCircle.setBackgroundColor(this.getShape().getBorderColor());
@@ -83,7 +88,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
 
     @Override
     public void addLine(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint) {
-        line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate()) ;
+        line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate());
         line.draw(canvas);
     }
 
@@ -97,15 +102,15 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     public void drawProgressiveCircles(Canvas canvas, GeometricShape current, GeometricShape next) {
         float numberOfProgressiveCircles = 2;
         float angleOfNextPoint = FlyPlanMath.getInstance().angleBetweenPoints(current, next);
-        Coordinate pointOnCircle1 = FlyPlanMath.getInstance().pointOnCircle(current.getCoordinate(), ((Circle)current).getRadius(), angleOfNextPoint);
+        Coordinate pointOnCircle1 = FlyPlanMath.getInstance().pointOnCircle(current.getCoordinate(), ((Circle) current).getRadius(), angleOfNextPoint);
 
         float distanceOfTwoPoints = FlyPlanMath.getInstance().distanceOfTwoPoints(pointOnCircle1, next.getCoordinate());
-        distanceOfTwoPoints = distanceOfTwoPoints - ((Circle)next).getRadius();
+        distanceOfTwoPoints = distanceOfTwoPoints - ((Circle) next).getRadius();
         float firstProgressiveCircleDistance = distanceOfTwoPoints / (numberOfProgressiveCircles + 1);
         //float secondProgressiveCircleDistance = firstProgressiveCircleDistance * 2;
 
-        PointOfInterest poi = ((WaypointData)this.getData()).getPoi();
-        if(poi != null)
+        PointOfInterest poi = ((WaypointData) this.getData()).getPoi();
+        if (poi != null)
             next = poi.getShape();
 
         int radius = 0;
@@ -116,7 +121,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
             Circle progressiveCircle = new Circle(int.class, progressivePoint, 20);
             progressiveCircle.setBackgroundColor(current.getBorderColor());
             progressiveCircle.draw(canvas);
-            FlyPlanMath.getInstance().addDirection(canvas,progressiveCircle, next, CShape.WAYPOINT_CIRCLE_ID_RADIUS+6);
+            FlyPlanMath.getInstance().addDirection(canvas, progressiveCircle, next, CShape.WAYPOINT_CIRCLE_ID_RADIUS + 6);
         }
     }
 
@@ -124,10 +129,10 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
 
         float angleOfNextPoint = FlyPlanMath.getInstance().angleBetweenPoints(lastWaypoint.getShape(), currentWaypoint.getShape());
         Coordinate pointOnCircle = FlyPlanMath.getInstance().pointOnCircle(lastWaypoint.getShape().getCoordinate(),
-                                                                            ((Circle)lastWaypoint.getShape()).getRadius(), angleOfNextPoint);
+                ((Circle) lastWaypoint.getShape()).getRadius(), angleOfNextPoint);
 
         float distanceOfTwoPoints = FlyPlanMath.getInstance().distanceOfTwoPoints(pointOnCircle, currentWaypoint.getShape().getCoordinate());
-        distanceOfTwoPoints = distanceOfTwoPoints - ((Circle)currentWaypoint.getShape()).getRadius();
+        distanceOfTwoPoints = distanceOfTwoPoints - ((Circle) currentWaypoint.getShape()).getRadius();
         distanceOfTwoPoints /= 2;
         Coordinate pointOnLine = FlyPlanMath.getInstance().pointOnCircle(pointOnCircle, distanceOfTwoPoints, angleOfNextPoint);
         Rectangle rect = new Rectangle(Waypoint.class, pointOnLine, FlyPlanMath.getInstance().getPointOfText(content, 28), 10);
@@ -149,7 +154,7 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     @Override
     public void draw(Canvas canvas, String content, int id) {
         PointOfInterest poi = ((WaypointData) this.getData()).getPoi();
-        if(poi != null)
+        if (poi != null)
             this.setPoiShapePaint(poi);
         //else
         //    this.setShapePaint();

@@ -15,7 +15,6 @@ import com.drone.imavis.mvp.di.ApplicationContext;
 import com.drone.imavis.mvp.di.DatabaseInfo;
 import com.drone.imavis.mvp.util.constants.AppConstants;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;

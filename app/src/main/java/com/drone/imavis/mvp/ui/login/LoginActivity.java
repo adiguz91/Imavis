@@ -2,18 +2,14 @@ package com.drone.imavis.mvp.ui.login;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.remote.webodm.model.Authentication;
-import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
+import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.drone.imavis.mvp.ui.tabs.ProjectsFlyplansActivity;
 import com.drone.imavis.mvp.util.ProgressGenerator;
 import com.drone.imavis.mvp.util.StringUtil;
@@ -36,14 +32,18 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.login.LoginActivity.EXTRA_TRIGGER_SYNC_FLAG";
 
-    @Inject LoginPresenter loginPresenter;
+    @Inject
+    LoginPresenter loginPresenter;
+    @BindView(R.id.iconTextViewLoginAppIcon)
+    IconTextView iconTextViewAppLogo;
+    @BindView(R.id.buttonLogin)
+    ActionProcessButton buttonLogin;
+    @BindView(R.id.editTextLoginUsername)
+    MaterialEditText textUsername;
+    @BindView(R.id.editTextLoginPassword)
+    MaterialEditText textPassword;
     private ProgressGenerator progressGenerator = new ProgressGenerator(this);
     private Context context;
-
-    @BindView(R.id.iconTextViewLoginAppIcon) IconTextView iconTextViewAppLogo;
-    @BindView(R.id.buttonLogin) ActionProcessButton buttonLogin;
-    @BindView(R.id.editTextLoginUsername) MaterialEditText textUsername;
-    @BindView(R.id.editTextLoginPassword) MaterialEditText textPassword;
 
     /**
      * Return an Intent to start this Activity.
@@ -64,7 +64,7 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
         ButterKnife.bind(this);
         context = this;
 
-        Typeface fontLobster = Typeface.createFromAsset(getAssets(),  "fonts/Lobster_1.3.ttf");
+        Typeface fontLobster = Typeface.createFromAsset(getAssets(), "fonts/Lobster_1.3.ttf");
         iconTextViewAppLogo.setTypeface(fontLobster);
 
         IconDrawable iconDrawableUsername = new IconDrawable(this, FontAwesomeIcons.fa_user).colorRes(R.color.md_white_1000).actionBarSize();
@@ -74,7 +74,7 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
 
         buttonLogin.setProgress(0);
         buttonLogin.setMode(ActionProcessButton.Mode.ENDLESS);
-        buttonLogin.setOnClickListener(onClick -> login() );
+        buttonLogin.setOnClickListener(onClick -> login());
         loginPresenter.attachView(this);
 
         if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
@@ -91,11 +91,11 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
     private void login() {
 
         if (!StringUtil.isNullOrEmpty(textUsername.getEditableText().toString()) &&
-            !StringUtil.isNullOrEmpty(textPassword.getEditableText().toString()) ) {
+                !StringUtil.isNullOrEmpty(textPassword.getEditableText().toString())) {
 
             Authentication authentication =
                     new Authentication(textUsername.getEditableText().toString(),
-                                       textPassword.getEditableText().toString());
+                            textPassword.getEditableText().toString());
 
             buttonLogin.setProgress(1);
             buttonLogin.setEnabled(false);

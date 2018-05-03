@@ -29,37 +29,82 @@ import java.util.List;
 })
 public class Project implements Parcelable {
 
+    // Method to recreate a Question from a Parcel
+    public static Creator<Project> CREATOR = new Creator<Project>() {
+
+        @Override
+        public Project createFromParcel(Parcel source) {
+            return new Project(source);
+        }
+
+        @Override
+        public Project[] newArray(int size) {
+            return new Project[size];
+        }
+
+    };
     @Id(autoincrement = true)
     @SerializedName("databaseId")
     @Expose(serialize = false, deserialize = false)
     private Long id;
-
     @SerializedName("id")
     private int onlineId;
-
     @Transient
     @SerializedName("tasks")
     private List<String> tasks; // UUIDs
-
     @SerializedName("created_at")
     private Date createdAt;
-
     @SerializedName("name")
     @NotNull
     private String name;
-
     @SerializedName("description")
     private String description;
-
     @ToMany(referencedJoinProperty = "projectId")
     @OrderBy("name ASC")
     private List<FlyPlan> flyPlans;
+    /**
+     * Used to resolve relations
+     */
+    @Generated(hash = 2040040024)
+    private transient DaoSession daoSession;
+    /**
+     * Used for active entity operations.
+     */
+    @Generated(hash = 1378029107)
+    private transient ProjectDao myDao;
 
-    public Project() {}
+    public Project() {
+    }
+
+    /**
+     * Constructs a Project from a Parcel
+     *
+     * @param parcelIn Source Parcel
+     */
+    public Project(Parcel parcelIn) {
+        this.id = parcelIn.readLong();
+        this.onlineId = parcelIn.readInt();
+        this.name = parcelIn.readString();
+        this.description = parcelIn.readString();
+        this.tasks = new ArrayList<String>();
+        parcelIn.readList(tasks, null);
+        long temp = parcelIn.readLong();
+        this.createdAt = (temp == 0) ? null : new Date(temp);
+    }
+
+    @Generated(hash = 100493354)
+    public Project(Long id, int onlineId, Date createdAt, @NotNull String name, String description) {
+        this.id = id;
+        this.onlineId = onlineId;
+        this.createdAt = createdAt;
+        this.name = name;
+        this.description = description;
+    }
 
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -67,6 +112,7 @@ public class Project implements Parcelable {
     public int getOnlineId() {
         return onlineId;
     }
+
     public void setOnlineId(int onlineId) {
         this.onlineId = onlineId;
     }
@@ -74,6 +120,7 @@ public class Project implements Parcelable {
     public List<String> getTasks() {
         return tasks;
     }
+
     private void setTasks(List<String> tasks) {
         this.tasks = tasks;
     }
@@ -81,6 +128,9 @@ public class Project implements Parcelable {
     public Date getCreatedAt() {
         return createdAt;
     }
+
+    /* PARCELABLE PART */
+
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
@@ -88,6 +138,7 @@ public class Project implements Parcelable {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -95,11 +146,10 @@ public class Project implements Parcelable {
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
-    
-    /* PARCELABLE PART */
 
     @Override
     public int describeContents() {
@@ -138,7 +188,9 @@ public class Project implements Parcelable {
         return flyPlans;
     }
 
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    /**
+     * Resets a to-many relationship, making the next get call to query for a fresh result.
+     */
     @Generated(hash = 786999239)
     public synchronized void resetFlyPlans() {
         flyPlans = null;
@@ -180,58 +232,13 @@ public class Project implements Parcelable {
         myDao.update(this);
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 2081800561)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getProjectDao() : null;
     }
-
-    /**
-     * Constructs a Project from a Parcel
-     * @param parcelIn Source Parcel
-     */
-    public Project (Parcel parcelIn) {
-        this.id = parcelIn.readLong();
-        this.onlineId = parcelIn.readInt();
-        this.name = parcelIn.readString();
-        this.description = parcelIn.readString();
-        this.tasks = new ArrayList<String>();
-        parcelIn.readList(tasks, null);
-        long temp = parcelIn.readLong();
-        this.createdAt = (temp == 0) ? null : new Date(temp);
-    }
-
-    @Generated(hash = 100493354)
-    public Project(Long id, int onlineId, Date createdAt, @NotNull String name, String description) {
-        this.id = id;
-        this.onlineId = onlineId;
-        this.createdAt = createdAt;
-        this.name = name;
-        this.description = description;
-    }
-
-    // Method to recreate a Question from a Parcel
-    public static Creator<Project> CREATOR = new Creator<Project>() {
-
-        @Override
-        public Project createFromParcel(Parcel source) {
-            return new Project(source);
-        }
-
-        @Override
-        public Project[] newArray(int size) {
-            return new Project[size];
-        }
-
-    };
-
-    /** Used to resolve relations */
-    @Generated(hash = 2040040024)
-    private transient DaoSession daoSession;
-
-    /** Used for active entity operations. */
-    @Generated(hash = 1378029107)
-    private transient ProjectDao myDao;
 
 }

@@ -9,9 +9,9 @@ import android.os.AsyncTask;
 
 public class TaskListener extends AsyncTask<Void, Void, Object> {
 
+    public Object mException;
     private OnEventListener<Object, Object> mCallBack;
     private Context mContext;
-    public Object mException;
 
     public TaskListener(Context context, OnEventListener callback) {
         mContext = context;
@@ -24,8 +24,7 @@ public class TaskListener extends AsyncTask<Void, Void, Object> {
         try {
             // todo try to do something dangerous
             return "HELLO";
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             mException = e;
         }
 

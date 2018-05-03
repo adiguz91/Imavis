@@ -17,12 +17,11 @@ import javax.inject.Singleton;
 public class PreferencesHelper implements IPreferencesHelper {
 
     public static final String PREF_FILE_NAME = "ImavisPreferencesFile";
-    private final SharedPreferences preferences;
-
     private static final String PREF_KEY_CURRENT_USER_ID = "PREF_KEY_CURRENT_USER_ID";
     private static final String PREF_KEY_AUTHORIZATION_TOKEN = "PREF_KEY_AUTHORIZATION_TOKEN";
     private static final String PREF_KEY_FLYPLANVIEW_SCALEFACTOR = "PREF_KEY_FLYPLANVIEW_SCALEFACTOR";
     private static final String PREF_KEY_DRONE_WIFI_SSID = "PREF_KEY_DRONE_WIFI_SSID";
+    private final SharedPreferences preferences;
 
     @Inject
     public PreferencesHelper(@ApplicationContext Context context) {
@@ -50,7 +49,7 @@ public class PreferencesHelper implements IPreferencesHelper {
 
     @Override
     public void setAuthorizationToken(String token) {
-        if(token == null) token = "";
+        if (token == null) token = "";
         preferences.edit().putString(PREF_KEY_AUTHORIZATION_TOKEN, token).apply();
     }
 
@@ -71,7 +70,7 @@ public class PreferencesHelper implements IPreferencesHelper {
 
     @Override
     public void setDroneWifiSsid(String ssid) {
-        if(ssid == null) ssid = "";
+        if (ssid == null) ssid = "";
         preferences.edit().putString(PREF_KEY_DRONE_WIFI_SSID, ssid).apply();
     }
 }

@@ -4,10 +4,10 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
-import android.os.Bundle;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
@@ -20,9 +20,7 @@ import android.widget.TextView;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
-import com.drone.imavis.mvp.ui.base.IMvpView;
 import com.drone.imavis.mvp.util.GUIUtils;
 import com.drone.imavis.mvp.util.OnRevealAnimationListener;
 import com.joanzapata.iconify.IconDrawable;
@@ -88,7 +86,7 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
 
         buttonProjectAction.setProgress(0);
         buttonProjectAction.setMode(ActionProcessButton.Mode.ENDLESS);
-        buttonProjectAction.setOnClickListener(onClick -> sendProject(projectAction) );
+        buttonProjectAction.setOnClickListener(onClick -> sendProject(projectAction));
 
         if (projectAction == ProjectAction.Add) {
             buttonProjectAction.setText("Hinzufügen");
@@ -102,7 +100,7 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
                 .colorRes(R.color.icons)
                 .actionBarSize());
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setupEnterAnimation();
             setupExitAnimation();
         } else {
@@ -119,7 +117,7 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
     }
 
     public void sendProject(ProjectAction projectAction) {
-        if(projectName.validate()) {
+        if (projectName.validate()) {
             project.setName(projectName.getEditableText().toString());
             project.setDescription(projectDescription.getEditableText().toString());
 
@@ -128,7 +126,7 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
             projectName.setEnabled(false);
             projectDescription.setEnabled(false);
 
-            if(projectAction == ProjectAction.Add)
+            if (projectAction == ProjectAction.Add)
                 projectPresenter.addProject(project);
             else if (projectAction == ProjectAction.Edit) {
                 projectPresenter.editProject(project);
@@ -172,18 +170,26 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
         getWindow().setSharedElementEnterTransition(transition);
         transition.addListener(new Transition.TransitionListener() {
             @Override
-            public void onTransitionStart(Transition transition) {}
+            public void onTransitionStart(Transition transition) {
+            }
+
             @Override
             public void onTransitionEnd(Transition transition) {
                 transition.removeListener(this);
                 animateRevealShow(container);
             }
+
             @Override
-            public void onTransitionCancel(Transition transition) {}
+            public void onTransitionCancel(Transition transition) {
+            }
+
             @Override
-            public void onTransitionPause(Transition transition) {}
+            public void onTransitionPause(Transition transition) {
+            }
+
             @Override
-            public void onTransitionResume(Transition transition) {}
+            public void onTransitionResume(Transition transition) {
+            }
         });
     }
 
@@ -191,14 +197,16 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
         int cx = (viewRoot.getLeft() + viewRoot.getRight()) / 2;
         int cy = (viewRoot.getTop() + viewRoot.getBottom()) / 2;
         GUIUtils.animateRevealShow(this, container, fabClose.getWidth() / 2, R.color.colorPrimary,
-            cx, cy, new OnRevealAnimationListener() {
-                @Override
-                public void onRevealHide() {}
-                @Override
-                public void onRevealShow() {
-                    initViews();
-                }
-            });
+                cx, cy, new OnRevealAnimationListener() {
+                    @Override
+                    public void onRevealHide() {
+                    }
+
+                    @Override
+                    public void onRevealShow() {
+                        initViews();
+                    }
+                });
     }
 
     private void initViews() {
@@ -216,19 +224,21 @@ public class ProjectAddOrEditActivity extends BaseActivity implements IProjectAd
     public void onBackPressed() {
         passDataBack(project);
         GUIUtils.animateRevealHide(this, container, R.color.colorPrimary, fabClose.getWidth() / 2,
-            new OnRevealAnimationListener() {
-                @Override
-                public void onRevealHide() {
-                    backPressed();
-                }
-                @Override
-                public void onRevealShow() {}
-            });
+                new OnRevealAnimationListener() {
+                    @Override
+                    public void onRevealHide() {
+                        backPressed();
+                    }
+
+                    @Override
+                    public void onRevealShow() {
+                    }
+                });
     }
 
     @OnClick(R.id.projectAdd_fab_close)
     public void onCloseClicked() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             onBackPressed();
         } else {
             backPressed();

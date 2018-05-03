@@ -1,7 +1,9 @@
 package com.drone.imavis.mvp.data.model;
 
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinateDao;
 
+import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -11,8 +13,6 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.io.Serializable;
-import org.greenrobot.greendao.DaoException;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinateDao;
 
 /**
  * Created by adigu on 10.08.2017.
@@ -21,6 +21,30 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GP
 @Entity
 public class MapData implements Serializable {
 
+    // ANY-ACCESS-MODIFIER
+    static final long serialVersionUID = 42L;
+    @Id(autoincrement = true)
+    private Long id;
+    @NotNull
+    private Long centerCoordinateId;
+    @ToOne(joinProperty = "centerCoordinateId")
+    private GPSCoordinate centerCoordinate;
+    private float zoomFactor;
+    @Convert(converter = MapModeConverter.class, columnType = String.class)
+    private MapMode mapMode;
+    /**
+     * Used to resolve relations
+     */
+    @Generated(hash = 2040040024)
+    private transient DaoSession daoSession;
+    /**
+     * Used for active entity operations.
+     */
+    @Generated(hash = 590566735)
+    private transient MapDataDao myDao;
+    @Generated(hash = 86340270)
+    private transient Long centerCoordinate__resolvedKey;
+
     public MapData(GPSCoordinate centerCoordinate, float zoomFactor) {
         this.centerCoordinate = centerCoordinate;
         this.zoomFactor = zoomFactor;
@@ -28,7 +52,7 @@ public class MapData implements Serializable {
 
     @Generated(hash = 847372236)
     public MapData(Long id, @NotNull Long centerCoordinateId, float zoomFactor,
-            MapMode mapMode) {
+                   MapMode mapMode) {
         this.id = id;
         this.centerCoordinateId = centerCoordinateId;
         this.zoomFactor = zoomFactor;
@@ -39,48 +63,11 @@ public class MapData implements Serializable {
     public MapData() {
     }
 
-    // ANY-ACCESS-MODIFIER
-    static final long serialVersionUID = 42L;
-
-    @Id(autoincrement = true)
-    private Long id;
-
-    @NotNull
-    private Long centerCoordinateId;
-    @ToOne(joinProperty = "centerCoordinateId")
-    private GPSCoordinate centerCoordinate;
-
-    private float zoomFactor;
-
-    @Convert(converter = MapModeConverter.class, columnType = String.class)
-    private MapMode mapMode;
-
-    /** Used to resolve relations */
-    @Generated(hash = 2040040024)
-    private transient DaoSession daoSession;
-
-    /** Used for active entity operations. */
-    @Generated(hash = 590566735)
-    private transient MapDataDao myDao;
-
-    @Generated(hash = 86340270)
-    private transient Long centerCoordinate__resolvedKey;
-
     /* GreenDAO CONVERTER */
 
-    static class MapModeConverter implements PropertyConverter<MapMode, String> {
-        @Override
-        public MapMode convertToEntityProperty(String databaseValue) {
-            return MapMode.valueOf(databaseValue);
-        }
-
-        @Override
-        public String convertToDatabaseValue(MapMode entityProperty) {
-            return entityProperty.name();
-        }
+    public Long getId() {
+        return id;
     }
-
-    public Long getId() { return id; }
 
     public void setId(Long id) {
         this.id = id;
@@ -110,7 +97,9 @@ public class MapData implements Serializable {
         this.mapMode = mapMode;
     }
 
-    /** To-one relationship, resolved on first access. */
+    /**
+     * To-one relationship, resolved on first access.
+     */
     @Generated(hash = 678387712)
     public GPSCoordinate getCenterCoordinate() {
         Long __key = this.centerCoordinateId;
@@ -130,7 +119,9 @@ public class MapData implements Serializable {
         return centerCoordinate;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 108410224)
     public void setCenterCoordinate(@NotNull GPSCoordinate centerCoordinate) {
         if (centerCoordinate == null) {
@@ -180,10 +171,24 @@ public class MapData implements Serializable {
         myDao.update(this);
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 89250062)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getMapDataDao() : null;
+    }
+
+    static class MapModeConverter implements PropertyConverter<MapMode, String> {
+        @Override
+        public MapMode convertToEntityProperty(String databaseValue) {
+            return MapMode.valueOf(databaseValue);
+        }
+
+        @Override
+        public String convertToDatabaseValue(MapMode entityProperty) {
+            return entityProperty.name();
+        }
     }
 }

@@ -5,8 +5,8 @@ import android.widget.Button;
 
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Text;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 
 import java.util.List;
 
@@ -46,7 +46,6 @@ public class FlyPlanDrawController implements IFlyPlanDraw {
     public void onAddActionButtons(Canvas canvas, List<Button> buttons) {
 
     }
-
 
 
 }

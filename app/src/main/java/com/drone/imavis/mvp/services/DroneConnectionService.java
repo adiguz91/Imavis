@@ -1,4 +1,3 @@
-
 package com.drone.imavis.mvp.services;
 
 import android.app.IntentService;

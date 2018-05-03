@@ -14,13 +14,16 @@ import java.util.List;
 
 public interface IFlyPlanDraw {
     void onAddText(Canvas canvas, Coordinate coordinate, String text);
+
     void onAddNode(Canvas canvas, Node node);
     //void onAddNodeLine(Canvas canvas);
     //void onAddNodeDirection(Canvas canvas, Node node);
 
     void onToggleSpeedSlider(Canvas canvas);
+
     void onToogleHeightSlider(Canvas canvas);
 
     void onAddButtons(Canvas canvas, List<Button> buttons);
+
     void onAddActionButtons(Canvas canvas, List<Button> buttons);
 }

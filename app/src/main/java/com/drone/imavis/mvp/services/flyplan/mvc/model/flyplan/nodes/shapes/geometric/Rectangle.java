@@ -12,7 +12,7 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.dimension.Size
  * Created by adigu on 01.03.2017.
  */
 
-public class Rectangle extends GeometricShape  {
+public class Rectangle extends GeometricShape {
 
     private Size size;
     private int padding;
@@ -38,9 +38,9 @@ public class Rectangle extends GeometricShape  {
 
     public Rect getRect() {
         Coordinate scaledCoordinate = centralizedCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
-        return new Rect((int)scaledCoordinate.getX()-size.getWidth()/2-padding,(int)scaledCoordinate.getY()-size.getHeight()/2-padding,
-                (int)scaledCoordinate.getX()+size.getWidth()/2+padding,
-                (int)scaledCoordinate.getY()+size.getHeight()/2+padding);
+        return new Rect((int) scaledCoordinate.getX() - size.getWidth() / 2 - padding, (int) scaledCoordinate.getY() - size.getHeight() / 2 - padding,
+                (int) scaledCoordinate.getX() + size.getWidth() / 2 + padding,
+                (int) scaledCoordinate.getY() + size.getHeight() / 2 + padding);
     }
 
     private Coordinate centralizedCoordinate() {

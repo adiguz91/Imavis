@@ -11,7 +11,8 @@ import org.greenrobot.greendao.converter.PropertyConverter;
 //@Entity
 public class WaypointData {
 
-    public WaypointData() {}
+    //@Id(autoincrement = true)
+    private Long id;
 
     /* generated
     public WaypointData(Long id, Long poiID, int distanceToNextNode, int speedToNextNode, int flyHeight,
@@ -23,32 +24,28 @@ public class WaypointData {
         this.flyHeight = flyHeight;
         this.mode = mode;
     }*/
-
-    //@Id(autoincrement = true)
-    private Long id;
-
     private Long poiID;
     //@ToOne(joinProperty = "poiID")
     private PointOfInterest poi;
-
-    //private int direction;
-
     //@NotNull
     private int distanceToNextNode;
 
+    //private int direction;
     //@NotNull
     private int speedToNextNode;
-
     //@NotNull
     private int flyHeight;
-
     //@NotNull
     //@Convert(converter = WaypointModeConverter.class, columnType = String.class)
     private WaypointMode mode;
 
+    public WaypointData() {
+    }
+
     public int getDistanceToNextNode() {
         return distanceToNextNode;
     }
+
     public void setDistanceToNextNode(int distanceToNextNode) {
         this.distanceToNextNode = distanceToNextNode;
     }
@@ -56,6 +53,7 @@ public class WaypointData {
     public int getSpeedToNextNode() {
         return speedToNextNode;
     }
+
     public void setSpeedToNextNode(int speedToNextNode) {
         this.speedToNextNode = speedToNextNode;
     }
@@ -63,6 +61,7 @@ public class WaypointData {
     public int getFlyHeight() {
         return flyHeight;
     }
+
     public void setFlyHeight(int flyHeight) {
         this.flyHeight = flyHeight;
     }
@@ -70,23 +69,28 @@ public class WaypointData {
     public WaypointMode getMode() {
         return mode;
     }
+
     public void setMode(WaypointMode mode) {
         this.mode = mode;
     }
+
     public Long getId() {
         return this.id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public Long getPoiID() {
         return this.poiID;
     }
+
     public void setPoiID(Long poiID) {
         this.poiID = poiID;
     }
-	
-	/* GreenDAO CONVERTER */
+
+    /* GreenDAO CONVERTER */
 
     static class WaypointModeConverter implements PropertyConverter<WaypointMode, String> {
         @Override
@@ -99,5 +103,5 @@ public class WaypointData {
             return entityProperty.name();
         }
     }
-    
+
 }

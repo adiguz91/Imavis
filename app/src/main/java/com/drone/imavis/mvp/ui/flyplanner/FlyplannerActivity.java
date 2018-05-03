@@ -12,20 +12,16 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Path;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -118,7 +114,28 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity.EXTRA_TRIGGER_SYNC_FLAG";
+    /**
+     * List of runtime permission we need.
+     */
+    private static final String[] PERMISSIONS_NEEDED = new String[]{
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+    };
+    /**
+     * Code for permission request result handling.
+     */
+    private static final int REQUEST_CODE_PERMISSIONS_REQUEST = 1;
+    private static final int ANIMATION_DURATION = 300;
+    private static final float ROTATION_ANGLE = -45f;
 
+    // this block loads the native libraries
+    // it is mandatory
+    static {
+        ARSDK.loadSDKLibs();
+    }
+
+    public DroneDiscoverer droneDiscoverer;
     @Inject
     LoadingDialogUtil loadingDialogUtil;
     @Inject
@@ -128,52 +145,16 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @Inject
     WifiUtil wifiUtil;
     Context context;
-    private FlyPlan flyplan;
-
-    private AutonomousFlightController autonomController;
-    private GPSCoordinate currentDronePosition;
-    private float beforeTakeOffElevation;
-
-    private MaterialSheetFab actionFabSheetMenu;
-    private SheetFab fabSheet;
-
     @Inject
     DronePermissionRequestHelper dronePermissionRequestHelper;
     @Inject
     DialogUtil dialogUtil;
     List<ARDiscoveryDeviceService> dronesList;
     ARDiscoveryDeviceService drone;
-
-    private FlyplannerFragment flyplannerFragment;
-
-    private ReactiveLocationProvider locationProvider;
-    private Observable<Location> lastKnownLocationObservable;
-    private Disposable lastKnownLocationDisposable;
-
-    /** List of runtime permission we need. */
-    private static final String[] PERMISSIONS_NEEDED = new String[]{
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-    };
-    /** Code for permission request result handling. */
-    private static final int REQUEST_CODE_PERMISSIONS_REQUEST = 1;
-
-    public DroneDiscoverer droneDiscoverer;
-
-    // this block loads the native libraries
-    // it is mandatory
-    static {
-        ARSDK.loadSDKLibs();
-    }
-
     @BindView(R.id.flyplanner_fab_pc_start)
     FABProgressCircle fabProgressCircleStart;
-
-
     @BindView(R.id.batteryLevel)
     TextView batteryLevel;
-
     // header
     @BindView(R.id.flyplanner_fab_back)
     FloatingActionButton fabBack;
@@ -193,43 +174,21 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     com.github.clans.fab.FloatingActionButton fabMapTypeTerrain;
     @BindView(R.id.flyplanner_fab_mapType_menu_satellite)
     com.github.clans.fab.FloatingActionButton fabMapTypeSatellite;
-
-    private boolean mapIsLocked = false;
-
-    private View sheetView;
-
     @BindView(R.id.flyplanner_fab_start)
     FloatingActionButton fabStart;
-
-    // This snippet hides the system bars.
-    private void hideStatusBar() {
-        // Set the IMMERSIVE flag.
-        // Set the content to appear under the system bars so that the content
-        // doesn't resize when the system bars hide and show.
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
-    }
-
-    // This snippet shows the system bars. It does this by removing all the flags
-// except for the ones that make the content appear under the system bars.
-    private void showStatusBar() {
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
+    private FlyPlan flyplan;
+    private AutonomousFlightController autonomController;
+    private GPSCoordinate currentDronePosition;
+    private float beforeTakeOffElevation;
+    private MaterialSheetFab actionFabSheetMenu;
+    private SheetFab fabSheet;
+    private FlyplannerFragment flyplannerFragment;
+    private ReactiveLocationProvider locationProvider;
+    private Observable<Location> lastKnownLocationObservable;
+    private Disposable lastKnownLocationDisposable;
+    private boolean mapIsLocked = false;
+    private View sheetView;
     private boolean isFlyplanStarted = false;
-
-    public LoadingDialogUtil getLoadingDialog() {
-        return loadingDialogUtil;
-    }
-
     private IWifiUtilCallback wifiUtilCallback = new IWifiUtilCallback() {
         @Override
         public void onSuccess() {
@@ -241,652 +200,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             showToast("Connection failed!");
         }
     };
-
-    private void showToast(String message) {
-        Toast toast = new Toast(this);
-        if (toast != null) {
-            toast.cancel();
-            toast = null;
-        }
-        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        activityComponent().inject(this);
-
-        getSupportActionBar().hide();
-        //hideStatusBar();
-        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-
-        //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
-        //getSupportActionBar().setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
-
-        flyplan = (FlyPlan) getIntent().getParcelableExtra("Flyplan");
-        if(flyplan == null)
-            flyplan = new FlyPlan();
-
-        setContentView(R.layout.activity_flyplanner);
-        ButterKnife.bind(this);
-
-        setHeader();
-        setUpCustomFabMenuAnimation();
-        if(fabMapTypeMenu.isOpened()){
-            fabMapTypeMenu.setClickable(true);
-        } else {
-            fabMapTypeMenu.setClickable(false);
-        }
-
-        flyplannerFragment = (FlyplannerFragment) getSupportFragmentManager().findFragmentById(R.id.flyplanner);
-        context = this;
-
-        /* Drone */
-        droneDiscoverer = new DroneDiscoverer(this);
-        dronePermissionRequestHelper.requestPermission(PERMISSIONS_NEEDED, REQUEST_CODE_PERMISSIONS_REQUEST);
-
-        flyplannerPresenter.attachView(this);
-
-
-        //getActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        fabSheet = (SheetFab) findViewById(R.id.fabSheet);
-        sheetView = findViewById(R.id.fabSheetCardView);
-        View overlay = findViewById(R.id.overlay);
-        int sheetColor = getResources().getColor(R.color.white);
-        int fabColor = getResources().getColor(R.color.accent_color);
-
-        fabSheet.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.transparent)));
-        fabSheet.setRippleColor(getResources().getColor(R.color.transparent));
-        fabSheet.setElevation(0);
-        fabSheet.setCompatElevation(0);
-
-        // Initialize material sheet FAB
-        actionFabSheetMenu = new MaterialSheetFab<>(fabSheet, sheetView, overlay,
-                sheetColor, fabColor);
-
-        actionFabSheetMenu.setEventListener(new MaterialSheetFabEventListener() {
-            @Override
-            public void onShowSheet() {
-                // Called when the material sheet's "show" animation starts.
-            }
-
-            @Override
-            public void onSheetShown() {
-                // Called when the material sheet's "show" animation ends.
-            }
-
-            @Override
-            public void onHideSheet() {
-                // Called when the material sheet's "hide" animation starts.
-            }
-
-            public void onSheetHidden() {
-                // Called when the material sheet's "hide" animation ends.
-                fabSheet.setVisibility(View.GONE);
-            }
-        });
-
-        fabProgressCircleStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*
-                // todo start the drone to fly
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        // Actions to do after 10 seconds
-                        fabProgressCircleStart.beginFinalAnimation();
-                    }
-                }, 5 * 1000);*/
-            }
-        });
-
-        //FloatingActionButton fabStart = (FloatingActionButton) findViewById(R.id.flyplanner_fab_start);
-        fabStart.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_play)
-                .colorRes(R.color.icons)
-                .actionBarSize());
-
-        fabStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (!isFlyplanStarted) {
-                    fabProgressCircleStart.show();
-                    // change icon to "x" cancel
-                    fabStart.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_times)
-                            .colorRes(R.color.icons)
-                            .actionBarSize());
-
-                    long duration = 10000; // calculate duration alonge
-                    ImageView imageView = findViewById(R.id.droneFlyingState);
-                    moveViewAlongPath(imageView, flyplan.getPathRoute(imageView.getWidth()/2, imageView.getHeight()/2), duration);
-
-                    if (autonomController != null) {
-                        flyplannerFragment.getGoogleMapFragment(); //?
-
-                        ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM homeType = ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_TAKEOFF;
-                        autonomController.setHomeType(homeType);
-
-                        lastKnownLocationObservable.subscribe(x -> {
-                            GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
-                            autonomController.setHomeLocation(homeLocation);
-                        });
-
-                        //for test purpose
-                        autonomController.setMaxAltitude(2);
-
-                        float maxAltitude = 2; // current + offset; //autonomController.setMaxAltitude(maxAltitude);
-                        //String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
-                        MavlinkFileInfo mavlinkFileInfo = autonomController.generateMavlinkFileTest(currentDronePosition, (short)3, maxAltitude);
-                        autonomController.uploadAutonomousFlightPlan(flyplan, mavlinkFileInfo.getFilePath());
-                        try {
-                            Thread.sleep(2000);
-                            float pictureInterval = 4;
-                            autonomController.recordVideoOrTakePictures(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START, 1, pictureInterval);
-                            autonomController.startAutonomousFlight(); // "flightPlan.mavlink" maxAltitude
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        // TODO shape design pattern
-                        // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
-
-                        //TODO: if finished then upload images
-                        flyplannerPresenter.startFlyplanTask(flyplan);
-                    }
-                    isFlyplanStarted = true;
-                } else {
-                    fabProgressCircleStart.hide();
-                    // cancel mode
-                    if (autonomController != null) {
-                        autonomController.stopAutonomousFlight();
-                        autonomController.returnHome();
-                    }
-
-                    fabStart.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_play)
-                            .colorRes(R.color.icons)
-                            .actionBarSize());
-                    isFlyplanStarted = false;
-                }
-
-            }
-        });
-
-        fabProgressCircleStart.attachListener(new FABProgressListener() {
-            @Override
-            public void onFABProgressAnimationEnd() {
-                Toast.makeText(FlyplannerActivity.this, "Finished Drone", Toast.LENGTH_LONG).show();
-            }
-        });
-
-        initLocation();
-
-        wifiUtil.setWifiUtilCallback(wifiUtilCallback);
-
-        if (StringUtil.isNullOrEmpty(preferencesHelper.getDroneWifiSsid()))
-            findSsid(preferencesHelper.getDroneWifiSsid());
-
-        // todo: init flyplanner fragment instance
-
-        if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
-            //startService(SyncService.getStartIntent(this));
-        }
-    }
-
-    private void findSsid(String ssid) {
-        WifiUtils.withContext(context).enableWifi(isSuccess -> {
-            if (isSuccess) {
-                WifiUtils.withContext(context).scanWifi(scanResults -> {
-                    for (ScanResult scanResult : scanResults) {
-                        if (scanResult.equals(ssid)) {
-                            // found
-                            wifiUtil.showDialogConnect(scanResult);
-                            break;
-                        }
-                    }
-                }).start();
-            } else {
-                // not found
-            }
-        });
-    }
-
-    public MaterialSheetFab getActionFabSheetMenu() {
-        return actionFabSheetMenu;
-    }
-
-    public SheetFab getActionFabSheet() {
-        return fabSheet;
-    }
-
-    public View getActionFabSheetCardView() {
-        return sheetView;
-    }
-
-    public void setHeader() {
-
-        fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_map)
-                .colorRes(R.color.icons)
-                .actionBarSize());
-
-        fabBack.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_arrow_left)
-                .colorRes(R.color.icons)
-                .actionBarSize());
-
-        fabCurrentGpsPosition.setImageDrawable(
-                new IconDrawable(this, FontAwesomeIcons.fa_crosshairs)
-                        .colorRes(R.color.icons)
-                        .actionBarSize());
-
-        Icon lockingIcon = FontAwesomeIcons.fa_unlock_alt;
-        int ressourceColor = R.color.md_yellow_400;
-        if (mapIsLocked) {
-            lockingIcon = FontAwesomeIcons.fa_lock;
-            ressourceColor = R.color.md_red_400;
-        }
-
-        fabMapLock.setImageDrawable(new IconDrawable(this, lockingIcon)
-                        .colorRes(ressourceColor)
-                        .actionBarSize());
-
-        int wifiColor = R.color.md_red_400;
-        if(isWifiDroneConnectionActive(lasKnownSSID)) {
-            wifiColor= R.color.md_green_400;
-        }
-
-        fabDroneConnectWifi.setImageDrawable(
-                new IconDrawable(this, FontAwesomeIcons.fa_wifi)
-                        .colorRes(wifiColor)
-                        .actionBarSize());
-
-        fabFlyplanSettings.setImageDrawable(
-                new IconDrawable(this, FontAwesomeIcons.fa_cog)
-                        .colorRes(R.color.icons)
-                        .actionBarSize());
-
-        ViewTooltip.on(this, fabDroneCalibration)
-                .corner(30)
-                .autoHide(false, 1000)
-                .position(ViewTooltip.Position.BOTTOM)
-                .text("Calibrate!")
-                .clickToHide(false)
-                .textColor(Color.WHITE)
-                .color(getResources().getColor(R.color.colorPrimary))
-                .show();
-    }
-
-    private void connectToDrone() {
-        String serviceName = lasKnownSSID; // SSID wlan of the drone
-        if (dronesList != null) {
-            for (ARDiscoveryDeviceService droneService : dronesList) {
-                if (droneService.getName().equals(serviceName)) {
-                    drone = droneService;
-                    break;
-                }
-            }
-            if (drone != null) {
-                autonomController = null;
-                try {
-                    autonomController = new AutonomousFlightController(context, drone);
-                } catch (ARUtilsException e) {
-                    e.printStackTrace();
-                }
-
-                autonomController.setListener(autonomousFlightControllerListener);
-                autonomController.getConnectionState();
-                autonomController.connect();
-            }
-        }
-    }
-
-    public FlyPlan getFlyplan() {
-        return flyplan;
-    }
-
-    // TODO : https://github.com/mcharmas/Android-ReactiveLocation/blob/master/sample/src/main/java/pl/charmas/android/reactivelocation2/sample/BaseActivity.java
-    //protected abstract void onLocationPermissionGranted();
-
-    public void onLocationPermissionGranted() {
-        // https://github.com/mcharmas/Android-ReactiveLocation
-        /*lastKnownLocationDisposable = lastKnownLocationObservable.
-                .map(new LocationToStringFunc())
-                .subscribe(new DisplayTextOnViewAction(lastKnownLocationView), new ErrorHandler());*/
-
-        lastKnownLocationObservable
-                .subscribe(x ->
-                        Log.d("location", x.toString()));
-    }
-
-    public void initLocation() {
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-
-        ReactiveLocationProvider locationProvider = new ReactiveLocationProvider(context);
-
-        locationProvider = new ReactiveLocationProvider(getApplicationContext());
-
-        lastKnownLocationObservable = locationProvider
-                .getLastKnownLocation()
-                .observeOn(AndroidSchedulers.mainThread());
-
-        // TODO: move this rxPermissions to application start init, and into dagger
-        // https://github.com/tbruyelle/RxPermissions/blob/521654fb8ffc69b32faba70523ba436689f6c195/sample/src/main/java/com/tbruyelle/rxpermissions/sample/MainActivity.java
-        RxPermissions rxPermissions = new RxPermissions(this); // where this is an Activity instance
-        rxPermissions.setLogging(true);
-
-        rxPermissions
-                .request(Manifest.permission.ACCESS_FINE_LOCATION)
-                .subscribe(new Consumer<Boolean>() {
-                    @Override
-                    public void accept(Boolean granted) throws Exception {
-                        if (granted) {
-                            onLocationPermissionGranted();
-                        } else {
-                            //Toast.makeText(BaseActivity.this, "Sorry, no demo without permission...", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    //-------------------
-
-    public static String combine (String path1, String path2) {
-        File file1 = new File(path1);
-        File file2 = new File(file1, path2);
-        return file2.getPath();
-    }
-
-    private static final int ANIMATION_DURATION = 300;
-    private static final float ROTATION_ANGLE = -45f;
     private AnimatorSet mOpenAnimatorSet;
     private AnimatorSet mCloseAnimatorSet;
-
-    private void setUpCustomFabMenuAnimation() {
-        mOpenAnimatorSet = new AnimatorSet();
-        mCloseAnimatorSet = new AnimatorSet();
-
-        ObjectAnimator collapseAnimator =  ObjectAnimator.ofFloat(fabMapTypeMenu.getMenuIconView(),
-                "rotation",
-                -90f + ROTATION_ANGLE, 0f);
-        ObjectAnimator expandAnimator = ObjectAnimator.ofFloat(fabMapTypeMenu.getMenuIconView(),
-                "rotation",
-                0f, -90f + ROTATION_ANGLE);
-
-        expandAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                // this will be rotated so that the plus icon will be seen as "x"
-                fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_plus)
-                        .colorRes(R.color.icons)
-                        .actionBarSize());
-                fabMapTypeMenu.setIconToggleAnimatorSet(mCloseAnimatorSet);
-                fabMapTypeMenu.setClickable(true);
-            }
-        });
-
-        collapseAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_map)
-                        .colorRes(R.color.icons)
-                        .actionBarSize());
-                fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
-                fabMapTypeMenu.setClickable(false);
-            }
-        });
-
-        mOpenAnimatorSet.play(expandAnimator);
-        mCloseAnimatorSet.play(collapseAnimator);
-
-        mOpenAnimatorSet.setDuration(ANIMATION_DURATION);
-        mCloseAnimatorSet.setDuration(ANIMATION_DURATION);
-
-        fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
-    }
-
-    private void changeBatteryLevel(int percentage) {
-
-        batteryLevel.setText(percentage + "%");
-        if (percentage >= 75) {
-            // green
-            batteryLevel.setTextColor(getResources().getColor(R.color.white));
-            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_green_700)));
-        } else if (75 > percentage && percentage >= 50) {
-            // yellow
-            batteryLevel.setTextColor(getResources().getColor(R.color.md_black_1000));
-            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_yellow_600)));
-        } else if (50 > percentage && percentage >= 25) {
-            // orange
-            batteryLevel.setTextColor(getResources().getColor(R.color.white));
-            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_orange_800)));
-        } else if(25 > percentage) {
-            //red
-            batteryLevel.setTextColor(getResources().getColor(R.color.white));
-            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_red_800)));
-        }
-    }
-
     private String lasKnownSSID = "BebopDrone-C074449";
-
-    private boolean isWifiDroneConnectionActive(String checkSsid) {
-        WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        if (WifiInfo.getDetailedStateOf(wifiInfo.getSupplicantState()) == NetworkInfo.DetailedState.CONNECTED) {
-            String droneSsid = wifiInfo.getSSID();
-            if (droneSsid.equals(checkSsid))
-                return true;
-        }
-        return false;
-    }
-
-    @OnClick(R.id.flyplanner_fab_mapLock)
-    public void onFabClickMapLock(FloatingActionButton button) {
-        mapIsLocked = mapIsLocked ? false : true;
-
-        FlyPlanView flyplannerDrawer = (FlyPlanView) ((Activity) context).findViewById(R.id.flyplannerDraw);
-        if (flyplannerDrawer != null) {
-            flyplannerDrawer.setIsLocked(mapIsLocked);
-        }
-
-        Icon lockingIcon = FontAwesomeIcons.fa_unlock_alt;
-        int ressourceColor = R.color.md_yellow_400;
-        if (mapIsLocked) {
-            lockingIcon = FontAwesomeIcons.fa_lock;
-            ressourceColor = R.color.md_red_400;
-        }
-        fabMapLock.setImageDrawable(new IconDrawable(this, lockingIcon)
-                .colorRes(ressourceColor)
-                .actionBarSize());
-    }
-
-    @OnClick(R.id.flyplanner_fab_droneConnectWifi)
-    public void onFabClickDroneConnectWifi(FloatingActionButton button) {
-        goToActivity(this, SearchWlanActivity.class, new Bundle());
-    }
-
-    @OnClick(R.id.flyplanner_fab_droneCalibration)
-    public void onFabClickDroneCalibration(FloatingActionButton button) {
-        // TODO start drone calibration
-    }
-
-    @OnClick(R.id.flyplanner_fab_back)
-    public void onFabClickBack(FloatingActionButton button) {
-        Intent intent = new Intent();
-        intent.putExtra("Flyplan", flyplan);
-        setResult(RESULT_BACK_PRESSED, intent);
-        //super.onBackPressed();
-        finish();
-    }
-
-    @OnClick(R.id.flyplanner_fab_mapType_menu)
-    public void onFabClickMapType(FloatingActionMenu button) {
-        //goToActivity(this, ModelViewerActivity.class, new Bundle());
-    }
-
-    @OnClick(R.id.flyplanner_fab_mapType_menu_satellite)
-    public void onMapTypeSatelliteClicked(com.github.clans.fab.FloatingActionButton button) {
-        flyplannerFragment.getGoogleMapFragment().setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        fabMapTypeMenu.close(true);
-    }
-
-    @OnClick(R.id.flyplanner_fab_mapType_menu_terrain)
-    public void onMapTypeTerrainClicked(com.github.clans.fab.FloatingActionButton button) {
-        flyplannerFragment.getGoogleMapFragment().setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        fabMapTypeMenu.close(true);
-    }
-
-    @OnClick(R.id.flyplanner_fab_currentGpsPosition)
-    public void onFabClickCurrentGpsPosition(FloatingActionButton button) {
-        lastKnownLocationObservable.subscribe(x -> {
-            //GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
-            LatLng location = new LatLng(x.getLatitude(), x.getLongitude());
-            flyplannerFragment.getGoogleMapFragment().setMarker(location);
-        });
-    }
-
-    private void moveViewAlongPath(final View view, final Path path, long duration) {
-        if (path == null || path.isEmpty())
-            return;
-
-        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(view, View.X, View.Y, path);
-        objectAnimator.setDuration(duration);
-        objectAnimator.setAutoCancel(true);
-        objectAnimator.start();
-    }
-
     private int RESULT_BACK_PRESSED = 2000;
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //loginPresenter.detachView();
-    }
-
-    @Override
-    public void onSaveFlyplanSuccess(FlyPlan flyplan) {
-
-    }
-
-    @Override
-    public void onSaveFlyplanFailed() {
-
-    }
-
-    @Override
-    public void onStartFlyplanTaskSuccess(FlyPlan flyplan) {
-
-    }
-
-    @Override
-    public void onStartFlyplanTaskFailed() {
-
-    }
-
-    @Override
-    public void updateFlyplanNodes(List<GPSCoordinate> waypointGpsCoordinates, List<GPSCoordinate>  poiGpsCoordinates) {
-        // TODO set GPS data to flyplan and save to db!
-        Toast.makeText(this, "The camera has stopped moving.",
-                Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        flyplannerPresenter.saveFlyplan(flyplan);
-
-        // clean the drone discoverer object
-        droneDiscoverer.stopDiscovering();
-        //mDroneDiscoverer.cleanup();
-        //mDroneDiscoverer.removeListener(mDiscovererListener);
-    }
-
-    /*
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        return super.dispatchTouchEvent(ev);
-    }
-    */
-
-    /*
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        //boolean result = super.onTouchEvent(event);
-        return false; //!result;
-    }
-    */
-
-    /* Drone Discovery Code */
-
-    @Override
-    public void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList) {
-
-        if(dronesList == null || dronesList.isEmpty()) {
-            Toast.makeText(this, "No Drones found", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        this.dronesList = dronesList;
-
-        connectToDrone();
-    }
-
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-
-        // setup the drone discoverer and register as listener
-        droneDiscoverer.setup();
-        droneDiscoverer.addListener(this); // onDronesListUpdated
-
-        // start discovering
-        droneDiscoverer.startDiscovering();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        boolean denied = false;
-        if (permissions.length == 0) {
-            // canceled, finish
-            denied = true;
-        } else {
-            for (int i = 0; i < permissions.length; i++) {
-                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                    denied = true;
-                }
-            }
-        }
-
-        if (denied) {
-            Toast.makeText(this, "At least one permission is missing.", Toast.LENGTH_LONG).show();
-            finish();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        UnsubscribeIfPresent.dispose(lastKnownLocationDisposable);
-    }
-
-    // #############################################################
-    // AutonomousFlightControllerListener
-    // #############################################################
-
     private AutonomousFlightControllerListener autonomousFlightControllerListener = new AutonomousFlightControllerListener() {
         @Override
         public void notifyMatchingMediasFoundChanged(int numberOfMedias) {
@@ -927,7 +244,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
         @Override
         public void notifyMaxAltitudeChanged(float current, float min, float max) {
-            Log.d("AFCL", "notifyMaxAltitudeChanged: min-"+min + " max-"+max + " current-"+current);
+            Log.d("AFCL", "notifyMaxAltitudeChanged: min-" + min + " max-" + max + " current-" + current);
             beforeTakeOffElevation = current;
         }
 
@@ -1132,4 +449,665 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             Log.d("AFCL", "notifyLastMotorErrorChanged: " + motorError.toString());
         }
     };
+
+    public static String combine(String path1, String path2) {
+        File file1 = new File(path1);
+        File file2 = new File(file1, path2);
+        return file2.getPath();
+    }
+
+    // This snippet hides the system bars.
+    private void hideStatusBar() {
+        // Set the IMMERSIVE flag.
+        // Set the content to appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
+    // This snippet shows the system bars. It does this by removing all the flags
+// except for the ones that make the content appear under the system bars.
+    private void showStatusBar() {
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    public LoadingDialogUtil getLoadingDialog() {
+        return loadingDialogUtil;
+    }
+
+    private void showToast(String message) {
+        Toast toast = new Toast(this);
+        if (toast != null) {
+            toast.cancel();
+            toast = null;
+        }
+        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    // TODO : https://github.com/mcharmas/Android-ReactiveLocation/blob/master/sample/src/main/java/pl/charmas/android/reactivelocation2/sample/BaseActivity.java
+    //protected abstract void onLocationPermissionGranted();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        activityComponent().inject(this);
+
+        getSupportActionBar().hide();
+        //hideStatusBar();
+        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+
+        //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
+        //getSupportActionBar().setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#1A000000")));
+
+        flyplan = getIntent().getParcelableExtra("Flyplan");
+        if (flyplan == null)
+            flyplan = new FlyPlan();
+
+        setContentView(R.layout.activity_flyplanner);
+        ButterKnife.bind(this);
+
+        setHeader();
+        setUpCustomFabMenuAnimation();
+        if (fabMapTypeMenu.isOpened()) {
+            fabMapTypeMenu.setClickable(true);
+        } else {
+            fabMapTypeMenu.setClickable(false);
+        }
+
+        flyplannerFragment = (FlyplannerFragment) getSupportFragmentManager().findFragmentById(R.id.flyplanner);
+        context = this;
+
+        /* Drone */
+        droneDiscoverer = new DroneDiscoverer(this);
+        dronePermissionRequestHelper.requestPermission(PERMISSIONS_NEEDED, REQUEST_CODE_PERMISSIONS_REQUEST);
+
+        flyplannerPresenter.attachView(this);
+
+
+        //getActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        fabSheet = findViewById(R.id.fabSheet);
+        sheetView = findViewById(R.id.fabSheetCardView);
+        View overlay = findViewById(R.id.overlay);
+        int sheetColor = getResources().getColor(R.color.white);
+        int fabColor = getResources().getColor(R.color.accent_color);
+
+        fabSheet.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.transparent)));
+        fabSheet.setRippleColor(getResources().getColor(R.color.transparent));
+        fabSheet.setElevation(0);
+        fabSheet.setCompatElevation(0);
+
+        // Initialize material sheet FAB
+        actionFabSheetMenu = new MaterialSheetFab<>(fabSheet, sheetView, overlay,
+                sheetColor, fabColor);
+
+        actionFabSheetMenu.setEventListener(new MaterialSheetFabEventListener() {
+            @Override
+            public void onShowSheet() {
+                // Called when the material sheet's "show" animation starts.
+            }
+
+            @Override
+            public void onSheetShown() {
+                // Called when the material sheet's "show" animation ends.
+            }
+
+            @Override
+            public void onHideSheet() {
+                // Called when the material sheet's "hide" animation starts.
+            }
+
+            public void onSheetHidden() {
+                // Called when the material sheet's "hide" animation ends.
+                fabSheet.setVisibility(View.GONE);
+            }
+        });
+
+        fabProgressCircleStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*
+                // todo start the drone to fly
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        // Actions to do after 10 seconds
+                        fabProgressCircleStart.beginFinalAnimation();
+                    }
+                }, 5 * 1000);*/
+            }
+        });
+
+        //FloatingActionButton fabStart = (FloatingActionButton) findViewById(R.id.flyplanner_fab_start);
+        fabStart.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_play)
+                .colorRes(R.color.icons)
+                .actionBarSize());
+
+        fabStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (!isFlyplanStarted) {
+                    fabProgressCircleStart.show();
+                    // change icon to "x" cancel
+                    fabStart.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_times)
+                            .colorRes(R.color.icons)
+                            .actionBarSize());
+
+                    long duration = 10000; // calculate duration alonge
+                    ImageView imageView = findViewById(R.id.droneFlyingState);
+                    moveViewAlongPath(imageView, flyplan.getPathRoute(imageView.getWidth() / 2, imageView.getHeight() / 2), duration);
+
+                    if (autonomController != null) {
+                        flyplannerFragment.getGoogleMapFragment(); //?
+
+                        ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM homeType = ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_TAKEOFF;
+                        autonomController.setHomeType(homeType);
+
+                        lastKnownLocationObservable.subscribe(x -> {
+                            GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
+                            autonomController.setHomeLocation(homeLocation);
+                        });
+
+                        //for test purpose
+                        autonomController.setMaxAltitude(2);
+
+                        float maxAltitude = 2; // current + offset; //autonomController.setMaxAltitude(maxAltitude);
+                        //String localFilepath = autonomController.generateMavlinkFile(flyplan.getPoints(), (short)3); // alt 516
+                        MavlinkFileInfo mavlinkFileInfo = autonomController.generateMavlinkFileTest(currentDronePosition, (short) 3, maxAltitude);
+                        autonomController.uploadAutonomousFlightPlan(flyplan, mavlinkFileInfo.getFilePath());
+                        try {
+                            Thread.sleep(2000);
+                            float pictureInterval = 4;
+                            autonomController.recordVideoOrTakePictures(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START, 1, pictureInterval);
+                            autonomController.startAutonomousFlight(); // "flightPlan.mavlink" maxAltitude
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        // TODO shape design pattern
+                        // https://www.tutorialspoint.com/design_pattern/decorator_pattern.htm
+
+                        //TODO: if finished then upload images
+                        flyplannerPresenter.startFlyplanTask(flyplan);
+                    }
+                    isFlyplanStarted = true;
+                } else {
+                    fabProgressCircleStart.hide();
+                    // cancel mode
+                    if (autonomController != null) {
+                        autonomController.stopAutonomousFlight();
+                        autonomController.returnHome();
+                    }
+
+                    fabStart.setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_play)
+                            .colorRes(R.color.icons)
+                            .actionBarSize());
+                    isFlyplanStarted = false;
+                }
+
+            }
+        });
+
+        fabProgressCircleStart.attachListener(new FABProgressListener() {
+            @Override
+            public void onFABProgressAnimationEnd() {
+                Toast.makeText(FlyplannerActivity.this, "Finished Drone", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        initLocation();
+
+        wifiUtil.setWifiUtilCallback(wifiUtilCallback);
+
+        if (StringUtil.isNullOrEmpty(preferencesHelper.getDroneWifiSsid()))
+            findSsid(preferencesHelper.getDroneWifiSsid());
+
+        // todo: init flyplanner fragment instance
+
+        if (getIntent().getBooleanExtra(EXTRA_TRIGGER_SYNC_FLAG, true)) {
+            //startService(SyncService.getStartIntent(this));
+        }
+    }
+
+    private void findSsid(String ssid) {
+        WifiUtils.withContext(context).enableWifi(isSuccess -> {
+            if (isSuccess) {
+                WifiUtils.withContext(context).scanWifi(scanResults -> {
+                    for (ScanResult scanResult : scanResults) {
+                        if (scanResult.equals(ssid)) {
+                            // found
+                            wifiUtil.showDialogConnect(scanResult);
+                            break;
+                        }
+                    }
+                }).start();
+            } else {
+                // not found
+            }
+        });
+    }
+
+    //-------------------
+
+    public MaterialSheetFab getActionFabSheetMenu() {
+        return actionFabSheetMenu;
+    }
+
+    public SheetFab getActionFabSheet() {
+        return fabSheet;
+    }
+
+    public View getActionFabSheetCardView() {
+        return sheetView;
+    }
+
+    public void setHeader() {
+
+        fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_map)
+                .colorRes(R.color.icons)
+                .actionBarSize());
+
+        fabBack.setImageDrawable(new IconDrawable(this, FontAwesomeIcons.fa_arrow_left)
+                .colorRes(R.color.icons)
+                .actionBarSize());
+
+        fabCurrentGpsPosition.setImageDrawable(
+                new IconDrawable(this, FontAwesomeIcons.fa_crosshairs)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
+        Icon lockingIcon = FontAwesomeIcons.fa_unlock_alt;
+        int ressourceColor = R.color.md_yellow_400;
+        if (mapIsLocked) {
+            lockingIcon = FontAwesomeIcons.fa_lock;
+            ressourceColor = R.color.md_red_400;
+        }
+
+        fabMapLock.setImageDrawable(new IconDrawable(this, lockingIcon)
+                .colorRes(ressourceColor)
+                .actionBarSize());
+
+        int wifiColor = R.color.md_red_400;
+        if (isWifiDroneConnectionActive(lasKnownSSID)) {
+            wifiColor = R.color.md_green_400;
+        }
+
+        fabDroneConnectWifi.setImageDrawable(
+                new IconDrawable(this, FontAwesomeIcons.fa_wifi)
+                        .colorRes(wifiColor)
+                        .actionBarSize());
+
+        fabFlyplanSettings.setImageDrawable(
+                new IconDrawable(this, FontAwesomeIcons.fa_cog)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+
+        ViewTooltip.on(this, fabDroneCalibration)
+                .corner(30)
+                .autoHide(false, 1000)
+                .position(ViewTooltip.Position.BOTTOM)
+                .text("Calibrate!")
+                .clickToHide(false)
+                .textColor(Color.WHITE)
+                .color(getResources().getColor(R.color.colorPrimary))
+                .show();
+    }
+
+    private void connectToDrone() {
+        String serviceName = lasKnownSSID; // SSID wlan of the drone
+        if (dronesList != null) {
+            for (ARDiscoveryDeviceService droneService : dronesList) {
+                if (droneService.getName().equals(serviceName)) {
+                    drone = droneService;
+                    break;
+                }
+            }
+            if (drone != null) {
+                autonomController = null;
+                try {
+                    autonomController = new AutonomousFlightController(context, drone);
+                } catch (ARUtilsException e) {
+                    e.printStackTrace();
+                }
+
+                autonomController.setListener(autonomousFlightControllerListener);
+                autonomController.getConnectionState();
+                autonomController.connect();
+            }
+        }
+    }
+
+    public FlyPlan getFlyplan() {
+        return flyplan;
+    }
+
+    public void onLocationPermissionGranted() {
+        // https://github.com/mcharmas/Android-ReactiveLocation
+        /*lastKnownLocationDisposable = lastKnownLocationObservable.
+                .map(new LocationToStringFunc())
+                .subscribe(new DisplayTextOnViewAction(lastKnownLocationView), new ErrorHandler());*/
+
+        lastKnownLocationObservable
+                .subscribe(x ->
+                        Log.d("location", x.toString()));
+    }
+
+    public void initLocation() {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        ReactiveLocationProvider locationProvider = new ReactiveLocationProvider(context);
+
+        locationProvider = new ReactiveLocationProvider(getApplicationContext());
+
+        lastKnownLocationObservable = locationProvider
+                .getLastKnownLocation()
+                .observeOn(AndroidSchedulers.mainThread());
+
+        // TODO: move this rxPermissions to application start init, and into dagger
+        // https://github.com/tbruyelle/RxPermissions/blob/521654fb8ffc69b32faba70523ba436689f6c195/sample/src/main/java/com/tbruyelle/rxpermissions/sample/MainActivity.java
+        RxPermissions rxPermissions = new RxPermissions(this); // where this is an Activity instance
+        rxPermissions.setLogging(true);
+
+        rxPermissions
+                .request(Manifest.permission.ACCESS_FINE_LOCATION)
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean granted) {
+                        if (granted) {
+                            onLocationPermissionGranted();
+                        } else {
+                            //Toast.makeText(BaseActivity.this, "Sorry, no demo without permission...", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    private void setUpCustomFabMenuAnimation() {
+        mOpenAnimatorSet = new AnimatorSet();
+        mCloseAnimatorSet = new AnimatorSet();
+
+        ObjectAnimator collapseAnimator = ObjectAnimator.ofFloat(fabMapTypeMenu.getMenuIconView(),
+                "rotation",
+                -90f + ROTATION_ANGLE, 0f);
+        ObjectAnimator expandAnimator = ObjectAnimator.ofFloat(fabMapTypeMenu.getMenuIconView(),
+                "rotation",
+                0f, -90f + ROTATION_ANGLE);
+
+        expandAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                // this will be rotated so that the plus icon will be seen as "x"
+                fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_plus)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+                fabMapTypeMenu.setIconToggleAnimatorSet(mCloseAnimatorSet);
+                fabMapTypeMenu.setClickable(true);
+            }
+        });
+
+        collapseAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fabMapTypeMenu.getMenuIconView().setImageDrawable(new IconDrawable(context, FontAwesomeIcons.fa_map)
+                        .colorRes(R.color.icons)
+                        .actionBarSize());
+                fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
+                fabMapTypeMenu.setClickable(false);
+            }
+        });
+
+        mOpenAnimatorSet.play(expandAnimator);
+        mCloseAnimatorSet.play(collapseAnimator);
+
+        mOpenAnimatorSet.setDuration(ANIMATION_DURATION);
+        mCloseAnimatorSet.setDuration(ANIMATION_DURATION);
+
+        fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
+    }
+
+    private void changeBatteryLevel(int percentage) {
+
+        batteryLevel.setText(percentage + "%");
+        if (percentage >= 75) {
+            // green
+            batteryLevel.setTextColor(getResources().getColor(R.color.white));
+            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_green_700)));
+        } else if (75 > percentage && percentage >= 50) {
+            // yellow
+            batteryLevel.setTextColor(getResources().getColor(R.color.md_black_1000));
+            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_yellow_600)));
+        } else if (50 > percentage && percentage >= 25) {
+            // orange
+            batteryLevel.setTextColor(getResources().getColor(R.color.white));
+            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_orange_800)));
+        } else if (25 > percentage) {
+            //red
+            batteryLevel.setTextColor(getResources().getColor(R.color.white));
+            batteryLevel.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_red_800)));
+        }
+    }
+
+    private boolean isWifiDroneConnectionActive(String checkSsid) {
+        WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        if (WifiInfo.getDetailedStateOf(wifiInfo.getSupplicantState()) == NetworkInfo.DetailedState.CONNECTED) {
+            String droneSsid = wifiInfo.getSSID();
+            return droneSsid.equals(checkSsid);
+        }
+        return false;
+    }
+
+    @OnClick(R.id.flyplanner_fab_mapLock)
+    public void onFabClickMapLock(FloatingActionButton button) {
+        mapIsLocked = !mapIsLocked;
+
+        FlyPlanView flyplannerDrawer = ((Activity) context).findViewById(R.id.flyplannerDraw);
+        if (flyplannerDrawer != null) {
+            FlyPlanView.setIsLocked(mapIsLocked);
+        }
+
+        Icon lockingIcon = FontAwesomeIcons.fa_unlock_alt;
+        int ressourceColor = R.color.md_yellow_400;
+        if (mapIsLocked) {
+            lockingIcon = FontAwesomeIcons.fa_lock;
+            ressourceColor = R.color.md_red_400;
+        }
+        fabMapLock.setImageDrawable(new IconDrawable(this, lockingIcon)
+                .colorRes(ressourceColor)
+                .actionBarSize());
+    }
+
+    @OnClick(R.id.flyplanner_fab_droneConnectWifi)
+    public void onFabClickDroneConnectWifi(FloatingActionButton button) {
+        goToActivity(this, SearchWlanActivity.class, new Bundle());
+    }
+
+    @OnClick(R.id.flyplanner_fab_droneCalibration)
+    public void onFabClickDroneCalibration(FloatingActionButton button) {
+        // TODO start drone calibration
+    }
+
+    @OnClick(R.id.flyplanner_fab_back)
+    public void onFabClickBack(FloatingActionButton button) {
+        Intent intent = new Intent();
+        intent.putExtra("Flyplan", flyplan);
+        setResult(RESULT_BACK_PRESSED, intent);
+        //super.onBackPressed();
+        finish();
+    }
+
+    @OnClick(R.id.flyplanner_fab_mapType_menu)
+    public void onFabClickMapType(FloatingActionMenu button) {
+        //goToActivity(this, ModelViewerActivity.class, new Bundle());
+    }
+
+    @OnClick(R.id.flyplanner_fab_mapType_menu_satellite)
+    public void onMapTypeSatelliteClicked(com.github.clans.fab.FloatingActionButton button) {
+        flyplannerFragment.getGoogleMapFragment().setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        fabMapTypeMenu.close(true);
+    }
+
+    @OnClick(R.id.flyplanner_fab_mapType_menu_terrain)
+    public void onMapTypeTerrainClicked(com.github.clans.fab.FloatingActionButton button) {
+        flyplannerFragment.getGoogleMapFragment().setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        fabMapTypeMenu.close(true);
+    }
+
+    @OnClick(R.id.flyplanner_fab_currentGpsPosition)
+    public void onFabClickCurrentGpsPosition(FloatingActionButton button) {
+        lastKnownLocationObservable.subscribe(x -> {
+            //GPSCoordinate homeLocation = new GPSCoordinate(x.getLatitude(), x.getLongitude(), x.getAltitude());
+            LatLng location = new LatLng(x.getLatitude(), x.getLongitude());
+            flyplannerFragment.getGoogleMapFragment().setMarker(location);
+        });
+    }
+
+    private void moveViewAlongPath(final View view, final Path path, long duration) {
+        if (path == null || path.isEmpty())
+            return;
+
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(view, View.X, View.Y, path);
+        objectAnimator.setDuration(duration);
+        objectAnimator.setAutoCancel(true);
+        objectAnimator.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //loginPresenter.detachView();
+    }
+
+    @Override
+    public void onSaveFlyplanSuccess(FlyPlan flyplan) {
+
+    }
+
+    @Override
+    public void onSaveFlyplanFailed() {
+
+    }
+
+    @Override
+    public void onStartFlyplanTaskSuccess(FlyPlan flyplan) {
+
+    }
+
+    @Override
+    public void onStartFlyplanTaskFailed() {
+
+    }
+
+    @Override
+    public void updateFlyplanNodes(List<GPSCoordinate> waypointGpsCoordinates, List<GPSCoordinate> poiGpsCoordinates) {
+        // TODO set GPS data to flyplan and save to db!
+        Toast.makeText(this, "The camera has stopped moving.",
+                Toast.LENGTH_SHORT).show();
+    }
+
+    /*
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return super.dispatchTouchEvent(ev);
+    }
+    */
+
+    /*
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //boolean result = super.onTouchEvent(event);
+        return false; //!result;
+    }
+    */
+
+    /* Drone Discovery Code */
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        flyplannerPresenter.saveFlyplan(flyplan);
+
+        // clean the drone discoverer object
+        droneDiscoverer.stopDiscovering();
+        //mDroneDiscoverer.cleanup();
+        //mDroneDiscoverer.removeListener(mDiscovererListener);
+    }
+
+    @Override
+    public void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList) {
+
+        if (dronesList == null || dronesList.isEmpty()) {
+            Toast.makeText(this, "No Drones found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        this.dronesList = dronesList;
+
+        connectToDrone();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // setup the drone discoverer and register as listener
+        droneDiscoverer.setup();
+        droneDiscoverer.addListener(this); // onDronesListUpdated
+
+        // start discovering
+        droneDiscoverer.startDiscovering();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        boolean denied = false;
+        if (permissions.length == 0) {
+            // canceled, finish
+            denied = true;
+        } else {
+            for (int i = 0; i < permissions.length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    denied = true;
+                }
+            }
+        }
+
+        if (denied) {
+            Toast.makeText(this, "At least one permission is missing.", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
+
+    // #############################################################
+    // AutonomousFlightControllerListener
+    // #############################################################
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        UnsubscribeIfPresent.dispose(lastKnownLocationDisposable);
+    }
 }

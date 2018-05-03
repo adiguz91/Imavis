@@ -9,7 +9,15 @@ import java.util.List;
 //@Entity
 public class PointOfInterestData {
 
-    public PointOfInterestData() {}
+    //@Id(autoincrement = true)
+    private Long id;
+    //@NotNull
+    private int flyHeight;
+    //@ToMany(referencedJoinProperty = "id")
+    private List<Waypoint> waypoints;
+
+    public PointOfInterestData() {
+    }
 
     //@Generated(hash = 1598951641)
     public PointOfInterestData(Long id, int flyHeight) {
@@ -17,28 +25,20 @@ public class PointOfInterestData {
         this.flyHeight = flyHeight;
     }
 
-    //@Id(autoincrement = true)
-    private Long id;
-
-    //@NotNull
-    private int flyHeight;
-
-    //@ToMany(referencedJoinProperty = "id")
-    private List<Waypoint> waypoints;
-
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public int getFlyHeight() {
         return flyHeight;
     }
+
     public void setFlyHeight(int flyHeight) {
         this.flyHeight = flyHeight;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
 }

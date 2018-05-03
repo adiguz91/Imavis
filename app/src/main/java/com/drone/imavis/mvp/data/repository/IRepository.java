@@ -6,9 +6,10 @@ package com.drone.imavis.mvp.data.repository;
 
 /**
  * Repository CRUD
+ *
  * @param <T>
  */
-public interface IRepository<T>{
+public interface IRepository<T> {
 
     // create
     void add(T item);
@@ -16,7 +17,9 @@ public interface IRepository<T>{
 
     // read
     T get(long id);
+
     T get(T item);
+
     Iterable<T> getAll();
 
     // update

@@ -10,6 +10,8 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 
 public interface IWaypointDraw {
     void addLine(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint);
+
     void addDirection(Canvas canvas, Waypoint currentWaypoint, Node nextWaypoint);
+
     void draw(Canvas canvas, String content, int id);
 }

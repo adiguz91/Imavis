@@ -74,13 +74,9 @@ public class ProgressGenerator {
 
 public class ProgressGenerator {
 
-    public interface OnCompleteListener {
-
-        public void onComplete();
-    }
-
     private OnCompleteListener mListener;
     private int mProgress;
+    private Random random = new Random();
 
     public ProgressGenerator(OnCompleteListener listener) {
         mListener = listener;
@@ -103,10 +99,13 @@ public class ProgressGenerator {
         }, timeout);
     }
 
-    private Random random = new Random();
-
     private int generateDelay() {
         return 1100; // one second
         //return random.nextInt(1000);
+    }
+
+    public interface OnCompleteListener {
+
+        void onComplete();
     }
 }

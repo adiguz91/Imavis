@@ -22,7 +22,9 @@ public abstract class Map<T> {
         this.mapData = mapData;
     }
 
-    public T getMap() { return map; }
+    public T getMap() {
+        return map;
+    }
 
     public MapData getMapData() {
         return mapData;

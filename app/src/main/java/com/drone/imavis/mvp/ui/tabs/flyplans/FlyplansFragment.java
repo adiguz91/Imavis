@@ -50,25 +50,22 @@ import butterknife.OnClick;
 
 public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, SwipeItemOnClickListener<FlyPlan> {
 
+    public static final String TAG = "FlyplansFragment";
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.flyplans.FlyplansActivity.EXTRA_TRIGGER_SYNC_FLAG";
-
-    public static final String TAG = "FlyplansFragment";
-
+    @Inject
+    DialogUtil dialogUtil;
+    @Inject
+    FlyplansPresenter flyplansPresenter;
+    @BindView(R.id.fabAddFlyplan)
+    FloatingActionButton fabAddFlyplan;
     private int selectedItem = -1;
-
-    @Inject DialogUtil dialogUtil;
-    @Inject FlyplansPresenter flyplansPresenter;
     private FlyplanSwipeListViewAdaper flyplanListViewAdapter;
-
     private ListView flyplanListView;
     private Context context;
     private Activity activity;
-
-    @BindView(R.id.fabAddFlyplan)
-    FloatingActionButton fabAddFlyplan;
-
     private Project project;
+    private int BACK_CODE = 2000;
 
     /**
      * Return an Intent to start this Activity.
@@ -95,7 +92,8 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
         return view;
     }
 
-    @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = this.getContext();
         activity = this.getActivity();
@@ -104,7 +102,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
                 .colorRes(R.color.icons)
                 .actionBarSize());
 
-        flyplanListView = (ListView) view.findViewById(R.id.flyplanSwipeListView);
+        flyplanListView = view.findViewById(R.id.flyplanSwipeListView);
         flyplanListViewAdapter = new FlyplanSwipeListViewAdaper(getContext(), this);
         flyplanListView.setAdapter(flyplanListViewAdapter);
         flyplanListViewAdapter.setMode(Attributes.Mode.Single);
@@ -115,11 +113,11 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
     }
 
     public void loadFlyplans(Project project) {
-        if(project == null) {
+        if (project == null) {
             showFlyplansEmpty();
             return;
         }
-        ((ProjectsFlyplansActivity)getActivity()).getSupportActionBar().setTitle(project.getName() + ": Flyplans");
+        ((ProjectsFlyplansActivity) getActivity()).getSupportActionBar().setTitle(project.getName() + ": Flyplans");
         this.project = project;
         flyplansPresenter.loadFlyplans(project);
     }
@@ -148,7 +146,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
 
     public ViewParent findParentRecursively(View view, int targetId) {
         if (view.getId() == targetId)
-            return (ViewParent)view;
+            return (ViewParent) view;
         View parent = (View) view.getParent();
         if (parent == null)
             return null;
@@ -174,15 +172,13 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
         }
     }
 
-    private int BACK_CODE = 2000;
-
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
-            if(resultCode == Activity.RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK) {
                 FlyPlan flyplan = data.getParcelableExtra("Flyplan");
                 FlyplanAction flyplanAction = (FlyplanAction) data.getSerializableExtra("FlyplanAction");
-                if(flyplanAction == FlyplanAction.Add)
+                if (flyplanAction == FlyplanAction.Add)
                     flyplanListViewAdapter.addItem(flyplan);
                 else if (flyplanAction == FlyplanAction.Edit)
                     flyplanListViewAdapter.updateItem(selectedItem, flyplan);
@@ -245,7 +241,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
             case Delete:
                 String title = "Hinweis";
                 String message = "Wollen Sie den Flugplan wirklich löschen?";
-                Map<Integer,String> buttons =  new HashMap<Integer,String>();
+                Map<Integer, String> buttons = new HashMap<Integer, String>();
                 buttons.put(DialogInterface.BUTTON_POSITIVE, "Ja");
                 buttons.put(DialogInterface.BUTTON_NEGATIVE, "Nein");
                 dialogUtil.showSimpleDialogMessage(title, message, buttons, new DialogInterface.OnClickListener() {

@@ -1,8 +1,6 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.view.listener;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Point;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -11,25 +9,17 @@ import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Line;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoints;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
-
-import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by adigu on 23.02.2017.
@@ -41,6 +31,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
     private Node touchedNode;
     private int pointerId;
     private FlyPlanView parentView;
+    private LinearLayout.LayoutParams fabSheetCardViewLayout;
 
     public GestureListener(FlyPlanView parentView) {
         this.parentView = parentView;
@@ -52,11 +43,13 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
         touchedNode = FlyPlanController.getInstance().getTouchedNode(touchCoordinate);
-        //if(touchedNode == null)
-        //    return false;
+
+        if (touchedNode == null)
+            FlyPlanView.setGlobalMoveCoordinate(touchCoordinate);
+
         return true;
     }
-    
+
     @Override
     public boolean onSingleTapUp(MotionEvent event) {
         //FlyPlanView.getNodes().clear();
@@ -66,19 +59,16 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
         boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(Waypoint.class, touchCoordinate, touchedNode);
-        if(touchedNode != null) {
-            if(isObtained) {
+        if (touchedNode != null) {
+            if (isObtained) {
                 FlyPlanView.getNodes().put(pointerId, touchedNode);
-               // mFlyPlanView.
+                // mFlyPlanView.
             }
             return true;
             //else checkSelected(touchedNode.getClass());
-        } else {
-            return false; // global move, save this point,
-        }
+        } else
+            return false;
     }
-
-    private LinearLayout.LayoutParams fabSheetCardViewLayout;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -92,22 +82,21 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         //if(FlyPlanController.getSelectedWaypoint() != null) {
         Coordinate textLineRectCoor = FlyPlanController.getInstance().isTouchedTextRect(touchCoordinate);
 
-        if(textLineRectCoor != null) {
+        if (textLineRectCoor != null) {
             // ##################################################
             // MainFlyplanner.addActionButtons(textLineRectCoor);
             // ##################################################
-        }
-        else {
+        } else {
             boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(PointOfInterest.class, touchCoordinate, touchedNode);
-            if(touchedNode != null) {
-                if(isObtained) {
+            if (touchedNode != null) {
+                if (isObtained) {
                     FlyPlanView.getNodes().put(pointerId, touchedNode);
                 } else {
                     // ACTION BUTTONs open
-                    ((FlyplannerActivity)parentView.getContext()).getActionFabSheet().setVisibility(View.VISIBLE);
-                    float radius = ((Circle)(touchedNode).getShape()).getRadius();
-                    LinearLayout fabSheetItemClose = ((Activity)parentView.getContext()).findViewById(R.id.fabSheetItemClose);
-                    if(touchedNode.getClass().equals(Waypoint.class)) {
+                    ((FlyplannerActivity) parentView.getContext()).getActionFabSheet().setVisibility(View.VISIBLE);
+                    float radius = ((Circle) (touchedNode).getShape()).getRadius();
+                    LinearLayout fabSheetItemClose = ((Activity) parentView.getContext()).findViewById(R.id.fabSheetItemClose);
+                    if (touchedNode.getClass().equals(Waypoint.class)) {
                         // Waypoint
                         fabSheetItemClose.setVisibility(View.VISIBLE);
                     } else {
@@ -115,15 +104,15 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                         fabSheetItemClose.setVisibility(View.INVISIBLE);
                     }
                     Coordinate centeredCoordinate = new Coordinate(touchedNode.getShape().getCoordinate().getX(), touchedNode.getShape().getCoordinate().getY());
-                    ((FlyplannerActivity)parentView.getContext()).getActionFabSheetMenu().showFab(centeredCoordinate.getX(), centeredCoordinate.getY());
+                    ((FlyplannerActivity) parentView.getContext()).getActionFabSheetMenu().showFab(centeredCoordinate.getX(), centeredCoordinate.getY());
 
                     //((FlyplannerActivity)parentView.getContext()).getActionFabSheet().performContextClick(touchedNode.getShape().getCoordinate().getX(), touchedNode.getShape().getCoordinate().getY());
-                    CardView fabSheedCardView = ((FlyplannerActivity)parentView.getContext()).findViewById(R.id.fabSheetCardView);
+                    CardView fabSheedCardView = ((FlyplannerActivity) parentView.getContext()).findViewById(R.id.fabSheetCardView);
 
                     if (fabSheetCardViewLayout == null)
                         fabSheetCardViewLayout = (LinearLayout.LayoutParams) fabSheedCardView.getLayoutParams();
 
-                    Display display = ((FlyplannerActivity)parentView.getContext()).getWindowManager().getDefaultDisplay();
+                    Display display = ((FlyplannerActivity) parentView.getContext()).getWindowManager().getDefaultDisplay();
                     Point size = new Point();
                     display.getSize(size);
                     int screenWidth = size.x;
@@ -135,9 +124,9 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                     if ((centeredCoordinate.getY() + layoutParams.height) >= screenHeight) // correction y
                         centeredCoordinate.setCoordinate(centeredCoordinate.getX(), centeredCoordinate.getY() - layoutParams.height);
 
-                    layoutParams.setMargins((int)centeredCoordinate.getX(), (int)centeredCoordinate.getY(), 0, 0);
-                    ((FlyplannerActivity)parentView.getContext()).getActionFabSheetCardView().setLayoutParams(layoutParams);
-                    ((FlyplannerActivity)parentView.getContext()).getActionFabSheetMenu().showSheet();
+                    layoutParams.setMargins((int) centeredCoordinate.getX(), (int) centeredCoordinate.getY(), 0, 0);
+                    ((FlyplannerActivity) parentView.getContext()).getActionFabSheetCardView().setLayoutParams(layoutParams);
+                    ((FlyplannerActivity) parentView.getContext()).getActionFabSheetMenu().showSheet();
                 }
             }
         }

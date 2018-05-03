@@ -91,32 +91,43 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
     public static final String MAVLINK_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory().toString() + "/mavlink_files";
     private static final String TAG = "BebopDrone";
     private static final int FTP_FLIGHTPLAN = 61; //21
+    private final Handler mHandler;
+    private final ARDeviceControllerStreamListener mStreamListener = new ARDeviceControllerStreamListener() {
+        @Override
+        public ARCONTROLLER_ERROR_ENUM configureDecoder(ARDeviceController deviceController, final ARControllerCodec codec) {
+            //notifyConfigureDecoder(codec);
+            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
+        }
 
+        @Override
+        public ARCONTROLLER_ERROR_ENUM onFrameReceived(ARDeviceController deviceController, final ARFrame frame) {
+            //notifyFrameReceived(frame);
+            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
+        }
+
+        @Override
+        public void onFrameTimeout(ARDeviceController deviceController) {
+        }
+    };
     private SimpleDateFormat formatterISO8601;
-
     private String mCurrentDate;
     private String mCurrentTime;
     private boolean mIsChangedCurrentDate;
     private boolean mIsChangedCurrentTime;
-
     private boolean mIsChangedPictureAndVideoFramerate;
     private boolean mIsChangedPictureAndVideoResolution;
     private ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEORESOLUTIONSCHANGED_TYPE_ENUM mPictureAndVideoResolutionType;
     private ARCOMMANDS_ARDRONE3_PICTURESETTINGSSTATE_VIDEOFRAMERATECHANGED_FRAMERATE_ENUM mPictureAndVideoFramerateType;
-
     private AutonomousFlightControllerListener mListener;
-    private final Handler mHandler;
     private SDCardModule mSDCardModule;
     private ARUtilsManager mFtpUploadManager;
     private ARUtilsManager mFtpQueueManager;
-
     private ARDeviceController mDeviceController;
     private ARCONTROLLER_DEVICE_STATE_ENUM mState;
     private ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM mFlyingState;
     private String mCurrentRunId;
     private ARCOMMANDS_COMMON_MAVLINKSTATE_MAVLINKFILEPLAYINGSTATECHANGED_STATE_ENUM mAutoFlyingState;
     private ARDiscoveryDeviceService mDeviceService;
-
     private int mBatteryStatus;
     private String mRunId;
     private boolean mCalibrationIsRequired;
@@ -146,8 +157,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
                 mDeviceController = createDeviceController(discoveryDevice);
                 discoveryDevice.dispose();
             }
-        }
-        else {
+        } else {
             Log.e(TAG, "DeviceService type is not supported by BebopDrone");
         }
     }
@@ -192,8 +202,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         return deviceController;
     }
 
-    public void dispose()
-    {
+    public void dispose() {
         if (mDeviceController != null)
             mDeviceController.dispose();
     }
@@ -222,7 +231,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
     public void uploadAutonomousFlightPlan(FlyPlan flyPlan, String localFilepath) {
         try {
-            String productIP = ((ARDiscoveryDeviceNetService)(mDeviceService.getDevice())).getIp();
+            String productIP = ((ARDiscoveryDeviceNetService) (mDeviceService.getDevice())).getIp();
 
             mFtpUploadManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, "", "");
             //ftpUploadManager.initWifiFtp(productIP, FTP_FLIGHTPLAN, ARUtilsManager.FTP_ANONYMOUS, "");
@@ -249,6 +258,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#controller-gps-info
+     *
      * @param location
      * @param horizontalAccuracy
      * @param verticalAccuracy
@@ -258,11 +268,12 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
      * @param timestamp
      */
     public void changeHomeLocation(GPSCoordinate location, float horizontalAccuracy, float verticalAccuracy, float northSpeed, float eastSpeed, float downSpeed, double timestamp) {
-        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureControllerInfo().sendGps(location.getLatitude(), location.getLongitude(), (float)location.getAltitude(), horizontalAccuracy, verticalAccuracy, northSpeed, eastSpeed, downSpeed, timestamp);
+        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureControllerInfo().sendGps(location.getLatitude(), location.getLongitude(), (float) location.getAltitude(), horizontalAccuracy, verticalAccuracy, northSpeed, eastSpeed, downSpeed, timestamp);
     }
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-max-distance
+     *
      * @param maxDistance
      */
     public void setMaxDistance(float maxDistance) {
@@ -280,6 +291,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-picture-format
+     *
      * @param type
      */
     public void setPictureFormat(ARCOMMANDS_ARDRONE3_PICTURESETTINGS_PICTUREFORMATSELECTION_TYPE_ENUM type) {
@@ -288,6 +300,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-white-balance-mode
+     *
      * @param type
      */
     private void setWitheBalanceMode(ARCOMMANDS_ARDRONE3_PICTURESETTINGS_AUTOWHITEBALANCESELECTION_TYPE_ENUM type) {
@@ -298,6 +311,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
     /**
      * if type == 0 == video else image
      * http://developer.parrot.com/docs/reference/bebop_2/#record-a-video
+     *
      * @param record
      * @param type
      * @param interval
@@ -310,29 +324,32 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#enable-disable-video-streaming
+     *
      * @param enable
      */
     public void enableVideoStreaming(boolean enable) {
         // SET THE ELECTRIC FREQUENCY
         // SET THE ANTIFLICKERING MODE
-        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte)(enable ? 1:0));
+        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) (enable ? 1 : 0));
     }
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-timelapse-mode
+     *
      * @param enable
      * @param interval
      */
     public void setPictureInterval(boolean enable, float interval) {
         // bool enabled
         // Once it is configured, you can start/stop the timelapse with the RecordVideo command.
-        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendPictureSettingsTimelapseSelection((byte)(enable ? 1:0), interval);
+        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendPictureSettingsTimelapseSelection((byte) (enable ? 1 : 0), interval);
     }
 
     /**
      * Set the country for WiFi frequency band
      * Country code with ISO 3166 format
      * http://developer.parrot.com/docs/reference/bebop_2/#set-the-country
+     *
      * @param countryCode
      */
     public void setWifiSettingsCountry(String countryCode) {
@@ -341,14 +358,16 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#enable-auto-country
+     *
      * @param automatic
      */
     public void setWifiSettingsAutoCountry(boolean automatic) {
-        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureCommon().sendSettingsAutoCountry((byte)(automatic ? 1:0));
+        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureCommon().sendSettingsAutoCountry((byte) (automatic ? 1 : 0));
     }
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-the-wifi-security
+     *
      * @param type
      * @param key
      * @param keyType
@@ -361,6 +380,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
      * DateTime with ISO-8601 format
      * http://developer.parrot.com/docs/reference/bebop_2/#set-the-date
      * http://developer.parrot.com/docs/reference/bebop_2/#set-the-time
+     *
      * @param dateTime
      */
     public void setCurrentDateTime(Date dateTime) {
@@ -378,11 +398,12 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-video-resolutions
      * http://developer.parrot.com/docs/reference/bebop_2/#set-video-framerate
+     *
      * @param type
      * @param frameRate
      */
     public void setPictureAndVideoSettings(ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEORESOLUTIONS_TYPE_ENUM type,
-                                     ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEOFRAMERATE_FRAMERATE_ENUM frameRate) {
+                                           ARCOMMANDS_ARDRONE3_PICTURESETTINGS_VIDEOFRAMERATE_FRAMERATE_ENUM frameRate) {
         mIsChangedPictureAndVideoFramerate = false;
         mIsChangedPictureAndVideoResolution = false;
 
@@ -393,6 +414,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
     /**
      * UNKNOWN TRIGGER
      * http://developer.parrot.com/docs/reference/bebop_2/#set-the-stream-mode
+     *
      * @param mode
      */
     public void setStreamingMode(ARCOMMANDS_ARDRONE3_MEDIASTREAMING_VIDEOSTREAMMODE_MODE_ENUM mode) {
@@ -402,15 +424,17 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
     /**
      * Starts on autonomous flight
      * http://developer.parrot.com/docs/reference/bebop_2/#set-video-autorecord-mode
+     *
      * @param enableAutoRecord
      * @param autoRecordMassStorageId
      */
     public void enableAutoVideoRecord(boolean enableAutoRecord, byte autoRecordMassStorageId) {
-        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendPictureSettingsVideoAutorecordSelection((byte)(enableAutoRecord ? 1:0), autoRecordMassStorageId);
+        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendPictureSettingsVideoAutorecordSelection((byte) (enableAutoRecord ? 1 : 0), autoRecordMassStorageId);
     }
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-the-return-home-delay
+     *
      * @param delayInSecond
      */
     public void setReturnHomeDelayAfterDisconnect(short delayInSecond) {
@@ -420,6 +444,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
     /**
      * Used for gps fix,
      * http://developer.parrot.com/docs/reference/bebop_2/#set-controller-gps-location
+     *
      * @param homeCoordinate
      */
     public void setHomeLocation(GPSCoordinate homeCoordinate) {
@@ -427,13 +452,14 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         double verticalAccurancy = -1;
         // TODO: altitude
         ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3()
-                                            .sendGPSSettingsSendControllerGPS(homeCoordinate.getLatitude(), homeCoordinate.getLongitude(), homeCoordinate.getAltitude(),
-                                                                              horrizontalAccurancy, verticalAccurancy);
+                .sendGPSSettingsSendControllerGPS(homeCoordinate.getLatitude(), homeCoordinate.getLongitude(), homeCoordinate.getAltitude(),
+                        horrizontalAccurancy, verticalAccurancy);
         Log.d("ARCONTROLLER_ERROR_ENUM", error.toString());
     }
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-the-preferred-home-type
+     *
      * @param type
      */
     public void setHomeType(ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM type) {
@@ -442,6 +468,7 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-max-altitude
+     *
      * @param maxAltitude
      */
     public void setMaxAltitude(float maxAltitude) {
@@ -491,24 +518,26 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#set-returnhome-behavior-during-flightplan
+     *
      * @param enable
      */
     public void setReturnHomeOnDisconnect(boolean enable) {
         // delay have to been set
-        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureCommon().sendFlightPlanSettingsReturnHomeOnDisconnect((byte)(enable?1:0));
+        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureCommon().sendFlightPlanSettingsReturnHomeOnDisconnect((byte) (enable ? 1 : 0));
     }
 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#start-abort-magnetometer-calibration
+     *
      * @param start
      */
     public void calibration(boolean start) {
-        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureCommon().sendCalibrationMagnetoCalibration((byte)(start?1:0));
+        ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureCommon().sendCalibrationMagnetoCalibration((byte) (start ? 1 : 0));
     }
 
     public MavlinkFileInfo generateMavlinkFileTest(GPSCoordinate currentDronePosition, short delayBeforStart, float elevation) {
 
-        if(currentDronePosition == null)
+        if (currentDronePosition == null)
             return null;
 
         final ARMavlinkFileGenerator generator;
@@ -524,11 +553,11 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         missionItemCounter++;
 
         GPSCoordinate takeOff = currentDronePosition;
-        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float)takeOff.getLatitude(), (float)takeOff.getLongitude(), elevation, 0, 0));
+        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float) takeOff.getLatitude(), (float) takeOff.getLongitude(), elevation, 0, 0));
         missionItemCounter++;
 
         GPSCoordinate landing = currentDronePosition;
-        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float)landing.getLatitude(), (float)landing.getLongitude(), 0, 0));
+        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float) landing.getLatitude(), (float) landing.getLongitude(), 0, 0));
         missionItemCounter++;
 
         // save our mavlink file
@@ -567,30 +596,29 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
 
         if (nodes.getWaypoints().size() <= 2) {
             GPSCoordinate takeOff = nodes.getWaypoints().getFirst().getShape().getCoordinate().getGpsCoordinate();
-            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float)takeOff.getLatitude(), (float)takeOff.getLongitude(), (float)takeOff.getAltitude() + elevation, 0, 0));
+            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkTakeoffMissionItem((float) takeOff.getLatitude(), (float) takeOff.getLongitude(), (float) takeOff.getAltitude() + elevation, 0, 0));
 
             GPSCoordinate landing = nodes.getWaypoints().getLast().getShape().getCoordinate().getGpsCoordinate();
-            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float)landing.getLatitude(), (float)landing.getLongitude(), (float)landing.getAltitude() + elevation, 0));
+            generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkLandMissionItem((float) landing.getLatitude(), (float) landing.getLongitude(), (float) landing.getAltitude() + elevation, 0));
         }
 
         int count = 0;
-        ListIterator<Waypoint>  iterator = nodes.getWaypoints().listIterator();
+        ListIterator<Waypoint> iterator = nodes.getWaypoints().listIterator();
         while (iterator.hasNext()) {
             Waypoint waypoint = iterator.next();
             if ((0 < count) && (count < (nodes.getWaypoints().size() - 1))) {
                 // convert coordinate to gpsCoordinates waypoint.getShape().getCoordinate(); lat == y; lng == x; alt == z
                 GPSCoordinate gpsCoordinate = waypoint.getShape().getCoordinate().getGpsCoordinate();
-                generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkNavWaypointMissionItem((float)gpsCoordinate.getLatitude(), (float)gpsCoordinate.getLongitude(), (float)gpsCoordinate.getAltitude() + elevation, 0));
+                generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkNavWaypointMissionItem((float) gpsCoordinate.getLatitude(), (float) gpsCoordinate.getLongitude(), (float) gpsCoordinate.getAltitude() + elevation, 0));
 
-                if (((WaypointData)waypoint.getData()).getPoi() != null) {
+                if (((WaypointData) waypoint.getData()).getPoi() != null) {
                     //generator.GetCurrentMissionItemList().getMissionItem(count).
-                    GPSCoordinate poiCoordinate = ((WaypointData)waypoint.getData()).getPoi().getShape().getCoordinate().getGpsCoordinate();
+                    GPSCoordinate poiCoordinate = ((WaypointData) waypoint.getData()).getPoi().getShape().getCoordinate().getGpsCoordinate();
                     // TODO ROI and SetViewMode
                     if (((WaypointData) waypoint.getData()).getMode() == WaypointMode.Progressive) {
                         generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkSetROI(MAV_ROI.MAV_ROI_WPNEXT, 0, 0, 0, 0, 0));
-                    }
-                    else {
-                        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkSetROI(MAV_ROI.MAV_ROI_LOCATION, 0, 0, (float)poiCoordinate.getLatitude(), (float)poiCoordinate.getLongitude(), (float)poiCoordinate.getAltitude() + elevation));
+                    } else {
+                        generator.addMissionItem(ARMavlinkMissionItem.CreateMavlinkSetROI(MAV_ROI.MAV_ROI_LOCATION, 0, 0, (float) poiCoordinate.getLatitude(), (float) poiCoordinate.getLongitude(), (float) poiCoordinate.getAltitude() + elevation));
                     }
                 }
             }
@@ -616,10 +644,10 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#start-a-flightplan
      */
-    public void startAutonomousFlight(){
+    public void startAutonomousFlight() {
         String filename = "flightPlan.mavlink";
         mDeviceController.getFeatureCommon().sendMavlinkStart(filename, ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_FLIGHTPLAN);
-        Log.d(TAG,"sending autoFlight Mavlink file");
+        Log.d(TAG, "sending autoFlight Mavlink file");
     }
 
     /**
@@ -634,9 +662,9 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
     /**
      * http://developer.parrot.com/docs/reference/bebop_2/#return-home
      */
-    public void returnHome(){
+    public void returnHome() {
         if ((mDeviceController != null) || (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
-            ARCONTROLLER_ERROR_ENUM error =  mDeviceController.getFeatureARDrone3().sendPilotingNavigateHome((byte) 1);
+            ARCONTROLLER_ERROR_ENUM error = mDeviceController.getFeatureARDrone3().sendPilotingNavigateHome((byte) 1);
         }
     }
 
@@ -658,28 +686,11 @@ public class AutonomousFlightController implements IAutonomousFlightController, 
         return mRunId;
     }
 
+    // ################################
+
     public void cancelGetLastFlightMedias() {
         mSDCardModule.cancelGetFlightMedias();
     }
-
-    // ################################
-
-    private final ARDeviceControllerStreamListener mStreamListener = new ARDeviceControllerStreamListener() {
-        @Override
-        public ARCONTROLLER_ERROR_ENUM configureDecoder(ARDeviceController deviceController, final ARControllerCodec codec) {
-            //notifyConfigureDecoder(codec);
-            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
-        }
-
-        @Override
-        public ARCONTROLLER_ERROR_ENUM onFrameReceived(ARDeviceController deviceController, final ARFrame frame) {
-            //notifyFrameReceived(frame);
-            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
-        }
-
-        @Override
-        public void onFrameTimeout(ARDeviceController deviceController) {}
-    };
 
     // ####################################################
     // Listener begin

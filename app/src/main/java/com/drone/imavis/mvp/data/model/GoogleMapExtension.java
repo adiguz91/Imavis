@@ -27,15 +27,15 @@ public class GoogleMapExtension extends Map<GoogleMap> {
     public GPSCoordinate getGpsfromScreen(Coordinate coordinate) {
         Projection projection = getMap().getProjection();
         // TODO toPoint in COORDINATE
-        Point screenPoint = new Point((int)coordinate.getX(), (int)coordinate.getY());
+        Point screenPoint = new Point((int) coordinate.getX(), (int) coordinate.getY());
         LatLng latLng = projection.fromScreenLocation(screenPoint);
         return new GPSCoordinate(latLng.latitude, latLng.longitude, 0);
     }
 
     @Override
     public Coordinate getScreenCoordinatesfromGps(GPSCoordinate gpsCoordinate) {
-        Coordinate screenPoint = new Coordinate(0,0);
-        if(gpsCoordinate != null) {
+        Coordinate screenPoint = new Coordinate(0, 0);
+        if (gpsCoordinate != null) {
             LatLng googleCoordinate = new LatLng(gpsCoordinate.getLatitude(), gpsCoordinate.getLongitude());
             Projection projection = getMap().getProjection();
             Point screenPosition = projection.toScreenLocation(googleCoordinate);

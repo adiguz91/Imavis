@@ -3,8 +3,6 @@ package com.drone.imavis.mvp.util;
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
@@ -19,16 +17,12 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.internal.MDTintHelper;
 import com.afollestad.materialdialogs.internal.ThemeSingleton;
-import com.annimon.stream.Stream;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.data.local.preference.PreferencesHelper;
 import com.drone.imavis.mvp.di.ActivityContext;
 import com.drone.imavis.mvp.di.PerActivity;
 import com.drone.imavis.mvp.ui.searchwlan.SignalStrength;
 import com.thanosfisherman.wifiutils.WifiUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -81,7 +75,8 @@ public class WifiUtil {
         passwordInput.addTextChangedListener(
                 new TextWatcher() {
                     @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    }
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -89,7 +84,8 @@ public class WifiUtil {
                     }
 
                     @Override
-                    public void afterTextChanged(Editable s) {}
+                    public void afterTextChanged(Editable s) {
+                    }
                 });
 
         // Toggling the show password CheckBox will mask or unmask the password input EditText
@@ -118,17 +114,16 @@ public class WifiUtil {
     private void onWifiConnect(String ssid, String password) {
         // connect to wifi
         WifiUtils.withContext(context)
-            .connectWith(ssid, password)
-            .onConnectionResult(isSuccess -> {
-                if (isSuccess) {
-                    //showToast("Connection succeeded!");
-                    preferencesHelper.setDroneWifiSsid(ssid);
-                    wifiUtilCallback.onSuccess();
-                }
-                else {
-                    //showToast("Connection failed!");
-                    wifiUtilCallback.onFail();
-                }
-            }).start();
+                .connectWith(ssid, password)
+                .onConnectionResult(isSuccess -> {
+                    if (isSuccess) {
+                        //showToast("Connection succeeded!");
+                        preferencesHelper.setDroneWifiSsid(ssid);
+                        wifiUtilCallback.onSuccess();
+                    } else {
+                        //showToast("Connection failed!");
+                        wifiUtilCallback.onFail();
+                    }
+                }).start();
     }
 }

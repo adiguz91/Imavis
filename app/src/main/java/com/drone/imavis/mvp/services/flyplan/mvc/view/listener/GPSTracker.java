@@ -34,7 +34,7 @@ public class GPSTracker extends Service {
             @Override
             public void onLocationChanged(Location location) {
                 Intent i = new Intent("location_update");
-                i.putExtra("coordinates",location.getLongitude()+" "+location.getLatitude());
+                i.putExtra("coordinates", location.getLongitude() + " " + location.getLatitude());
                 sendBroadcast(i);
             }
 
@@ -62,13 +62,13 @@ public class GPSTracker extends Service {
         locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
                 LOCATION_REFRESH_TIME,
-                LOCATION_REFRESH_DISTANCE,listener);
+                LOCATION_REFRESH_DISTANCE, listener);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(locationManager != null){
+        if (locationManager != null) {
             //noinspection MissingPermission
             locationManager.removeUpdates(listener);
         }

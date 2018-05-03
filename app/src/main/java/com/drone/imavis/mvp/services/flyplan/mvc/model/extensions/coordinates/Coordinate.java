@@ -51,8 +51,8 @@ public class Coordinate {
     }
 
     public Coordinate toLeftTop(Size element) {
-        int elementLeft = (int) this.getX() - element.getWidth()/2;
-        int elementTop = (int) this.getY() - element.getHeight()/2;
+        int elementLeft = (int) this.getX() - element.getWidth() / 2;
+        int elementTop = (int) this.getY() - element.getHeight() / 2;
         return new Coordinate(elementLeft, elementTop);
     }
 

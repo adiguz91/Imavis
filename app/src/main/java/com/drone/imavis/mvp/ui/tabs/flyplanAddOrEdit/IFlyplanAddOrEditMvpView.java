@@ -1,7 +1,6 @@
 package com.drone.imavis.mvp.ui.tabs.flyplanAddOrEdit;
 
 import com.drone.imavis.mvp.data.model.FlyPlan;
-import com.drone.imavis.mvp.data.model.Project;
 import com.drone.imavis.mvp.ui.base.IMvpView;
 
 /**

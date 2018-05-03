@@ -17,17 +17,17 @@ public class ProjectSwipeListViewAdaper extends SwipeItemListViewAdapter<Project
 
     public ProjectSwipeListViewAdaper(Context context, SwipeItemOnClickListener<Project> onItemClickListener) {
         super(context, onItemClickListener, R.id.projectItemSwipe, R.layout.activity_project_listview_item,
-              R.id.iconTextViewProjectListViewItemEdit, R.id.iconTextViewProjectListViewItemDelete);
+                R.id.iconTextViewProjectListViewItemEdit, R.id.iconTextViewProjectListViewItemDelete);
     }
 
     @Override
     public void fillValues(int position, View convertView) {
-        super.fillValues(position,convertView);
+        super.fillValues(position, convertView);
 
         Project item = this.getItem(position);
         //ButterKnife.bind(context, convertView);
-        TextView textViewProjectname = (TextView)convertView.findViewById(R.id.textViewProjectListViewItemProjectname);
-        TextView textViewDescription = (TextView)convertView.findViewById(R.id.textViewProjectListViewItemDescription);
+        TextView textViewProjectname = convertView.findViewById(R.id.textViewProjectListViewItemProjectname);
+        TextView textViewDescription = convertView.findViewById(R.id.textViewProjectListViewItemDescription);
         textViewProjectname.setText(item.getName());
         textViewDescription.setText(item.getDescription());
     }

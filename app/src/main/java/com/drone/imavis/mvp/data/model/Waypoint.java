@@ -12,29 +12,29 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GP
         generateGettersSetters = false)*/
 public class Waypoint {
 
-    public Waypoint(GPSCoordinate gpsCoordinate, WaypointData waypointData) {
-        this.gpsCoordinate = gpsCoordinate;
-        this.waypointData = waypointData;
-    }
-
-    public Waypoint() {}
-
     //@-Id(autoincrement = true)
     private Long id;
-
     //@-NotNull
     private Long gpsCoordinateId;
     //@-ToOne(joinProperty = "gpsCoordinateId")
     private GPSCoordinate gpsCoordinate;
-
     //@-NotNull
     private Long waypointDataId;
     //@-ToOne(joinProperty = "waypointDataId")
     private WaypointData waypointData;
 
+    public Waypoint(GPSCoordinate gpsCoordinate, WaypointData waypointData) {
+        this.gpsCoordinate = gpsCoordinate;
+        this.waypointData = waypointData;
+    }
+
+    public Waypoint() {
+    }
+
     public Long getWaypointDataId() {
         return waypointDataId;
     }
+
     public void setWaypointDataId(Long waypointDataId) {
         this.waypointDataId = waypointDataId;
     }

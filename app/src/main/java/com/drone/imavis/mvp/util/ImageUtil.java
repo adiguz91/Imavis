@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.widget.ImageView;
 
 import com.drone.imavis.mvp.di.ActivityContext;
 import com.drone.imavis.mvp.di.PerActivity;
@@ -54,12 +52,12 @@ public class ImageUtil {
         return this;
     }
 
-    private String saveToInternalStorage(Bitmap bitmapImage){
+    private String saveToInternalStorage(Bitmap bitmapImage) {
         ContextWrapper cw = new ContextWrapper(context); // getApplicationContext()
         // path to /data/data/yourapp/app_data/imageDir
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         // Create imageDir
-        File mypath=new File(directory,"profile.jpg");
+        File mypath = new File(directory, "profile.jpg");
 
         FileOutputStream fos = null;
         try {
@@ -82,17 +80,15 @@ public class ImageUtil {
         return String.format("%1$s.%2$s", fileName, imageExtension.name());
     }
 
-    public Bitmap loadBitmap()
-    {
+    public Bitmap loadBitmap() {
         Bitmap bitmap = null;
         try {
             File file = new File(directoryPath, getFilenameWithExtension());
-            if(file.exists()) {
+            if (file.exists()) {
                 bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
                 return bitmap;
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         return bitmap;

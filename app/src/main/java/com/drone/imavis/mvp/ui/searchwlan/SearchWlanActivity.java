@@ -12,39 +12,27 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NavUtils;
-import android.support.v4.content.ContextCompat;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.internal.MDTintHelper;
-import com.afollestad.materialdialogs.internal.ThemeSingleton;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.annimon.stream.Stream;
 import com.drone.imavis.mvp.R;
@@ -75,33 +63,26 @@ public class SearchWlanActivity extends BaseActivity {
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.searchwlan.SearchWlanActivity.EXTRA_TRIGGER_SYNC_FLAG";
-
+    // https://wwija.com/computer-internet-technology/46004_scan-results-available-action-return-empty-list-in-android-6-0.html
+    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1000;
+    final Handler wlanMapHandler = new Handler();
     @Inject
     SearchWlanPresenter searchWlanPresenter;
     @Inject
     PreferencesHelper preferencesHelper;
     @Inject
     WifiUtil wifiUtil;
-    private Context context;
-
     @BindView(R.id.wlanMap)
     RippleBackground wlanMapView;
     @BindView(R.id.centerImage)
     ImageView centerImageButton;
     @BindView(R.id.rootFoundDevices)
     RelativeLayout rootLayout;
-
+    private Context context;
     private View positiveAction;
     private EditText passwordInput;
-
     private boolean isNeverClicked = true;
     private long maxFoundDevices = 6;
-
-    final Handler wlanMapHandler = new Handler();
-
-    // https://wwija.com/computer-internet-technology/46004_scan-results-available-action-return-empty-list-in-android-6-0.html
-    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1000;
-
     private Point centerPoint;
     private float centerPointRadius;
     private Point rippleCanvasPoint;
@@ -121,6 +102,7 @@ public class SearchWlanActivity extends BaseActivity {
             showToast("Connection failed!");
         }
     };
+    private int REQUEST_CODE_SETTINGS_LOCATION = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +113,7 @@ public class SearchWlanActivity extends BaseActivity {
         context = this;
 
         // set backbutton color
-        final Drawable leftArrow =  getDrawable(R.drawable.abc_ic_ab_back_material);
+        final Drawable leftArrow = getDrawable(R.drawable.abc_ic_ab_back_material);
         leftArrow.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(leftArrow);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -156,7 +138,7 @@ public class SearchWlanActivity extends BaseActivity {
     private void scanWifi() {
         WifiUtils.withContext(getApplicationContext()).enableWifi(isSuccess -> {
             if (isSuccess) {
-                if(rootLayout.getChildCount() > 0)
+                if (rootLayout.getChildCount() > 0)
                     rootLayout.removeAllViews();
                 devicePositions = new ArrayList<>();
                 devicePositions.add(centerPoint);
@@ -278,42 +260,39 @@ public class SearchWlanActivity extends BaseActivity {
         animatorSet.start();
     }
 
-    private int REQUEST_CODE_SETTINGS_LOCATION = 0;
-
     /**
-     *
      * @param action: example Settings.ACTION_LOCATION_SOURCE_SETTINGS
      */
     private void openDialogSettings(String action, String message) {
         MaterialDialog dialog = new MaterialDialog.Builder(context)
-            .title("Open Settings") // R.string.title
-            .content(message) // R.string.content
-            .positiveText("AGREE") // R.string.agree
-            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                @Override
-                public void onClick(MaterialDialog dialog, DialogAction which) {
-                    // TODO
-                    startActivityForResult(new Intent(action), REQUEST_CODE_SETTINGS_LOCATION);
-                }
-            })
-            .cancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    busy = false;
-                }
-            })
-            .dismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    busy = false;
-                }
-            })
-            .show();
+                .title("Open Settings") // R.string.title
+                .content(message) // R.string.content
+                .positiveText("AGREE") // R.string.agree
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(MaterialDialog dialog, DialogAction which) {
+                        // TODO
+                        startActivityForResult(new Intent(action), REQUEST_CODE_SETTINGS_LOCATION);
+                    }
+                })
+                .cancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        busy = false;
+                    }
+                })
+                .dismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        busy = false;
+                    }
+                })
+                .show();
     }
 
     private boolean isEnabledLocation() {
         //LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-        return ((LocationManager)context.getSystemService(Context.LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER);
+        return ((LocationManager) context.getSystemService(Context.LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     @Override
@@ -359,7 +338,7 @@ public class SearchWlanActivity extends BaseActivity {
 
     public TextDrawable getTextDrawable(String text) {
         int maxTextLength = 10;
-        if(!text.isEmpty()) {
+        if (!text.isEmpty()) {
             text = StringUtils.abbreviate(text, maxTextLength);
         }
         return TextDrawable.builder().beginConfig()
@@ -368,7 +347,7 @@ public class SearchWlanActivity extends BaseActivity {
                 .textColor(0xfff58559)
                 .withBorder(4)
                 .bold()
-                .endConfig().buildRound(text, Color.DKGRAY );
+                .endConfig().buildRound(text, Color.DKGRAY);
     }
 
     public int toPx(int dp) {

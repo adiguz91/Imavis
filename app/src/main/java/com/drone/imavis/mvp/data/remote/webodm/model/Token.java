@@ -8,7 +8,10 @@ public class Token {
 
     private String token;
 
-    public Token() {}
+    public Token() {
+    }
 
-    public String getToken() { return token; }
+    public String getToken() {
+        return token;
+    }
 }

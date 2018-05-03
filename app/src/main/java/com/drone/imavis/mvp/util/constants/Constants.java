@@ -16,7 +16,8 @@ public class Constants {
     private CMap map;
     private CDate date;
 
-    public Constants() {}
+    public Constants() {
+    }
 
     public LanguageController getLanguage() {
         return language;
@@ -34,5 +35,7 @@ public class Constants {
         return map;
     }
 
-    public CDate getDate() {return date; }
+    public CDate getDate() {
+        return date;
+    }
 }

@@ -1,7 +1,7 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.controller;
 
-import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.data.model.FlyPlan;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.ui.base.IMvpView;
 
@@ -13,13 +13,20 @@ import java.io.File;
 
 public interface IFlyPlan extends IMvpView {
     FlyPlan getFlyPlan();
+
     FlyPlan onPlanCreateNew();
+
     FlyPlan onPlanLoad(File file);
+
     boolean onPlanSave();
+
     boolean onPlanDelete();
 
     boolean onNodeAdd(Coordinate coordinate);
+
     Node onNodeSelect(Coordinate coordinate);
+
     boolean onNodeDelete(Node node);
+
     boolean onNodeSelectAction(Node node);
 }

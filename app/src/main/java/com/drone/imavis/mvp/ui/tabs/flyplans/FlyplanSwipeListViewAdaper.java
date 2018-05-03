@@ -19,17 +19,11 @@ import cn.nekocode.badge.BadgeDrawable;
 
 public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan> {
 
-    public FlyplanSwipeListViewAdaper(Context context, SwipeItemOnClickListener<FlyPlan> onItemClickListener) {
-        super(context, onItemClickListener,  R.id.flyplanItemSwipe, R.layout.activity_flyplan_listview_item,
-                R.id.iconTextViewFlyplanListViewItemEdit, R.id.iconTextViewFlyplanListViewItemDelete);
-    }
-
     final BadgeDrawable badgeStatus = new BadgeDrawable.Builder()
             .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
             .badgeColor(0xff336699)
             .text1("UNKNOWN")
             .build();
-
     final BadgeDrawable badgeImageCount =
             new BadgeDrawable.Builder()
                     .type(BadgeDrawable.TYPE_WITH_TWO_TEXT_COMPLEMENTARY)
@@ -40,18 +34,23 @@ public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan
                     .strokeWidth(2)
                     .build();
 
+    public FlyplanSwipeListViewAdaper(Context context, SwipeItemOnClickListener<FlyPlan> onItemClickListener) {
+        super(context, onItemClickListener, R.id.flyplanItemSwipe, R.layout.activity_flyplan_listview_item,
+                R.id.iconTextViewFlyplanListViewItemEdit, R.id.iconTextViewFlyplanListViewItemDelete);
+    }
+
     @Override
     public void fillValues(int position, View convertView) {
-        super.fillValues(position,convertView);
+        super.fillValues(position, convertView);
 
         FlyPlan item = this.getItem(position);
         //ButterKnife.bind(context, convertView);
-        TextView textViewFlyplanName = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemFlyplanname);
-        TextView textViewStatus = (TextView)convertView.findViewById(R.id.textViewFlyplanListViewItemStatus);
+        TextView textViewFlyplanName = convertView.findViewById(R.id.textViewFlyplanListViewItemFlyplanname);
+        TextView textViewStatus = convertView.findViewById(R.id.textViewFlyplanListViewItemStatus);
 
         textViewFlyplanName.setText(item.getName());
 
-        if(item.getTask() != null) {
+        if (item.getTask() != null) {
             textViewStatus.setText(item.getTask().getStatusString());
             //TextView textViewCreationDate = (TextView) convertView.findViewById(R.id.textViewFlyplanListViewItemCreatedDate);
             badgeStatus.setText1("UNTOUCHED"); // flyplan.getTask().getStatus().name()
@@ -64,8 +63,8 @@ public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan
         }
 
         SpannableString spannableString =
-                new SpannableString(TextUtils.concat( badgeStatus.toSpannable(), " ",
-                        badgeImageCount.toSpannable() ));
+                new SpannableString(TextUtils.concat(badgeStatus.toSpannable(), " ",
+                        badgeImageCount.toSpannable()));
 
         if (textViewStatus != null) {
             textViewStatus.setText(spannableString);

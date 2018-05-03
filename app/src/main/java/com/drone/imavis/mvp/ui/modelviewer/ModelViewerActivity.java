@@ -1,39 +1,21 @@
 package com.drone.imavis.mvp.ui.modelviewer;
 
-import android.app.ActionBar;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.LinearLayout;
 
-import com.dd.processbutton.iml.ActionProcessButton;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
-import com.drone.imavis.mvp.ui.login.ILoginMvpView;
-import com.drone.imavis.mvp.ui.login.LoginPresenter;
-import com.joanzapata.iconify.IconDrawable;
-import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 import org.xwalk.core.XWalkInitializer;
-import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
-import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkUpdater;
 import org.xwalk.core.XWalkView;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.inject.Inject;
 
@@ -64,8 +46,6 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
     //LinearLayout overlayView;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,16 +70,14 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
 
 
         xWalkWebView.setResourceClient(
-                new XWalkResourceClient(xWalkWebView)
-                {
+                new XWalkResourceClient(xWalkWebView) {
                     @Override
                     public void onLoadStarted(XWalkView xWalkView, String url) {
                         ValueCallback<String> callback =
                                 new ValueCallback<String>() {
                                     @Override
-                                    public void onReceiveValue(String jsonResult)
-                                    {
-                                        Log.i("TAG modelviewer TEST","from js:"+jsonResult);
+                                    public void onReceiveValue(String jsonResult) {
+                                        Log.i("TAG modelviewer TEST", "from js:" + jsonResult);
                                         //xWalkWebView.onHide();
                                         // Show status bar
                                         //showStatusBar();
@@ -109,28 +87,26 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
                         xWalkView.evaluateJavascript(
                                 "(function() { " +
                                         //"document.addEventListener('DOMContentLoaded', function(event) {" +
-                                            "var url = window.location.href;" +
-                                            "var search = 'login';" +
-                                            "if(url.includes(search)) {" +
-                                                "var form = document.getElementsByTagName('form')[0];" +
-                                                "document.getElementById('id_username').value = 'admin';" +
-                                                "document.getElementById('id_password').value = 'admin';" +
-                                                "form.submit();" +
-                                            "}" +
+                                        "var url = window.location.href;" +
+                                        "var search = 'login';" +
+                                        "if(url.includes(search)) {" +
+                                        "var form = document.getElementsByTagName('form')[0];" +
+                                        "document.getElementById('id_username').value = 'admin';" +
+                                        "document.getElementById('id_password').value = 'admin';" +
+                                        "form.submit();" +
+                                        "}" +
                                         //"});"
                                         "})();", callback);
                     }
 
                     @Override
-                    public void onLoadFinished(XWalkView xWalkView, String url)
-                    {
+                    public void onLoadFinished(XWalkView xWalkView, String url) {
                         //xWalkView.load("javascript:functionInTest()", null);
                         ValueCallback<String> callback =
                                 new ValueCallback<String>() {
                                     @Override
-                                    public void onReceiveValue(String jsonResult)
-                                    {
-                                        Log.i("TAG modelviewer TEST","from js:"+jsonResult);
+                                    public void onReceiveValue(String jsonResult) {
+                                        Log.i("TAG modelviewer TEST", "from js:" + jsonResult);
                                         xWalkWebView.onShow();
                                         // Show status bar
                                         //showStatusBar();
@@ -139,15 +115,15 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
                                 };
                         xWalkView.evaluateJavascript(
                                 "(function() { " +
-                                    //"document.addEventListener('DOMContentLoaded', function(event) {" +
+                                        //"document.addEventListener('DOMContentLoaded', function(event) {" +
                                         "document.getElementById('potree_render_area').style.left = '0px';" +
                                         "document.getElementById('navbar-top').style.display='none'; " +
                                         "document.getElementsByClassName('content')[0].getElementsByTagName('h3')[0].style.display = 'none'; " +
                                         "document.getElementsByClassName('content')[0].style.padding = '0px'; " +
                                         "document.getElementsByClassName('content')[0].getElementsByTagName('div')[0].style.height = '100%'; " +
                                         "document.getElementById('page-wrapper').style.padding = '0px'; " +
-                                    //"});"
-                                "})();", callback);
+                                        //"});"
+                                        "})();", callback);
                     }
                 }
         );
@@ -234,8 +210,7 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
         if (Build.VERSION.SDK_INT < 16) {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-        else {
+        } else {
             View decorView = getWindow().getDecorView();
             // Hide Status Bar.
             int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -247,8 +222,7 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
     public void showStatusBar() {
         if (Build.VERSION.SDK_INT < 16) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-        else {
+        } else {
             View decorView = getWindow().getDecorView();
             // Show Status Bar.
             int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;

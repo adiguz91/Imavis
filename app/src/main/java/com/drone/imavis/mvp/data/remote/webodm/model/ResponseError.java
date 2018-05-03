@@ -1,7 +1,5 @@
 package com.drone.imavis.mvp.data.remote.webodm.model;
 
-import com.google.gson.annotations.Expose;
-
 /**
  * Created by adigu on 14.05.2017.
  */

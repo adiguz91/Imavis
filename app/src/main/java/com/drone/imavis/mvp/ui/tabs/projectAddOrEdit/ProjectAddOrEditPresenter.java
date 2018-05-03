@@ -2,7 +2,6 @@ package com.drone.imavis.mvp.ui.tabs.projectAddOrEdit;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.ProjectShort;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
 import com.drone.imavis.mvp.util.RxUtil;
@@ -46,45 +45,47 @@ public class ProjectAddOrEditPresenter extends BasePresenter<IProjectAddOrEditMv
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
         dataManager.addProject(project)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .subscribe(new SingleObserver<Project>() {
-                   @Override
-                   public void onSubscribe(@NonNull Disposable d) {}
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .subscribe(new SingleObserver<Project>() {
+                               @Override
+                               public void onSubscribe(@NonNull Disposable d) {
+                               }
 
-                   @Override
-                   public void onSuccess(@NonNull Project project) {
-                       getMvpView().onAddSuccess(project);
-                   }
+                               @Override
+                               public void onSuccess(@NonNull Project project) {
+                                   getMvpView().onAddSuccess(project);
+                               }
 
-                   @Override
-                   public void onError(@NonNull Throwable e) {
-                       getMvpView().onAddFailed();
-                   }
-               }
-            );
+                               @Override
+                               public void onError(@NonNull Throwable e) {
+                                   getMvpView().onAddFailed();
+                               }
+                           }
+                );
     }
 
     public void editProject(Project project) {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
         dataManager.updateProject(project)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .subscribe(new CompletableObserver() {
-                   @Override
-                   public void onSubscribe(@NonNull Disposable d) {}
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .subscribe(new CompletableObserver() {
+                               @Override
+                               public void onSubscribe(@NonNull Disposable d) {
+                               }
 
-                    @Override
-                    public void onComplete() {
-                        getMvpView().onEditSuccess(project);
-                    }
+                               @Override
+                               public void onComplete() {
+                                   getMvpView().onEditSuccess(project);
+                               }
 
-                   @Override
-                   public void onError(@NonNull Throwable e) {
-                       getMvpView().onEditFailed();
-                   }
-               }
-            );
+                               @Override
+                               public void onError(@NonNull Throwable e) {
+                                   getMvpView().onEditFailed();
+                               }
+                           }
+                );
     }
 }

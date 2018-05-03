@@ -5,6 +5,7 @@ package com.drone.imavis.mvp.util.listener;
  */
 
 public interface OnEventListener<T, E> {
-    public void onSuccess(T data);
-    public void onFailure(E errorResult); // exception or error type
+    void onSuccess(T data);
+
+    void onFailure(E errorResult); // exception or error type
 }

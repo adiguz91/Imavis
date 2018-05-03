@@ -8,20 +8,20 @@ import com.drone.imavis.mvp.util.constants.classes.CFlyPlan.UnitOfLength;
 public class UnityConverterUtil {
     private static UnityConverterUtil ourInstance = new UnityConverterUtil();
 
-    public static UnityConverterUtil getInstance() {
-        return ourInstance;
+    private UnityConverterUtil() {
     }
 
-    private UnityConverterUtil() {
+    public static UnityConverterUtil getInstance() {
+        return ourInstance;
     }
 
     public double UnitOfLength(UnitOfLength sourceUnit, UnitOfLength destinationUnit, double value) {
         //Pair<UnitOfLength, UnitOfLength> unitOfLengthPair = new Pair<>(sourceUnit, destinationUnit);
 
-        if(sourceUnit == UnitOfLength.Meter && destinationUnit == UnitOfLength.Yard)
+        if (sourceUnit == UnitOfLength.Meter && destinationUnit == UnitOfLength.Yard)
             value *= 1.0936;
 
-        if(sourceUnit == UnitOfLength.Yard && destinationUnit == UnitOfLength.Meter)
+        if (sourceUnit == UnitOfLength.Yard && destinationUnit == UnitOfLength.Meter)
             value /= 1.0936;
 
         return value;

@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
-import com.drone.imavis.mvp.R;
-
 /**
  * Created by adigu on 27.07.2017.
  */
@@ -39,10 +37,10 @@ public class FlyplanNotificationService extends IntentService {
     // R.drawable.cast_ic_notification_small_icon
     private void createNotification(int id, int iconRes, String title, String body) {
         NotificationCompat.Builder notificationBuilder =
-            new NotificationCompat.Builder(this)
-                .setSmallIcon(iconRes)
-                .setContentTitle(title)
-                .setContentText(body);
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(iconRes)
+                        .setContentTitle(title)
+                        .setContentText(body);
 
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

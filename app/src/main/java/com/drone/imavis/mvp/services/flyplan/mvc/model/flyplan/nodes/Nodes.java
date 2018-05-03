@@ -35,20 +35,20 @@ public class Nodes implements Serializable {
     }
 
     public void loadNodes(String simpleNodesJson) {
-        if(map == null)
+        if (map == null)
             return;
 
         SimpleNodes simpleNodes = new Gson().fromJson(simpleNodesJson, SimpleNodes.class);
         for (com.drone.imavis.mvp.data.model.Waypoint waypoint : simpleNodes.getWaypoints()) {
             Coordinate screenCoordinate = map.getScreenCoordinatesfromGps(waypoint.getGpsCoordinate());
-            if(screenCoordinate == null) // try again
+            if (screenCoordinate == null) // try again
                 screenCoordinate = map.getScreenCoordinatesfromGps(waypoint.getGpsCoordinate());
             Waypoint waypointNode = new Waypoint(screenCoordinate);
             waypoints.add(waypointNode);
         }
         for (com.drone.imavis.mvp.data.model.PointOfInterest pointOfInterest : simpleNodes.getPointOfInterests()) {
             Coordinate screenCoordinate = map.getScreenCoordinatesfromGps(pointOfInterest.getGpsCoordinate());
-            if(screenCoordinate == null) // try again
+            if (screenCoordinate == null) // try again
                 screenCoordinate = map.getScreenCoordinatesfromGps(pointOfInterest.getGpsCoordinate());
             PointOfInterest poiNode = new PointOfInterest(screenCoordinate);
             pointOfInterests.add(poiNode);
@@ -63,7 +63,7 @@ public class Nodes implements Serializable {
             Waypoint waypointNode = it.next();
             com.drone.imavis.mvp.data.model.Waypoint waypoint = new com.drone.imavis.mvp.data.model.Waypoint();
             GPSCoordinate currentGpsCoordinate = waypointNode.getShape().getCoordinate().getGpsCoordinate();
-            if(currentGpsCoordinate == null)
+            if (currentGpsCoordinate == null)
                 currentGpsCoordinate = map.getGpsfromScreen(waypointNode.getShape().getCoordinate());
             waypoint.setGpsCoordinate(currentGpsCoordinate);
             waypointsSimple.add(waypoint);
@@ -72,7 +72,7 @@ public class Nodes implements Serializable {
             PointOfInterest pointOfInterestNode = it.next();
             com.drone.imavis.mvp.data.model.PointOfInterest pointOfInterest = new com.drone.imavis.mvp.data.model.PointOfInterest();
             GPSCoordinate currentGpsCoordinate = pointOfInterestNode.getShape().getCoordinate().getGpsCoordinate();
-            if(currentGpsCoordinate == null)
+            if (currentGpsCoordinate == null)
                 currentGpsCoordinate = map.getGpsfromScreen(pointOfInterestNode.getShape().getCoordinate());
             pointOfInterest.setGpsCoordinate(currentGpsCoordinate);
             poisSimple.add(pointOfInterest);
@@ -100,11 +100,10 @@ public class Nodes implements Serializable {
 
     public void editNode(Node node) {
         setGPSCoordinateFromNode(node);
-        if(node.getClass() == Waypoint.class) {
+        if (node.getClass() == Waypoint.class) {
             int nodeIndex = getWaypoints().indexOf(node);
             getWaypoints().set(nodeIndex, (Waypoint) node);
-        }
-        else {
+        } else {
             int nodeIndex = getPointOfInterests().indexOf(node);
             getPointOfInterests().set(nodeIndex, (PointOfInterest) node);
         }
@@ -119,21 +118,19 @@ public class Nodes implements Serializable {
 
     public void addNode(Node node) {
         setGPSCoordinateFromNode(node);
-        if(node.getClass() == Waypoint.class) {
+        if (node.getClass() == Waypoint.class) {
             getWaypoints().add((Waypoint) node);
-        }
-        else {
+        } else {
             getPointOfInterests().add((PointOfInterest) node);
         }
     }
 
     public void removeNode(Node node) {
         setGPSCoordinateFromNode(node);
-        if(node.getClass() == Waypoint.class) {
-            getWaypoints().remove((Waypoint) node);
-        }
-        else {
-            getPointOfInterests().remove((PointOfInterest) node);
+        if (node.getClass() == Waypoint.class) {
+            getWaypoints().remove(node);
+        } else {
+            getPointOfInterests().remove(node);
         }
     }
 

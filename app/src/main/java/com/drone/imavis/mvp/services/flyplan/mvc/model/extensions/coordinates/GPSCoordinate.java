@@ -1,8 +1,8 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates;
 
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -35,18 +35,31 @@ public class GPSCoordinate {
     }
 
     @Generated(hash = 1569993542)
-    public GPSCoordinate() {}
+    public GPSCoordinate() {
+    }
 
     public double getLatitude() {
         return this.latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
     public double getLongitude() {
         return this.longitude;
     }
 
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
     public double getAltitude() {
         return this.altitude;
+    }
+
+    public void setAltitude(double altitude) {
+        this.altitude = altitude;
     }
 
     public void setGPSCoordinate(double latitude, double longitude, double altitude) {
@@ -69,17 +82,5 @@ public class GPSCoordinate {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public void setAltitude(double altitude) {
-        this.altitude = altitude;
     }
 }

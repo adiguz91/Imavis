@@ -4,14 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
-import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
-import com.drone.imavis.mvp.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,15 +17,14 @@ import java.util.List;
 
 public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
 
-    //@Inject Context mContext;
-    private Context context;
-    private List<T> itemList;
-    private SwipeItemOnClickListener<T> onItemClickListener;
-
     int swipeItemList;
     int swipeLayout;
     int deleteRessource;
     int editRessource;
+    //@Inject Context mContext;
+    private Context context;
+    private List<T> itemList;
+    private SwipeItemOnClickListener<T> onItemClickListener;
 
     //@BindView(R.id.textViewProjectListViewItemProjectname) TextView textViewProjectname;
     //@BindView(R.id.textViewProjectListViewItemDescription) TextView textViewDescription;
@@ -61,7 +55,7 @@ public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
     @Override
     public View generateView(int position, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(swipeLayout, null);
-        SwipeLayout swipeLayout = (SwipeLayout) view.findViewById(getSwipeLayoutResourceId(position));
+        SwipeLayout swipeLayout = view.findViewById(getSwipeLayoutResourceId(position));
         //swipeLayout.addSwipeListener(new SimpleSwipeListener() {
         //  @Override
         //  public void onOpen(SwipeLayout layout) {
@@ -92,7 +86,8 @@ public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
     }
 
     @Override
-    public void fillValues(int position, View convertView) {}
+    public void fillValues(int position, View convertView) {
+    }
 
     @Override
     public int getCount() {
@@ -110,21 +105,21 @@ public class SwipeItemListViewAdapter<T> extends BaseSwipeAdapter {
     }
 
     public void addItem(T item) {
-        if(item != null) {
+        if (item != null) {
             itemList.add(item);
             this.notifyDataSetChanged();
         }
     }
 
     public void updateItem(int position, T item) {
-        if(item != null) {
+        if (item != null) {
             itemList.set(position, item);
             this.notifyDataSetChanged();
         }
     }
 
     public void deleteItem(T item) {
-        if(item != null) {
+        if (item != null) {
             itemList.remove(item);
             this.notifyDataSetChanged();
         }

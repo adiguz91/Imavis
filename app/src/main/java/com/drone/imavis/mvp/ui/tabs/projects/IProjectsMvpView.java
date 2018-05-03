@@ -1,7 +1,6 @@
 package com.drone.imavis.mvp.ui.tabs.projects;
 
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.ui.base.IMvpView;
 
 import java.util.List;

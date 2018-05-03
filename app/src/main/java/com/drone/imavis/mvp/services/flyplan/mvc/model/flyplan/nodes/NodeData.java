@@ -6,7 +6,12 @@ package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes;
 
 public abstract class NodeData<T> {
 
-    public NodeData() { id = Long.MIN_VALUE; }
+    private Long id;
+
+    public NodeData() {
+        id = Long.MIN_VALUE;
+    }
+
     public NodeData(Long id) {
         this.id = id;
     }
@@ -14,9 +19,8 @@ public abstract class NodeData<T> {
     public long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
-
-    private Long id;
 }

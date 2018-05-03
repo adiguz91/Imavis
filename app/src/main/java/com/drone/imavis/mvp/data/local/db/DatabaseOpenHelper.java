@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.drone.imavis.mvp.data.model.DaoMaster;
 import com.drone.imavis.mvp.data.model.FlyPlanDao;
-import com.drone.imavis.mvp.data.model.ProjectDao;
 import com.drone.imavis.mvp.di.ApplicationContext;
 import com.drone.imavis.mvp.di.DatabaseInfo;
 
@@ -61,6 +60,12 @@ public class DatabaseOpenHelper extends DaoMaster.OpenHelper {
         return migrations;
     }
 
+    private interface Migration {
+        Integer getVersion();
+
+        void runMigration(Database db);
+    }
+
     private static class MigrationV2 implements Migration {
 
         @Override
@@ -74,7 +79,6 @@ public class DatabaseOpenHelper extends DaoMaster.OpenHelper {
             db.execSQL("ALTER TABLE " + FlyPlanDao.TABLENAME + " ADD COLUMN " + FlyPlanDao.Properties.NodesJson.columnName + " TEXT");
         }
     }
-
 
     private static class MigrationV3 implements Migration {
 
@@ -138,10 +142,5 @@ public class DatabaseOpenHelper extends DaoMaster.OpenHelper {
             //FlyPlanDao.createTable(db, false);
 
         }
-    }
-
-    private interface Migration {
-        Integer getVersion();
-        void runMigration(Database db);
     }
 }

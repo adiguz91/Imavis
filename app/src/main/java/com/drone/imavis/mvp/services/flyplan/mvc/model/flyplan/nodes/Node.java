@@ -1,20 +1,24 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes;
 
-import com.drone.imavis.mvp.util.constants.classes.CShape;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Square;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterestData;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Circle;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.GeometricShape;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.geometric.Square;
+import com.drone.imavis.mvp.util.constants.classes.CShape;
 
 /**
  * Created by adigu on 03.02.2017.
  */
 
 public abstract class Node<T> {
+
+    private Class<T> classT;
+    private NodeData<T> data;
+    private GeometricShape<T> shape;
 
     public Node(Class<T> classNode, Coordinate coordinateTouched) {
         this.classT = classNode;
@@ -23,14 +27,14 @@ public abstract class Node<T> {
     }
 
     private NodeData<T> createData(Class classNode) {
-        if(classNode == Waypoint.class)
+        if (classNode == Waypoint.class)
             return new WaypointData();
         else // if (classNode == PointOfInterest.class)
             return new PointOfInterestData();
     }
 
     private GeometricShape<T> createGeoShape(Class classNode, Coordinate coordinate) {
-        if(classNode == Waypoint.class)
+        if (classNode == Waypoint.class)
             return createShape(CShape.WAYPOINT_SHAPE_TYPE, coordinate);
         else // if (classNode == PointOfInterest.class)
             return createShape(CShape.POI_SHAPE_TYPE, coordinate);
@@ -46,21 +50,20 @@ public abstract class Node<T> {
         }
         if (classShape == Square.class) {
             if (classT == Waypoint.class)
-                geometricShape =  new Square<T>(classT, coordinate, CShape.WAYPOINT_CIRCLE_RADIUS);
+                geometricShape = new Square<T>(classT, coordinate, CShape.WAYPOINT_CIRCLE_RADIUS);
             else if (classT == PointOfInterest.class)
-                geometricShape =  new Square<T>(classT, coordinate, CShape.POI_CIRCLE_RADIUS);
+                geometricShape = new Square<T>(classT, coordinate, CShape.POI_CIRCLE_RADIUS);
         }
         return geometricShape;
     }
 
-    public NodeData<T> getData() { return data; }
+    public NodeData<T> getData() {
+        return data;
+    }
+
     public GeometricShape<T> getShape() {
         return shape;
     }
-
-    private Class<T> classT;
-    private NodeData<T> data;
-    private GeometricShape<T> shape;
 
     /*
     private T getInstance() {

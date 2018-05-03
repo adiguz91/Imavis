@@ -58,20 +58,17 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
 
     private static final String EXTRA_TRIGGER_SYNC_FLAG =
             "com.drone.imavis.mvp.ui.projects.ProjectsFlyplansActivity.EXTRA_TRIGGER_SYNC_FLAG";
-
-    @Inject
-    DronePermissionRequestHelper dronePermissionRequestHelper;
-    List<ARDiscoveryDeviceService> dronesList;
-
-    /** List of runtime permission we need. */
+    /**
+     * List of runtime permission we need.
+     */
     private static final String[] PERMISSIONS_NEEDED = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_COARSE_LOCATION,
     };
-    /** Code for permission request result handling. */
+    /**
+     * Code for permission request result handling.
+     */
     private static final int REQUEST_CODE_PERMISSIONS_REQUEST = 1;
-
-    public DroneDiscoverer droneDiscoverer;
 
     // this block loads the native libraries
     // it is mandatory
@@ -79,18 +76,19 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
         ARSDK.loadSDKLibs();
     }
 
+    public DroneDiscoverer droneDiscoverer;
+    @Inject
+    DronePermissionRequestHelper dronePermissionRequestHelper;
+    List<ARDiscoveryDeviceService> dronesList;
+
     //@BindView(R.id.projectSwipeListView)
     //ListView projectsListView;
-
-    private Context context;
-    private FragmentPagerItemAdapter fragmentAdapter;
-
     @BindView(R.id.viewpager)
     CustomViewPager viewPager;
-
     @BindView(R.id.viewpagertab)
     SmartTabLayout viewPagerTab;
-
+    private Context context;
+    private FragmentPagerItemAdapter fragmentAdapter;
     private AccountHeader headerResult = null;
     private Drawer result = null;
 
@@ -135,7 +133,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                if(position == 0) {
+                if (position == 0) {
                     // projects
                     onSelectProjectsFragment();
                 }
@@ -147,7 +145,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
 
     private void initMenu(Bundle savedInstanceState) {
         // Handle Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.ProjectsFlyplansToolbar);
+        Toolbar toolbar = findViewById(R.id.ProjectsFlyplansToolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Projects");
 
@@ -239,7 +237,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     public void onSendProject(Project project) {
 
         FlyplansFragment flyplansFragment = (FlyplansFragment) fragmentAdapter.getPage(1);
-        if(flyplansFragment != null)
+        if (flyplansFragment != null)
             flyplansFragment.loadFlyplans(project);
 
         viewPager.setPagingEnabled(true);
@@ -291,7 +289,8 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
         builder.setTitle(title);
         builder.setSingleChoiceItems(items, -1,
                 new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {}
+                    public void onClick(DialogInterface dialog, int item) {
+                    }
                 });
         builder.setPositiveButton(btnText[0], listener);
         if (btnText.length != 1) {
@@ -308,8 +307,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
 
         // TODO repair
@@ -322,8 +320,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
 
         // clean the drone discoverer object

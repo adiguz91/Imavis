@@ -2,16 +2,13 @@ package com.drone.imavis.mvp.util;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import com.drone.imavis.mvp.di.ActivityContext;
 import com.drone.imavis.mvp.di.ApplicationContext;
-import com.drone.imavis.mvp.di.PerActivity;
 import com.drone.imavis.mvp.util.file.FileUtils;
 
 import java.io.BufferedReader;
@@ -21,7 +18,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -47,6 +43,117 @@ public class FileUtil {
     @Inject
     public FileUtil(@ApplicationContext Context context) {
         this.context = context;
+    }
+
+    private static String getAbsoluteFolderPath(String absoluteFilePath) {
+        File file = new File(absoluteFilePath);
+        if (file != null && file.isAbsolute()) {
+            if (file.isDirectory())
+                return absoluteFilePath;
+            else
+                return file.getParent();
+        }
+        return null;
+    }
+
+    private static void checkProjectDirectories() {
+        String rootFolder = "/imavis/";
+        String flyPlanFolder = "flyplan";
+        String absolutFolderPath = Environment.DIRECTORY_DCIM + rootFolder + flyPlanFolder;
+        checkFileDirectory(absolutFolderPath);
+    }
+
+    private static boolean checkFileDirectory(String absolutFolderPath) {
+        checkProjectDirectories();
+        absolutFolderPath = getAbsoluteFolderPath(absolutFolderPath);
+        File directoryPath = null;
+        if (absolutFolderPath != null) {
+            // Get the directory for the user's public pictures directory.
+            //Environment.DIRECTORY_PICTURES
+            directoryPath = Environment.getExternalStoragePublicDirectory(absolutFolderPath);
+            if (!directoryPath.exists()) // Make sure the path directory exists.
+                directoryPath.mkdirs(); // Make it, if it doesn't exit
+
+            return directoryPath != null;
+        }
+        return false;
+    }
+
+    private static boolean checkFile(String absoluteFileName) {
+        return checkFileDirectory(absoluteFileName);
+    }
+
+    public static String readAssetFile(Context context, String path) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(context.getAssets().open(path)));
+            String mLine;
+            while ((mLine = reader.readLine()) != null) {
+            }
+            return mLine;
+        } catch (IOException e) {
+            //log the exception
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    //log the exception
+                }
+            }
+        }
+        return null;
+    }
+
+    public static String readFile(File file) {
+        if (file != null && file.exists() && file.canRead()) {
+            StringBuilder sb = new StringBuilder();
+            try {
+                //File fl = new File(filePath);
+                //FileInputStream fin = new FileInputStream(fl);
+                //BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+                reader.close();
+                return sb.toString();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static String FilePathCombine(String pathA, String pathB) {
+        File file1 = new File(pathA);
+        File file2 = new File(file1, pathB);
+        return file2.getAbsolutePath();
+    }
+
+    public static boolean writeToFile(String absoluteFileName, String content) {
+        try {
+            if (checkFile(absoluteFileName)) {
+                final File file = new File(absoluteFileName);
+                // Save your stream, don't forget to flush() it before closing it.
+                file.createNewFile();
+                FileOutputStream fileOut = new FileOutputStream(file);
+                OutputStreamWriter myOutWriter = new OutputStreamWriter(fileOut);
+                myOutWriter.append(content);
+                myOutWriter.close();
+                fileOut.flush();
+                fileOut.close();
+                return true;
+            }
+        } catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+        return false;
     }
 
     @NonNull
@@ -81,11 +188,11 @@ public class FileUtil {
     }
 
     /*
-    * fileFilter == null -> accept all
-    * */
+     * fileFilter == null -> accept all
+     * */
     public List<MultipartBody.Part> getFileParts(String partName, Uri folderUri, FileFilter fileFilter) {
 
-        if(fileFilter == null) {
+        if (fileFilter == null) {
             fileFilter = new FileFilter() {
                 @Override
                 public boolean accept(File file) {
@@ -105,122 +212,5 @@ public class FileUtil {
                 fileParts.add(prepareFilePart(partName, fileUri));
         }
         return fileParts;
-    }
-
-    private static String getAbsoluteFolderPath(String absoluteFilePath) {
-        File file = new File(absoluteFilePath);
-        if(file != null && file.isAbsolute()) {
-            if(file.isDirectory())
-                return absoluteFilePath;
-            else
-                return file.getParent();
-        }
-        return null;
-    }
-
-    private static void checkProjectDirectories() {
-        String rootFolder = "/imavis/";
-        String flyPlanFolder = "flyplan";
-        String absolutFolderPath = Environment.DIRECTORY_DCIM + rootFolder + flyPlanFolder;
-        checkFileDirectory(absolutFolderPath);
-    }
-
-    private static boolean checkFileDirectory(String absolutFolderPath) {
-        checkProjectDirectories();
-        absolutFolderPath = getAbsoluteFolderPath(absolutFolderPath);
-        File directoryPath = null;
-        if(absolutFolderPath != null) {
-            // Get the directory for the user's public pictures directory.
-            //Environment.DIRECTORY_PICTURES
-            directoryPath = Environment.getExternalStoragePublicDirectory(absolutFolderPath);
-            if(!directoryPath.exists()) // Make sure the path directory exists.
-                directoryPath.mkdirs(); // Make it, if it doesn't exit
-
-            if(directoryPath != null)
-                return true;
-        }
-        return false;
-    }
-
-    private static boolean checkFile(String absoluteFileName) {
-        return checkFileDirectory(absoluteFileName);
-    }
-
-    public static String readAssetFile(Context context, String path) {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(context.getAssets().open(path)));
-            String mLine;
-            while ((mLine = reader.readLine()) != null) {}
-            return mLine;
-        } catch (IOException e) {
-            //log the exception
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    //log the exception
-                }
-            }
-        }
-        return null;
-    }
-
-    public static String readFile(File file) throws Exception {
-        if(file != null && file.exists() && file.canRead()) {
-            StringBuilder sb = new StringBuilder();
-            try
-            {
-                //File fl = new File(filePath);
-                //FileInputStream fin = new FileInputStream(fl);
-                //BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                BufferedReader reader = new BufferedReader(new FileReader(file));
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-                reader.close();
-                return sb.toString();
-            }
-            catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    public static String FilePathCombine (String pathA, String pathB)
-    {
-        File file1 = new File(pathA);
-        File file2 = new File(file1, pathB);
-        return file2.getAbsolutePath();
-    }
-
-    public static boolean writeToFile(String absoluteFileName, String content)
-    {
-        try
-        {
-            if(checkFile(absoluteFileName)) {
-                final File file = new File(absoluteFileName);
-                // Save your stream, don't forget to flush() it before closing it.
-                file.createNewFile();
-                FileOutputStream fileOut = new FileOutputStream(file);
-                OutputStreamWriter myOutWriter = new OutputStreamWriter(fileOut);
-                myOutWriter.append(content);
-                myOutWriter.close();
-                fileOut.flush();
-                fileOut.close();
-                return true;
-            }
-        }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
-        return false;
     }
 }

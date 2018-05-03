@@ -13,7 +13,10 @@ import android.util.Log;
 public class GpsListener implements LocationListener {
 
     private static Location gpsLocation;
-    public static Location getGPSLocation() { return gpsLocation; }
+
+    public static Location getGPSLocation() {
+        return gpsLocation;
+    }
 
     @Override
     public void onLocationChanged(Location gpsLocationCurrent) {
@@ -37,9 +40,14 @@ public class GpsListener implements LocationListener {
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {}
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
     @Override
-    public void onProviderDisabled(String provider) {}
+    public void onProviderDisabled(String provider) {
+    }
+
     @Override
-    public void onProviderEnabled(String provider) {}
+    public void onProviderEnabled(String provider) {
+    }
 }

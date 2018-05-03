@@ -12,24 +12,30 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Co
 
 public class Circle<T> extends GeometricShape {
 
-    public Circle(Class<T> classT, Coordinate coordinate, int radius) {
-        super(classT, coordinate);
-        this.classT = classT;
-        this.radius = radius;
-    }
+    private Class<T> classT;
     /*
     private void setTypeAtRuntime() {
         this.type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).
                 getActualTypeArguments()[0];
     }
     */
+    private float radius;
+    private Paint paintCircle;
+    private Paint paintCircleBorder;
+
+    public Circle(Class<T> classT, Coordinate coordinate, int radius) {
+        super(classT, coordinate);
+        this.classT = classT;
+        this.radius = radius;
+    }
 
     @Override
     public void draw(Canvas canvas) {
         draw(canvas, true);
     }
+
     public void draw(Canvas canvas, boolean scaled) {
-        if(scaled) {
+        if (scaled) {
             Coordinate cartesianCoordinate = getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
             canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircle());
             canvas.drawCircle(cartesianCoordinate.getX(), cartesianCoordinate.getY(), radius, getPaintCircleBorder());
@@ -59,13 +65,9 @@ public class Circle<T> extends GeometricShape {
     public float getRadius() {
         return radius;
     }
+
     protected void setRadius(float radius) {
         this.radius = radius;
     }
-
-    private Class<T> classT;
-    private float radius;
-    private Paint paintCircle;
-    private Paint paintCircleBorder;
 
 }

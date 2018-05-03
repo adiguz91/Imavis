@@ -30,18 +30,29 @@ import dagger.Subcomponent;
 public interface ActivityComponent {
 
     void inject(LoginActivity loginActivity);
+
     void inject(SearchWlanActivity searchWlanActivity);
+
     void inject(ProjectsFlyplansActivity projectsFlyplansActivity);
+
     void inject(FlyplansFragment flyplansFragment);
+
     void inject(ProjectsFragment projectsFragment);
+
     void inject(FlyplannerActivity flyplannerActivity);
+
     void inject(ProjectAddOrEditActivity projectAddOrEditActivity);
+
     void inject(FlyplanAddOrEditActivity flyplanAddOrEditActivity);
+
     void inject(ModelViewerActivity modelViewerActivity);
+
     void inject(FlyPlanView flyPlanView);
 
 
     DronePermissionRequestHelper dronePermissionRequestHelper();
+
     DialogUtil dialogUtil();
+
     ImageUtil imageUtil();
 }

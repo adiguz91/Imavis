@@ -11,6 +11,7 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Co
 public class Square<T> extends GeometricShape {
 
     private int radius;
+    private Class<T> classT;
 
     public Square(Class<T> classT, Coordinate coordinate, int radius) {
         super(classT, coordinate);
@@ -22,7 +23,4 @@ public class Square<T> extends GeometricShape {
     public void draw(Canvas canvas) {
         // todo
     }
-
-
-    private Class<T> classT;
 }

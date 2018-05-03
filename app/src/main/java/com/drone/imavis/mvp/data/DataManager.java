@@ -81,13 +81,13 @@ public class DataManager {
                 getRemoteProjects().subscribeOn(Schedulers.newThread()),
                 new BiFunction<List<Project>, Projects, List<Project>>() {
                     @Override
-                    public List<Project> apply(List<Project> localProjects, Projects remoteProjects) throws Exception {
+                    public List<Project> apply(List<Project> localProjects, Projects remoteProjects) {
                         HashMap<Integer, Project> mapLocalProjects = new HashMap<Integer, Project>();
                         for (Project localProject : localProjects)
                             mapLocalProjects.put(localProject.getOnlineId(), localProject);
 
                         List<Project> returnProjects = new ArrayList<Project>();
-                        for(Project remoteProject : remoteProjects.getProjectList()) {
+                        for (Project remoteProject : remoteProjects.getProjectList()) {
                             if (mapLocalProjects.containsKey(remoteProject.getOnlineId())) {
                                 remoteProject.setId(mapLocalProjects.get(remoteProject.getOnlineId()).getId());
                                 //if(remoteProject.getCreatedAt().after(mapLocalProjects.get(remoteProject.getOnlineId()).getCreatedAt())) {
@@ -108,11 +108,11 @@ public class DataManager {
     public Observable<Projects> getRemoteProjects() {
         // https://stackoverflow.com/questions/29444297/stack-overflow-when-using-retrofit-rxjava-concatwith/29594194#29594194
         return Observable.range(1, Integer.MAX_VALUE)
-                .concatMap( pageNr -> {
+                .concatMap(pageNr -> {
                     Observable<Projects> data = webOdmService.getProjects(pageNr.intValue());
                     return data;
                 })
-                .takeUntil( data -> data.getNext() == null)
+                .takeUntil(data -> data.getNext() == null)
                 .reduce((projectsFirst, projectsSecond) -> {
                     projectsFirst.getProjectList().addAll(projectsSecond.getProjectList());
                     return projectsFirst;
@@ -123,41 +123,41 @@ public class DataManager {
         // run local and remote requests parallel (because of different threads) and
         // combine the result
         return Observable.zip(
-            databaseHelper.getFlyplansFromProject(project).subscribeOn(Schedulers.newThread()),
-            webOdmService.getTasks(String.valueOf(project.getOnlineId())).subscribeOn(Schedulers.newThread()),
-            new BiFunction<List<FlyPlan>, List<Task>, List<FlyPlan>>() {
-                @Override
-                public List<FlyPlan> apply(List<FlyPlan> flyplans, List<Task> tasks) throws Exception {
-                    Stream.of(flyplans).forEach(flyplan -> {
-                        if (flyplan.getTaskId() != null)  {
-                            Stream.of(tasks).forEach(task -> {
-                                if (flyplan.getTaskId().equals(task.getId()))
-                                    flyplan.setTask(task);
+                databaseHelper.getFlyplansFromProject(project).subscribeOn(Schedulers.newThread()),
+                webOdmService.getTasks(String.valueOf(project.getOnlineId())).subscribeOn(Schedulers.newThread()),
+                new BiFunction<List<FlyPlan>, List<Task>, List<FlyPlan>>() {
+                    @Override
+                    public List<FlyPlan> apply(List<FlyPlan> flyplans, List<Task> tasks) {
+                        Stream.of(flyplans).forEach(flyplan -> {
+                            if (flyplan.getTaskId() != null) {
+                                Stream.of(tasks).forEach(task -> {
+                                    if (flyplan.getTaskId().equals(task.getId()))
+                                        flyplan.setTask(task);
                                     tasks.remove(task);
-                            });
-                        }
-                    });
-                    // TODO: remaining tasks should be saved into db as flyplans
-                    return flyplans;
-                }
-            });
+                                });
+                            }
+                        });
+                        // TODO: remaining tasks should be saved into db as flyplans
+                        return flyplans;
+                    }
+                });
     }
 
     public Observable<Boolean> login(Authentication authentication) {
         return webOdmService.authentication(authentication)
-        .doOnNext(token ->
-                preferencesHelper.setAuthorizationToken(token.getToken()) )
-        .map(token -> true )
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread());
+                .doOnNext(token ->
+                        preferencesHelper.setAuthorizationToken(token.getToken()))
+                .map(token -> true)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
         //.subscribeOn(io.reactivex.schedulers.Schedulers.io());
     }
 
     public Single<Project> addProject(Project project) {
         ProjectShort projectShort = new ProjectShort(project.getName(), project.getDescription());
         return webOdmService.addProject(projectShort)
-                .flatMap( (projectRecaived) -> {
-                    return databaseHelper.createProject(projectRecaived).flatMap( (id) -> {
+                .flatMap((projectRecaived) -> {
+                    return databaseHelper.createProject(projectRecaived).flatMap((id) -> {
                         //projectRevaived.setId(id);
                         return Single.just(projectRecaived);
                     });
@@ -167,7 +167,7 @@ public class DataManager {
     public Completable updateProject(Project project) {
         ProjectShort projectShort = new ProjectShort(project.getName(), project.getDescription());
         return webOdmService.updateProject(String.valueOf(project.getOnlineId()), projectShort)
-                .flatMapCompletable( (projectRevaived) -> {
+                .flatMapCompletable((projectRevaived) -> {
                     projectRevaived.setId(project.getId());
                     return databaseHelper.updateProject(projectRevaived);
                 });
@@ -180,6 +180,7 @@ public class DataManager {
 
     /**
      * Observable chain. Creates a task, adds it to the flyplan and saves it to the database.
+     *
      * @param flyplan
      * @return
      */
@@ -193,6 +194,7 @@ public class DataManager {
     /**
      * When the drone flyes to all waypoints of the flyplan, than the task of the 3D Modeling
      * will be created
+     *
      * @param flyplan
      * @return
      */
@@ -202,9 +204,7 @@ public class DataManager {
             @Override
             public boolean accept(File file) {
                 String extension = FilenameUtils.getExtension(file.getPath());
-                if(extension.toLowerCase().equals("jpg"))
-                    return true;
-                return false;
+                return extension.toLowerCase().equals("jpg");
             }
         };
 
@@ -221,7 +221,7 @@ public class DataManager {
         //flyplan.getProject().setOnlineId(38);
 
         return webOdmService.addTask(imageParts, String.valueOf(38), taskPartMap)
-                .flatMap( (task) -> {
+                .flatMap((task) -> {
                     flyplan.setTask(task);
                     return databaseHelper.createFlyplan(flyplan).flatMap((id) -> {
                         //flyplan.setId(id);
@@ -247,7 +247,7 @@ public class DataManager {
         return null;
         */
 
-        if(flyplan.getTask() == null)
+        if (flyplan.getTask() == null)
             return databaseHelper.updateFlyplan(flyplan);
 
         /*
@@ -262,7 +262,7 @@ public class DataManager {
     }
 
     public Completable deleteFlyplan(FlyPlan flyplan) {
-        if(flyplan.getTask() == null)
+        if (flyplan.getTask() == null)
             return databaseHelper.deleteFlyplan(flyplan);
 
         return webOdmService.deleteTask(String.valueOf(flyplan.getProjectId()), String.valueOf(flyplan.getTask().getId()))

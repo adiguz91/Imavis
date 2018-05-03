@@ -53,7 +53,7 @@ class UploadListener implements ARDataTransferUploaderProgressListener, ARDataTr
                         if (featureCommon != null && error == ARDATATRANSFER_ERROR_ENUM.ARDATATRANSFER_OK) {
                             // if (ARPro3Application.DEBUG) Log.d(TAG, "sendMavlinkStart");
                             featureCommon.sendMavlinkStart("flightPlan.mavlink", ARCOMMANDS_COMMON_MAVLINK_START_TYPE_ENUM.ARCOMMANDS_COMMON_MAVLINK_START_TYPE_FLIGHTPLAN);
-                            Log.d("sendMavlinkStart","SendMavlink is Success");
+                            Log.d("sendMavlinkStart", "SendMavlink is Success");
                         }
                     }
                 }
@@ -63,7 +63,7 @@ class UploadListener implements ARDataTransferUploaderProgressListener, ARDataTr
 
     @Override
     public void didUploadProgress(Object arg, float percent) {
-            Log.d("sendMavlinkStart", "mavlink file upload progress=" + percent);
+        Log.d("sendMavlinkStart", "mavlink file upload progress=" + percent);
     }
 }
 

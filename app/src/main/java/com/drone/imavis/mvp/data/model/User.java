@@ -17,7 +17,8 @@ public class User extends BaseEntity {
     private String email;
     private List<Project> projectList;
 
-    public User() {}
+    public User() {
+    }
 
     public String getFirstname() {
         return firstname;

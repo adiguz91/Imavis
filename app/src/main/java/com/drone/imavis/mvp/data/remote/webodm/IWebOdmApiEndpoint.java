@@ -13,10 +13,8 @@ import java.util.Map;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
@@ -49,13 +47,15 @@ public interface IWebOdmApiEndpoint {
     @GET("projects/{id}")
     Observable<Project> getProject(@Path("id") String id);
 
-    @POST("projects/") // POST requests needs the ending slash!
+    @POST("projects/")
+        // POST requests needs the ending slash!
     Single<Project> addProject(@Body ProjectShort project);
 
     @PATCH("projects/{id}/")
     Single<Project> updateProject(@Path("id") String id, @Body ProjectShort project);
 
-    @DELETE("projects/{id}/") // DELETE requests needs the ending slash!
+    @DELETE("projects/{id}/")
+        // DELETE requests needs the ending slash!
     Completable deleteProject(@Path("id") String id);
 
     /* TASK */
@@ -68,14 +68,16 @@ public interface IWebOdmApiEndpoint {
 
     //@Headers({"Accept: application/json",})
     @Multipart
-    @POST("projects/{projectId}/tasks/") // POST requests needs the ending slash!, or MultipartBody.Part[] images
+    @POST("projects/{projectId}/tasks/")
+    // POST requests needs the ending slash!, or MultipartBody.Part[] images
     //Single<Task> addTask(@Part List<MultipartBody.Part> images, @Path("projectId") String projectId, @Body Task task);
     Single<Task> addTask(@Part List<MultipartBody.Part> images, @Path("projectId") String projectId, @PartMap() Map<String, RequestBody> taskPartMap);
 
     @PATCH("projects/{projectId}/tasks/{taskId}/")
     Single<Task> updateTask(@Path("projectId") String projectId, @Path("taskId") String taskId, @Body Task task);
 
-    @DELETE("projects/{projectId}/tasks/{taskId}/") // DELETE requests needs the ending slash!
+    @DELETE("projects/{projectId}/tasks/{taskId}/")
+        // DELETE requests needs the ending slash!
     Completable deleteTask(@Path("projectId") String projectId, @Path("taskId") String taskId);
 
     // and more ...

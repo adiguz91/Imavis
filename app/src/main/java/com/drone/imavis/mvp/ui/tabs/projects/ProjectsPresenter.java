@@ -2,27 +2,19 @@ package com.drone.imavis.mvp.ui.tabs.projects;
 
 import com.drone.imavis.mvp.data.DataManager;
 import com.drone.imavis.mvp.data.model.Project;
-import com.drone.imavis.mvp.data.model.Projects;
 import com.drone.imavis.mvp.di.ConfigPersistent;
 import com.drone.imavis.mvp.ui.base.BasePresenter;
-import com.drone.imavis.mvp.util.FileUtil;
 import com.drone.imavis.mvp.util.RxUtil;
-import com.google.gson.Gson;
 
-import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import io.reactivex.CompletableObserver;
 import io.reactivex.Observer;
-import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.CompletableSubject;
-import rx.CompletableSubscriber;
 import rx.Subscription;
 
 /**
@@ -59,7 +51,8 @@ public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
                 .subscribeOn(io.reactivex.schedulers.Schedulers.io())
                 .subscribe(new CompletableObserver() {
                     @Override
-                    public void onSubscribe(@NonNull Disposable d) {}
+                    public void onSubscribe(@NonNull Disposable d) {
+                    }
 
                     @Override
                     public void onComplete() {
@@ -104,30 +97,31 @@ public class ProjectsPresenter extends BasePresenter<IProjectsMvpView> {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
         dataManager.syncProjects()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .subscribe(new Observer<List<Project>>() {
-                @Override
-                public void onSubscribe(@NonNull Disposable d) {}
-
-                @Override
-                public void onNext(@NonNull List<Project> projects) {
-                    if (projects == null) {
-                        getMvpView().showProjectsEmpty();
-                    } else {
-                        getMvpView().showProjects(projects);
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .subscribe(new Observer<List<Project>>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
                     }
-                }
 
-                @Override
-                public void onError(@NonNull Throwable e) {
-                    getMvpView().showError();
-                }
+                    @Override
+                    public void onNext(@NonNull List<Project> projects) {
+                        if (projects == null) {
+                            getMvpView().showProjectsEmpty();
+                        } else {
+                            getMvpView().showProjects(projects);
+                        }
+                    }
 
-                @Override
-                public void onComplete() {
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        getMvpView().showError();
+                    }
 
-                }
-            });
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 }

@@ -29,8 +29,6 @@ import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.joanzapata.iconify.IconDrawable;
-import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +52,8 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     private FlyPlanView flyplannerDrawer;
 
     private OnMapReadyCallback mOnMapReadyCallback;
+    private GoogleMap.OnMapLoadedCallback onMapLoadedCallback;
+    private OnScreenCoordinateCallback screenCoordinateCallback;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,7 +65,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        mapView = (MapView) view.findViewById(R.id.googleMapView);
+        mapView = view.findViewById(R.id.googleMapView);
         mapView.onCreate(savedInstanceState);
         //mapView.onResume(); // needed to get the map to display immediately
 
@@ -77,7 +77,8 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         return view;
     }
 
-    @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //ButterKnife.bind(getContext(), view);
     }
@@ -89,7 +90,6 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         }
     }
 
-    private GoogleMap.OnMapLoadedCallback onMapLoadedCallback;
     public void setOnMapLoadedCallback(GoogleMap.OnMapLoadedCallback callback) {
         if (onMapLoadedCallback == null) {
             onMapLoadedCallback = callback;
@@ -130,17 +130,32 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     }
 
     public LatLng getLocation() {
-        if(location == null)
+        if (location == null)
             location = new LatLng(46.61028, 13.85583);
         return location;
     }
+
     public Marker getMarker() {
         return marker;
     }
 
+    public void setMarker(LatLng location) {
+        if (marker != null)
+            marker.remove();
+
+        //googleMap.setMinZoomPreference(0.5f);
+        //googleMap.setMaxZoomPreference(2.0f);
+        markerOptions = new MarkerOptions().position(location).title("Current Location");
+        marker = googleMap.addMarker(markerOptions);
+        marker.setPosition(location);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+        // Zoom in the Google Map
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+    }
+
     private void LocationEnable() {
         if (ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                && ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -159,7 +174,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     }
 
     public void updateMarker(LatLng location) {
-        if(marker != null)
+        if (marker != null)
             marker.remove();
 
         //googleMap.setMinZoomPreference(0.5f);
@@ -172,25 +187,11 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
     }
 
-    public void setMarker(LatLng location) {
-        if(marker != null)
-            marker.remove();
-
-        //googleMap.setMinZoomPreference(0.5f);
-        //googleMap.setMaxZoomPreference(2.0f);
-        markerOptions = new MarkerOptions().position(location).title("Current Location");
-        marker = googleMap.addMarker(markerOptions);
-        marker.setPosition(location);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(location));
-        // Zoom in the Google Map
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-    }
-
     // centralize?
     public LatLng getGpsfromScreen(Coordinate coordinate) {
         Projection projection = this.googleMap.getProjection();
         // TODO toPoint in COORDINATE
-        Point screenPoint = new Point((int)coordinate.getX(), (int)coordinate.getY());
+        Point screenPoint = new Point((int) coordinate.getX(), (int) coordinate.getY());
         return projection.fromScreenLocation(screenPoint);
     }
 
@@ -201,7 +202,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         return screenPoint;
         */
 
-        if(gpsCoordinate == null)
+        if (gpsCoordinate == null)
             screenCoordinateCallback.onScreenCoordinate(null);
 
         LatLng googleCoordinate = new LatLng(gpsCoordinate.getLatitude(), gpsCoordinate.getLongitude());
@@ -228,7 +229,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     @Override
     public void onResume() {
         super.onResume();
-        if(mapView != null)
+        if (mapView != null)
             mapView.onResume();
     }
 
@@ -270,16 +271,14 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
 
     //@Override
     public void onCompleteHandling(boolean result) {
-        if(!result)
+        if (!result)
             googleMap.getUiSettings().setScrollGesturesEnabled(true);
         else
             googleMap.getUiSettings().setScrollGesturesEnabled(false);
     }
 
-    private OnScreenCoordinateCallback screenCoordinateCallback;
-
     public void setOnScreenCoordinateCallback(OnScreenCoordinateCallback callback) {
-        if(screenCoordinateCallback == null)
+        if (screenCoordinateCallback == null)
             this.screenCoordinateCallback = callback;
     }
 
@@ -294,20 +293,20 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         PointOfInterests pois = FlyPlanController.getInstance().getFlyPlan().getPoints().getPointOfInterests();
 
         Coordinate coordinate;
-        for(int i=0; i < waypoints.size(); i++) {
+        for (int i = 0; i < waypoints.size(); i++) {
             coordinate = waypoints.get(i).getShape().getCoordinate();
             LatLng googleGps = getGpsfromScreen(coordinate);
             GPSCoordinate gpsCoordinate = new GPSCoordinate(googleGps.latitude, googleGps.longitude);
             waypointGpsCoordinates.add(gpsCoordinate);
         }
 
-        for(int i=0; i < pois.size(); i++) {
+        for (int i = 0; i < pois.size(); i++) {
             coordinate = pois.get(i).getShape().getCoordinate();
             LatLng googleGps = getGpsfromScreen(coordinate);
             GPSCoordinate gpsCoordinate = new GPSCoordinate(googleGps.latitude, googleGps.longitude);
             poiGpsCoordinates.add(gpsCoordinate);
         }
 
-        ((FlyplannerActivity)getActivity()).updateFlyplanNodes(waypointGpsCoordinates, poiGpsCoordinates);
+        ((FlyplannerActivity) getActivity()).updateFlyplanNodes(waypointGpsCoordinates, poiGpsCoordinates);
     }
 }

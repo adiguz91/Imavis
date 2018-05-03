@@ -28,7 +28,6 @@ import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.util.Date;
 import java.util.ListIterator;
-import java.util.UUID;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -39,50 +38,111 @@ import java.util.UUID;
 })
 public class FlyPlan implements Parcelable {
 
+    // Method to recreate a Question from a Parcel
+    public static Parcelable.Creator<FlyPlan> CREATOR = new Parcelable.Creator<FlyPlan>() {
+
+        @Override
+        public FlyPlan createFromParcel(Parcel source) {
+            return new FlyPlan(source);
+        }
+
+        @Override
+        public FlyPlan[] newArray(int size) {
+            return new FlyPlan[size];
+        }
+
+    };
     @Transient
     private static Gson gson = new Gson();
-
     @Id(autoincrement = true)
     private Long id;
-
     @Convert(converter = UnitOfLengthConverter.class, columnType = String.class)
     private UnitOfLength unitOfLength = CFlyPlan.UNIT_OF_LENGTH;
-
     @NotNull
     private Long projectId;
-
     @NotNull
     @ToOne(joinProperty = "projectId")
     private Project project;
-
     private Long mapDataId;
     @ToOne(joinProperty = "mapDataId")
     private MapData mapData;
-
     @Transient
     private GoogleMapExtension map;
-    
     private Date createdAt;
-
     @Transient
     private Uri imageFolderUrl;
-
     @Transient
     private Nodes nodes = new Nodes();
-
     private String nodesJson;
-
     private String taskId;
-
     @Transient
     private Task task;
-
     @Transient
     private String taskSerialized;
+    @Transient
+    private Coordinate dragCoordinate; // should be not transient
+    @NotNull
+    private String name; // task name
+    @NotNull
+    private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
+    @NotNull
+    private int minSpeed = CFlyPlan.MIN_SPEED;
+    /**
+     * Used to resolve relations
+     */
+    @Generated(hash = 2040040024)
+    private transient DaoSession daoSession;
+    /**
+     * Used for active entity operations.
+     */
+    @Generated(hash = 500138044)
+    private transient FlyPlanDao myDao;
+    @Generated(hash = 1005767482)
+    private transient Long project__resolvedKey;
+    @Generated(hash = 1887247556)
+    private transient Long mapData__resolvedKey;
 
-    @NotNull private String name; // task name
-    @NotNull private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
-    @NotNull private int minSpeed = CFlyPlan.MIN_SPEED;
+    /**
+     * Constructs a Project from a Parcel
+     *
+     * @param parcelIn Source Parcel
+     */
+    public FlyPlan(Parcel parcelIn) {
+        this.id = parcelIn.readLong();
+        this.mapData = (MapData) parcelIn.readSerializable();
+        this.minFlyHeight = parcelIn.readInt();
+        this.minSpeed = parcelIn.readInt();
+        this.unitOfLength = UnitOfLength.valueOf(parcelIn.readString());
+        this.name = parcelIn.readString();
+        //this.nodes = (Nodes) parcelIn.readSerializable();
+        this.nodesJson = parcelIn.readString();
+        this.task = parcelIn.readParcelable(Task.class.getClassLoader());
+        this.projectId = parcelIn.readLong();
+        this.taskSerialized = parcelIn.readString();
+    }
+
+    @Generated(hash = 955028436)
+    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, Date createdAt, String nodesJson, String taskId,
+                   @NotNull String name, int minFlyHeight, int minSpeed) {
+        this.id = id;
+        this.unitOfLength = unitOfLength;
+        this.projectId = projectId;
+        this.mapDataId = mapDataId;
+        this.createdAt = createdAt;
+        this.nodesJson = nodesJson;
+        this.taskId = taskId;
+        this.name = name;
+        this.minFlyHeight = minFlyHeight;
+        this.minSpeed = minSpeed;
+    }
+
+    @Generated(hash = 1603132182)
+    public FlyPlan() {
+    }
+
+    public static FlyPlan loadFromJsonFile(String jsonFileContent) {
+        return new Gson().fromJson(jsonFileContent, FlyPlan.class);
+    }
 
     public Uri getImageFolderUrl() {
         return imageFolderUrl;
@@ -90,6 +150,14 @@ public class FlyPlan implements Parcelable {
 
     public void setImageFolderUrl(Uri imageFolderUrl) {
         this.imageFolderUrl = imageFolderUrl;
+    }
+
+    public Coordinate getDragCoordinate() {
+        return dragCoordinate;
+    }
+
+    public void setDragCoordinate(Coordinate dragCoordinate) {
+        this.dragCoordinate = dragCoordinate;
     }
 
     public Path getPathRoute(float xCorrection, float yCorrection) {
@@ -117,25 +185,18 @@ public class FlyPlan implements Parcelable {
         com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest selectedPOI = FlyPlanController.getSelectedPOI();
 
         // draw selectedWaypoint
-        if(selectedWaypoint != null) {
+        if (selectedWaypoint != null) {
             selectedWaypoint.setShapeSelectedPaint();
             selectedWaypoint.draw(canvas, String.valueOf(selectedWaypointId), selectedWaypointId);
         }
         // draw selectedPOI
-        if(selectedPOI != null) {
+        if (selectedPOI != null) {
             selectedPOI.setShapeSelectedPaint();
             selectedPOI.getShape().setBackgroundColor(this.getPoints().getPointOfInterests().getPoiColorById(selectedPoiIndex));
             selectedPOI.draw(canvas, String.valueOf(selectedPoiId));
         }
     }
 
-    public void setNodesJson(String nodesJson) {
-        this.nodesJson = nodesJson;
-    }
-
-    public static FlyPlan loadFromJsonFile(String jsonFileContent) {
-        return new Gson().fromJson(jsonFileContent, FlyPlan.class);
-    }
     public String saveToJsonFile() {
         return new Gson().toJson(this);
     }
@@ -159,6 +220,7 @@ public class FlyPlan implements Parcelable {
     public GoogleMapExtension getMap() {
         return map;
     }
+
     public void setMap(GoogleMapExtension map) {
         this.map = map;
         nodes.setMap(map);
@@ -167,11 +229,11 @@ public class FlyPlan implements Parcelable {
     public Nodes getPoints() {
         if (nodes != null && (nodesJson != null && nodesJson != "")) {
             nodes.loadNodes(nodesJson);
-        }
-        else if (nodes == null)
+        } else if (nodes == null)
             nodes = new Nodes();
         return nodes;
     }
+
     private void setPoints(Nodes points) {
         this.nodes = nodes;
     }
@@ -179,6 +241,7 @@ public class FlyPlan implements Parcelable {
     public int getMinFlyHeight() {
         return minFlyHeight;
     }
+
     public void setMinFlyHeight(int minFlyHeight) {
         this.minFlyHeight = minFlyHeight;
     }
@@ -186,6 +249,7 @@ public class FlyPlan implements Parcelable {
     public int getMinSpeed() {
         return minSpeed;
     }
+
     public void setMinSpeed(int minSpeed) {
         this.minSpeed = minSpeed;
     }
@@ -193,16 +257,20 @@ public class FlyPlan implements Parcelable {
     public UnitOfLength getUnitOfLength() {
         return unitOfLength;
     }
+
+    /* PARCELABLE PART */
+
     public void setUnitOfLength(UnitOfLength unitOfLength) {
         this.unitOfLength = unitOfLength;
         // todo convert all unitOfLength values and reload
     }
 
     public String getName() {
-        if(task != null)
+        if (task != null)
             return task.getName();
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -211,7 +279,7 @@ public class FlyPlan implements Parcelable {
         if (task != null)
             return task;
         else if (!StringUtil.isNullOrEmpty(taskSerialized))
-           return gson.fromJson(taskSerialized, Task.class); // deserialized Task
+            return gson.fromJson(taskSerialized, Task.class); // deserialized Task
         return new Task(); // dummy empty task
     }
 
@@ -222,11 +290,10 @@ public class FlyPlan implements Parcelable {
     public String getTaskSerialized() {
         return taskSerialized;
     }
+
     public void setTaskSerialized(String taskSerialized) {
         this.taskSerialized = taskSerialized;
     }
-
-    /* PARCELABLE PART */
 
     @Override
     public int describeContents() {
@@ -272,7 +339,9 @@ public class FlyPlan implements Parcelable {
         this.mapDataId = mapDataId;
     }
 
-    /** To-one relationship, resolved on first access. */
+    /**
+     * To-one relationship, resolved on first access.
+     */
     @Generated(hash = 1654636707)
     public Project getProject() {
         Long __key = this.projectId;
@@ -291,7 +360,9 @@ public class FlyPlan implements Parcelable {
         return project;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 1207172963)
     public void setProject(@NotNull Project project) {
         if (project == null) {
@@ -304,7 +375,9 @@ public class FlyPlan implements Parcelable {
         }
     }
 
-    /** To-one relationship, resolved on first access. */
+    /**
+     * To-one relationship, resolved on first access.
+     */
     @Generated(hash = 1443398968)
     public MapData getMapData() {
         Long __key = this.mapDataId;
@@ -323,7 +396,9 @@ public class FlyPlan implements Parcelable {
         return mapData;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 125145966)
     public void setMapData(MapData mapData) {
         synchronized (this) {
@@ -373,78 +448,18 @@ public class FlyPlan implements Parcelable {
         return this.nodesJson;
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    public void setNodesJson(String nodesJson) {
+        this.nodesJson = nodesJson;
+    }
+
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 608845545)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getFlyPlanDao() : null;
     }
-
-    /**
-     * Constructs a Project from a Parcel
-     * @param parcelIn Source Parcel
-     */
-    public FlyPlan (Parcel parcelIn) {
-        this.id = parcelIn.readLong();
-        this.mapData = (MapData) parcelIn.readSerializable();
-        this.minFlyHeight = parcelIn.readInt();
-        this.minSpeed = parcelIn.readInt();
-        this.unitOfLength = UnitOfLength.valueOf(parcelIn.readString());
-        this.name = parcelIn.readString();
-        //this.nodes = (Nodes) parcelIn.readSerializable();
-        this.nodesJson = parcelIn.readString();
-        this.task = parcelIn.readParcelable(Task.class.getClassLoader());
-        this.projectId = parcelIn.readLong();
-        this.taskSerialized = parcelIn.readString();
-    }
-
-    @Generated(hash = 955028436)
-    public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, Date createdAt, String nodesJson, String taskId,
-            @NotNull String name, int minFlyHeight, int minSpeed) {
-        this.id = id;
-        this.unitOfLength = unitOfLength;
-        this.projectId = projectId;
-        this.mapDataId = mapDataId;
-        this.createdAt = createdAt;
-        this.nodesJson = nodesJson;
-        this.taskId = taskId;
-        this.name = name;
-        this.minFlyHeight = minFlyHeight;
-        this.minSpeed = minSpeed;
-    }
-
-    @Generated(hash = 1603132182)
-    public FlyPlan() {
-    }
-
-    // Method to recreate a Question from a Parcel
-    public static Parcelable.Creator<FlyPlan> CREATOR = new Parcelable.Creator<FlyPlan>() {
-
-        @Override
-        public FlyPlan createFromParcel(Parcel source) {
-            return new FlyPlan(source);
-        }
-
-        @Override
-        public FlyPlan[] newArray(int size) {
-            return new FlyPlan[size];
-        }
-
-    };
-
-    /** Used to resolve relations */
-    @Generated(hash = 2040040024)
-    private transient DaoSession daoSession;
-
-    /** Used for active entity operations. */
-    @Generated(hash = 500138044)
-    private transient FlyPlanDao myDao;
-
-    @Generated(hash = 1005767482)
-    private transient Long project__resolvedKey;
-
-    @Generated(hash = 1887247556)
-    private transient Long mapData__resolvedKey;
 
     /* GreenDAO CONVERTER */
 

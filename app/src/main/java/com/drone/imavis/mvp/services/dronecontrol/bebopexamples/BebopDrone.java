@@ -36,83 +36,141 @@ import java.util.List;
 
 public class BebopDrone {
     private static final String TAG = "BebopDrone";
-
-    public interface Listener {
-        /**
-         * Called when the connection to the drone changes
-         * Called in the main thread
-         * @param state the state of the drone
-         */
-        void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state);
-
-        /**
-         * Called when the battery charge changes
-         * Called in the main thread
-         * @param batteryPercentage the battery remaining (in percent)
-         */
-        void onBatteryChargeChanged(int batteryPercentage);
-
-        /**
-         * Called when the piloting state changes
-         * Called in the main thread
-         * @param state the piloting state of the drone
-         */
-        void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
-
-        /**
-         * Called when a picture is taken
-         * Called on a separate thread
-         * @param error ERROR_OK if picture has been taken, otherwise describe the error
-         */
-        void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
-
-        /**
-         * Called when the video decoder should be configured
-         * Called on a separate thread
-         * @param codec the codec to configure the decoder with
-         */
-        void configureDecoder(ARControllerCodec codec);
-
-        /**
-         * Called when a video frame has been received
-         * Called on a separate thread
-         * @param frame the video frame
-         */
-        void onFrameReceived(ARFrame frame);
-
-        /**
-         * Called before medias will be downloaded
-         * Called in the main thread
-         * @param nbMedias the number of medias that will be downloaded
-         */
-        void onMatchingMediasFound(int nbMedias);
-
-        /**
-         * Called each time the progress of a download changes
-         * Called in the main thread
-         * @param mediaName the name of the media
-         * @param progress the progress of its download (from 0 to 100)
-         */
-        void onDownloadProgressed(String mediaName, int progress);
-
-        /**
-         * Called when a media download has ended
-         * Called in the main thread
-         * @param mediaName the name of the media
-         */
-        void onDownloadComplete(String mediaName);
-    }
-
     private final List<Listener> mListeners;
-
     private final Handler mHandler;
     private final Context mContext;
+    private final SDCardModule.Listener mSDCardModuleListener = new SDCardModule.Listener() {
+        @Override
+        public void onMatchingMediasFound(final int nbMedias) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyMatchingMediasFound(nbMedias);
+                }
+            });
+        }
 
+        @Override
+        public void onDownloadProgressed(final String mediaName, final int progress) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDownloadProgressed(mediaName, progress);
+                }
+            });
+        }
+
+        @Override
+        public void onDownloadComplete(final String mediaName) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDownloadComplete(mediaName);
+                }
+            });
+        }
+    };
+    private final ARDeviceControllerStreamListener mStreamListener = new ARDeviceControllerStreamListener() {
+        @Override
+        public ARCONTROLLER_ERROR_ENUM configureDecoder(ARDeviceController deviceController, final ARControllerCodec codec) {
+            notifyConfigureDecoder(codec);
+            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
+        }
+
+        @Override
+        public ARCONTROLLER_ERROR_ENUM onFrameReceived(ARDeviceController deviceController, final ARFrame frame) {
+            notifyFrameReceived(frame);
+            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
+        }
+
+        @Override
+        public void onFrameTimeout(ARDeviceController deviceController) {
+        }
+    };
     private ARDeviceController mDeviceController;
     private SDCardModule mSDCardModule;
     private ARCONTROLLER_DEVICE_STATE_ENUM mState;
     private ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM mFlyingState;
     private String mCurrentRunId;
+    private final ARDeviceControllerListener mDeviceControllerListener = new ARDeviceControllerListener() {
+        @Override
+        public void onStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARCONTROLLER_ERROR_ENUM error) {
+            mState = newState;
+            if (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(mState)) {
+                mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 1);
+            } else if (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED.equals(mState)) {
+                mSDCardModule.cancelGetFlightMedias();
+            }
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyConnectionChanged(mState);
+                }
+            });
+        }
+
+        @Override
+        public void onExtensionStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARDISCOVERY_PRODUCT_ENUM product, String name, ARCONTROLLER_ERROR_ENUM error) {
+        }
+
+        @Override
+        public void onCommandReceived(ARDeviceController deviceController, ARCONTROLLER_DICTIONARY_KEY_ENUM commandKey, ARControllerDictionary elementDictionary) {
+            // if event received is the battery update
+            if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final int battery = (Integer) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED_PERCENT);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyBatteryChanged(battery);
+                        }
+                    });
+                }
+            }
+            // if event received is the flying state update
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state = ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.getFromValue((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE));
+
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFlyingState = state;
+                            notifyPilotingStateChanged(state);
+                        }
+                    });
+                }
+            }
+            // if event received is the picture notification
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error = ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM.getFromValue((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR));
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyPictureTaken(error);
+                        }
+                    });
+                }
+            }
+            // if event received is the run id
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_RUNSTATE_RUNIDCHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final String runID = (String) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_RUNSTATE_RUNIDCHANGED_RUNID);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCurrentRunId = runID;
+                        }
+                    });
+                }
+            }
+        }
+    };
     private ARDiscoveryDeviceService mDeviceService;
     private ARUtilsManager mFtpListManager;
     private ARUtilsManager mFtpQueueManager;
@@ -139,8 +197,7 @@ public class BebopDrone {
                 discoveryDevice.dispose();
             }
 
-            try
-            {
+            try {
                 mFtpListManager = new ARUtilsManager();
                 mFtpQueueManager = new ARUtilsManager();
 
@@ -149,9 +206,7 @@ public class BebopDrone {
 
                 mSDCardModule = new SDCardModule(mFtpListManager, mFtpQueueManager);
                 mSDCardModule.addListener(mSDCardModuleListener);
-            }
-            catch (ARUtilsException e)
-            {
+            } catch (ARUtilsException e) {
                 Log.e(TAG, "Exception", e);
             }
 
@@ -160,8 +215,7 @@ public class BebopDrone {
         }
     }
 
-    public void dispose()
-    {
+    public void dispose() {
         if (mDeviceController != null)
             mDeviceController.dispose();
         if (mFtpListManager != null)
@@ -169,6 +223,7 @@ public class BebopDrone {
         if (mFtpQueueManager != null)
             mFtpQueueManager.closeFtp(mContext, mDeviceService);
     }
+    //endregion Listener
 
     //region Listener functions
     public void addListener(Listener listener) {
@@ -178,13 +233,13 @@ public class BebopDrone {
     public void removeListener(Listener listener) {
         mListeners.remove(listener);
     }
-    //endregion Listener
 
     /**
      * Connect to the drone
+     *
      * @return true if operation was successful.
-     *              Returning true doesn't mean that device is connected.
-     *              You can be informed of the actual connection through {@link Listener#onDroneConnectionChanged}
+     * Returning true doesn't mean that device is connected.
+     * You can be informed of the actual connection through {@link Listener#onDroneConnectionChanged}
      */
     public boolean connect() {
         boolean success = false;
@@ -199,9 +254,10 @@ public class BebopDrone {
 
     /**
      * Disconnect from the drone
+     *
      * @return true if operation was successful.
-     *              Returning true doesn't mean that device is disconnected.
-     *              You can be informed of the actual disconnection through {@link Listener#onDroneConnectionChanged}
+     * Returning true doesn't mean that device is disconnected.
+     * You can be informed of the actual disconnection through {@link Listener#onDroneConnectionChanged}
      */
     public boolean disconnect() {
         boolean success = false;
@@ -216,6 +272,7 @@ public class BebopDrone {
 
     /**
      * Get the current connection state
+     *
      * @return the connection state of the drone
      */
     public ARCONTROLLER_DEVICE_STATE_ENUM getConnectionState() {
@@ -224,6 +281,7 @@ public class BebopDrone {
 
     /**
      * Get the current flying state
+     *
      * @return the flying state
      */
     public ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM getFlyingState() {
@@ -257,6 +315,7 @@ public class BebopDrone {
     /**
      * Set the forward/backward angle of the drone
      * Note that {@link BebopDrone#setFlag(byte)} should be set to 1 in order to take in account the pitch value
+     *
      * @param pitch value in percentage from -100 to 100
      */
     public void setPitch(byte pitch) {
@@ -268,6 +327,7 @@ public class BebopDrone {
     /**
      * Set the side angle of the drone
      * Note that {@link BebopDrone#setFlag(byte)} should be set to 1 in order to take in account the roll value
+     *
      * @param roll value in percentage from -100 to 100
      */
     public void setRoll(byte roll) {
@@ -290,6 +350,7 @@ public class BebopDrone {
 
     /**
      * Take in account or not the pitch and roll values
+     *
      * @param flag 1 if the pitch and roll values should be used, 0 otherwise
      */
     public void setFlag(byte flag) {
@@ -392,6 +453,7 @@ public class BebopDrone {
             listener.onMatchingMediasFound(nbMedias);
         }
     }
+    //endregion notify listener block
 
     private void notifyDownloadProgressed(String mediaName, int progress) {
         List<Listener> listenersCpy = new ArrayList<>(mListeners);
@@ -406,134 +468,79 @@ public class BebopDrone {
             listener.onDownloadComplete(mediaName);
         }
     }
-    //endregion notify listener block
 
-    private final SDCardModule.Listener mSDCardModuleListener = new SDCardModule.Listener() {
-        @Override
-        public void onMatchingMediasFound(final int nbMedias) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    notifyMatchingMediasFound(nbMedias);
-                }
-            });
-        }
+    public interface Listener {
+        /**
+         * Called when the connection to the drone changes
+         * Called in the main thread
+         *
+         * @param state the state of the drone
+         */
+        void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state);
 
-        @Override
-        public void onDownloadProgressed(final String mediaName, final int progress) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    notifyDownloadProgressed(mediaName, progress);
-                }
-            });
-        }
+        /**
+         * Called when the battery charge changes
+         * Called in the main thread
+         *
+         * @param batteryPercentage the battery remaining (in percent)
+         */
+        void onBatteryChargeChanged(int batteryPercentage);
 
-        @Override
-        public void onDownloadComplete(final String mediaName) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    notifyDownloadComplete(mediaName);
-                }
-            });
-        }
-    };
+        /**
+         * Called when the piloting state changes
+         * Called in the main thread
+         *
+         * @param state the piloting state of the drone
+         */
+        void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
 
-    private final ARDeviceControllerListener mDeviceControllerListener = new ARDeviceControllerListener() {
-        @Override
-        public void onStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARCONTROLLER_ERROR_ENUM error) {
-            mState = newState;
-            if (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(mState)) {
-                mDeviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 1);
-            } else if (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED.equals(mState)) {
-                mSDCardModule.cancelGetFlightMedias();
-            }
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    notifyConnectionChanged(mState);
-                }
-            });
-        }
+        /**
+         * Called when a picture is taken
+         * Called on a separate thread
+         *
+         * @param error ERROR_OK if picture has been taken, otherwise describe the error
+         */
+        void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
 
-        @Override
-        public void onExtensionStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARDISCOVERY_PRODUCT_ENUM product, String name, ARCONTROLLER_ERROR_ENUM error) {
-        }
+        /**
+         * Called when the video decoder should be configured
+         * Called on a separate thread
+         *
+         * @param codec the codec to configure the decoder with
+         */
+        void configureDecoder(ARControllerCodec codec);
 
-        @Override
-        public void onCommandReceived(ARDeviceController deviceController, ARCONTROLLER_DICTIONARY_KEY_ENUM commandKey, ARControllerDictionary elementDictionary) {
-            // if event received is the battery update
-            if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED) && (elementDictionary != null)) {
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if (args != null) {
-                    final int battery = (Integer) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED_PERCENT);
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyBatteryChanged(battery);
-                        }
-                    });
-                }
-            }
-            // if event received is the flying state update
-            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED) && (elementDictionary != null)) {
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if (args != null) {
-                    final ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state = ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.getFromValue((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE));
+        /**
+         * Called when a video frame has been received
+         * Called on a separate thread
+         *
+         * @param frame the video frame
+         */
+        void onFrameReceived(ARFrame frame);
 
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mFlyingState = state;
-                            notifyPilotingStateChanged(state);
-                        }
-                    });
-                }
-            }
-            // if event received is the picture notification
-            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED) && (elementDictionary != null)){
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if (args != null) {
-                    final ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error = ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM.getFromValue((Integer)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR));
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyPictureTaken(error);
-                        }
-                    });
-                }
-            }
-            // if event received is the run id
-            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_RUNSTATE_RUNIDCHANGED) && (elementDictionary != null)){
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if (args != null) {
-                    final String runID = (String) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_RUNSTATE_RUNIDCHANGED_RUNID);
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCurrentRunId = runID;
-                        }
-                    });
-                }
-            }
-        }
-    };
+        /**
+         * Called before medias will be downloaded
+         * Called in the main thread
+         *
+         * @param nbMedias the number of medias that will be downloaded
+         */
+        void onMatchingMediasFound(int nbMedias);
 
-    private final ARDeviceControllerStreamListener mStreamListener = new ARDeviceControllerStreamListener() {
-        @Override
-        public ARCONTROLLER_ERROR_ENUM configureDecoder(ARDeviceController deviceController, final ARControllerCodec codec) {
-            notifyConfigureDecoder(codec);
-            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
-        }
+        /**
+         * Called each time the progress of a download changes
+         * Called in the main thread
+         *
+         * @param mediaName the name of the media
+         * @param progress  the progress of its download (from 0 to 100)
+         */
+        void onDownloadProgressed(String mediaName, int progress);
 
-        @Override
-        public ARCONTROLLER_ERROR_ENUM onFrameReceived(ARDeviceController deviceController, final ARFrame frame) {
-            notifyFrameReceived(frame);
-            return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
-        }
-
-        @Override
-        public void onFrameTimeout(ARDeviceController deviceController) {}
-    };
+        /**
+         * Called when a media download has ended
+         * Called in the main thread
+         *
+         * @param mediaName the name of the media
+         */
+        void onDownloadComplete(String mediaName);
+    }
 }

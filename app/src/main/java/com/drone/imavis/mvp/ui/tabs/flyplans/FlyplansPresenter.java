@@ -45,7 +45,7 @@ public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
     }
 
     public void loadFlyplans(Project project) {
-        if(project == null) // show empty list
+        if (project == null) // show empty list
             return;
 
         checkViewAttached();
@@ -56,7 +56,8 @@ public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
                 //.retry() // authorization token is not finished
                 .subscribe(new Observer<List<FlyPlan>>() {
                     @Override
-                    public void onSubscribe(@NonNull Disposable d) {}
+                    public void onSubscribe(@NonNull Disposable d) {
+                    }
 
                     @Override
                     public void onNext(@NonNull List<FlyPlan> flyplans) {
@@ -80,7 +81,8 @@ public class FlyplansPresenter extends BasePresenter<IFlyplansMvpView> {
                     }
 
                     @Override
-                    public void onComplete() {}
+                    public void onComplete() {
+                    }
                 });
     }
 

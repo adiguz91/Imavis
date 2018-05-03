@@ -17,41 +17,24 @@ import java.util.List;
 public class CopyNodesDrawingView extends View {
 
     private static final String TAG = "CopyNodesDrawingView";
-
-    /** Main bitmap */
-    //private Bitmap mBitmap = null;
-    private Rect mMeasuredRect;
-
-    /** Stores data about single circle */
-    private static class CircleArea {
-        int radius;
-        int centerX;
-        int centerY;
-
-        CircleArea(int centerX, int centerY, int radius) {
-            this.radius = radius;
-            this.centerX = centerX;
-            this.centerY = centerY;
-        }
-
-        @Override
-        public String toString() {
-            return "Circle[" + centerX + ", " + centerY + ", " + radius + "]";
-        }
-    }
-
-    /** Paint to draw circles */
-    private Paint mCirclePaint;
-
     //private final Random mRadiusGenerator = new Random();
     // Radius limit in pixels
     private final static int RADIUS_LIMIT = 25;
     private static final int CIRCLES_LIMIT = 25;
-
-    /** All available circles */
+    /**
+     * Main bitmap
+     */
+    //private Bitmap mBitmap = null;
+    private Rect mMeasuredRect;
+    /**
+     * Paint to draw circles
+     */
+    private Paint mCirclePaint;
+    /**
+     * All available circles
+     */
     private List<CircleArea> mCircles = new ArrayList<CircleArea>(CIRCLES_LIMIT); // HashSet
     private SparseArray<CircleArea> mCirclePointer = new SparseArray<CircleArea>(CIRCLES_LIMIT);
-
     /**
      * Default constructor
      *
@@ -98,7 +81,7 @@ public class CopyNodesDrawingView extends View {
 
             canv.drawCircle(circle.centerX, circle.centerY, circle.radius, mCirclePaint);
             drawText(mCirclePaint, canv, String.valueOf(counter), circle.centerX, circle.centerY);
-            if(counter > 0) {
+            if (counter > 0) {
                 drawLineArrow(mCirclePaint, canv, lastX, lastY, circle.centerX, circle.centerY);
                 //canv.drawLine( circle.centerX, circle.centerY, lastX, lastY, mCirclePaint);
             }
@@ -258,7 +241,6 @@ public class CopyNodesDrawingView extends View {
      *
      * @param xTouch int x of touch
      * @param yTouch int y of touch
-     *
      * @return obtained {@link CircleArea}
      */
     private CircleArea obtainTouchedCircle(final int xTouch, final int yTouch) {
@@ -286,7 +268,6 @@ public class CopyNodesDrawingView extends View {
      *
      * @param xTouch int x touch coordinate
      * @param yTouch int y touch coordinate
-     *
      * @return {@link CircleArea} touched circle or null if no circle has been touched
      */
     private CircleArea getTouchedCircle(final int xTouch, final int yTouch) {
@@ -307,5 +288,25 @@ public class CopyNodesDrawingView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         mMeasuredRect = new Rect(0, 0, getMeasuredWidth(), getMeasuredHeight());
+    }
+
+    /**
+     * Stores data about single circle
+     */
+    private static class CircleArea {
+        int radius;
+        int centerX;
+        int centerY;
+
+        CircleArea(int centerX, int centerY, int radius) {
+            this.radius = radius;
+            this.centerX = centerX;
+            this.centerY = centerY;
+        }
+
+        @Override
+        public String toString() {
+            return "Circle[" + centerX + ", " + centerY + ", " + radius + "]";
+        }
     }
 }

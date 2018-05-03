@@ -18,10 +18,11 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
     private static Gson gson = new Gson();
     private Waypoint selectedWaypoint;
 
-    public Waypoints() {}
+    public Waypoints() {
+    }
 
     public void Load(String waypointsJSON) {
-        if(!this.isEmpty())
+        if (!this.isEmpty())
             this.clear();
 
         Waypoints deserializedPOIs = gson.fromJson(waypointsJSON, Waypoints.class);
@@ -36,23 +37,23 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         iterator = this.listIterator();
         while (iterator.hasNext()) {
             waypoint = iterator.next();
-            if(waypointLastNode != null) {
+            if (waypointLastNode != null) {
                 waypoint.addLine(canvas, waypointLastNode, waypoint);
                 waypoint.drawProgressiveCircles(canvas, waypointLastNode.getShape(), waypoint.getShape());
-                if(waypointLastNode == FlyPlanController.getSelectedWaypoint()) {
+                if (waypointLastNode == FlyPlanController.getSelectedWaypoint()) {
                     waypointLastNode.addRectWithTextOnLine(canvas, waypointLastNode, waypoint, "10m/s");
                 }
-                
-                PointOfInterest poi = ((WaypointData)waypointLastNode.getData()).getPoi();
-                if(poi != null)
+
+                PointOfInterest poi = ((WaypointData) waypointLastNode.getData()).getPoi();
+                if (poi != null)
                     waypoint.addDirection(canvas, waypointLastNode, poi);
                 else
                     waypoint.addDirection(canvas, waypointLastNode, waypoint);
             }
 
-            if(waypoint == this.getLast()) {
+            if (waypoint == this.getLast()) {
                 PointOfInterest poi = ((WaypointData) waypoint.getData()).getPoi();
-                if(poi != null)
+                if (poi != null)
                     waypoint.addDirection(canvas, waypoint, poi);
             }
             waypointLastNode = waypoint;
@@ -65,10 +66,9 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         while (iterator.hasNext()) {
             waypoint = iterator.next();
             waypoint.setShapePaint();
-            if(waypoint != FlyPlanController.getSelectedWaypoint()) {
+            if (waypoint != FlyPlanController.getSelectedWaypoint()) {
                 waypoint.draw(canvas, String.valueOf(counter), counter);
-            }
-            else
+            } else
                 selectedWaypointIndex = counter - 1;
             counter++;
         }

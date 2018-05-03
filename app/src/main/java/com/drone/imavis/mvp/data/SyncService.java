@@ -12,7 +12,8 @@ import javax.inject.Inject;
 
 public class SyncService extends Service {
 
-    @Inject DataManager mDataManager;
+    @Inject
+    DataManager mDataManager;
     /*
 
     private rx.Subscription mSubscription;

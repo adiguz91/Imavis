@@ -49,43 +49,49 @@ public class FlyplannerPresenter extends BasePresenter<IFlyplannerActivity> {
 
         flyplan.setNodesJson(flyplan.getPoints().toSimpleNodesJson());
         dataManager.updateFlyplan(flyplan)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .subscribe(new CompletableObserver() {
-                   @Override
-                   public void onSubscribe(@NonNull Disposable d) {}
-                   @Override
-                   public void onComplete() {
-                       getMvpView().onSaveFlyplanSuccess(flyplan);
-                   }
-                   @Override
-                   public void onError(@NonNull Throwable e) {
-                       Log.w("ERROR-PRESENTER", "saveFlyplan: " + e);
-                       getMvpView().onSaveFlyplanFailed();
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .subscribe(new CompletableObserver() {
+                               @Override
+                               public void onSubscribe(@NonNull Disposable d) {
+                               }
 
-                   }
-               }
-            );
+                               @Override
+                               public void onComplete() {
+                                   getMvpView().onSaveFlyplanSuccess(flyplan);
+                               }
+
+                               @Override
+                               public void onError(@NonNull Throwable e) {
+                                   Log.w("ERROR-PRESENTER", "saveFlyplan: " + e);
+                                   getMvpView().onSaveFlyplanFailed();
+
+                               }
+                           }
+                );
     }
 
     public void startFlyplanTask(FlyPlan flyplan) {
         checkViewAttached();
         RxUtil.unsubscribe(subscription);
         dataManager.startFlyplanTask(flyplan)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .subscribe(new SingleObserver<FlyPlan>() {
-                   @Override
-                   public void onSubscribe(@NonNull Disposable d) {}
-                   @Override
-                   public void onSuccess(@NonNull FlyPlan flyplan) {
-                       getMvpView().onStartFlyplanTaskSuccess(flyplan);
-                   }
-                   @Override
-                   public void onError(@NonNull Throwable e) {
-                       getMvpView().onStartFlyplanTaskFailed();
-                   }
-               }
-            );
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .subscribe(new SingleObserver<FlyPlan>() {
+                               @Override
+                               public void onSubscribe(@NonNull Disposable d) {
+                               }
+
+                               @Override
+                               public void onSuccess(@NonNull FlyPlan flyplan) {
+                                   getMvpView().onStartFlyplanTaskSuccess(flyplan);
+                               }
+
+                               @Override
+                               public void onError(@NonNull Throwable e) {
+                                   getMvpView().onStartFlyplanTaskFailed();
+                               }
+                           }
+                );
     }
 }

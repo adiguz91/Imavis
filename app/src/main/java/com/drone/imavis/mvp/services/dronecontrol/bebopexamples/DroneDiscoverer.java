@@ -17,31 +17,32 @@ import com.parrot.arsdk.ardiscovery.receivers.ARDiscoveryServicesDevicesListUpda
 import java.util.ArrayList;
 import java.util.List;
 
-public class DroneDiscoverer
-{
+public class DroneDiscoverer {
     private static final String TAG = "DroneDiscoverer";
-
-    public interface Listener {
-        /**
-         * Called when the list of seen drones is updated
-         * Called in the main thread
-         * @param dronesList list of ARDiscoveryDeviceService which represents all available drones
-         *                   Content of this list respect the drone types given in startDiscovery
-         */
-        void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList);
-    }
-
     private final List<Listener> mListeners;
-
-
     private final Context mCtx;
-
-    private ARDiscoveryService mArdiscoveryService;
-    private ServiceConnection mArdiscoveryServiceConnection;
     private final ARDiscoveryServicesDevicesListUpdatedReceiver mArdiscoveryServicesDevicesListUpdatedReceiver;
-
     private final List<ARDiscoveryDeviceService> mMatchingDrones;
+    private ARDiscoveryService mArdiscoveryService;
+    private final ARDiscoveryServicesDevicesListUpdatedReceiverDelegate mDiscoveryListener =
+            new ARDiscoveryServicesDevicesListUpdatedReceiverDelegate() {
+                @Override
+                public void onServicesDevicesListUpdated() {
+                    if (mArdiscoveryService != null) {
+                        // clear current list
+                        mMatchingDrones.clear();
+                        List<ARDiscoveryDeviceService> deviceList = mArdiscoveryService.getDeviceServicesArray();
 
+                        if (deviceList != null) {
+                            for (ARDiscoveryDeviceService service : deviceList) {
+                                mMatchingDrones.add(service);
+                            }
+                        }
+                        notifyServiceDiscovered(mMatchingDrones);
+                    }
+                }
+            };
+    private ServiceConnection mArdiscoveryServiceConnection;
     private boolean mStartDiscoveryAfterConnection;
 
     public DroneDiscoverer(Context ctx) {
@@ -58,6 +59,7 @@ public class DroneDiscoverer
      * Add a listener
      * All callbacks of the interface Listener will be called within this function
      * Should be called in the main thread
+     *
      * @param listener an object that implements the {@link Listener} interface
      */
     public void addListener(Listener listener) {
@@ -68,6 +70,7 @@ public class DroneDiscoverer
 
     /**
      * remove a listener from the listener list
+     *
      * @param listener an object that implements the {@link Listener} interface
      */
     public void removeListener(Listener listener) {
@@ -171,24 +174,14 @@ public class DroneDiscoverer
         }
     }
 
-    private final ARDiscoveryServicesDevicesListUpdatedReceiverDelegate mDiscoveryListener =
-            new ARDiscoveryServicesDevicesListUpdatedReceiverDelegate() {
-                @Override
-                public void onServicesDevicesListUpdated() {
-                    if (mArdiscoveryService != null) {
-                        // clear current list
-                        mMatchingDrones.clear();
-                        List<ARDiscoveryDeviceService> deviceList = mArdiscoveryService.getDeviceServicesArray();
-
-                        if (deviceList != null)
-                        {
-                            for (ARDiscoveryDeviceService service : deviceList)
-                            {
-                                mMatchingDrones.add(service);
-                            }
-                        }
-                        notifyServiceDiscovered(mMatchingDrones);
-                    }
-                }
-            };
+    public interface Listener {
+        /**
+         * Called when the list of seen drones is updated
+         * Called in the main thread
+         *
+         * @param dronesList list of ARDiscoveryDeviceService which represents all available drones
+         *                   Content of this list respect the drone types given in startDiscovery
+         */
+        void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList);
+    }
 }

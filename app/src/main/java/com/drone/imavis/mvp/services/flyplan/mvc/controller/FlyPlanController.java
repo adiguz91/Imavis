@@ -30,12 +30,55 @@ public class FlyPlanController implements IFlyPlan {
     private static Waypoint selectedWaypoint;
     private static PointOfInterest selectedPOI;
 
+    public FlyPlanController(FlyPlan flyPlan) {
+        FlyPlanController.flyPlan = flyPlan;
+    }
+
+    public static Waypoint getSelectedWaypoint() {
+        return selectedWaypoint;
+    }
+
+    private void setSelectedWaypoint(Node touchedNode) {
+        if (touchedNode == null)
+            selectedWaypoint = null;
+        else {
+            if (touchedNode.getClass() == Waypoint.class) {
+                if (getSelectedWaypoint() == touchedNode) {
+                    removePoiFromWaypoint((Waypoint) touchedNode);
+                    selectedWaypoint = null; // double de/selected node
+                } else {
+                    selectedWaypoint = (Waypoint) touchedNode;
+                    addPoiToWaypoint((Waypoint) touchedNode);
+                }
+            }
+        }
+    }
+
+    public static PointOfInterest getSelectedPOI() {
+        return selectedPOI;
+    }
+
+    private void setSelectedPOI(Node node) {
+        if (node == null) {
+            selectedPOI = null;
+        } else {
+            if (node.getClass() == PointOfInterest.class) {
+                if (selectedPOI == null) {
+                    selectedPOI = (PointOfInterest) node;
+                } else if (getSelectedPOI() == node)
+                    selectedPOI = null; // double de/selected node
+                selectedWaypoint = null;
+            }
+        }
+    }
+
+    public static Node getTouchedNode() {
+        return touchedNode;
+    }
+
     private static void setTouchedNode(Node node) {
         touchedNode = node;
     }
-    public static Waypoint getSelectedWaypoint() { return selectedWaypoint; }
-    public static PointOfInterest getSelectedPOI() { return selectedPOI; }
-    public static Node getTouchedNode() { return touchedNode; }
 
     // SINGLETON PATTERN
     public static FlyPlanController getInstance() {
@@ -44,12 +87,23 @@ public class FlyPlanController implements IFlyPlan {
         return flyPlanController;
     }
 
-    public FlyPlanController(FlyPlan flyPlan) {
-        this.flyPlan = flyPlan;
+    public static float getScaleFactor() {
+        return FlyPlanView.getScaleFactor();
+    }
+
+    public static void setFlyPlan(FlyPlan flyPlanValue) {
+        flyPlan = flyPlanValue;
+    }
+
+    private void setSelectedNode(Node touchedNode) {
+        setTouchedNode(touchedNode);
+        setSelectedPOI(touchedNode);
+        setSelectedWaypoint(touchedNode);
     }
 
     /**
      * Search and creates new (if needed) node based on touch area
+     *
      * @param touchCoordinate
      * @return obtained {@link Node}
      */
@@ -57,13 +111,13 @@ public class FlyPlanController implements IFlyPlan {
         touchedNode = getTouchedNode(touchCoordinate);
 
         if (touchedNode == null) {
-            if(className == Waypoint.class) {
+            if (className == Waypoint.class) {
                 touchedNode = new Waypoint(touchCoordinate);
                 if (flyPlan.getPoints().getWaypoints().size() == CFlyPlan.MAX_WAYPOINTS_SIZE) {
                     flyPlan.getPoints().getWaypoints().clear();
                 }
             }
-            if(className == PointOfInterest.class) {
+            if (className == PointOfInterest.class) {
                 touchedNode = new PointOfInterest(touchCoordinate);
                 if (flyPlan.getPoints().getPointOfInterests().size() == CFlyPlan.MAX_POI_SIZE) {
                     flyPlan.getPoints().getPointOfInterests().clear();
@@ -79,68 +133,32 @@ public class FlyPlanController implements IFlyPlan {
         return false;
     }
 
-    private void setSelectedNode(Node touchedNode) {
-        setTouchedNode(touchedNode);
-        setSelectedPOI(touchedNode);
-        setSelectedWaypoint(touchedNode);
-    }
-
-    private void setSelectedWaypoint(Node touchedNode) {
-        if(touchedNode == null)
-            selectedWaypoint = null;
-        else {
-            if(touchedNode.getClass() == Waypoint.class) {
-                if(getSelectedWaypoint() == touchedNode) {
-                    removePoiFromWaypoint((Waypoint) touchedNode);
-                    selectedWaypoint = null; // double de/selected node
-                }
-                else {
-                    selectedWaypoint = (Waypoint) touchedNode;
-                    addPoiToWaypoint((Waypoint) touchedNode);
-                }
-            }
-        }
-    }
-
     private void addPoiToWaypoint(Waypoint touchedWaypoint) {
-        if(getSelectedPOI() != null) {
+        if (getSelectedPOI() != null) {
             int toucheWpIndex = flyPlan.getPoints().getWaypoints().indexOf(touchedWaypoint);
             Waypoint waypoint = flyPlan.getPoints().getWaypoints().get(toucheWpIndex);
-            ((WaypointData)waypoint.getData()).setPoi(FlyPlanController.getSelectedPOI());
+            ((WaypointData) waypoint.getData()).setPoi(FlyPlanController.getSelectedPOI());
             flyPlan.getPoints().getWaypoints().set(toucheWpIndex, waypoint);
         }
     }
 
     private void removePoiFromWaypoint(Waypoint touchedWaypoint) {
-        if(getSelectedPOI() != null && touchedWaypoint != null) {
+        if (getSelectedPOI() != null && touchedWaypoint != null) {
             int toucheWpIndex = flyPlan.getPoints().getWaypoints().indexOf(touchedWaypoint);
             Waypoint waypoint = flyPlan.getPoints().getWaypoints().get(toucheWpIndex);
-            ((WaypointData)waypoint.getData()).setPoi(null);
+            ((WaypointData) waypoint.getData()).setPoi(null);
             flyPlan.getPoints().getWaypoints().set(toucheWpIndex, waypoint);
         }
     }
 
-    private void setSelectedPOI(Node node) {
-        if (node == null) {
-            selectedPOI = null;
-        } else {
-            if (node.getClass() == PointOfInterest.class) {
-                if (selectedPOI == null) {
-                    selectedPOI = (PointOfInterest) node;
-                } else if (getSelectedPOI() == node)
-                    selectedPOI = null; // double de/selected node
-                    selectedWaypoint = null;
-            }
-        }
-    }
-
     public void draw(Canvas canvas) {
-        if(flyPlan != null)
+        if (flyPlan != null)
             flyPlan.draw(canvas);
     }
 
     /**
      * Determines touched node
+     *
      * @param touchCoordinate
      * @return {@link Node} touched node or null if no node has been touched
      */
@@ -153,23 +171,23 @@ public class FlyPlanController implements IFlyPlan {
         iterator = flyPlan.getPoints().getWaypoints().listIterator();
         while (iterator.hasNext()) {
             node = (Waypoint) iterator.next();
-            if(findNodeFromPoint(node.getShape().getCoordinate(), touchCoordinate, CShape.WAYPOINT_CIRCLE_RADIUS)) {
+            if (findNodeFromPoint(node.getShape().getCoordinate(), touchCoordinate, CShape.WAYPOINT_CIRCLE_RADIUS)) {
                 touched = node;
                 break;
             }
         }
 
         // find pointOfInterest
-        if(touched == null) {
+        if (touched == null) {
             for (PointOfInterest poi : flyPlan.getPoints().getPointOfInterests()) {
-                if(findNodeFromPoint(poi.getShape().getCoordinate(), touchCoordinate, CShape.POI_CIRCLE_RADIUS)) {
+                if (findNodeFromPoint(poi.getShape().getCoordinate(), touchCoordinate, CShape.POI_CIRCLE_RADIUS)) {
                     touched = poi;
                     break;
                 }
             }
         }
 
-        if(touched != null)
+        if (touched != null)
             touched.getShape().setCoordinate(touchCoordinate);
         setSelectedNode(touched);
         return touched;
@@ -184,7 +202,7 @@ public class FlyPlanController implements IFlyPlan {
         iterator = flyPlan.getPoints().getWaypoints().listIterator();
         while (iterator.hasNext()) {
             node = (Waypoint) iterator.next();
-            if(node.getLineTextRect() != null && node.getLineTextRect().contains(
+            if (node.getLineTextRect() != null && node.getLineTextRect().contains(
                     (int) touchCoordinate.getX(), (int) touchCoordinate.getY())) {
                 foundRectCoord = touchCoordinate;
                 break;
@@ -193,25 +211,16 @@ public class FlyPlanController implements IFlyPlan {
         return foundRectCoord;
     }
 
-    private boolean findNodeFromPoint(Coordinate nodeCoordinate, Coordinate touchedCoordinate, int radius) {
-        if((Math.pow((nodeCoordinate.getX() - touchedCoordinate.getX()), 2) +
-            Math.pow((nodeCoordinate.getY() - touchedCoordinate.getY()), 2))
-            < Math.pow(radius, 2)) {
-            return true;
-        }
-        return false;
-    }
-
-    public static float getScaleFactor() {
-        return FlyPlanView.getScaleFactor();
-    }
-
     @Override
     public FlyPlan getFlyPlan() {
         return flyPlan;
     }
 
-    public static void setFlyPlan(FlyPlan flyPlanValue) { flyPlan = flyPlanValue; }
+    private boolean findNodeFromPoint(Coordinate nodeCoordinate, Coordinate touchedCoordinate, int radius) {
+        return (Math.pow((nodeCoordinate.getX() - touchedCoordinate.getX()), 2) +
+                Math.pow((nodeCoordinate.getY() - touchedCoordinate.getY()), 2))
+                < Math.pow(radius, 2);
+    }
 
     @Override
     public FlyPlan onPlanCreateNew() {
@@ -226,7 +235,8 @@ public class FlyPlanController implements IFlyPlan {
             return FlyPlan.loadFromJsonFile(FileUtil.readFile(file));
         } catch (Exception e) {
             e.printStackTrace();
-        }   return null;
+        }
+        return null;
     }
 
     @Override

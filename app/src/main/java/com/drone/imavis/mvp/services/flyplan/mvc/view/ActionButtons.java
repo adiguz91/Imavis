@@ -5,9 +5,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.drone.imavis.mvp.services.flyplan.mvc.util.FlyPlanMath;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.dimension.Size;
+import com.drone.imavis.mvp.services.flyplan.mvc.util.FlyPlanMath;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +18,7 @@ import java.util.List;
 
 public class ActionButtons {
 
+    List<String> listOfActionNodes = new ArrayList<>();
     private ViewGroup viewGroup;
     private Button nodeDeleteButton;
 
@@ -35,7 +36,6 @@ public class ActionButtons {
         return buttons;
     }
 
-    List<String> listOfActionNodes = new ArrayList<>();
     private void initListOfActionNodes() {
         String nodeDeleteText = "Delete";
         //String waypointCloseText = "Close Circle";
@@ -52,8 +52,8 @@ public class ActionButtons {
         int actionButtonWidth = 0;
         int actionButtonHeight = 0;
         for (String actionButtonName : listOfActionNodes) {
-            actionButtonWidth += FlyPlanMath.getInstance().getPointOfText(actionButtonName, buttonTextSize).getWidth() + buttonPadding*2;
-            actionButtonHeight += FlyPlanMath.getInstance().getPointOfText(actionButtonName, buttonTextSize).getHeight() + buttonPadding*2;
+            actionButtonWidth += FlyPlanMath.getInstance().getPointOfText(actionButtonName, buttonTextSize).getWidth() + buttonPadding * 2;
+            actionButtonHeight += FlyPlanMath.getInstance().getPointOfText(actionButtonName, buttonTextSize).getHeight() + buttonPadding * 2;
         }
         Size actionButtonSize = new Size(actionButtonWidth, actionButtonHeight);
         Size screenSize = new Size(viewGroup.getWidth(), viewGroup.getHeight());
@@ -68,35 +68,35 @@ public class ActionButtons {
         int elementRight = (int) coordinateElement.getX() + element.getWidth();
 
         boolean isInsideTheScreen = true;
-        if(elementLeft < 0+padding) {
+        if (elementLeft < 0 + padding) {
             isInsideTheScreen &= false;
-            elementLeft = 0+padding;
+            elementLeft = 0 + padding;
             elementRight = elementLeft + element.getWidth();
         }
-        if(elementTop < 0+padding) {
+        if (elementTop < 0 + padding) {
             isInsideTheScreen &= false;
-            elementTop = 0+padding;
+            elementTop = 0 + padding;
             elementBottom = elementTop + element.getHeight();
         }
-        if(elementRight > screenSize.getWidth()-padding) {
+        if (elementRight > screenSize.getWidth() - padding) {
             isInsideTheScreen &= false;
-            elementRight = screenSize.getHeight()-padding;
+            elementRight = screenSize.getHeight() - padding;
             elementLeft = elementRight - element.getWidth();
         }
-        if(elementBottom > screenSize.getHeight()-padding) {
+        if (elementBottom > screenSize.getHeight() - padding) {
             isInsideTheScreen &= false;
-            elementBottom = screenSize.getHeight()-padding;
+            elementBottom = screenSize.getHeight() - padding;
             elementTop = elementBottom - element.getHeight();
         }
 
-        if(!isInsideTheScreen)
+        if (!isInsideTheScreen)
             return new Coordinate(elementLeft, elementTop);
         // change the centered coordinateElement to left,top coordinate
         return coordinateElement; //.toLeftTop(element);
     }
 
     private Button getNodeDeleteButton(Coordinate coordinate) {
-        if(nodeDeleteButton == null)
+        if (nodeDeleteButton == null)
             nodeDeleteButton = new Button(viewGroup.getContext());
         nodeDeleteButton.setX(coordinate.getX());
         nodeDeleteButton.setY(coordinate.getY());

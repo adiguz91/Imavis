@@ -12,7 +12,12 @@ import java.util.List;
 
 public class PointOfInterestData extends NodeData {
 
-    public PointOfInterestData() {}
+    //int id;
+    int height;
+    List<WaypointData> nodeItems;
+
+    public PointOfInterestData() {
+    }
 
     public int getHeight() {
         return height;
@@ -23,7 +28,7 @@ public class PointOfInterestData extends NodeData {
     }
 
     public List<WaypointData> getNodeItems() {
-        if(nodeItems == null)
+        if (nodeItems == null)
             nodeItems = new ArrayList<>();
         return nodeItems;
     }
@@ -31,8 +36,4 @@ public class PointOfInterestData extends NodeData {
     public void setNodeItems(List<WaypointData> nodeItems) {
         this.nodeItems = nodeItems;
     }
-
-    //int id;
-    int height;
-    List<WaypointData> nodeItems;
 }

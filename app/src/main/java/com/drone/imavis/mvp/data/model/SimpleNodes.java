@@ -10,7 +10,8 @@ public class SimpleNodes {
     private List<Waypoint> waypoints;
     private List<PointOfInterest> pointOfInterests;
 
-    public SimpleNodes() {}
+    public SimpleNodes() {
+    }
 
     public List<Waypoint> getWaypoints() {
         return waypoints;

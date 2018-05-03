@@ -33,7 +33,7 @@ public class DronePermissionRequestHelper {
     }
 
     public void requestPermission(String[] permissions, int requestCode) {
-        if(permissions == null)
+        if (permissions == null)
             return;
 
         Set<String> permissionsToRequest = new HashSet<>();
@@ -41,7 +41,7 @@ public class DronePermissionRequestHelper {
             if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, permission)) {
                     Toast.makeText(context, "Please allow permission " + permission, Toast.LENGTH_LONG).show();
-                    ((Activity)context).finish();
+                    ((Activity) context).finish();
                     return;
                 } else {
                     permissionsToRequest.add(permission);

@@ -18,8 +18,7 @@ public final class DateUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(CDate.DATE_FORMAT, CDate.DATE_LOCALE);
         try {
             return simpleDateFormat.parse(calendar.getTime().toString());
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             return null;
         }
     }

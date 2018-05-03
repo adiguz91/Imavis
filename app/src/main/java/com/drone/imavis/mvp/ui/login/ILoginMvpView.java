@@ -8,5 +8,6 @@ import com.drone.imavis.mvp.ui.base.IMvpView;
 public interface ILoginMvpView extends IMvpView {
 
     void onLoginSuccess();
+
     void onLoginFailed();
 }

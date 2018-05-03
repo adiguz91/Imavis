@@ -3,11 +3,11 @@ package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi;
 import android.graphics.Canvas;
 import android.graphics.Color;
 
-import com.drone.imavis.mvp.util.constants.classes.CColor;
-import com.drone.imavis.mvp.util.constants.classes.CShape;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.shapes.simple.Text;
+import com.drone.imavis.mvp.util.constants.classes.CColor;
+import com.drone.imavis.mvp.util.constants.classes.CShape;
 
 /**
  * Created by adigu on 03.02.2017.

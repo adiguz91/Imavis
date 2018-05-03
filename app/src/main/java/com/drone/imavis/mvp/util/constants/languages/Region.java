@@ -5,23 +5,23 @@ package com.drone.imavis.mvp.util.constants.languages;
  */
 
 public enum Region {
-    USA ("US"),
-    German ("DE"),
-    Austria ("AT");
+    USA("US"),
+    German("DE"),
+    Austria("AT");
 
     private final String name;
 
-    private Region(String s) {
+    Region(String s) {
         name = s;
     }
 
     public boolean equalsName(String otherName) {
-        return (otherName == null) ? false : name.equals(otherName);
+        return (otherName != null) && name.equals(otherName);
     }
 
     /* (non-Javadoc)
-    * @see java.lang.Enum#toString()
-    */
+     * @see java.lang.Enum#toString()
+     */
     @Override
     public String toString() {
         return this.name;

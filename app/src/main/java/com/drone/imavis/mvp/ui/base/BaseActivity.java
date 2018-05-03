@@ -16,7 +16,6 @@ import com.drone.imavis.mvp.di.component.ConfigPersistentComponent;
 import com.drone.imavis.mvp.di.component.DaggerConfigPersistentComponent;
 import com.drone.imavis.mvp.di.module.ActivityModule;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -85,7 +84,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void goBack(Context activity) {
-        ((Activity)activity).finish();
+        ((Activity) activity).finish();
     }
 
 }
