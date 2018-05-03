@@ -1,6 +1,5 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.view;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -12,8 +11,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
@@ -34,16 +31,17 @@ public class FlyPlanView extends View {
     private static SparseArray<Node> nodes;
     private static boolean isHandledTouch;
     private static boolean isLocked = false;
+
     @Inject
     ScaleListener scaleListener;
-    // draw outside
-    Rect newRect = new Rect();
+
     private GestureDetector gestureDetector;
     private Rect viewRect;
     private boolean isLoading = true;
     private FlyplannerFragment flyplannerFragment;
     private SheetFab actionSheetMenu;
-    private Coordinate dragCoordinate;
+    private Coordinate dragCoordinate = new Coordinate(0, 0);
+    private Coordinate dragCoordinatePrev = new Coordinate(0, 0);
 
     public FlyPlanView(final Context context) {
         super(context);
@@ -71,13 +69,7 @@ public class FlyPlanView extends View {
         return CMap.SCALE_FACTOR_DEFAULT;
     }
 
-    public static Coordinate getGlobalMoveCoordinate() {
-        return globalMoveCoordinate;
-    }
-
-    public static void setGlobalMoveCoordinate(Coordinate coordinate) {
-        globalMoveCoordinate = coordinate;
-    }
+    private boolean isDragingView = false;
 
     public static boolean isLocked() {
         return isLocked;
@@ -87,26 +79,7 @@ public class FlyPlanView extends View {
         FlyPlanView.isLocked = isLocked;
     }
 
-    public static boolean actionUp(MotionEvent event) {
-
-        int pointerCount = event.getPointerCount();
-        boolean isHandled = true;
-        for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
-            //pointerId = event.getPointerId(actionIndex);
-            Coordinate coordinateTouched = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
-            Node touchedNode = FlyPlanController.getTouchedNode();
-            if (touchedNode != null) {
-                touchedNode.getShape().setCoordinate(coordinateTouched);
-                FlyPlanController.getInstance().getFlyPlan().getPoints().editNode(touchedNode);
-                break;
-            } else {
-                // drag map
-                isHandled &= false;
-                break;
-            }
-        }
-        return isHandled;
-    }
+    private boolean isPressing = false;
 
     @Override
     protected void onFinishInflate() {
@@ -118,33 +91,7 @@ public class FlyPlanView extends View {
         scaleDetector = new ScaleGestureDetector(getContext(), scaleListener);
     }
 
-    public SheetFab getActionSheetMenu() {
-        if (actionSheetMenu == null)
-            actionSheetMenu = ((Activity) getContext()).findViewById(R.id.fabSheet);
-        return actionSheetMenu;
-    }
-
-    public void setFlyPlan(FlyPlan flyPlan) {
-        FlyPlanController.getInstance().setFlyPlan(flyPlan);
-    }
-
-    @Override
-    public void onDraw(final Canvas canvas) {
-        super.onDraw(canvas);
-
-        // draw outside
-        /*canvas.getClipBounds(newRect);
-        newRect.inset(-20, -20);  //make the rect larger
-        canvas.clipRect(newRect, Region.Op.REPLACE);*/
-
-        canvas.save();
-        // mainActivity.Zoom(mScaleFactor); // GoogleMap
-        canvas.scale(getScaleFactor(), getScaleFactor());
-        if (dragCoordinate != null)
-            canvas.translate(dragCoordinate.getX(), dragCoordinate.getY());
-        FlyPlanController.getInstance().draw(canvas);
-        canvas.restore();
-    }
+    private Coordinate newGlobalCoordinate;
 
     public boolean isIsLoading() {
         return isLoading;
@@ -154,29 +101,61 @@ public class FlyPlanView extends View {
         this.isLoading = isLoading;
     }
 
+    public static boolean isCoordinateInsideCircle(Coordinate center, Coordinate point, float radius) {
+        // Compare radius of circle with distance of its center from given point
+        return (point.getX() - center.getX()) * (point.getX() - center.getX()) +
+                (point.getY() - center.getY()) * (point.getY() - center.getY()) <= radius * radius;
+    }
+
+    public void setGlobalMoveCoordinate(Coordinate coordinate) {
+        dragCoordinatePrev = new Coordinate(dragCoordinate.getX(), dragCoordinate.getY());
+        globalMoveCoordinate = coordinate;
+    }
+
+    public Coordinate getDragCoordinate() {
+        return dragCoordinate;
+    }
+
+    @Override
+    public void onDraw(final Canvas canvas) {
+        super.onDraw(canvas);
+
+        canvas.save();
+        canvas.translate(dragCoordinate.getX(), dragCoordinate.getY());
+        canvas.scale(getScaleFactor(), getScaleFactor()); // mainActivity.Zoom(mScaleFactor); // GoogleMap
+        FlyPlanController.getInstance().draw(canvas);
+        canvas.restore();
+    }
+
     public boolean doOnTouch(MotionEvent event) {
+        //Log.w(TAG, "onTouchEvent: " + event);
+
         if (isIsLoading())
             return false;
 
         if (isLocked)
             return super.onTouchEvent(event);
 
-        Log.w(TAG, "onTouchEvent: " + event);
-        //int actionIndex; // event.getActionIndex()
-        isHandledTouch = false;
+        if (!isDragingView)
+            event.offsetLocation(-dragCoordinate.getX(), -dragCoordinate.getY());
 
+        isHandledTouch = false;
         // onTouch trigger events
         isHandledTouch = scaleDetector.onTouchEvent(event);
         isHandledTouch = gestureDetector.onTouchEvent(event);
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_MOVE:
+                Log.d("TOUCH", "ACTION_MOVE");
                 isHandledTouch = actionMove(event);
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
                 if (!isHandledTouch) {
+                    isDragingView = false;
+                    newGlobalCoordinate = null;
                     isHandledTouch = actionUp(event);
+                    invalidate();
                 }
             default:
                 break;
@@ -184,14 +163,20 @@ public class FlyPlanView extends View {
 
         //if(event.getActionMasked() == MotionEvent.ACTION_DOWN)
         //    isHandledTouch = true;
-        Log.i("LogFlyplan", "isHandled: " + isHandledTouch + " | event: " + event.getActionMasked());
+        //Log.i("LogFlyplan", "isHandled: " + isHandledTouch + " | event: " + event.getActionMasked());
 
         return isHandledTouch;
     }
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
+        //event.setLocation(event.getRawX(), event.getRawY());
+        //event.offsetLocation(-dragCoordinate.getX(), -dragCoordinate.getY());
         return doOnTouch(event);
+    }
+
+    public void setIsDragingView(boolean isDragingView) {
+        this.isDragingView = isDragingView;
     }
 
     public boolean actionMove(MotionEvent event) {
@@ -199,26 +184,49 @@ public class FlyPlanView extends View {
         boolean isHandled = true;
         for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
             //pointerId = event.getPointerId(actionIndex);
-            Coordinate coordinateTouched = new Coordinate(event.getX(actionIndex), event.getY(actionIndex));
+            Coordinate coordinateTouched = new Coordinate(event.getX(), event.getY());
+            Node touchedNode = FlyPlanController.getTouchedNode();
+            if (touchedNode != null) {
+                isDragingView = false;
+                touchedNode.getShape().setCoordinate(coordinateTouched);
+            } else {
+                if (globalMoveCoordinate != null) { // drag map
+                    Coordinate correctCoordinate = new Coordinate(coordinateTouched.getX() - dragCoordinatePrev.getX(),
+                            coordinateTouched.getY() - dragCoordinatePrev.getY());
+                    if (isDragingView || !isCoordinateInsideCircle(globalMoveCoordinate, coordinateTouched, 50)) {
+                        isDragingView = true;
+
+                        if (newGlobalCoordinate == null)
+                            newGlobalCoordinate = new Coordinate(coordinateTouched.getX(), coordinateTouched.getY());
+                        //globalMoveCoordinate = new Coordinate(correctCoordinate.getX(), correctCoordinate.getY());
+                        dragCoordinate.setCoordinate(dragCoordinatePrev.getX() + (correctCoordinate.getX() - newGlobalCoordinate.getX()),
+                                dragCoordinatePrev.getY() + (correctCoordinate.getY() - newGlobalCoordinate.getY()));
+                    }
+                }
+                isHandled &= false;
+            }
+            break;
+        }
+        return isHandled;
+    }
+
+    public boolean actionUp(MotionEvent event) {
+        int pointerCount = event.getPointerCount();
+        boolean isHandled = true;
+        for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
+            //pointerId = event.getPointerId(actionIndex);
+            Coordinate coordinateTouched = new Coordinate(event.getX(), event.getY()); // event.getY(actionIndex)
             Node touchedNode = FlyPlanController.getTouchedNode();
             if (touchedNode != null) {
                 touchedNode.getShape().setCoordinate(coordinateTouched);
-                //isHandled = true;
+                FlyPlanController.getInstance().getFlyPlan().getPoints().editNode(touchedNode);
                 break;
             } else {
                 // drag map
-                if (globalMoveCoordinate != null) {
-                    dragCoordinate = new Coordinate(globalMoveCoordinate.getX() - coordinateTouched.getX(),
-                            globalMoveCoordinate.getY() - coordinateTouched.getY());
-                    FlyPlanController.getInstance().getFlyPlan().setDragCoordinate(dragCoordinate);
-                }
-
-
                 isHandled &= false;
                 break;
             }
         }
-        //MainFlyplanner.removeActionButtons(); #### !!!! IMPORTANT UUUUSEEEEEE, callback!?=!=
         return isHandled;
     }
 

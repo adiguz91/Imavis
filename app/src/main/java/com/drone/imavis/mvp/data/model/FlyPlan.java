@@ -79,8 +79,6 @@ public class FlyPlan implements Parcelable {
     private Task task;
     @Transient
     private String taskSerialized;
-    @Transient
-    private Coordinate dragCoordinate; // should be not transient
     @NotNull
     private String name; // task name
     @NotNull
@@ -150,14 +148,6 @@ public class FlyPlan implements Parcelable {
 
     public void setImageFolderUrl(Uri imageFolderUrl) {
         this.imageFolderUrl = imageFolderUrl;
-    }
-
-    public Coordinate getDragCoordinate() {
-        return dragCoordinate;
-    }
-
-    public void setDragCoordinate(Coordinate dragCoordinate) {
-        this.dragCoordinate = dragCoordinate;
     }
 
     public Path getPathRoute(float xCorrection, float yCorrection) {
@@ -340,6 +330,15 @@ public class FlyPlan implements Parcelable {
     }
 
     /**
+     * called by internal mechanisms, do not call yourself.
+     */
+    @Generated(hash = 608845545)
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getFlyPlanDao() : null;
+    }
+
+    /**
      * To-one relationship, resolved on first access.
      */
     @Generated(hash = 1654636707)
@@ -452,18 +451,7 @@ public class FlyPlan implements Parcelable {
         this.nodesJson = nodesJson;
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
-    @Generated(hash = 608845545)
-    public void __setDaoSession(DaoSession daoSession) {
-        this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getFlyPlanDao() : null;
-    }
-
-    /* GreenDAO CONVERTER */
-
-    static class UnitOfLengthConverter implements PropertyConverter<UnitOfLength, String> {
+    public static class UnitOfLengthConverter implements PropertyConverter<UnitOfLength, String> {
         @Override
         public UnitOfLength convertToEntityProperty(String databaseValue) {
             return UnitOfLength.valueOf(databaseValue);

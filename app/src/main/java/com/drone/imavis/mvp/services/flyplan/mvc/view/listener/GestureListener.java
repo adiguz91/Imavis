@@ -5,6 +5,7 @@ import android.graphics.Point;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -41,31 +42,34 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
     public boolean onDown(MotionEvent event) {
         FlyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
-        touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
+        touchCoordinate = new Coordinate(event.getX(), event.getY());
         touchedNode = FlyPlanController.getInstance().getTouchedNode(touchCoordinate);
-
-        if (touchedNode == null)
-            FlyPlanView.setGlobalMoveCoordinate(touchCoordinate);
+        if (touchedNode == null) {
+            /*Coordinate correctCoordinate = new Coordinate(touchCoordinate.getX() - parentView.getDragCoordinate().getX(),
+                    touchCoordinate.getY() - parentView.getDragCoordinate().getY());*/
+            //parentView.setIsDragingView(true);
+            parentView.setGlobalMoveCoordinate(touchCoordinate);
+        }
 
         return true;
     }
 
     @Override
-    public boolean onSingleTapUp(MotionEvent event) {
-        //FlyPlanView.getNodes().clear();
-        //return true;
+    public void onShowPress(MotionEvent event) {
+        Log.d("TOUCH", "onShowPress");
+    }
 
+    @Override
+    public boolean onSingleTapUp(MotionEvent event) {
         FlyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
-        touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
+        touchCoordinate = new Coordinate(event.getX(), event.getY());
         boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(Waypoint.class, touchCoordinate, touchedNode);
         if (touchedNode != null) {
             if (isObtained) {
                 FlyPlanView.getNodes().put(pointerId, touchedNode);
-                // mFlyPlanView.
             }
             return true;
-            //else checkSelected(touchedNode.getClass());
         } else
             return false;
     }
@@ -76,10 +80,8 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         //super.onLongPress(event);
         FlyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
-        touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
+        touchCoordinate = new Coordinate(event.getX(), event.getY());
 
-        // checkIfLongPressLineText
-        //if(FlyPlanController.getSelectedWaypoint() != null) {
         Coordinate textLineRectCoor = FlyPlanController.getInstance().isTouchedTextRect(touchCoordinate);
 
         if (textLineRectCoor != null) {
@@ -132,9 +134,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         }
 
     }
-/*
-
-
+    /*
     @Override
     public void onShowPress(MotionEvent event) {
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
@@ -145,9 +145,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         touchCoordinate = new Coordinate(event.getX(0), event.getY(0));
         return true;
     }
-*/
 
-    /*
     public void checkSelected(Class classname) {
         if (classname == Waypoint.class) {
             selectedPOI = null;

@@ -23,19 +23,13 @@ public final class CircleMath {
 
         double distance = Math.hypot(point1.x - point2.x, point1.y - point2.y);
         double diameter = radius * 2;
-        if (distance > diameter)
-            return false; // no collision;
-        else
-            return true;
+        return !(distance > diameter);
     }
 
-    public static boolean isPointInsideCircle(Point point1, Point point2, float radius) {
+    public static boolean isPointInsideCircle(Point center, Point point, float radius) {
         // Compare radius of circle with distance of its center from given point
-        if ((point2.x - point1.x) * (point2.x - point1.x) +
-                (point2.y - point1.y) * (point2.y - point1.y) <= radius * radius)
-            return true;
-        else
-            return false;
+        return (point.x - center.x) * (point.x - center.x) +
+                (point.y - center.y) * (point.y - center.y) <= radius * radius;
     }
 
     // https://codepen.io/enxaneta/pen/dXGEbv
