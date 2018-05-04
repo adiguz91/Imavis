@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.google.android.gms.maps.MapView
+    <com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.MapViewExtended xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/googleMapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

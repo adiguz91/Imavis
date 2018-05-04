@@ -498,8 +498,10 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         activityComponent().inject(this);
+        setContentView(R.layout.activity_flyplanner);
 
         getSupportActionBar().hide();
         //hideStatusBar();
@@ -512,7 +514,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         if (flyplan == null)
             flyplan = new FlyPlan();
 
-        setContentView(R.layout.activity_flyplanner);
+
         ButterKnife.bind(this);
 
         setHeader();

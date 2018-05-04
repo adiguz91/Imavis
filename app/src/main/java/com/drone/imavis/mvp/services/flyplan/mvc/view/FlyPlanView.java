@@ -133,8 +133,13 @@ public class FlyPlanView extends View {
         if (isIsLoading())
             return false;
 
-        if (isLocked)
+        if (isLocked) {
+            // set drag map
+
+            invalidate();
             return super.onTouchEvent(event);
+        }
+
 
         if (!isDragingView)
             event.offsetLocation(-dragCoordinate.getX(), -dragCoordinate.getY());
@@ -193,14 +198,15 @@ public class FlyPlanView extends View {
                 if (globalMoveCoordinate != null) { // drag map
                     Coordinate correctCoordinate = new Coordinate(coordinateTouched.getX() - dragCoordinatePrev.getX(),
                             coordinateTouched.getY() - dragCoordinatePrev.getY());
-                    if (isDragingView || !isCoordinateInsideCircle(globalMoveCoordinate, coordinateTouched, 50)) {
+                    if (isDragingView || !isCoordinateInsideCircle(globalMoveCoordinate, coordinateTouched, 40)) {
+                        if (isDragingView) {
+                            if (newGlobalCoordinate == null)
+                                newGlobalCoordinate = new Coordinate(coordinateTouched.getX(), coordinateTouched.getY());
+                            //globalMoveCoordinate = new Coordinate(correctCoordinate.getX(), correctCoordinate.getY());
+                            dragCoordinate.setCoordinate(dragCoordinatePrev.getX() + (coordinateTouched.getX() - newGlobalCoordinate.getX()),
+                                    dragCoordinatePrev.getY() + (coordinateTouched.getY() - newGlobalCoordinate.getY()));
+                        }
                         isDragingView = true;
-
-                        if (newGlobalCoordinate == null)
-                            newGlobalCoordinate = new Coordinate(coordinateTouched.getX(), coordinateTouched.getY());
-                        //globalMoveCoordinate = new Coordinate(correctCoordinate.getX(), correctCoordinate.getY());
-                        dragCoordinate.setCoordinate(dragCoordinatePrev.getX() + (correctCoordinate.getX() - newGlobalCoordinate.getX()),
-                                dragCoordinatePrev.getY() + (correctCoordinate.getY() - newGlobalCoordinate.getY()));
                     }
                 }
                 isHandled &= false;

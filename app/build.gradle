@@ -213,6 +213,8 @@ dependencies {
     compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.2.2'
     compile 'com.parrot:arsdk:3.12.6' // https://bintray.com/parrot/maven/com.parrot%3Aarsdk
 
+    //implementation 'com.github.nisrulz:sensey:1.8.0' // gesture detection
+
     implementation("com.mikepenz:materialdrawer:6.0.6@aar") {
         transitive = true
     }

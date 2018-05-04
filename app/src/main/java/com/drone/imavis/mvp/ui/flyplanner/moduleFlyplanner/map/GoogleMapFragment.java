@@ -22,7 +22,6 @@ import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
@@ -42,7 +41,7 @@ import java.util.List;
 // http://things2notedown.blogspot.co.at/2014/07/how-to-display-mapfragment-inside.html
 public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdleListener {
 
-    MapView mapView;
+    public TouchableWrapper mTouchView;
     private GoogleMap googleMap;
     private OnMapReadyCallback onMapReadyCallback;
     private LatLng location;
@@ -54,6 +53,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     private OnMapReadyCallback mOnMapReadyCallback;
     private GoogleMap.OnMapLoadedCallback onMapLoadedCallback;
     private OnScreenCoordinateCallback screenCoordinateCallback;
+    MapViewExtended mapView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,8 +65,12 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        mapView = view.findViewById(R.id.googleMapView);
+        mapView = view.findViewById(R.id.googleMapView); // view.findViewById(R.id.googleMapView);
         mapView.onCreate(savedInstanceState);
+
+        //mTouchView = new TouchableWrapper(getActivity());
+        //mTouchView.addView(view);
+
         //mapView.onResume(); // needed to get the map to display immediately
 
         // add view
@@ -121,11 +125,11 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
             googleMap.setMapType(mapType);
     }
 
-    public MapView getMapView() {
+    public MapViewExtended getMapView() {
         return mapView;
     }
 
-    public void setMapView(MapView mapView) {
+    public void setMapView(MapViewExtended mapView) {
         this.mapView = mapView;
     }
 

@@ -53,8 +53,7 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //ButterKnife.bind(getContext(), view);
-        flyplannerDrawer = (FlyPlanView) view.findViewById(R.id.flyplannerDraw);
-
+        flyplannerDrawer = view.findViewById(R.id.flyplannerDraw);
         initChildFragment();
     }
 

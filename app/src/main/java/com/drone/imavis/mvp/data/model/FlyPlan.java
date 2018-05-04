@@ -330,15 +330,6 @@ public class FlyPlan implements Parcelable {
     }
 
     /**
-     * called by internal mechanisms, do not call yourself.
-     */
-    @Generated(hash = 608845545)
-    public void __setDaoSession(DaoSession daoSession) {
-        this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getFlyPlanDao() : null;
-    }
-
-    /**
      * To-one relationship, resolved on first access.
      */
     @Generated(hash = 1654636707)
@@ -449,6 +440,15 @@ public class FlyPlan implements Parcelable {
 
     public void setNodesJson(String nodesJson) {
         this.nodesJson = nodesJson;
+    }
+
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
+    @Generated(hash = 608845545)
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getFlyPlanDao() : null;
     }
 
     public static class UnitOfLengthConverter implements PropertyConverter<UnitOfLength, String> {
