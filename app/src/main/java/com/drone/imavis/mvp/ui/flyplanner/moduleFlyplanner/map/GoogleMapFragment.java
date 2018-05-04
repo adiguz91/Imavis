@@ -41,7 +41,6 @@ import java.util.List;
 // http://things2notedown.blogspot.co.at/2014/07/how-to-display-mapfragment-inside.html
 public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdleListener {
 
-    public TouchableWrapper mTouchView;
     private GoogleMap googleMap;
     private OnMapReadyCallback onMapReadyCallback;
     private LatLng location;
@@ -64,20 +63,10 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
-
         mapView = view.findViewById(R.id.googleMapView); // view.findViewById(R.id.googleMapView);
         mapView.onCreate(savedInstanceState);
-
-        //mTouchView = new TouchableWrapper(getActivity());
-        //mTouchView.addView(view);
-
         //mapView.onResume(); // needed to get the map to display immediately
-
-        // add view
-        //View layout2 = LayoutInflater.from(this).inflate(R.layout.fragment_, mLinearLayout, false)
-
         //flyplannerDrawer = (FlyPlanView) getActivity().findViewById(R.id.flyplannerDraw);
-
         return view;
     }
 
@@ -112,6 +101,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         this.googleMap.setIndoorEnabled(true);
         this.googleMap.setBuildingsEnabled(true);
         this.googleMap.getUiSettings().setZoomControlsEnabled(false);
+        //this.googleMap.//this.googleMap.set // disable smooth after move
         this.googleMap.setOnCameraIdleListener(this);
 
         //CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(getLocation(), 18);
@@ -154,7 +144,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         marker.setPosition(location);
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(location));
         // Zoom in the Google Map
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16)); // googleMap.moveCamera()
     }
 
     private void LocationEnable() {

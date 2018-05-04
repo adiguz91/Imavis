@@ -135,11 +135,9 @@ public class FlyPlanView extends View {
 
         if (isLocked) {
             // set drag map
-
-            invalidate();
+            //invalidate();
             return super.onTouchEvent(event);
         }
-
 
         if (!isDragingView)
             event.offsetLocation(-dragCoordinate.getX(), -dragCoordinate.getY());
@@ -184,6 +182,20 @@ public class FlyPlanView extends View {
         this.isDragingView = isDragingView;
     }
 
+    public void dragView(Coordinate coordinateTouched) {
+        if (newGlobalCoordinate == null) {
+            dragCoordinatePrev = new Coordinate(dragCoordinate.getX(), dragCoordinate.getY());
+            newGlobalCoordinate = new Coordinate(coordinateTouched.getX(), coordinateTouched.getY());
+        }
+        dragCoordinate.setCoordinate(dragCoordinatePrev.getX() + (coordinateTouched.getX() - newGlobalCoordinate.getX()),
+                dragCoordinatePrev.getY() + (coordinateTouched.getY() - newGlobalCoordinate.getY()));
+        invalidate();
+    }
+
+    public void setNewGlobalCoordinate(Coordinate coordinate) {
+        newGlobalCoordinate = coordinate;
+    }
+
     public boolean actionMove(MotionEvent event) {
         int pointerCount = event.getPointerCount();
         boolean isHandled = true;
@@ -199,10 +211,9 @@ public class FlyPlanView extends View {
                     Coordinate correctCoordinate = new Coordinate(coordinateTouched.getX() - dragCoordinatePrev.getX(),
                             coordinateTouched.getY() - dragCoordinatePrev.getY());
                     if (isDragingView || !isCoordinateInsideCircle(globalMoveCoordinate, coordinateTouched, 40)) {
-                        if (isDragingView) {
+                        if (isDragingView) { // removes one artefact
                             if (newGlobalCoordinate == null)
                                 newGlobalCoordinate = new Coordinate(coordinateTouched.getX(), coordinateTouched.getY());
-                            //globalMoveCoordinate = new Coordinate(correctCoordinate.getX(), correctCoordinate.getY());
                             dragCoordinate.setCoordinate(dragCoordinatePrev.getX() + (coordinateTouched.getX() - newGlobalCoordinate.getX()),
                                     dragCoordinatePrev.getY() + (coordinateTouched.getY() - newGlobalCoordinate.getY()));
                         }

@@ -103,6 +103,8 @@ public class LoginActivity extends BaseActivity implements ILoginMvpView, Progre
             textPassword.setEnabled(false);
             loginPresenter.login();
         } else {
+            //
+            // buttonLogin.setProgress(100);
             goToActivity(this, FlyplannerActivity.class, new Bundle());
         }
     }
