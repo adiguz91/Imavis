@@ -47,6 +47,7 @@
                     android:id="@+id/fabSheetItemDelete"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:clickable="true"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -56,12 +57,14 @@
                         android:paddingTop="@dimen/sheet_item_spacing"
                         android:paddingBottom="@dimen/sheet_item_spacing"
                         android:paddingLeft="2dp"
+                        android:clickable="false"
                         android:tint="@color/md_black_1000"/>
 
                     <TextView
                         android:id="@+id/fab_sheet_item_delete"
                         style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
                         android:text="Delete"
+                        android:clickable="false"
                         android:paddingLeft="0dp"/>
                 </LinearLayout>
 
@@ -69,16 +72,19 @@
                 <LinearLayout
                     android:id="@+id/fabSheetItemClose"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:clickable="true">
 
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/quantum_ic_refresh_white_24"
                         android:padding="@dimen/sheet_item_spacing"
+                        android:clickable="false"
                         android:tint="@color/md_black_1000"/>
                     <TextView
                         style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                        android:clickable="false"
                         android:text="Close"/>
                 </LinearLayout>
 

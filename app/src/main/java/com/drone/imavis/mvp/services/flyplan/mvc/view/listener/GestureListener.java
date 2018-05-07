@@ -93,6 +93,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
             if (touchedNode != null) {
                 if (isObtained) {
                     FlyPlanView.getNodes().put(pointerId, touchedNode);
+                    parentView.invalidate();
                 } else {
                     // ACTION BUTTONs open
                     ((FlyplannerActivity) parentView.getContext()).getActionFabSheet().setVisibility(View.VISIBLE);
@@ -130,6 +131,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                     layoutParams.setMargins((int) centeredCoordinate.getX(), (int) centeredCoordinate.getY(), 0, 0);
                     ((FlyplannerActivity) parentView.getContext()).getActionFabSheetCardView().setLayoutParams(layoutParams);
                     ((FlyplannerActivity) parentView.getContext()).getActionFabSheetMenu().showSheet();
+                    parentView.setSelectedActionMenuNode(touchedNode);
                     parentView.setIsEnabledActionMenu(true);
                 }
             }

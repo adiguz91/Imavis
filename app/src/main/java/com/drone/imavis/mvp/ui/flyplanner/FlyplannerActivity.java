@@ -23,6 +23,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ import com.drone.imavis.mvp.services.dronecontrol.DronePermissionRequestHelper;
 import com.drone.imavis.mvp.services.dronecontrol.MavlinkFileInfo;
 import com.drone.imavis.mvp.services.dronecontrol.bebopexamples.DroneDiscoverer;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.SheetFab;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
@@ -177,6 +179,12 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     com.github.clans.fab.FloatingActionButton fabMapTypeSatellite;
     @BindView(R.id.flyplanner_fab_start)
     FloatingActionButton fabStart;
+
+    @BindView(R.id.fabSheetItemDelete)
+    LinearLayout fabSheetItemDelete;
+    @BindView(R.id.fabSheetItemClose)
+    LinearLayout fabSheetItemClose;
+
     private FlyPlan flyplan;
     private AutonomousFlightController autonomController;
     private GPSCoordinate currentDronePosition;
@@ -469,6 +477,21 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                         | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                         | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
+    @OnClick(R.id.fabSheetItemDelete)
+    public void onClickFabSheetItemDelete(LinearLayout button) {
+        Node node = flyplannerDrawer.getSelectedActionMenuNode();
+        flyplan.getPoints().removeNode(node);
+        flyplannerDrawer.invalidate();
+        actionFabSheetMenu.hideSheet();
+    }
+
+    @OnClick(R.id.fabSheetItemClose)
+    public void onClickFabSheetItemClose(LinearLayout button) {
+        flyplan.toggleClosedOrOpen();
+        flyplannerDrawer.invalidate();
+        actionFabSheetMenu.hideSheet();
     }
 
     // This snippet shows the system bars. It does this by removing all the flags

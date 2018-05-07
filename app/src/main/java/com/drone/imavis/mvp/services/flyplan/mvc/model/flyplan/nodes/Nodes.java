@@ -2,6 +2,7 @@ package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes;
 
 import com.drone.imavis.mvp.data.model.GoogleMapExtension;
 import com.drone.imavis.mvp.data.model.SimpleNodes;
+import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
@@ -125,13 +126,22 @@ public class Nodes implements Serializable {
         }
     }
 
-    public void removeNode(Node node) {
+    public boolean removeNode(Node node) {
         setGPSCoordinateFromNode(node);
-        if (node.getClass() == Waypoint.class) {
-            getWaypoints().remove(node);
-        } else {
-            getPointOfInterests().remove(node);
+        boolean isRemoved = false;
+        if (node.getClass() == Waypoint.class)
+            isRemoved = getWaypoints().remove(node);
+        else
+            isRemoved = getPointOfInterests().remove(node);
+
+        if (isRemoved) {
+            if (node.equals(FlyPlanController.getSelectedWaypoint()))
+                FlyPlanController.setSelectedWaypoint(null);
+            if (node.equals(FlyPlanController.getSelectedPOI()))
+                FlyPlanController.setSelectedPOI(null);
         }
+
+        return isRemoved;
     }
 
 

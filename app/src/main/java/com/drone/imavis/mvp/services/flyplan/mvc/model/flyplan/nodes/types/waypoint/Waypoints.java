@@ -17,8 +17,13 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
 
     private static Gson gson = new Gson();
     private Waypoint selectedWaypoint;
+    private boolean isClosed = false;
 
     public Waypoints() {
+    }
+
+    public void setClosed(boolean closed) {
+        isClosed = closed;
     }
 
     public void Load(String waypointsJSON) {
@@ -29,6 +34,22 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         this.addAll(deserializedPOIs);
     }
 
+    public void drawWaypoint(Canvas canvas, Waypoint waypointLastNode, Waypoint waypoint) {
+        if (waypointLastNode != null) {
+            waypoint.addLine(canvas, waypointLastNode, waypoint);
+            waypoint.drawProgressiveCircles(canvas, waypointLastNode.getShape(), waypoint.getShape());
+            if (waypointLastNode == FlyPlanController.getSelectedWaypoint()) {
+                waypointLastNode.addRectWithTextOnLine(canvas, waypointLastNode, waypoint, "10m/s");
+            }
+
+            PointOfInterest poi1 = ((WaypointData) waypointLastNode.getData()).getPoi();
+            if (poi1 != null)
+                waypoint.addDirection(canvas, waypointLastNode, poi1);
+            else
+                waypoint.addDirection(canvas, waypointLastNode, waypoint);
+        }
+    }
+
     public int draw(Canvas canvas) {
         Waypoint waypoint, waypointLastNode = null;
         ListIterator<Waypoint> iterator;
@@ -37,25 +58,20 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         iterator = this.listIterator();
         while (iterator.hasNext()) {
             waypoint = iterator.next();
-            if (waypointLastNode != null) {
-                waypoint.addLine(canvas, waypointLastNode, waypoint);
-                waypoint.drawProgressiveCircles(canvas, waypointLastNode.getShape(), waypoint.getShape());
-                if (waypointLastNode == FlyPlanController.getSelectedWaypoint()) {
-                    waypointLastNode.addRectWithTextOnLine(canvas, waypointLastNode, waypoint, "10m/s");
-                }
-
-                PointOfInterest poi = ((WaypointData) waypointLastNode.getData()).getPoi();
-                if (poi != null)
-                    waypoint.addDirection(canvas, waypointLastNode, poi);
-                else
-                    waypoint.addDirection(canvas, waypointLastNode, waypoint);
-            }
+            drawWaypoint(canvas, waypointLastNode, waypoint);
 
             if (waypoint == this.getLast()) {
                 PointOfInterest poi = ((WaypointData) waypoint.getData()).getPoi();
                 if (poi != null)
                     waypoint.addDirection(canvas, waypoint, poi);
+
+                if (isClosed) {
+                    waypointLastNode = waypoint;
+                    waypoint = this.getFirst();
+                    drawWaypoint(canvas, waypointLastNode, waypoint);
+                }
             }
+
             waypointLastNode = waypoint;
         }
 

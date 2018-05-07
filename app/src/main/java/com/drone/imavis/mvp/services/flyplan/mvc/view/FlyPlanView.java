@@ -217,6 +217,16 @@ public class FlyPlanView extends View {
         return result;
     }
 
+    private Node selectedActionMenuNode;
+
+    public Node getSelectedActionMenuNode() {
+        return selectedActionMenuNode;
+    }
+
+    public void setSelectedActionMenuNode(Node selectedActionMenuNode) {
+        this.selectedActionMenuNode = selectedActionMenuNode;
+    }
+
     public boolean actionMove(MotionEvent event) {
         int pointerCount = event.getPointerCount();
         boolean isHandled = true;

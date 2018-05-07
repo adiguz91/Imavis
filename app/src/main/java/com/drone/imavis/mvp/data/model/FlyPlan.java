@@ -85,6 +85,9 @@ public class FlyPlan implements Parcelable {
     private int minFlyHeight = CFlyPlan.MIN_FLY_HEIGHT;
     @NotNull
     private int minSpeed = CFlyPlan.MIN_SPEED;
+
+    private boolean isClosed = false;
+
     /**
      * Used to resolve relations
      */
@@ -119,9 +122,9 @@ public class FlyPlan implements Parcelable {
         this.taskSerialized = parcelIn.readString();
     }
 
-    @Generated(hash = 955028436)
+    @Generated(hash = 1796383625)
     public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, Date createdAt, String nodesJson, String taskId,
-                   @NotNull String name, int minFlyHeight, int minSpeed) {
+                   @NotNull String name, int minFlyHeight, int minSpeed, boolean isClosed) {
         this.id = id;
         this.unitOfLength = unitOfLength;
         this.projectId = projectId;
@@ -132,6 +135,7 @@ public class FlyPlan implements Parcelable {
         this.name = name;
         this.minFlyHeight = minFlyHeight;
         this.minSpeed = minSpeed;
+        this.isClosed = isClosed;
     }
 
     @Generated(hash = 1603132182)
@@ -166,7 +170,16 @@ public class FlyPlan implements Parcelable {
         return path;
     }
 
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    public void toggleClosedOrOpen() {
+        isClosed = !isClosed;
+    }
+
     public void draw(Canvas canvas) {
+        this.getPoints().getWaypoints().setClosed(isClosed);
         int selectedWaypointIndex = this.getPoints().getWaypoints().draw(canvas);
         int selectedPoiIndex = this.getPoints().getPointOfInterests().draw(canvas);
         int selectedWaypointId = selectedWaypointIndex + 1;
@@ -440,6 +453,14 @@ public class FlyPlan implements Parcelable {
 
     public void setNodesJson(String nodesJson) {
         this.nodesJson = nodesJson;
+    }
+
+    public boolean getIsClosed() {
+        return this.isClosed;
+    }
+
+    public void setIsClosed(boolean isClosed) {
+        this.isClosed = isClosed;
     }
 
     /**
