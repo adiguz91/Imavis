@@ -127,8 +127,38 @@ public class FlyPlanView extends View {
         canvas.restore();
     }
 
+    private boolean isEnabledActionMenu;
+
+    @Override
+    public boolean onTouchEvent(final MotionEvent event) {
+        //event.setLocation(event.getRawX(), event.getRawY());
+        //event.offsetLocation(-dragCoordinate.getX(), -dragCoordinate.getY());
+        return doOnTouch(event);
+    }
+
+    public void setIsDragingView(boolean isDragingView) {
+        this.isDragingView = isDragingView;
+    }
+
+    public void dragView(Coordinate coordinateTouched) {
+        if (newGlobalCoordinate == null) {
+            dragCoordinatePrev = new Coordinate(dragCoordinate.getX(), dragCoordinate.getY());
+            newGlobalCoordinate = new Coordinate(coordinateTouched.getX(), coordinateTouched.getY());
+        }
+        dragCoordinate.setCoordinate(dragCoordinatePrev.getX() + (coordinateTouched.getX() - newGlobalCoordinate.getX()),
+                dragCoordinatePrev.getY() + (coordinateTouched.getY() - newGlobalCoordinate.getY()));
+        invalidate();
+    }
+
+    public void setNewGlobalCoordinate(Coordinate coordinate) {
+        newGlobalCoordinate = coordinate;
+    }
+
     public boolean doOnTouch(MotionEvent event) {
         //Log.w(TAG, "onTouchEvent: " + event);
+
+        if (isEnabledActionMenu)
+            return false;
 
         if (isIsLoading())
             return false;
@@ -146,6 +176,9 @@ public class FlyPlanView extends View {
         // onTouch trigger events
         isHandledTouch = scaleDetector.onTouchEvent(event);
         isHandledTouch = gestureDetector.onTouchEvent(event);
+
+        if (isEnabledActionMenu)
+            return false;
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_MOVE:
@@ -171,29 +204,17 @@ public class FlyPlanView extends View {
         return isHandledTouch;
     }
 
-    @Override
-    public boolean onTouchEvent(final MotionEvent event) {
-        //event.setLocation(event.getRawX(), event.getRawY());
-        //event.offsetLocation(-dragCoordinate.getX(), -dragCoordinate.getY());
-        return doOnTouch(event);
+    public void setIsEnabledActionMenu(boolean isEnabledActionMenu) {
+        this.isEnabledActionMenu = isEnabledActionMenu;
     }
 
-    public void setIsDragingView(boolean isDragingView) {
-        this.isDragingView = isDragingView;
-    }
-
-    public void dragView(Coordinate coordinateTouched) {
-        if (newGlobalCoordinate == null) {
-            dragCoordinatePrev = new Coordinate(dragCoordinate.getX(), dragCoordinate.getY());
-            newGlobalCoordinate = new Coordinate(coordinateTouched.getX(), coordinateTouched.getY());
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
         }
-        dragCoordinate.setCoordinate(dragCoordinatePrev.getX() + (coordinateTouched.getX() - newGlobalCoordinate.getX()),
-                dragCoordinatePrev.getY() + (coordinateTouched.getY() - newGlobalCoordinate.getY()));
-        invalidate();
-    }
-
-    public void setNewGlobalCoordinate(Coordinate coordinate) {
-        newGlobalCoordinate = coordinate;
+        return result;
     }
 
     public boolean actionMove(MotionEvent event) {

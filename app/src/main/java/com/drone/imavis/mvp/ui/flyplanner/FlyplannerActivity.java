@@ -5,7 +5,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -128,6 +127,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     private static final int REQUEST_CODE_PERMISSIONS_REQUEST = 1;
     private static final int ANIMATION_DURATION = 300;
     private static final float ROTATION_ANGLE = -45f;
+
+    private FlyPlanView flyplannerDrawer;
 
     // this block loads the native libraries
     // it is mandatory
@@ -503,6 +504,8 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         activityComponent().inject(this);
         setContentView(R.layout.activity_flyplanner);
 
+        flyplannerDrawer = findViewById(R.id.flyplannerDraw);
+
         getSupportActionBar().hide();
         //hideStatusBar();
         //getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -568,10 +571,12 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             @Override
             public void onHideSheet() {
                 // Called when the material sheet's "hide" animation starts.
+
             }
 
             public void onSheetHidden() {
                 // Called when the material sheet's "hide" animation ends.
+                flyplannerDrawer.setIsEnabledActionMenu(false);
                 fabSheet.setVisibility(View.GONE);
             }
         });
@@ -923,8 +928,6 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @OnClick(R.id.flyplanner_fab_mapLock)
     public void onFabClickMapLock(FloatingActionButton button) {
         mapIsLocked = !mapIsLocked;
-
-        FlyPlanView flyplannerDrawer = ((Activity) context).findViewById(R.id.flyplannerDraw);
         if (flyplannerDrawer != null) {
             FlyPlanView.setIsLocked(mapIsLocked);
         }

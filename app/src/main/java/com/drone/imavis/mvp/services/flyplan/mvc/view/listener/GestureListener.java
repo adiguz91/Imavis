@@ -105,7 +105,8 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                         // POI
                         fabSheetItemClose.setVisibility(View.INVISIBLE);
                     }
-                    Coordinate centeredCoordinate = new Coordinate(touchedNode.getShape().getCoordinate().getX(), touchedNode.getShape().getCoordinate().getY());
+                    Coordinate centeredCoordinate = new Coordinate(touchedNode.getShape().getCoordinate().getX() + parentView.getDragCoordinate().getX(),
+                            touchedNode.getShape().getCoordinate().getY() + parentView.getDragCoordinate().getY());
                     ((FlyplannerActivity) parentView.getContext()).getActionFabSheetMenu().showFab(centeredCoordinate.getX(), centeredCoordinate.getY());
 
                     //((FlyplannerActivity)parentView.getContext()).getActionFabSheet().performContextClick(touchedNode.getShape().getCoordinate().getX(), touchedNode.getShape().getCoordinate().getY());
@@ -118,7 +119,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                     Point size = new Point();
                     display.getSize(size);
                     int screenWidth = size.x;
-                    int screenHeight = size.y;
+                    int screenHeight = size.y - parentView.getStatusBarHeight();
 
                     LinearLayout.LayoutParams layoutParams = fabSheetCardViewLayout;
                     if ((centeredCoordinate.getX() + layoutParams.width) >= screenWidth) // correction x
@@ -129,10 +130,10 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                     layoutParams.setMargins((int) centeredCoordinate.getX(), (int) centeredCoordinate.getY(), 0, 0);
                     ((FlyplannerActivity) parentView.getContext()).getActionFabSheetCardView().setLayoutParams(layoutParams);
                     ((FlyplannerActivity) parentView.getContext()).getActionFabSheetMenu().showSheet();
+                    parentView.setIsEnabledActionMenu(true);
                 }
             }
         }
-
     }
     /*
     @Override
