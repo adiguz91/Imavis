@@ -32,6 +32,6 @@
     <color name="transparentLight">#1A000000</color>
     <color name="transparentWhite80">#CCffffff</color>
 
-    <color name="background_card">#fff</color>
+    <color name="background_card">#FFFFFFFF</color>
     <color name="text_black_87">#de000000</color>
 </resources>

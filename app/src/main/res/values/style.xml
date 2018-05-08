@@ -11,6 +11,8 @@
         <item name="android:colorBackground">@color/primary_text</item>
         <item name="android:statusBarColor">@color/transparentLight</item>
         <item name="colorControlNormal">@color/white</item>
+        <item name="android:colorControlActivated">@color/white</item>
+        <item name="android:colorControlNormal">@color/white</item>
         <!--<item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>-->
     </style>
@@ -71,7 +73,7 @@
         <item name="android:layout_marginBottom">@dimen/sheet_spacing</item>
         <item name="android:layout_marginLeft">@dimen/sheet_spacing</item>
         <item name="android:layout_marginRight">@dimen/sheet_spacing</item>
-        <item name="cardBackgroundColor">@color/background_card</item>
+        <item name="cardBackgroundColor">@color/transparent</item>
         <item name="cardElevation">@dimen/fab_sheet_elevation</item>
         <item name="cardMaxElevation">@dimen/fab_sheet_elevation</item>
         <item name="contentPadding">-3dp</item>

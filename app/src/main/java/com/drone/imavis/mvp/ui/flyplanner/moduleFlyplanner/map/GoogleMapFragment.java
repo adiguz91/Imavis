@@ -101,6 +101,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         this.googleMap.setIndoorEnabled(true);
         this.googleMap.setBuildingsEnabled(true);
         this.googleMap.getUiSettings().setZoomControlsEnabled(false);
+        this.googleMap.getUiSettings().setMapToolbarEnabled(false);
         //this.googleMap.//this.googleMap.set // disable smooth after move
         this.googleMap.setOnCameraIdleListener(this);
 

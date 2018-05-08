@@ -42,9 +42,9 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
                 waypointLastNode.addRectWithTextOnLine(canvas, waypointLastNode, waypoint, "10m/s");
             }
 
-            PointOfInterest poi1 = ((WaypointData) waypointLastNode.getData()).getPoi();
-            if (poi1 != null)
-                waypoint.addDirection(canvas, waypointLastNode, poi1);
+            PointOfInterest poi = ((WaypointData) waypointLastNode.getData()).getPoi();
+            if (poi != null)
+                waypoint.addDirection(canvas, waypointLastNode, poi);
             else
                 waypoint.addDirection(canvas, waypointLastNode, waypoint);
         }
@@ -65,7 +65,7 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
                 if (poi != null)
                     waypoint.addDirection(canvas, waypoint, poi);
 
-                if (isClosed) {
+                if (isClosed && this.size() >= 3) {
                     waypointLastNode = waypoint;
                     waypoint = this.getFirst();
                     drawWaypoint(canvas, waypointLastNode, waypoint);

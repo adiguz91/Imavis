@@ -118,7 +118,7 @@ public class FlyPlanController implements IFlyPlan {
                 }
             }
             if (className == PointOfInterest.class) {
-                touchedNode = new PointOfInterest(touchCoordinate);
+                touchedNode = flyPlan.getPoints().createPoi(touchCoordinate);
                 if (flyPlan.getPoints().getPointOfInterests().size() == CFlyPlan.MAX_POI_SIZE) {
                     flyPlan.getPoints().getPointOfInterests().clear();
                 }

@@ -118,7 +118,7 @@ public class FlyPlanView extends View {
             // find Node or Line
             case MotionEvent.ACTION_MOVE:
                 isHandledTouch = actionMove(event);
-                invalidate();
+                //invalidate();
                 break;
             // do nothing
             default:

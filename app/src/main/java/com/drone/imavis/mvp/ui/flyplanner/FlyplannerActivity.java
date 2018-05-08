@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -180,23 +181,26 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     @BindView(R.id.flyplanner_fab_start)
     FloatingActionButton fabStart;
 
-    @BindView(R.id.fabSheetItemDelete)
+    @BindView(R.id.fabSheetItemDeleteWaypoint)
     LinearLayout fabSheetItemDelete;
-    @BindView(R.id.fabSheetItemClose)
+    @BindView(R.id.fabSheetItemCloseWaypoint)
     LinearLayout fabSheetItemClose;
 
     private FlyPlan flyplan;
     private AutonomousFlightController autonomController;
     private GPSCoordinate currentDronePosition;
     private float beforeTakeOffElevation;
-    private MaterialSheetFab actionFabSheetMenu;
-    private SheetFab fabSheet;
+    private MaterialSheetFab actionFabSheetMenuWaypoint;
+    //private MaterialSheetFab actionFabSheetMenuPoi;
+    private SheetFab fabSheetWaypoint;
+    //private SheetFab fabSheetPoi;
     private FlyplannerFragment flyplannerFragment;
     private ReactiveLocationProvider locationProvider;
     private Observable<Location> lastKnownLocationObservable;
     private Disposable lastKnownLocationDisposable;
     private boolean mapIsLocked = false;
-    private View sheetView;
+    private CardView sheetViewWaypoint;
+    //private CardView sheetViewPoi;
     private boolean isFlyplanStarted = false;
     private IWifiUtilCallback wifiUtilCallback = new IWifiUtilCallback() {
         @Override
@@ -479,19 +483,19 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
                         | View.SYSTEM_UI_FLAG_IMMERSIVE);
     }
 
-    @OnClick(R.id.fabSheetItemDelete)
+    @OnClick(R.id.fabSheetItemDeleteWaypoint)
     public void onClickFabSheetItemDelete(LinearLayout button) {
         Node node = flyplannerDrawer.getSelectedActionMenuNode();
         flyplan.getPoints().removeNode(node);
         flyplannerDrawer.invalidate();
-        actionFabSheetMenu.hideSheet();
+        actionFabSheetMenuWaypoint.hideSheet();
     }
 
-    @OnClick(R.id.fabSheetItemClose)
+    @OnClick(R.id.fabSheetItemCloseWaypoint)
     public void onClickFabSheetItemClose(LinearLayout button) {
         flyplan.toggleClosedOrOpen();
         flyplannerDrawer.invalidate();
-        actionFabSheetMenu.hideSheet();
+        actionFabSheetMenuWaypoint.hideSheet();
     }
 
     // This snippet shows the system bars. It does this by removing all the flags
@@ -565,22 +569,32 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        fabSheet = findViewById(R.id.fabSheet);
-        sheetView = findViewById(R.id.fabSheetCardView);
-        View overlay = findViewById(R.id.overlay);
-        int sheetColor = getResources().getColor(R.color.white);
-        int fabColor = getResources().getColor(R.color.accent_color);
+        fabSheetWaypoint = findViewById(R.id.fabSheetWaypoint);
+        //fabSheetPoi = findViewById(R.id.fabSheetPoi);
+        sheetViewWaypoint = findViewById(R.id.fabSheetCardViewWaypoint);
+        //sheetViewPoi = findViewById(R.id.fabSheetCardViewPoi);
+        View overlayWaypoint = findViewById(R.id.overlayWaypoint);
+        //View overlayPoi = findViewById(R.id.overlayPoi);
+        int sheetColor = getResources().getColor(R.color.transparent);
+        int fabColor = getResources().getColor(R.color.transparent);
 
-        fabSheet.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.transparent)));
-        fabSheet.setRippleColor(getResources().getColor(R.color.transparent));
-        fabSheet.setElevation(0);
-        fabSheet.setCompatElevation(0);
+        fabSheetWaypoint.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.transparent)));
+        fabSheetWaypoint.setRippleColor(getResources().getColor(R.color.transparent));
+        fabSheetWaypoint.setElevation(0);
+        fabSheetWaypoint.setCompatElevation(0);
+
+        /*
+        fabSheetPoi.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.transparent)));
+        fabSheetPoi.setRippleColor(getResources().getColor(R.color.transparent));
+        fabSheetPoi.setElevation(0);
+        fabSheetPoi.setCompatElevation(0);
+        */
 
         // Initialize material sheet FAB
-        actionFabSheetMenu = new MaterialSheetFab<>(fabSheet, sheetView, overlay,
-                sheetColor, fabColor);
+        actionFabSheetMenuWaypoint = new MaterialSheetFab<>(fabSheetWaypoint, sheetViewWaypoint, overlayWaypoint, sheetColor, fabColor);
+        //actionFabSheetMenuPoi = new MaterialSheetFab<>(fabSheetPoi, sheetViewPoi, overlayPoi, sheetColor, fabColor);
 
-        actionFabSheetMenu.setEventListener(new MaterialSheetFabEventListener() {
+        actionFabSheetMenuWaypoint.setEventListener(new MaterialSheetFabEventListener() {
             @Override
             public void onShowSheet() {
                 // Called when the material sheet's "show" animation starts.
@@ -600,7 +614,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
             public void onSheetHidden() {
                 // Called when the material sheet's "hide" animation ends.
                 flyplannerDrawer.setIsEnabledActionMenu(false);
-                fabSheet.setVisibility(View.GONE);
+                fabSheetWaypoint.setVisibility(View.GONE);
             }
         });
 
@@ -730,17 +744,29 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
     //-------------------
 
-    public MaterialSheetFab getActionFabSheetMenu() {
-        return actionFabSheetMenu;
+    public MaterialSheetFab getActionFabSheetMenuWaypoint() {
+        return actionFabSheetMenuWaypoint;
     }
 
-    public SheetFab getActionFabSheet() {
-        return fabSheet;
+    /*public MaterialSheetFab getActionFabSheetMenuPoi() {
+        return actionFabSheetMenuPoi;
+    }
+    public SheetFab getActionFabSheetPoi() {
+        return fabSheetPoi;
+    }
+    public CardView getActionFabSheetCardViewPoi() {
+        return sheetViewPoi;
+    }*/
+
+    public SheetFab getActionFabSheetWaypoint() {
+        return fabSheetWaypoint;
     }
 
-    public View getActionFabSheetCardView() {
-        return sheetView;
+
+    public CardView getActionFabSheetCardViewWaypoint() {
+        return sheetViewWaypoint;
     }
+
 
     public void setHeader() {
 

@@ -1,5 +1,7 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes;
 
+import android.graphics.Color;
+
 import com.drone.imavis.mvp.data.model.GoogleMapExtension;
 import com.drone.imavis.mvp.data.model.SimpleNodes;
 import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
@@ -8,7 +10,9 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GP
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterests;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.WaypointData;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoints;
+import com.drone.imavis.mvp.util.constants.classes.CColor;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
@@ -33,6 +37,35 @@ public class Nodes implements Serializable {
     public Nodes() {
         this.waypoints = new Waypoints();
         this.pointOfInterests = new PointOfInterests();
+    }
+
+    public PointOfInterest createPoi(Coordinate touchCoordinate) {
+
+        if (getPointOfInterests() == null) {
+            PointOfInterest poi = new PointOfInterest(touchCoordinate);
+            poi.getShape().setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
+            return poi;
+        }
+
+        if (getPointOfInterests().size() >= CColor.POI_CIRCLES.size())
+            return null;
+
+        boolean isColorFound;
+        for (String color : CColor.POI_CIRCLES) {
+            isColorFound = false;
+            for (PointOfInterest poi : getPointOfInterests()) {
+                if (Color.parseColor(color) == poi.getShape().getBackgroundColor()) {
+                    isColorFound = true;
+                    break;
+                }
+            }
+            if (!isColorFound) {
+                PointOfInterest poi = new PointOfInterest(touchCoordinate);
+                poi.getShape().setBackgroundColor(Color.parseColor(color));
+                return poi;
+            }
+        }
+        return null;
     }
 
     public void loadNodes(String simpleNodesJson) {
@@ -131,14 +164,25 @@ public class Nodes implements Serializable {
         boolean isRemoved = false;
         if (node.getClass() == Waypoint.class)
             isRemoved = getWaypoints().remove(node);
-        else
+        else {
             isRemoved = getPointOfInterests().remove(node);
+            if (isRemoved) {
+                if (node.equals(FlyPlanController.getSelectedPOI()))
+                    FlyPlanController.setSelectedPOI(null);
+
+                ListIterator<Waypoint> iterator = getWaypoints().listIterator();
+                while (iterator.hasNext()) {
+                    Waypoint waypoint = iterator.next();
+                    PointOfInterest poi = ((WaypointData) waypoint.getData()).getPoi();
+                    if (node.equals(poi))
+                        ((WaypointData) waypoint.getData()).setPoi(null);
+                }
+            }
+        }
 
         if (isRemoved) {
             if (node.equals(FlyPlanController.getSelectedWaypoint()))
                 FlyPlanController.setSelectedWaypoint(null);
-            if (node.equals(FlyPlanController.getSelectedPOI()))
-                FlyPlanController.setSelectedPOI(null);
         }
 
         return isRemoved;

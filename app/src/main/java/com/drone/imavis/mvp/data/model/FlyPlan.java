@@ -195,7 +195,7 @@ public class FlyPlan implements Parcelable {
         // draw selectedPOI
         if (selectedPOI != null) {
             selectedPOI.setShapeSelectedPaint();
-            selectedPOI.getShape().setBackgroundColor(this.getPoints().getPointOfInterests().getPoiColorById(selectedPoiIndex));
+            //selectedPOI.getShape().setBackgroundColor(this.getPoints().getPointOfInterests().getPoiColorById(selectedPoiIndex));
             selectedPOI.draw(canvas, String.valueOf(selectedPoiId));
         }
     }

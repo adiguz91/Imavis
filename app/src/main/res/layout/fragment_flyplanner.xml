@@ -36,8 +36,8 @@
         app:srcCompat="@drawable/drone_flying_state" />
 
     <include
-        android:id="@+id/include"
-        layout="@layout/view_action_buttons"
+        android:id="@+id/includeWaypoint"
+        layout="@layout/view_action_buttons_waypoint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -45,75 +45,7 @@
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp" />
 
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="0dp"
-        android:layout_height="28dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:background="@drawable/layout_background_round"
-        android:baselineAligned="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/flyplanner_fab_pc_start"
-        app:layout_constraintHorizontal_bias="0.2"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <SeekBar
-            android:id="@+id/flyplannerSeekBarHeight"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:progress="20"
-            android:secondaryProgress="20"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/iconTextViewLoginAppIcon"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.joanzapata.iconify.widget.IconTextView
-            android:id="@+id/iconTextViewLoginAppIcon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/layout_background_round_small"
-            android:baselineAligned="false"
-            android:gravity="center"
-            android:padding="2dp"
-            android:shadowRadius="0"
-            android:text="{fa-i-cursor}"
-            android:radius="4dp"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="MissingConstraints" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="20dp" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="20dp" />
-
-        <android.support.constraint.Barrier
-            android:id="@+id/barrier2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:barrierDirection="left" />
-
-    </android.support.constraint.ConstraintLayout>
+    <!-- seekbar -->
 
     <com.github.jorgecastilloprz.FABProgressCircle xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/flyplanner_fab_pc_start"

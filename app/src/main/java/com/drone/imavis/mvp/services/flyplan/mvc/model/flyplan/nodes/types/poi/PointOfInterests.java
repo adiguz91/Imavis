@@ -8,6 +8,7 @@ import com.drone.imavis.mvp.util.constants.classes.CColor;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Adrian on 26.11.2016.
@@ -17,8 +18,10 @@ public class PointOfInterests extends ArrayList<PointOfInterest> {
 
     private static Gson gson = new Gson();
     private PointOfInterest selectedPOI;
+    private List colors;
 
     public PointOfInterests() {
+        colors = CColor.POI_CIRCLES;
     }
 
     public int draw(Canvas canvas) {
@@ -27,7 +30,7 @@ public class PointOfInterests extends ArrayList<PointOfInterest> {
         for (PointOfInterest poi : this) {
             poi.setShapePaint();
             if (poi != FlyPlanController.getSelectedPOI()) {
-                poi.getShape().setBackgroundColor(getPoiColorById(counter - 1));
+                //poi.getShape().setBackgroundColor(getPoiColorById(counter - 1));
                 poi.draw(canvas, String.valueOf(counter));
             } else
                 selectedPoiIndex = counter - 1;

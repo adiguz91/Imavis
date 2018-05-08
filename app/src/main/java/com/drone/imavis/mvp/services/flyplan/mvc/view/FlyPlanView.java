@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -163,11 +162,8 @@ public class FlyPlanView extends View {
         if (isIsLoading())
             return false;
 
-        if (isLocked) {
-            // set drag map
-            //invalidate();
-            return super.onTouchEvent(event);
-        }
+        if (isLocked)
+            return super.onTouchEvent(event); // set drag map
 
         if (!isDragingView)
             event.offsetLocation(-dragCoordinate.getX(), -dragCoordinate.getY());
@@ -180,27 +176,17 @@ public class FlyPlanView extends View {
         if (isEnabledActionMenu)
             return false;
 
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_MOVE:
-                Log.d("TOUCH", "ACTION_MOVE");
-                isHandledTouch = actionMove(event);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                if (!isHandledTouch) {
-                    isDragingView = false;
-                    newGlobalCoordinate = null;
-                    isHandledTouch = actionUp(event);
-                    invalidate();
-                }
-            default:
-                break;
+        if (event.getActionMasked() == MotionEvent.ACTION_MOVE)
+            isHandledTouch = actionMove(event);
+        else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+            if (!isHandledTouch) {
+                isDragingView = false;
+                newGlobalCoordinate = null;
+                isHandledTouch = actionUp(event);
+            }
         }
 
-        //if(event.getActionMasked() == MotionEvent.ACTION_DOWN)
-        //    isHandledTouch = true;
-        //Log.i("LogFlyplan", "isHandled: " + isHandledTouch + " | event: " + event.getActionMasked());
-
+        invalidate();
         return isHandledTouch;
     }
 
