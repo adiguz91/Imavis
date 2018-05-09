@@ -48,6 +48,7 @@ public class DatabaseOpenHelper extends DaoMaster.OpenHelper {
         migrations.add(new MigrationV4());
         migrations.add(new MigrationV5());
         migrations.add(new MigrationV6());
+        migrations.add(new MigrationV7());
 
         // Sorting just to be safe, in case other people add migrations in the wrong order.
         Comparator<Migration> migrationComparator = new Comparator<Migration>() {
@@ -141,6 +142,20 @@ public class DatabaseOpenHelper extends DaoMaster.OpenHelper {
             //ProjectDao.createTable(db, false);
             //FlyPlanDao.createTable(db, false);
 
+        }
+    }
+
+    private static class MigrationV7 implements Migration {
+
+        @Override
+        public Integer getVersion() {
+            return 7;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            // Add new column OnlineId to project table
+            db.execSQL("ALTER TABLE " + FlyPlanDao.TABLENAME + " ADD COLUMN " + FlyPlanDao.Properties.IsClosed.columnName + " INTEGER default 0");
         }
     }
 }

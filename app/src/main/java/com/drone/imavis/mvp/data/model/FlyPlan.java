@@ -88,6 +88,9 @@ public class FlyPlan implements Parcelable {
 
     private boolean isClosed = false;
 
+    @Transient
+    private boolean isLoaded = false;
+
     /**
      * Used to resolve relations
      */
@@ -120,6 +123,7 @@ public class FlyPlan implements Parcelable {
         this.task = parcelIn.readParcelable(Task.class.getClassLoader());
         this.projectId = parcelIn.readLong();
         this.taskSerialized = parcelIn.readString();
+        this.isClosed = parcelIn.readByte() != 0;
     }
 
     @Generated(hash = 1796383625)
@@ -195,7 +199,6 @@ public class FlyPlan implements Parcelable {
         // draw selectedPOI
         if (selectedPOI != null) {
             selectedPOI.setShapeSelectedPaint();
-            //selectedPOI.getShape().setBackgroundColor(this.getPoints().getPointOfInterests().getPoiColorById(selectedPoiIndex));
             selectedPOI.draw(canvas, String.valueOf(selectedPoiId));
         }
     }
@@ -230,8 +233,9 @@ public class FlyPlan implements Parcelable {
     }
 
     public Nodes getPoints() {
-        if (nodes != null && (nodesJson != null && nodesJson != "")) {
+        if (!isLoaded && nodes != null && (nodesJson != null && nodesJson != "")) {
             nodes.loadNodes(nodesJson);
+            isLoaded = true;
         } else if (nodes == null)
             nodes = new Nodes();
         return nodes;
@@ -316,6 +320,7 @@ public class FlyPlan implements Parcelable {
         dest.writeParcelable(task, flags);
         dest.writeLong(projectId == null ? 0 : projectId);
         dest.writeString(taskSerialized);
+        dest.writeByte((byte) (isClosed ? 1 : 0));
     }
 
     public Long getId() {

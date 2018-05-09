@@ -40,13 +40,11 @@ public class Nodes implements Serializable {
     }
 
     public PointOfInterest createPoi(Coordinate touchCoordinate) {
-
         if (getPointOfInterests() == null) {
             PointOfInterest poi = new PointOfInterest(touchCoordinate);
             poi.getShape().setBackgroundColor(Color.parseColor(CColor.POI_CIRCLES.get(0)));
             return poi;
         }
-
         if (getPointOfInterests().size() >= CColor.POI_CIRCLES.size())
             return null;
 
