@@ -307,7 +307,7 @@ public class SearchWlanActivity extends BaseActivity {
         }
     }
 
-    private void showToast(String message) {
+    public void showToast(String message) {
         Toast toast = new Toast(this);
         if (toast != null) {
             toast.cancel();

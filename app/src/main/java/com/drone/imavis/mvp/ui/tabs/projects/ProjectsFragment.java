@@ -13,7 +13,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -83,15 +82,6 @@ public class ProjectsFragment extends BaseFragment implements IProjectsMvpView, 
         View view = inflater.inflate(R.layout.activity_projects, container, false);
         ButterKnife.bind(this, view);
         return view;
-    }
-
-    public ViewParent findParentRecursively(View view, int targetId) {
-        if (view.getId() == targetId)
-            return (ViewParent) view;
-        View parent = (View) view.getParent();
-        if (parent == null)
-            return null;
-        return findParentRecursively(parent, targetId);
     }
 
     @Override

@@ -25,7 +25,6 @@ public interface ApplicationComponent {
 
     //void inject(); // void inject(SyncService syncService);
 
-
     @ApplicationContext
     Context context();
 

@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.View;
+import android.view.ViewParent;
 
 import com.drone.imavis.mvp.AppStartup;
 import com.drone.imavis.mvp.di.component.ActivityComponent;
@@ -76,6 +78,15 @@ public class BaseFragment extends Fragment {
 
     public ActivityComponent activityComponent() {
         return mActivityComponent;
+    }
+
+    public ViewParent findParentRecursively(View view, int targetId) {
+        if (view.getId() == targetId)
+            return (ViewParent) view;
+        View parent = (View) view.getParent();
+        if (parent == null)
+            return null;
+        return findParentRecursively(parent, targetId);
     }
 
     public void goToActivity(Context activity, Class nextActivity, Bundle bundleData) {

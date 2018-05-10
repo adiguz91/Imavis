@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Nodes;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint;
@@ -183,24 +182,9 @@ public class FlyPlan implements Parcelable {
     }
 
     public void draw(Canvas canvas) {
-        this.getPoints().getWaypoints().setClosed(isClosed);
-        int selectedWaypointIndex = this.getPoints().getWaypoints().draw(canvas);
-        int selectedPoiIndex = this.getPoints().getPointOfInterests().draw(canvas);
-        int selectedWaypointId = selectedWaypointIndex + 1;
-        int selectedPoiId = selectedPoiIndex + 1;
-        com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint selectedWaypoint = FlyPlanController.getSelectedWaypoint();
-        com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest selectedPOI = FlyPlanController.getSelectedPOI();
-
-        // draw selectedWaypoint
-        if (selectedWaypoint != null) {
-            selectedWaypoint.setShapeSelectedPaint();
-            selectedWaypoint.draw(canvas, String.valueOf(selectedWaypointId), selectedWaypointId);
-        }
-        // draw selectedPOI
-        if (selectedPOI != null) {
-            selectedPOI.setShapeSelectedPaint();
-            selectedPOI.draw(canvas, String.valueOf(selectedPoiId));
-        }
+        getPoints().getWaypoints().setClosed(isClosed);
+        if (nodes != null)
+            nodes.draw(canvas);
     }
 
     public String saveToJsonFile() {

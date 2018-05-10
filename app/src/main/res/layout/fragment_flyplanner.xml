@@ -6,22 +6,11 @@
     android:layout_height="match_parent"
     tools:context="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment">
 
-
     <fragment
         android:id="@+id/flyplannerMap"
-        android:name="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment"
+        class="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.GoogleMapFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-
-    <!-- xmlns:android="http://schemas.android.com/apk/res/android" -->
-    <!--<fragment
-        android:layout_weight="0"
-        android:id="@+id/flyplannerMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        class="com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.map.FlyplannerMap" />
-        -->
-
 
     <!-- draw nodes -->
     <com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView
@@ -29,24 +18,75 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <!-- animate droneIcon -->
     <ImageView
         android:id="@+id/droneFlyingState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/drone_flying_state" />
 
-    <include
-        android:id="@+id/includeWaypoint"
-        layout="@layout/view_action_buttons_waypoint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="0dp" />
+    <!-- SeekBar -->
+    <RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="62dp"
+        android:gravity="right">
 
-    <!-- seekbar -->
+        <LinearLayout
+            android:id="@+id/nodeHeightLayout"
+            android:layout_width="26dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/layout_background_round"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="invisible">
 
+            <TextView
+                android:layout_width="22dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="10m"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="8sp" />
+
+            <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
+                android:layout_width="22dp"
+                android:layout_height="150dp">
+
+                <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
+                    android:id="@+id/nodeHeightSeekBar"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:splitTrack="false"
+                    app:seekBarRotation="CW90" /> <!-- Rotation: CW90 or CW270 -->
+            </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
+
+            <com.joanzapata.iconify.widget.IconTextView
+                android:id="@+id/iconTextViewLoginAppIcon"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginBottom="6dp"
+                android:baselineAligned="false"
+                android:gravity="center"
+                android:padding="2dp"
+                android:radius="4dp"
+                android:shadowRadius="0"
+                android:text="{fa-i-cursor}"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <!-- HEADER, replaces the actionbar -->
+    <com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlightPlannerHeaderButtons
+        android:id="@+id/flightPlannerHeaderButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Button StartFlightPlan -->
     <com.github.jorgecastilloprz.FABProgressCircle xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/flyplanner_fab_pc_start"
         android:layout_width="wrap_content"
@@ -67,11 +107,26 @@
             app:rippleColor="#ffffff" />
     </com.github.jorgecastilloprz.FABProgressCircle>
 
+    <!-- Node ActionMenu -->
+    <com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlightPlannerNodeActionMenu
+        android:id="@+id/flightPlannerNodeActionMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!--<include
+        android:id="@+id/includeActionMenuWaypoint"
+        layout="@layout/flightplanner_nodeactionmenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp" />-->
+
     <android.support.constraint.Barrier
         android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="top" />
-
 
 </android.support.constraint.ConstraintLayout>

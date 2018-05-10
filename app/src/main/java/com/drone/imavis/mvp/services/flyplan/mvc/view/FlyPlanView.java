@@ -15,7 +15,7 @@ import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Co
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.GestureListener;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.ScaleListener;
-import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
+import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
 import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CMap;
@@ -38,6 +38,7 @@ public class FlyPlanView extends View {
     private Rect viewRect;
     private boolean isLoading = true;
     private FlyplannerFragment flyplannerFragment;
+
     private SheetFab actionSheetMenu;
     private Coordinate dragCoordinate = new Coordinate(0, 0);
     private Coordinate dragCoordinatePrev = new Coordinate(0, 0);
@@ -52,6 +53,10 @@ public class FlyPlanView extends View {
 
     public FlyPlanView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    public FlyPlanView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     public static SparseArray<Node> getNodes() {
@@ -83,11 +88,19 @@ public class FlyPlanView extends View {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        ((FlyplannerActivity) getContext()).activityComponent().inject(this);
+        ((BaseActivity) getContext()).activityComponent().inject(this);
 
         nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
         gestureDetector = new GestureDetector(getContext(), new GestureListener(FlyPlanView.this));
         scaleDetector = new ScaleGestureDetector(getContext(), scaleListener);
+    }
+
+    public void setFlyplanner(FlyplannerFragment flyplannerFragment) {
+        this.flyplannerFragment = flyplannerFragment;
+    }
+
+    public FlyplannerFragment getFlyplannerFragment() {
+        return flyplannerFragment;
     }
 
     private Coordinate newGlobalCoordinate;

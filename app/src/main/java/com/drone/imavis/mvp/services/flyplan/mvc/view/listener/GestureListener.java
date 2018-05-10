@@ -104,11 +104,11 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                     Coordinate centeredCoordinate = new Coordinate(touchedNode.getShape().getCoordinate().getX() + parentView.getDragCoordinate().getX(),
                             touchedNode.getShape().getCoordinate().getY() + parentView.getDragCoordinate().getY());
 
-                    CardView fabSheedCardViewWaypoint = ((FlyplannerActivity) parentView.getContext()).getActionFabSheetCardViewWaypoint();
+                    CardView fabSheedCardViewWaypoint = parentView.getFlyplannerFragment().getFlightPlannerNodeActionMenu().getActionFabSheetCardViewWaypoint();
                     fabSheetCardViewLayout = (LinearLayout.LayoutParams) fabSheedCardViewWaypoint.getLayoutParams();
 
-                    ((FlyplannerActivity) parentView.getContext()).getActionFabSheetWaypoint().setVisibility(View.VISIBLE);
-                    ((FlyplannerActivity) parentView.getContext()).getActionFabSheetMenuWaypoint().showFab(centeredCoordinate.getX(), centeredCoordinate.getY());
+                    parentView.getFlyplannerFragment().getFlightPlannerNodeActionMenu().getActionFabSheetWaypoint().setVisibility(View.VISIBLE);
+                    parentView.getFlyplannerFragment().getFlightPlannerNodeActionMenu().getActionFabSheetMenuWaypoint().showFab(centeredCoordinate.getX(), centeredCoordinate.getY());
 
                     TextView closeTextView = fabSheedCardViewWaypoint.findViewById(R.id.fabSheetItemCloseTextWaypoint);
                     if (((FlyplannerActivity) parentView.getContext()).getFlyplan().getIsClosed())
@@ -136,7 +136,7 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
                     //fabSheedCardViewWaypoint.invalidate();
                     //fabSheedCardViewWaypoint.requestLayout();
 
-                    ((FlyplannerActivity) parentView.getContext()).getActionFabSheetMenuWaypoint().showSheet();
+                    parentView.getFlyplannerFragment().getFlightPlannerNodeActionMenu().getActionFabSheetMenuWaypoint().showSheet();
                     parentView.setSelectedActionMenuNode(touchedNode);
                     parentView.setIsEnabledActionMenu(true);
                 }

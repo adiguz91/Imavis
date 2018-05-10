@@ -1,5 +1,7 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates;
 
+import android.graphics.Point;
+
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.dimension.Size;
 
 /**
@@ -54,6 +56,10 @@ public class Coordinate {
         int elementLeft = (int) this.getX() - element.getWidth() / 2;
         int elementTop = (int) this.getY() - element.getHeight() / 2;
         return new Coordinate(elementLeft, elementTop);
+    }
+
+    public Point toPoint() {
+        return new Point((int) getX(), (int) getY());
     }
 
     public void setCoordinate(float x, float y) {

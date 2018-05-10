@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.drone.imavis.mvp.AppStartup;
 import com.drone.imavis.mvp.di.component.ActivityComponent;
@@ -85,6 +86,16 @@ public class BaseActivity extends AppCompatActivity {
 
     public void goBack(Context activity) {
         ((Activity) activity).finish();
+    }
+
+    public void showToast(String message) {
+        Toast toast = new Toast(this);
+        if (toast != null) {
+            toast.cancel();
+            toast = null;
+        }
+        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
 }

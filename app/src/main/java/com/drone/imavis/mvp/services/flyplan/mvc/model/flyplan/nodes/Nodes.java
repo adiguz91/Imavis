@@ -1,5 +1,6 @@
 package com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes;
 
+import android.graphics.Canvas;
 import android.graphics.Color;
 
 import com.drone.imavis.mvp.data.model.GoogleMapExtension;
@@ -37,6 +38,26 @@ public class Nodes implements Serializable {
     public Nodes() {
         this.waypoints = new Waypoints();
         this.pointOfInterests = new PointOfInterests();
+    }
+
+    public void draw(Canvas canvas) {
+        int selectedWaypointIndex = getWaypoints().draw(canvas);
+        int selectedPoiIndex = getPointOfInterests().draw(canvas);
+        int selectedWaypointId = selectedWaypointIndex + 1;
+        int selectedPoiId = selectedPoiIndex + 1;
+        com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint selectedWaypoint = FlyPlanController.getSelectedWaypoint();
+        com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest selectedPOI = FlyPlanController.getSelectedPOI();
+
+        // draw selectedWaypoint
+        if (selectedWaypoint != null) {
+            selectedWaypoint.setShapeSelectedPaint();
+            selectedWaypoint.draw(canvas, String.valueOf(selectedWaypointId), selectedWaypointId);
+        }
+        // draw selectedPOI
+        if (selectedPOI != null) {
+            selectedPOI.setShapeSelectedPaint();
+            selectedPOI.draw(canvas, String.valueOf(selectedPoiId));
+        }
     }
 
     public PointOfInterest createPoi(Coordinate touchCoordinate) {

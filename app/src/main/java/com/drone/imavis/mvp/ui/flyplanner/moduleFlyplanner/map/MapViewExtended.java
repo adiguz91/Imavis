@@ -31,6 +31,7 @@ public class MapViewExtended extends MapView {
         super.onFinishInflate();
         isDraggingEnabled = true;
         flyPlanView = ((FlyplannerActivity) getContext()).findViewById(R.id.flyplannerDraw);
+        // ((MapView)this).
     }
 
     @Override
