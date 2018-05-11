@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
+import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -30,8 +31,13 @@ public class MapViewExtended extends MapView {
     protected void onFinishInflate() {
         super.onFinishInflate();
         isDraggingEnabled = true;
-        flyPlanView = ((FlyplannerActivity) getContext()).findViewById(R.id.flyplannerDraw);
         // ((MapView)this).
+    }
+
+    private FlyPlanView getFlightPlanDrawer() {
+        if (flyPlanView == null)
+            flyPlanView = ((BaseActivity) getContext()).findViewById(R.id.flyplannerDraw);
+        return flyPlanView;
     }
 
     @Override
@@ -42,10 +48,10 @@ public class MapViewExtended extends MapView {
             case MotionEvent.ACTION_MOVE:
                 if (!isDraggingEnabled)
                     enableMapDragging(true);
-                flyPlanView.dragView(touched);
+                getFlightPlanDrawer().dragView(touched);
                 break;
             case MotionEvent.ACTION_UP:
-                flyPlanView.setNewGlobalCoordinate(null);
+                getFlightPlanDrawer().setNewGlobalCoordinate(null);
                 enableMapDragging(false);
                 break;
         }
@@ -59,16 +65,4 @@ public class MapViewExtended extends MapView {
         if (googleMap != null)
             googleMap.getUiSettings().setScrollGesturesEnabled(isDraggingEnabled);
     }
-
-    /*
-    private MapViewExtended.OnTouchListener listener;
-
-    public void setOnTouchListener(MapViewExtended.OnTouchListener listener) {
-        this.listener = listener;
-    }
-
-    public interface OnTouchListener {
-        void onTouch();
-    }
-    */
 }

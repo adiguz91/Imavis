@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.drone.imavis.mvp.R;
+import com.drone.imavis.mvp.data.model.FlyPlan;
 import com.drone.imavis.mvp.data.model.GoogleMapExtension;
-import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseFragment;
@@ -21,21 +21,24 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 //import com.drone.flyplanner.ui.flyplan.FlyPlanView;
 
 
 public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
+    private GoogleMapFragment googleMapFragment;
+    private IFlightPlanner activityListener;
+    private Unbinder unbinder;
+    private View view;
+
     @BindView(R.id.flyplannerDraw)
     FlyPlanView flyplannerDrawer;
-    private GoogleMapFragment googleMapFragment;
-    private View view;
     @BindView(R.id.flightPlannerNodeActionMenu)
     FlightPlannerNodeActionMenu flightPlannerNodeActionMenu;
     @BindView(R.id.flightPlannerHeaderButtons)
     FlightPlannerHeaderButtons flightPlannerHeaderButtons;
-    private IFlightPlanner activityListener;
 
     public FlyplannerFragment() {
         // Required empty public constructor
@@ -49,6 +52,10 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         else {
             // Throw an error! or setFlightPlannerListener
         }
+    }
+
+    public FlyPlan getFlyPlan() {
+        return activityListener.getFlyplan();
     }
 
     @Override
@@ -66,24 +73,36 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
-        initChildFragments();
+        unbinder = ButterKnife.bind(this, view);
+        initChildFragments(savedInstanceState);
         flyplannerDrawer.setFlyplanner(this);
         flightPlannerHeaderButtons.initialize();
         flightPlannerNodeActionMenu.initialize();
     }
 
-    private void initChildFragments() {
-        // load google map fragment
-        googleMapFragment = new GoogleMapFragment();
-        getChildFragmentManager().beginTransaction().replace(R.id.flyplannerMap, googleMapFragment).commit();
+    /**
+     * https://developer.android.com/reference/android/app/Fragment
+     *
+     * @param savedInstanceState
+     */
+    private void initChildFragments(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            // init GoogleMapFragment
+            googleMapFragment = (GoogleMapFragment) getChildFragmentManager().findFragmentById(R.id.flyplannerMap);
+            getGoogleMapFragment().setOnMapReadyCallback(this);
+            getGoogleMapFragment().setOnMapLoadedCallback(this);
+        }
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        activityListener.onFlightPlannerLoading();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        activityListener.onFlightPlannerLoading();
-        googleMapFragment.setOnMapReadyCallback(this);
     }
 
     @Override
@@ -91,19 +110,17 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         getGoogleMapFragment().onMapReady(googleMap);
         GoogleMapExtension googleMapExtension = new GoogleMapExtension(getGoogleMapFragment().getMap());
         activityListener.getFlyplan().setMap(googleMapExtension);
-
-        getGoogleMapFragment().setOnMapLoadedCallback(this);
-
+        //getGoogleMapFragment().setOnMapLoadedCallback(this);
         activityListener.getFlyplan().getPoints(); // load nodes
         flyplannerDrawer.setIsLoading(false);
-
-        activityListener.onFlightPlannerLoadingCompleted();
     }
 
     @Override
     public void onMapLoaded() {
-        FlyPlanController.getInstance().setFlyPlan(activityListener.getFlyplan());
+        // Called when the map has finished rendering. This will only be called once.
+        //flyplannerDrawer.getController().setFlyPlan(activityListener.getFlyplan());
         flyplannerDrawer.invalidate(); // To force a view to draw
+        activityListener.onFlightPlannerLoadingCompleted();
     }
 
     @OnClick(R.id.fabSheetItemDeleteWaypoint)
@@ -148,6 +165,7 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     @Override
     public void onDestroy() {
         super.onDestroy();
+        unbinder.unbind();
     }
 
     @Override

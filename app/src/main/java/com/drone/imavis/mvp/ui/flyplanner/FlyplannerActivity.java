@@ -435,7 +435,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
     }
 
     // This snippet shows the system bars. It does this by removing all the flags
-// except for the ones that make the content appear under the system bars.
+    // except for the ones that make the content appear under the system bars.
     private void showStatusBar() {
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE

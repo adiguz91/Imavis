@@ -38,7 +38,7 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         if (waypointLastNode != null) {
             waypoint.addLine(canvas, waypointLastNode, waypoint);
             waypoint.drawProgressiveCircles(canvas, waypointLastNode.getShape(), waypoint.getShape());
-            if (waypointLastNode == FlyPlanController.getSelectedWaypoint()) {
+            if (waypointLastNode == FlyPlanController.getInstance().getSelectedWaypoint()) {
                 waypointLastNode.addRectWithTextOnLine(canvas, waypointLastNode, waypoint, "10m/s");
             }
 
@@ -82,7 +82,7 @@ public class Waypoints extends DoublyLinkedList<Waypoint> {
         while (iterator.hasNext()) {
             waypoint = iterator.next();
             waypoint.setShapePaint();
-            if (waypoint != FlyPlanController.getSelectedWaypoint()) {
+            if (waypoint != FlyPlanController.getInstance().getSelectedWaypoint()) {
                 waypoint.draw(canvas, String.valueOf(counter), counter);
             } else
                 selectedWaypointIndex = counter - 1;

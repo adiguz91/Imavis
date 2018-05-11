@@ -45,8 +45,8 @@ public class Nodes implements Serializable {
         int selectedPoiIndex = getPointOfInterests().draw(canvas);
         int selectedWaypointId = selectedWaypointIndex + 1;
         int selectedPoiId = selectedPoiIndex + 1;
-        com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint selectedWaypoint = FlyPlanController.getSelectedWaypoint();
-        com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest selectedPOI = FlyPlanController.getSelectedPOI();
+        com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoint selectedWaypoint = FlyPlanController.getInstance().getSelectedWaypoint();
+        com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest selectedPOI = FlyPlanController.getInstance().getSelectedPOI();
 
         // draw selectedWaypoint
         if (selectedWaypoint != null) {
@@ -186,8 +186,8 @@ public class Nodes implements Serializable {
         else {
             isRemoved = getPointOfInterests().remove(node);
             if (isRemoved) {
-                if (node.equals(FlyPlanController.getSelectedPOI()))
-                    FlyPlanController.setSelectedPOI(null);
+                if (node.equals(FlyPlanController.getInstance().getSelectedPOI()))
+                    FlyPlanController.getInstance().setSelectedPOI(null);
 
                 ListIterator<Waypoint> iterator = getWaypoints().listIterator();
                 while (iterator.hasNext()) {
@@ -200,8 +200,8 @@ public class Nodes implements Serializable {
         }
 
         if (isRemoved) {
-            if (node.equals(FlyPlanController.getSelectedWaypoint()))
-                FlyPlanController.setSelectedWaypoint(null);
+            if (node.equals(FlyPlanController.getInstance().getSelectedWaypoint()))
+                FlyPlanController.getInstance().setSelectedWaypoint(null);
         }
 
         return isRemoved;

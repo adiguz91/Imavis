@@ -29,7 +29,7 @@ public class PointOfInterests extends ArrayList<PointOfInterest> {
         int selectedPoiIndex = -1;
         for (PointOfInterest poi : this) {
             poi.setShapePaint();
-            if (poi != FlyPlanController.getSelectedPOI()) {
+            if (poi != FlyPlanController.getInstance().getSelectedPOI()) {
                 //poi.getShape().setBackgroundColor(getPoiColorById(counter - 1));
                 poi.draw(canvas, String.valueOf(counter));
             } else

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -17,7 +16,6 @@ import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.GestureListener;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.listener.ScaleListener;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.moduleFlyplanner.FlyplannerFragment;
-import com.drone.imavis.mvp.util.constants.classes.CFlyPlan;
 import com.drone.imavis.mvp.util.constants.classes.CMap;
 
 import javax.inject.Inject;
@@ -25,11 +23,12 @@ import javax.inject.Inject;
 public class FlyPlanView extends View {
 
     private static final String TAG = "FlyPlanView";
-    private static Coordinate globalMoveCoordinate;
-    private static ScaleGestureDetector scaleDetector;
-    private static SparseArray<Node> nodes;
-    private static boolean isHandledTouch;
-    private static boolean isLocked = false;
+    private Coordinate globalMoveCoordinate;
+    private ScaleGestureDetector scaleDetector;
+    //private SparseArray<Node> nodes;
+    private boolean isHandledTouch;
+    private boolean isLocked = false;
+    private FlyPlanController flyPlanController;
 
     @Inject
     ScaleListener scaleListener;
@@ -42,6 +41,12 @@ public class FlyPlanView extends View {
     private SheetFab actionSheetMenu;
     private Coordinate dragCoordinate = new Coordinate(0, 0);
     private Coordinate dragCoordinatePrev = new Coordinate(0, 0);
+
+    private boolean isDragingView = false;
+    private boolean isPressing = false;
+    private Coordinate newGlobalCoordinate;
+    private boolean isEnabledActionMenu;
+    private Node selectedActionMenuNode;
 
     public FlyPlanView(final Context context) {
         super(context);
@@ -59,51 +64,51 @@ public class FlyPlanView extends View {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public static SparseArray<Node> getNodes() {
+    /*public SparseArray<Node> getNodes() {
         return nodes;
-    }
+    }*/
 
-    public static boolean getIsHandledTouch() {
+    public boolean getIsHandledTouch() {
         return isHandledTouch;
     }
 
-    public static float getScaleFactor() {
+    public float getScaleFactor() {
         if (scaleDetector != null)
             return scaleDetector.getScaleFactor();
         return CMap.SCALE_FACTOR_DEFAULT;
     }
 
-    private boolean isDragingView = false;
-
-    public static boolean isLocked() {
+    public boolean isLocked() {
         return isLocked;
     }
 
-    public static void setIsLocked(boolean isLocked) {
-        FlyPlanView.isLocked = isLocked;
+    public void setIsLocked(boolean isLocked) {
+        this.isLocked = isLocked;
     }
 
-    private boolean isPressing = false;
+
+    public FlyPlanController getController() {
+        return flyPlanController;
+    }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
         ((BaseActivity) getContext()).activityComponent().inject(this);
 
-        nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
+        //nodes = new SparseArray<Node>(CFlyPlan.MAX_WAYPOINTS_SIZE + CFlyPlan.MAX_POI_SIZE);
         gestureDetector = new GestureDetector(getContext(), new GestureListener(FlyPlanView.this));
         scaleDetector = new ScaleGestureDetector(getContext(), scaleListener);
     }
 
     public void setFlyplanner(FlyplannerFragment flyplannerFragment) {
         this.flyplannerFragment = flyplannerFragment;
+        flyPlanController = new FlyPlanController(this);
     }
 
     public FlyplannerFragment getFlyplannerFragment() {
         return flyplannerFragment;
     }
-
-    private Coordinate newGlobalCoordinate;
 
     public boolean isIsLoading() {
         return isLoading;
@@ -135,11 +140,9 @@ public class FlyPlanView extends View {
         canvas.save();
         canvas.translate(dragCoordinate.getX(), dragCoordinate.getY());
         canvas.scale(getScaleFactor(), getScaleFactor()); // mainActivity.Zoom(mScaleFactor); // GoogleMap
-        FlyPlanController.getInstance().draw(canvas);
+        getController().draw(canvas);
         canvas.restore();
     }
-
-    private boolean isEnabledActionMenu;
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
@@ -216,8 +219,6 @@ public class FlyPlanView extends View {
         return result;
     }
 
-    private Node selectedActionMenuNode;
-
     public Node getSelectedActionMenuNode() {
         return selectedActionMenuNode;
     }
@@ -232,7 +233,7 @@ public class FlyPlanView extends View {
         for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
             //pointerId = event.getPointerId(actionIndex);
             Coordinate coordinateTouched = new Coordinate(event.getX(), event.getY());
-            Node touchedNode = FlyPlanController.getTouchedNode();
+            Node touchedNode = getController().getTouchedNode();
             if (touchedNode != null) {
                 isDragingView = false;
                 touchedNode.getShape().setCoordinate(coordinateTouched);
@@ -263,10 +264,10 @@ public class FlyPlanView extends View {
         for (int actionIndex = 0; actionIndex < pointerCount; actionIndex++) {
             //pointerId = event.getPointerId(actionIndex);
             Coordinate coordinateTouched = new Coordinate(event.getX(), event.getY()); // event.getY(actionIndex)
-            Node touchedNode = FlyPlanController.getTouchedNode();
+            Node touchedNode = getController().getTouchedNode();
             if (touchedNode != null) {
                 touchedNode.getShape().setCoordinate(coordinateTouched);
-                FlyPlanController.getInstance().getFlyPlan().getPoints().editNode(touchedNode);
+                getController().getFlyPlan().getPoints().editNode(touchedNode);
                 break;
             } else {
                 // drag map

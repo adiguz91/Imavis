@@ -17,8 +17,12 @@ import com.gordonwong.materialsheetfab.MaterialSheetFabEventListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class FlightPlannerNodeActionMenu extends RelativeLayout {
+
+    private MaterialSheetFab actionFabSheetMenuWaypoint;
+    private Unbinder unbinder;
 
     @BindView(R.id.flyplannerDraw)
     FlyPlanView flyplannerDrawer;
@@ -28,7 +32,6 @@ public class FlightPlannerNodeActionMenu extends RelativeLayout {
     CardView sheetViewWaypoint;
     @BindView(R.id.overlayWaypoint)
     View overlayWaypoint;
-    private MaterialSheetFab actionFabSheetMenuWaypoint;
 
     public FlightPlannerNodeActionMenu(Context context) {
         super(context);
@@ -72,7 +75,7 @@ public class FlightPlannerNodeActionMenu extends RelativeLayout {
      * MUST BE CALLED MANUALLY BEFORE USED
      */
     public void initialize() {
-        ButterKnife.bind(this, getRootView());
+        unbinder = ButterKnife.bind(this, getRootView());
         initActionMenu();
     }
 
@@ -108,13 +111,8 @@ public class FlightPlannerNodeActionMenu extends RelativeLayout {
                 fabSheetWaypoint.setVisibility(View.GONE);
             }
         });
+        fabSheetWaypoint.setVisibility(View.INVISIBLE);
     }
-
-    /*public FlyPlanView getFlyplannerDrawer() {
-        if (flyplannerDrawer == null)
-            flyplannerDrawer = getRootView().findViewById(R.id.flyplannerDraw);
-        return flyplannerDrawer;
-    }*/
 
     public MaterialSheetFab getActionFabSheetMenuWaypoint() {
         return actionFabSheetMenuWaypoint;
@@ -126,5 +124,11 @@ public class FlightPlannerNodeActionMenu extends RelativeLayout {
 
     public CardView getActionFabSheetCardViewWaypoint() {
         return sheetViewWaypoint;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow(); // "onDestroy" code here
+        unbinder.unbind();
     }
 }

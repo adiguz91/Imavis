@@ -10,11 +10,8 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.GPSCoordinate;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterests;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.waypoint.Waypoints;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -76,7 +73,6 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
     public void setOnMapLoadedCallback(GoogleMap.OnMapLoadedCallback callback) {
         if (onMapLoadedCallback == null) {
             onMapLoadedCallback = callback;
-            googleMap.setOnMapLoadedCallback(onMapLoadedCallback);
         }
     }
 
@@ -84,7 +80,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
         MapsInitializer.initialize(this.getContext());
         this.googleMap = googleMap;
-
+        this.googleMap.setOnMapLoadedCallback(onMapLoadedCallback);
         this.googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         this.googleMap.setTrafficEnabled(true);
         this.googleMap.setIndoorEnabled(true);
@@ -221,7 +217,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
         List<GPSCoordinate> waypointGpsCoordinates = new ArrayList<>();
         List<GPSCoordinate> poiGpsCoordinates = new ArrayList<>();
 
-        Waypoints waypoints = FlyPlanController.getInstance().getFlyPlan().getPoints().getWaypoints();
+        /*Waypoints waypoints = FlyPlanController.getInstance().getFlyPlan().getPoints().getWaypoints();
         PointOfInterests pois = FlyPlanController.getInstance().getFlyPlan().getPoints().getPointOfInterests();
 
         Coordinate coordinate;
@@ -237,6 +233,7 @@ public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdl
             GPSCoordinate gpsCoordinate = new GPSCoordinate(googleGps.latitude, googleGps.longitude);
             poiGpsCoordinates.add(gpsCoordinate);
         }
+        */
 
         ((FlyplannerActivity) getActivity()).updateFlyplanNodes(waypointGpsCoordinates, poiGpsCoordinates);
     }

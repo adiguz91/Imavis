@@ -26,13 +26,22 @@ import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class FlightPlannerHeaderButtons extends RelativeLayout {
 
     private static final int ANIMATION_DURATION = 300;
     private static final float ROTATION_ANGLE = -45f;
+
+    private boolean mapIsLocked;
+    private AnimatorSet mOpenAnimatorSet;
+    private AnimatorSet mCloseAnimatorSet;
+    private FlyplannerFragment flyplannerFragment;
+    private Unbinder unbinder;
+
     @BindView(R.id.flyplannerDraw)
     FlyPlanView flyplannerDrawer;
+
     // HEADER MenuButtons
     @BindView(R.id.flyplanner_fab_mapType_menu)
     FloatingActionMenu fabMapTypeMenu;
@@ -52,10 +61,6 @@ public class FlightPlannerHeaderButtons extends RelativeLayout {
     com.github.clans.fab.FloatingActionButton fabMapTypeTerrain;
     @BindView(R.id.flyplanner_fab_mapType_menu_satellite)
     com.github.clans.fab.FloatingActionButton fabMapTypeSatellite;
-    private boolean mapIsLocked;
-    private AnimatorSet mOpenAnimatorSet;
-    private AnimatorSet mCloseAnimatorSet;
-    private FlyplannerFragment flyplannerFragment;
 
     public FlightPlannerHeaderButtons(Context context) {
         super(context);
@@ -85,7 +90,7 @@ public class FlightPlannerHeaderButtons extends RelativeLayout {
     private void onLayoutInflate(Context context) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.flightplanner_headerbuttons, this);
-
+        //ButterKnife.bind(this, view);
     }
 
     @Override
@@ -100,7 +105,7 @@ public class FlightPlannerHeaderButtons extends RelativeLayout {
      * MUST BE CALLED MANUALLY BEFORE USED
      */
     public void initialize() {
-        ButterKnife.bind(this, getRootView());
+        unbinder = ButterKnife.bind(this, getRootView());
         initHeader();
     }
 
@@ -165,7 +170,7 @@ public class FlightPlannerHeaderButtons extends RelativeLayout {
     public void onFabClickMapLock(FloatingActionButton button) {
         mapIsLocked = !mapIsLocked;
         if (flyplannerDrawer != null)
-            FlyPlanView.setIsLocked(mapIsLocked);
+            flyplannerDrawer.setIsLocked(mapIsLocked);
 
         Icon lockingIcon = FontAwesomeIcons.fa_unlock_alt;
         int ressourceColor = R.color.md_yellow_400;
@@ -189,12 +194,6 @@ public class FlightPlannerHeaderButtons extends RelativeLayout {
         flyplannerFragment.getGoogleMapFragment().setMapType(GoogleMap.MAP_TYPE_TERRAIN);
         fabMapTypeMenu.close(true);
     }
-
-    /*public FlyPlanView getFlyplannerDrawer() {
-        if (flyplannerDrawer == null)
-            flyplannerDrawer = getRootView().findViewById(R.id.flyplannerDraw);
-        return flyplannerDrawer;
-    }*/
 
     private void setUpCustomFabMenuAnimation() {
         mOpenAnimatorSet = new AnimatorSet();
@@ -237,5 +236,11 @@ public class FlightPlannerHeaderButtons extends RelativeLayout {
         mCloseAnimatorSet.setDuration(ANIMATION_DURATION);
 
         fabMapTypeMenu.setIconToggleAnimatorSet(mOpenAnimatorSet);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow(); // "onDestroy" code here
+        unbinder.unbind();
     }
 }

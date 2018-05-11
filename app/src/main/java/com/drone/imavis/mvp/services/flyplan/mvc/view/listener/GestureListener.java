@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.services.flyplan.mvc.controller.FlyPlanController;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.types.poi.PointOfInterest;
@@ -43,10 +42,9 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
     @Override
     public boolean onDown(MotionEvent event) {
-        FlyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(), event.getY());
-        touchedNode = FlyPlanController.getInstance().getTouchedNode(touchCoordinate);
+        touchedNode = parentView.getController().getTouchedNode(touchCoordinate);
 
         LinearLayout nodeHeightLayout = ((FlyplannerActivity) parentView.getContext()).findViewById(R.id.nodeHeightLayout);
         if (touchedNode == null) {
@@ -65,39 +63,29 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
     @Override
     public boolean onSingleTapUp(MotionEvent event) {
-        FlyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(), event.getY());
-        boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(Waypoint.class, touchCoordinate, touchedNode);
-        if (touchedNode != null) {
-            if (isObtained) {
-                FlyPlanView.getNodes().put(pointerId, touchedNode);
-            }
-            return true;
-        } else
-            return false;
+        boolean isObtained = parentView.getController().obtainTouchedNode(Waypoint.class, touchCoordinate, touchedNode);
+        return touchedNode != null;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onLongPress(MotionEvent event) {
         //super.onLongPress(event);
-        FlyPlanView.getNodes().clear();
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(), event.getY());
 
-        Coordinate textLineRectCoor = FlyPlanController.getInstance().isTouchedTextRect(touchCoordinate);
+        Coordinate textLineRectCoor = parentView.getController().isTouchedTextRect(touchCoordinate);
 
         if (textLineRectCoor != null) {
             // ##################################################
             // MainFlyplanner.addActionButtons(textLineRectCoor);
             // ##################################################
         } else {
-            boolean isObtained = FlyPlanController.getInstance().obtainTouchedNode(PointOfInterest.class, touchCoordinate, touchedNode);
+            boolean isObtained = parentView.getController().obtainTouchedNode(PointOfInterest.class, touchCoordinate, touchedNode);
             if (touchedNode != null) {
-                if (isObtained) {
-                    FlyPlanView.getNodes().put(pointerId, touchedNode);
-                } else {
+                if (!isObtained) {
                     // ACTION BUTTONs open
 
                     // correct coordinates with drag vector

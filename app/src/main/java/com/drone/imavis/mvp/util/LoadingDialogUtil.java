@@ -27,6 +27,7 @@ public class LoadingDialogUtil {
                 //.title("Loading")
                 .customView(R.layout.dialog_loading, false)
                 .backgroundColorRes(R.color.transparentWhite80) //like this
+                .cancelable(false)
                 .build();
 
         // change layout width
