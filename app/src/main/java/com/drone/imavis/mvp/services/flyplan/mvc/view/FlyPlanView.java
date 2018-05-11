@@ -23,16 +23,14 @@ import javax.inject.Inject;
 public class FlyPlanView extends View {
 
     private static final String TAG = "FlyPlanView";
+    @Inject
+    ScaleListener scaleListener;
     private Coordinate globalMoveCoordinate;
     private ScaleGestureDetector scaleDetector;
     //private SparseArray<Node> nodes;
     private boolean isHandledTouch;
     private boolean isLocked = false;
     private FlyPlanController flyPlanController;
-
-    @Inject
-    ScaleListener scaleListener;
-
     private GestureDetector gestureDetector;
     private Rect viewRect;
     private boolean isLoading = true;
@@ -68,6 +66,12 @@ public class FlyPlanView extends View {
         return nodes;
     }*/
 
+    public static boolean isCoordinateInsideCircle(Coordinate center, Coordinate point, float radius) {
+        // Compare radius of circle with distance of its center from given point
+        return (point.getX() - center.getX()) * (point.getX() - center.getX()) +
+                (point.getY() - center.getY()) * (point.getY() - center.getY()) <= radius * radius;
+    }
+
     public boolean getIsHandledTouch() {
         return isHandledTouch;
     }
@@ -85,7 +89,6 @@ public class FlyPlanView extends View {
     public void setIsLocked(boolean isLocked) {
         this.isLocked = isLocked;
     }
-
 
     public FlyPlanController getController() {
         return flyPlanController;
@@ -116,12 +119,6 @@ public class FlyPlanView extends View {
 
     public void setIsLoading(boolean isLoading) {
         this.isLoading = isLoading;
-    }
-
-    public static boolean isCoordinateInsideCircle(Coordinate center, Coordinate point, float radius) {
-        // Compare radius of circle with distance of its center from given point
-        return (point.getX() - center.getX()) * (point.getX() - center.getX()) +
-                (point.getY() - center.getY()) * (point.getY() - center.getY()) <= radius * radius;
     }
 
     public void setGlobalMoveCoordinate(Coordinate coordinate) {

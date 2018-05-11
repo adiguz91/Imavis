@@ -24,6 +24,7 @@ public class Text<T> implements IShape {
     private int size;
     private Paint paint;
     private Class<T> type;
+
     public Text(Class<T> type, Coordinate coordinate, String content) {
         this.coordinate = coordinate;
         this.content = content;

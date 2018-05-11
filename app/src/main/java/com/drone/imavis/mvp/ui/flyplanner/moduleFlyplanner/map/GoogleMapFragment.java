@@ -32,15 +32,14 @@ import java.util.List;
 // http://things2notedown.blogspot.co.at/2014/07/how-to-display-mapfragment-inside.html
 public class GoogleMapFragment extends Fragment implements GoogleMap.OnCameraIdleListener {
 
+    MapViewExtended mapView;
     private GoogleMap googleMap;
     private LatLng location;
     private MarkerOptions markerOptions;
     private Marker marker;
-
     private OnMapReadyCallback mOnMapReadyCallback;
     private GoogleMap.OnMapLoadedCallback onMapLoadedCallback;
     private OnScreenCoordinateCallback screenCoordinateCallback;
-    MapViewExtended mapView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

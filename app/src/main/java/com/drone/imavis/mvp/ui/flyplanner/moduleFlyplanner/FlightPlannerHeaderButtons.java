@@ -32,16 +32,8 @@ public class FlightPlannerHeaderButtons extends RelativeLayout {
 
     private static final int ANIMATION_DURATION = 300;
     private static final float ROTATION_ANGLE = -45f;
-
-    private boolean mapIsLocked;
-    private AnimatorSet mOpenAnimatorSet;
-    private AnimatorSet mCloseAnimatorSet;
-    private FlyplannerFragment flyplannerFragment;
-    private Unbinder unbinder;
-
     @BindView(R.id.flyplannerDraw)
     FlyPlanView flyplannerDrawer;
-
     // HEADER MenuButtons
     @BindView(R.id.flyplanner_fab_mapType_menu)
     FloatingActionMenu fabMapTypeMenu;
@@ -61,6 +53,11 @@ public class FlightPlannerHeaderButtons extends RelativeLayout {
     com.github.clans.fab.FloatingActionButton fabMapTypeTerrain;
     @BindView(R.id.flyplanner_fab_mapType_menu_satellite)
     com.github.clans.fab.FloatingActionButton fabMapTypeSatellite;
+    private boolean mapIsLocked;
+    private AnimatorSet mOpenAnimatorSet;
+    private AnimatorSet mCloseAnimatorSet;
+    private FlyplannerFragment flyplannerFragment;
+    private Unbinder unbinder;
 
     public FlightPlannerHeaderButtons(Context context) {
         super(context);

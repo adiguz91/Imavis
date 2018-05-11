@@ -21,9 +21,6 @@ import butterknife.Unbinder;
 
 public class FlightPlannerNodeActionMenu extends RelativeLayout {
 
-    private MaterialSheetFab actionFabSheetMenuWaypoint;
-    private Unbinder unbinder;
-
     @BindView(R.id.flyplannerDraw)
     FlyPlanView flyplannerDrawer;
     @BindView(R.id.fabSheetWaypoint)
@@ -32,6 +29,8 @@ public class FlightPlannerNodeActionMenu extends RelativeLayout {
     CardView sheetViewWaypoint;
     @BindView(R.id.overlayWaypoint)
     View overlayWaypoint;
+    private MaterialSheetFab actionFabSheetMenuWaypoint;
+    private Unbinder unbinder;
 
     public FlightPlannerNodeActionMenu(Context context) {
         super(context);

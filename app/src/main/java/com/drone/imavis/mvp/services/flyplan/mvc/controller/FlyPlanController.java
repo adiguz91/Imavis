@@ -24,11 +24,11 @@ import java.util.ListIterator;
 
 public class FlyPlanController implements IFlyPlan {
 
+    private static FlyPlanController flyPlanController;
     private Node touchedNode;
     private Waypoint selectedWaypoint;
     private PointOfInterest selectedPOI;
     private FlyPlanView parent;
-    private static FlyPlanController flyPlanController;
 
     public FlyPlanController(FlyPlanView parent) {
         this.parent = parent;

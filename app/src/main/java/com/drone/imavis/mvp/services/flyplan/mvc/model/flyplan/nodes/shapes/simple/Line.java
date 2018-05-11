@@ -20,6 +20,7 @@ public class Line implements IShape {
     private Paint paint;
     private Coordinate startCoordinate;
     private Coordinate endCoordinate;
+
     public Line(Coordinate startCoordinate, Coordinate endCoordinate) {
         this.startCoordinate = startCoordinate;
         this.endCoordinate = endCoordinate;

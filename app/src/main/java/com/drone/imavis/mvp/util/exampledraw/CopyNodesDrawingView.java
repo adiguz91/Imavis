@@ -35,6 +35,7 @@ public class CopyNodesDrawingView extends View {
      */
     private List<CircleArea> mCircles = new ArrayList<CircleArea>(CIRCLES_LIMIT); // HashSet
     private SparseArray<CircleArea> mCirclePointer = new SparseArray<CircleArea>(CIRCLES_LIMIT);
+
     /**
      * Default constructor
      *

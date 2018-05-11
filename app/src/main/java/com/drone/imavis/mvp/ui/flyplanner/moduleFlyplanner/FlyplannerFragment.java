@@ -28,17 +28,16 @@ import butterknife.Unbinder;
 
 public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
-    private GoogleMapFragment googleMapFragment;
-    private IFlightPlanner activityListener;
-    private Unbinder unbinder;
-    private View view;
-
     @BindView(R.id.flyplannerDraw)
     FlyPlanView flyplannerDrawer;
     @BindView(R.id.flightPlannerNodeActionMenu)
     FlightPlannerNodeActionMenu flightPlannerNodeActionMenu;
     @BindView(R.id.flightPlannerHeaderButtons)
     FlightPlannerHeaderButtons flightPlannerHeaderButtons;
+    private GoogleMapFragment googleMapFragment;
+    private IFlightPlanner activityListener;
+    private Unbinder unbinder;
+    private View view;
 
     public FlyplannerFragment() {
         // Required empty public constructor
