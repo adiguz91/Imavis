@@ -11,7 +11,7 @@ import java.io.File;
  * Created by adigu on 23.02.2017.
  */
 
-public interface IFlyPlan extends IMvpView {
+public interface IFlyPlanController extends IMvpView {
     FlyPlan getFlyPlan();
 
     FlyPlan onPlanCreateNew();

@@ -32,9 +32,6 @@ public class FlyPlanMath {
         return flyPlanMath;
     }
 
-    /************************************
-     * begin: NODE MATH functions
-     */
     public float angleBetweenPoints(GeometricShape nodeA, GeometricShape nodeB) {
         float angleInDegrees = (float) (Math.atan2(nodeB.getCoordinate().getY() - nodeA.getCoordinate().getY(),
                 nodeB.getCoordinate().getX() - nodeA.getCoordinate().getX()) * 180f / Math.PI);
@@ -46,7 +43,6 @@ public class FlyPlanMath {
     public Size getPointOfText(String content, int textSize) {
         Paint paint = new Paint();
         paint.setTextSize(textSize);
-        //width =  paint.measureText(content, 0, content.length());
         Rect bounds = new Rect();
         paint.getTextBounds(content, 0, content.length(), bounds);
         return new Size(bounds.width(), bounds.height());
@@ -72,20 +68,9 @@ public class FlyPlanMath {
         Paint paint = new Paint();
         final RectF rect = new RectF();
         float angleDirection = angleBetweenPoints(currentWaypoint, nextWaypoint);
-        //angleDirection = toScaleFactor(angleDirection, FlyPlanController.getInstance().getScaleFactor());
         float angleDistance = CShape.WAYPOINT_DIRECTION_ANGLE_DISTANCE;
-        //angleDistance = toScaleFactor(angleDistance, FlyPlanController.getInstance().getScaleFactor());
         float anglePoint1 = angleDirection - (angleDistance / 2);
-        //anglePoint1 = toScaleFactor(anglePoint1, FlyPlanController.getInstance().getScaleFactor());
-        //float anglePoint2 = angleDirection + (angleDistance/2);
-
-        // radius = CShape.WAYPOINT_CIRCLE_RADIUS; //currentWaypoint.getShape()<Waypoint>.getRadius();
-        //radius = toScaleFactor(radius, FlyPlanController.getInstance().getScaleFactor());
         float distance = radius + currentWaypoint.getBorder() + CShape.WAYPOINT_DIRECTION_DISTANCE;
-        //distance = toScaleFactor(distance, FlyPlanController.getInstance().getScaleFactor());
-
-        //paint.setStyle(Paint.Style.STROKE);
-        //paint.setStrokeWidth(10);
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
         paint.setStrokeCap(Paint.Cap.ROUND);
@@ -94,9 +79,6 @@ public class FlyPlanMath {
         Coordinate scaledCurrentWaypoint;
         scaledCurrentWaypoint = currentWaypoint.getCoordinate().toScaleFactor(
                 FlyPlanController.getInstance().getScaleFactor());
-        //scaledCurrentWaypoint = currentWaypoint.getShape().getCoordinate();
-
-        //currentWaypoint.getShape().setCoordinate(scaledCurrentWaypoint);
 
         rect.set(scaledCurrentWaypoint.getX() - distance,
                 scaledCurrentWaypoint.getY() - distance,
@@ -105,20 +87,12 @@ public class FlyPlanMath {
 
         Coordinate peakPoint = pointOnCircle(scaledCurrentWaypoint, distance + distance / 2, angleDirection); // Kreuzpunkt
         Coordinate point1 = pointOnCircle(scaledCurrentWaypoint, distance, anglePoint1);
-        //Coordinate point2 = pointOnCircle(currentWaypoint.getShape().getCoordinate(), distance, anglePoint2);
 
         Path path = new Path();
         path.addArc(rect, anglePoint1, angleDistance);
-        //path.moveTo(point2.getX(), point2.getY());
-        //path.lineTo(shape.getCoordinate().getX(), shape.getCoordinate().getY()-distance-distance/2);
         path.lineTo(peakPoint.getX(), peakPoint.getY());
         path.lineTo(point1.getX(), point1.getY());
 
-        //canvas.drawArc(rect, 240, 60, false, paint);
         canvas.drawPath(path, paint);
     }
-    /*
-     * end: NODE MATH functions
-     ************************************/
-
 }

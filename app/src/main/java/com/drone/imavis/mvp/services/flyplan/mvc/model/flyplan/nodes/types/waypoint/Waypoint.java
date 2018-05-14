@@ -29,7 +29,6 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     public Waypoint(Coordinate touchedCoordinate) {
         super(Waypoint.class, touchedCoordinate);
         setShapePaint();
-        //this.shape = createShape(CShape.WAYPOINT_SHAPE_TYPE, touchedCoordinate);
     }
 
     public Line getLine() {
@@ -62,22 +61,14 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
     }
 
     private void addIdShape(Canvas canvas, int id) {
-        //Coordinate idCoordinate = new Coordinate(
-        //                            getShape().getCoordinate().getX() + CShape.WAYPOINT_CIRCLE_ID_DISTANCE,
-        //                            getShape().getCoordinate().getY() - CShape.WAYPOINT_CIRCLE_ID_DISTANCE);
-
         int angleDirection = 45;
-        float distance = ((Circle) this.getShape()).getRadius() - 10; //  - CShape.WAYPOINT_CIRCLE_ID_DISTANCE
-        //Coordinate idCoordinate = FlyPlanMath.getInstance().pointOnCircle(
-        //                            getShape().getCoordinate(), distance, angleDirection);
+        float distance = ((Circle) this.getShape()).getRadius() - 10;
         Coordinate scaled = this.getShape().getCoordinate().toScaleFactor(FlyPlanController.getInstance().getScaleFactor());
         Coordinate coordinateOnCircly = FlyPlanMath.getInstance().
                 pointOnCircle(scaled, distance, 360 - 45);
 
         Circle idCircle = new Circle(Integer.class, coordinateOnCircly, CShape.WAYPOINT_CIRCLE_ID_RADIUS);
         idCircle.setBackgroundColor(this.getShape().getBorderColor());
-        //idCircle.setBorderColor(Color.parseColor(CColor.WAYPOINT_CIRCLE));
-        //idCircle.setBorder(CShape.WAYPOINT_CIRCLE_ID_BORDERSIZE);
         idCircle.draw(canvas, false);
 
         Text<Waypoint> idText = new Text(Integer.TYPE, coordinateOnCircly, String.valueOf(id));
@@ -91,13 +82,6 @@ public class Waypoint<T> extends Node implements IWaypointDraw {
         line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate());
         line.draw(canvas);
     }
-
-    /*
-    public void addLineWithProgressCircles(Canvas canvas, Waypoint lastWaypoint, Waypoint currentWaypoint) {
-        Line line = new Line(lastWaypoint.getShape().getCoordinate(), currentWaypoint.getShape().getCoordinate());
-        line.draw(canvas);
-    }
-    */
 
     public void drawProgressiveCircles(Canvas canvas, GeometricShape current, GeometricShape next) {
         float numberOfProgressiveCircles = 2;

@@ -32,4 +32,13 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
         preferencesHelper.setFlyplanViewScaleFactor(scaleFactor);
         return true;
     }
+
+    /*@Override
+    public boolean onScale(ScaleGestureDetector detector) {
+        double zoom = googleMap.getCameraPosition().zoom;
+        zoom = zoom + Math.log(detector.getScaleFactor()) / Math.log(1.5d);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(googleMap.getCameraPosition().target, (float) zoom);
+        googleMap.moveCamera(update);
+        return true;
+    }*/
 }

@@ -22,7 +22,7 @@ import java.util.ListIterator;
  * Created by adigu on 23.02.2017.
  */
 
-public class FlyPlanController implements IFlyPlan {
+public class FlyPlanController implements IFlyPlanController {
 
     private static FlyPlanController flyPlanController;
     private Node touchedNode;

@@ -5,8 +5,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.almeros.android.multitouch.RotateGestureDetector;
 import com.drone.imavis.mvp.R;
-import com.drone.imavis.mvp.services.flyplan.mvc.model.extensions.coordinates.Coordinate;
+import com.drone.imavis.mvp.services.flyplan.mvc.model.flyplan.nodes.Node;
 import com.drone.imavis.mvp.services.flyplan.mvc.view.FlyPlanView;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 import com.drone.imavis.mvp.ui.flyplanner.FlyplannerActivity;
@@ -18,6 +19,7 @@ public class MapViewExtended extends MapView {
     private FlyPlanView flyPlanView;
     private boolean isDraggingEnabled;
     private GoogleMap googleMap;
+    private RotateGestureDetector rotateDetector;
 
     public MapViewExtended(Context context) {
         super(context);
@@ -34,21 +36,27 @@ public class MapViewExtended extends MapView {
         // ((MapView)this).
     }
 
+    private Node touchedNode;
+
     private FlyPlanView getFlightPlanDrawer() {
-        if (flyPlanView == null)
+        if (flyPlanView == null) {
             flyPlanView = ((BaseActivity) getContext()).findViewById(R.id.flyplannerDraw);
+            //rotateDetector = new RotateGestureDetector(getContext(), new RotateListener(flyPlanView));
+        }
         return flyPlanView;
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         Log.d("MapViewExtended", String.valueOf(event.getAction()));
-        Coordinate touched = new Coordinate(event.getX(), event.getY());
+
+        getFlightPlanDrawer().scaleCorrectionOnDrag(event);
+        //rotateDetector.onTouchEvent(event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
                 if (!isDraggingEnabled)
                     enableMapDragging(true);
-                getFlightPlanDrawer().dragView(touched);
+                getFlightPlanDrawer().dragView(event);
                 break;
             case MotionEvent.ACTION_UP:
                 getFlightPlanDrawer().setNewGlobalCoordinate(null);

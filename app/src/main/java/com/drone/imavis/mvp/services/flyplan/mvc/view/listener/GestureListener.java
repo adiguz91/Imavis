@@ -73,6 +73,10 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
     @Override
     public void onLongPress(MotionEvent event) {
         //super.onLongPress(event);
+
+        if (parentView.scalingIsInProgress())
+            return;
+
         pointerId = event.getPointerId(0);
         touchCoordinate = new Coordinate(event.getX(), event.getY());
 

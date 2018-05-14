@@ -39,6 +39,8 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     private Unbinder unbinder;
     private View view;
 
+    private boolean isLoadedCompleted = false;
+
     public FlyplannerFragment() {
         // Required empty public constructor
     }
@@ -96,12 +98,13 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        activityListener.onFlightPlannerLoading();
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        if (!isLoadedCompleted)
+            activityListener.onFlightPlannerLoading();
     }
 
     @Override
@@ -111,7 +114,7 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         activityListener.getFlyplan().setMap(googleMapExtension);
         //getGoogleMapFragment().setOnMapLoadedCallback(this);
         activityListener.getFlyplan().getPoints(); // load nodes
-        flyplannerDrawer.setIsLoading(false);
+        //flyplannerDrawer.setIsLoading(false);
     }
 
     @Override
@@ -119,7 +122,9 @@ public class FlyplannerFragment extends BaseFragment implements OnMapReadyCallba
         // Called when the map has finished rendering. This will only be called once.
         //flyplannerDrawer.getController().setFlyPlan(activityListener.getFlyplan());
         flyplannerDrawer.invalidate(); // To force a view to draw
+        flyplannerDrawer.setIsLoading(false);
         activityListener.onFlightPlannerLoadingCompleted();
+        isLoadedCompleted = true;
     }
 
     @OnClick(R.id.fabSheetItemDeleteWaypoint)

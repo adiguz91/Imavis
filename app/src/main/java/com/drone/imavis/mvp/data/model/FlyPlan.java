@@ -90,6 +90,10 @@ public class FlyPlan implements Parcelable {
     @Transient
     private boolean isLoaded = false;
 
+    private float scaleFactor = 1;
+
+    
+
     /**
      * Used to resolve relations
      */
@@ -123,11 +127,12 @@ public class FlyPlan implements Parcelable {
         this.projectId = parcelIn.readLong();
         this.taskSerialized = parcelIn.readString();
         this.isClosed = parcelIn.readByte() != 0;
+        this.scaleFactor = parcelIn.readFloat();
     }
 
-    @Generated(hash = 1796383625)
+    @Generated(hash = 15195015)
     public FlyPlan(Long id, UnitOfLength unitOfLength, @NotNull Long projectId, Long mapDataId, Date createdAt, String nodesJson, String taskId,
-                   @NotNull String name, int minFlyHeight, int minSpeed, boolean isClosed) {
+                   @NotNull String name, int minFlyHeight, int minSpeed, boolean isClosed, float scaleFactor) {
         this.id = id;
         this.unitOfLength = unitOfLength;
         this.projectId = projectId;
@@ -139,6 +144,7 @@ public class FlyPlan implements Parcelable {
         this.minFlyHeight = minFlyHeight;
         this.minSpeed = minSpeed;
         this.isClosed = isClosed;
+        this.scaleFactor = scaleFactor;
     }
 
     @Generated(hash = 1603132182)
@@ -171,6 +177,14 @@ public class FlyPlan implements Parcelable {
             count++;
         }
         return path;
+    }
+
+    public float getScaleFactor() {
+        return scaleFactor;
+    }
+
+    public void setScaleFactor(float scaleFactor) {
+        this.scaleFactor = scaleFactor;
     }
 
     public boolean isClosed() {
@@ -305,6 +319,7 @@ public class FlyPlan implements Parcelable {
         dest.writeLong(projectId == null ? 0 : projectId);
         dest.writeString(taskSerialized);
         dest.writeByte((byte) (isClosed ? 1 : 0));
+        dest.writeFloat(scaleFactor);
     }
 
     public Long getId() {
