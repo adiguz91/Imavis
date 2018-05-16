@@ -13,7 +13,9 @@ import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
 
 import org.xwalk.core.XWalkInitializer;
+import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkUpdater;
 import org.xwalk.core.XWalkView;
 
@@ -45,10 +47,15 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
     //@BindView(R.id.modelViewerOverlay)
     //LinearLayout overlayView;
 
+    private String projectId;
+    private String taskId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        projectId = getIntent().getExtras().getString("PROJECT_ID");
+        taskId = getIntent().getExtras().getString("TASK_ID");
 
         // Must call initAsync() before anything that involes the embedding
         // API, including invoking setContentView() with the layout which
@@ -61,10 +68,11 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
         ButterKnife.bind(this);
         context = this;
 
+
         // Until onXWalkInitCompleted() is invoked, you should do nothing
         // with the embedding API except the following:
         // turn on debugging, disable line in release
-        //XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
         // Call XWalkView.setUIClient()
         // Call XWalkView.setResourceClient()
 
@@ -117,26 +125,33 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
                                 "(function() { " +
                                         //"document.addEventListener('DOMContentLoaded', function(event) {" +
                                         "document.getElementById('potree_render_area').style.left = '0px';" +
-                                        "document.getElementById('navbar-top').style.display='none'; " +
-                                        "document.getElementsByClassName('content')[0].getElementsByTagName('h3')[0].style.display = 'none'; " +
-                                        "document.getElementsByClassName('content')[0].style.padding = '0px'; " +
-                                        "document.getElementsByClassName('content')[0].getElementsByTagName('div')[0].style.height = '100%'; " +
-                                        "document.getElementById('page-wrapper').style.padding = '0px'; " +
+                                        "document.getElementById('navbar-top').style.display='none';" +
+                                        "document.getElementsByClassName('content')[0].getElementsByTagName('h3')[0].style.display = 'none';" +
+                                        "document.getElementsByClassName('content')[0].style.padding = '0px';" +
+                                        "document.getElementById('page-wrapper').style.padding = '0px';" +
+                                        "document.getElementById('page-wrapper').style.margin = '0px';" +
+                                        "document.getElementById('page-wrapper').style.border = '0px';" +
+                                        "document.getElementsByTagName('body')[0].style.background = '#0e1619';" +
+                                        "document.getElementsByTagName('body')[0].style.height = '100%';" +
+                                        "document.getElementById('wrapper').style.height = '100%';" +
+                                        "document.getElementsByClassName('full-height')[0].style.padding = '0px';" +
+                                        "document.getElementsByClassName('full-height')[0].style.height = '100vh';" +
                                         //"});"
                                         "})();", callback);
                     }
                 }
         );
 
+        xWalkWebView.setUIClient(new XWalkUIClient(xWalkWebView));
+
         modelViewerPresenter.attachView(this);
     }
 
     private void loadCrosswalk() {
         xWalkWebView.onHide();
-
         //xWalkWebView.getSettings().setInitialPageScale(100);
-
-        xWalkWebView.load("http://10.0.0.9:8000/3d/project/38/task/3/", null);
+        String url = "http://10.0.0.9:8000/3d/project/" + projectId + "/task/" + taskId + "/";
+        xWalkWebView.load(url, null);
     }
 
     @Override

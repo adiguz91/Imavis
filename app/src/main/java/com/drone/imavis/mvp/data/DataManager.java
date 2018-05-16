@@ -137,7 +137,13 @@ public class DataManager {
                                 });
                             }
                         });
-                        // TODO: remaining tasks should be saved into db as flyplans
+
+                        Stream.of(tasks).forEach(task -> {
+                            FlyPlan flyPlan = new FlyPlan(task);
+                            flyplans.add(0, flyPlan);
+                            databaseHelper.createFlyplan(flyPlan);
+                        });
+
                         return flyplans;
                     }
                 });
@@ -246,9 +252,6 @@ public class DataManager {
         }
         return null;
         */
-
-        if (flyplan.getTask() == null)
-            return databaseHelper.updateFlyplan(flyplan);
 
         /*
         return webOdmService.updateTask(String.valueOf(flyplan.getProjectId()),

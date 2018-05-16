@@ -767,6 +767,7 @@ public class FlyplannerActivity extends BaseActivity implements IFlyplannerActiv
 
     @Override
     public void onSaveFlyplanSuccess(FlyPlan flyplan) {
+        int i = 0;
     }
 
     @Override

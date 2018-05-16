@@ -3,8 +3,11 @@ package com.drone.imavis.mvp.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.drone.imavis.mvp.util.constants.AppConstants;
 import com.google.gson.annotations.SerializedName;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -161,6 +164,13 @@ public class Task implements Parcelable {
         return processingTime;
     }
 
+    public String getProcessingTimeString() {
+        long second = (processingTime / 1000) % 60;
+        long minute = (processingTime / (1000 * 60)) % 60;
+        long hour = (processingTime / (1000 * 60 * 60)) % 24;
+        return String.format("%02d:%02d:%02d", hour, minute, second);
+    }
+
     public void setProcessingTime(int processingTime) {
         this.processingTime = processingTime;
     }
@@ -178,6 +188,8 @@ public class Task implements Parcelable {
     }
 
     public String getStatusString() {
+        if (status == null)
+            return TaskStatus.UNTOUCHED.toString();
         try {
             return status.toString();
         } catch (Exception ex) {
@@ -211,6 +223,15 @@ public class Task implements Parcelable {
 
     public Date getCreatedAt() {
         return createdAt;
+    }
+
+    public String getCreatedAtString() {
+        if (getCreatedAt() == null)
+            return "";
+
+        // TODO: check if englisch or german
+        DateFormat dateFormat = new SimpleDateFormat(AppConstants.dateFormatGerman); // english version MM/dd/yyyy HH:mm:ss
+        return dateFormat.format(getCreatedAt());
     }
 
     public void setCreatedAt(Date createdAt) {

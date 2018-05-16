@@ -104,10 +104,11 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/flyplanListView3dModelLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="70dp">
 
-                <com.joanzapata.iconify.widget.IconTextView
+                <!--<com.joanzapata.iconify.widget.IconTextView
                     android:id="@+id/iconTextViewFlyplanListViewItemShow3DModelView"
                     android:layout_height="match_parent"
                     android:layout_width="70dp"
@@ -117,22 +118,33 @@
                     android:textSize="40sp"
                     android:background="@color/dropdown_divider_color"
                     android:textColor="@color/colorPrimaryDark"
-                    android:gravity="center_vertical|center_horizontal" />
+                    android:gravity="center_vertical|center_horizontal" />-->
+
+                <ImageView
+                    android:id="@+id/flyPlanListView3dImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:adjustViewBounds="true"
+                    android:clickable="true"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_3d" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/dropdown_divider_color"
                     android:padding="10dp"
+                    android:gravity="center_vertical"
                     android:orientation="vertical">
 
-                    <TextView
+                    <!--<TextView
                         android:id="@+id/textViewFlyplanListViewItemFlyplanLastStartDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Start 07.02.2018 14:30:01"
                         android:textSize="14dp"
-                        android:textStyle="normal" />
+                        android:textStyle="normal" />-->
 
                     <TextView
                         android:id="@+id/textViewFlyplanListViewItemFlyplanLastDuration"

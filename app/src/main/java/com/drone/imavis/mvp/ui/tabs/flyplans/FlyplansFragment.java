@@ -33,6 +33,8 @@ import com.drone.imavis.mvp.util.swipelistview.SwipeItemOnClickListener;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -117,7 +119,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
             showFlyplansEmpty();
             return;
         }
-        ((ProjectsFlyplansActivity) getActivity()).getSupportActionBar().setTitle(project.getName() + ": Flyplans");
+        ((ProjectsFlyplansActivity) getActivity()).getSupportActionBar().setTitle(StringUtils.abbreviate(project.getName(), 10) + " » Flyplans");
         this.project = project;
         flyplansPresenter.loadFlyplans(project);
     }

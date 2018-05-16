@@ -71,7 +71,7 @@ public class FlyPlan implements Parcelable {
     @Transient
     private Uri imageFolderUrl;
     @Transient
-    private Nodes nodes = new Nodes();
+    private Nodes nodes;
     private String nodesJson;
     private String taskId;
     @Transient
@@ -87,12 +87,7 @@ public class FlyPlan implements Parcelable {
 
     private boolean isClosed = false;
 
-    @Transient
-    private boolean isLoaded = false;
-
-    private float scaleFactor = 1;
-
-    
+    private float scaleFactor = 1.0f;
 
     /**
      * Used to resolve relations
@@ -151,6 +146,12 @@ public class FlyPlan implements Parcelable {
     public FlyPlan() {
     }
 
+    public FlyPlan(Task task) {
+        this.task = task;
+        this.taskId = task.getId();
+        this.projectId = Long.valueOf(task.getProject());
+    }
+
     public static FlyPlan loadFromJsonFile(String jsonFileContent) {
         return new Gson().fromJson(jsonFileContent, FlyPlan.class);
     }
@@ -166,7 +167,7 @@ public class FlyPlan implements Parcelable {
     public Path getPathRoute(float xCorrection, float yCorrection) {
         Path path = new Path();
         int count = 1;
-        for (ListIterator<Waypoint> it = nodes.getWaypoints().listIterator(); it.hasNext(); ) {
+        for (ListIterator<Waypoint> it = getPoints().getWaypoints().listIterator(); it.hasNext(); ) {
             Waypoint waypoint = it.next();
             Coordinate coordinate = waypoint.getShape().getCoordinate();
             if (count == 1) {
@@ -197,8 +198,7 @@ public class FlyPlan implements Parcelable {
 
     public void draw(Canvas canvas) {
         getPoints().getWaypoints().setClosed(isClosed);
-        if (nodes != null)
-            nodes.draw(canvas);
+        getPoints().draw(canvas);
     }
 
     public String saveToJsonFile() {
@@ -227,20 +227,15 @@ public class FlyPlan implements Parcelable {
 
     public void setMap(GoogleMapExtension map) {
         this.map = map;
-        nodes.setMap(map);
+        getPoints().setMap(map);
     }
 
     public Nodes getPoints() {
-        if (!isLoaded && nodes != null && (nodesJson != null && nodesJson != "")) {
+        if (nodes == null && !StringUtil.isNullOrEmpty(nodesJson))
             nodes.loadNodes(nodesJson);
-            isLoaded = true;
-        } else if (nodes == null)
+        else if (nodes == null)
             nodes = new Nodes();
         return nodes;
-    }
-
-    private void setPoints(Nodes points) {
-        this.nodes = nodes;
     }
 
     public int getMinFlyHeight() {
