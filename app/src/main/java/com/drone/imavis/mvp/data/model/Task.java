@@ -54,7 +54,9 @@ public class Task implements Parcelable {
     @SerializedName("auto_processing_node")
     private boolean autoProcessingNode;
     @SerializedName("status")
-    private TaskStatus status;
+    private int status;
+    //@Expose(serialize = false, deserialize = false)
+    //private TaskStatus taskStatus;
     @SerializedName("last_error")
     private String lastError;
     //@SerializedName("options")
@@ -86,13 +88,12 @@ public class Task implements Parcelable {
         this.name = parcelIn.readString();
         this.processingTime = parcelIn.readInt();
         this.autoProcessingNode = parcelIn.readByte() != 0;
-        int temp = parcelIn.readInt();
-        this.status = TaskStatus.values()[temp == -1 ? 0 : temp];
+        this.status = parcelIn.readInt();
         this.lastError = parcelIn.readString();
         //this.options = null; //new ArrayList<TaskOption>(); parcelIn.readTypedList(this.options, null);
         this.groundControlPoints = parcelIn.readString();
         this.createdAt = new Date((parcelIn.readLong()));
-        temp = parcelIn.readInt();
+        int temp = parcelIn.readInt();
         this.pendingAction = TaskPendingAction.values()[temp == -1 ? 0 : temp];
     }
 
@@ -179,21 +180,18 @@ public class Task implements Parcelable {
         return autoProcessingNode;
     }
 
-    public TaskStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TaskStatus status) {
-        this.status = status;
+    public TaskStatus getTaskStatus() {
+        return TaskStatus.valueOf(status);
     }
 
     public String getStatusString() {
-        if (status == null)
+        if (getTaskStatus() == null)
             return TaskStatus.UNTOUCHED.toString();
+
         try {
-            return status.toString();
+            return getTaskStatus().toString();
         } catch (Exception ex) {
-            return "";
+            return TaskStatus.UNTOUCHED.toString();
         }
     }
 
@@ -273,7 +271,7 @@ public class Task implements Parcelable {
         dest.writeString(name);
         dest.writeInt(processingTime);
         dest.writeByte((byte) (autoProcessingNode ? 1 : 0));
-        dest.writeInt(status == null ? -1 : status.ordinal());
+        dest.writeInt(status);
         dest.writeString(lastError);
         //dest.writeTypedList(options);
         dest.writeString(groundControlPoints);

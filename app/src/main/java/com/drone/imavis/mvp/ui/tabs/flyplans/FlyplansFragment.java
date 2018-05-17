@@ -119,7 +119,7 @@ public class FlyplansFragment extends BaseFragment implements IFlyplansMvpView, 
             showFlyplansEmpty();
             return;
         }
-        ((ProjectsFlyplansActivity) getActivity()).getSupportActionBar().setTitle(StringUtils.abbreviate(project.getName(), 10) + " » Flyplans");
+        ((ProjectsFlyplansActivity) getActivity()).getSupportActionBar().setTitle(StringUtils.abbreviate(project.getName(), 20)); // + " » Flyplans"
         this.project = project;
         flyplansPresenter.loadFlyplans(project);
     }

@@ -85,20 +85,21 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/textViewFlyplanListViewItemStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Completed"
-                        android:textSize="20dp"
-                        android:textStyle="bold" />
-
-                    <TextView
                         android:id="@+id/textViewFlyplanListViewItemCreatedDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="17.05.2017 10:24"
-                        android:textSize="14dp"
-                        android:textStyle="normal"/>
+                        android:textSize="16dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textViewFlyplanListViewItemStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed"
+                        android:textSize="16dp"
+                        android:textStyle="bold" />
+
 
                 </LinearLayout>
             </LinearLayout>
@@ -151,8 +152,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Duration 44sec"
-                        android:textSize="14dp"
-                        android:textStyle="normal" />
+                        android:textSize="16dp"
+                        android:textStyle="bold" />
 
                 </LinearLayout>
 

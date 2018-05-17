@@ -92,6 +92,8 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
     private AccountHeader headerResult = null;
     private Drawer result = null;
 
+    private String actionBarTitle = "Imavis";
+
     /**
      * Return an Intent to start this Activity.
      * triggerDataSyncOnCreate allows disabling the background sync service onCreate. Should
@@ -147,7 +149,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
         // Handle Toolbar
         Toolbar toolbar = findViewById(R.id.ProjectsFlyplansToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Projects");
+        getSupportActionBar().setTitle(actionBarTitle);
 
         IconDrawable iconMenu = new IconDrawable(this, FontAwesomeIcons.fa_bars).colorRes(R.color.white).actionBarSize();
         getSupportActionBar().setHomeAsUpIndicator(iconMenu);
@@ -221,7 +223,7 @@ public class ProjectsFlyplansActivity extends BaseActivity implements ProjectsFr
 
     private void onSelectProjectsFragment() {
         if (getSupportActionBar() != null)
-            getSupportActionBar().setTitle("Projects");
+            getSupportActionBar().setTitle(actionBarTitle);
         viewPager.setPagingEnabled(false);
         viewPagerTab.getTabAt(1).setClickable(false);
         // change tab color disabled

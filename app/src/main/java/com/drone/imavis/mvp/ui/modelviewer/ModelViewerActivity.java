@@ -1,16 +1,15 @@
 package com.drone.imavis.mvp.ui.modelviewer;
 
-import android.content.Context;
-import android.os.Build;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.WindowManager;
+import android.view.MenuItem;
 import android.webkit.ValueCallback;
-import android.webkit.WebView;
 
 import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.ui.base.BaseActivity;
+import com.drone.imavis.mvp.util.LoadingDialogUtil;
 
 import org.xwalk.core.XWalkInitializer;
 import org.xwalk.core.XWalkPreferences;
@@ -32,30 +31,38 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
 
     @Inject
     ModelViewerPresenter modelViewerPresenter;
+    @Inject
+    LoadingDialogUtil loadingDialogUtil;
 
     @BindView(R.id.modelViewerWebView)
     XWalkView xWalkWebView;
 
-    //@BindView(R.id.modelViewerWebView)
-    private WebView webview;
-
-    private Context context;
-
     private XWalkInitializer mXWalkInitializer;
     private XWalkUpdater mXWalkUpdater;
-
-    //@BindView(R.id.modelViewerOverlay)
-    //LinearLayout overlayView;
 
     private String projectId;
     private String taskId;
 
+    private String username;
+    private String password;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_model_viewer);
+        activityComponent().inject(this);
+        ButterKnife.bind(this);
+
+        //setupBackButton();
+        final Drawable leftArrow = getDrawable(R.drawable.abc_ic_ab_back_material);
+        leftArrow.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+        getSupportActionBar().setHomeAsUpIndicator(leftArrow);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         projectId = getIntent().getExtras().getString("PROJECT_ID");
         taskId = getIntent().getExtras().getString("TASK_ID");
+        username = "admin";
+        password = "admin";
 
         // Must call initAsync() before anything that involes the embedding
         // API, including invoking setContentView() with the layout which
@@ -63,19 +70,12 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
         mXWalkInitializer = new XWalkInitializer(this, this);
         mXWalkInitializer.initAsync();
 
-        activityComponent().inject(this);
-        setContentView(R.layout.activity_model_viewer);
-        ButterKnife.bind(this);
-        context = this;
-
-
         // Until onXWalkInitCompleted() is invoked, you should do nothing
         // with the embedding API except the following:
         // turn on debugging, disable line in release
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
         // Call XWalkView.setUIClient()
         // Call XWalkView.setResourceClient()
-
 
         xWalkWebView.setResourceClient(
                 new XWalkResourceClient(xWalkWebView) {
@@ -86,10 +86,6 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
                                     @Override
                                     public void onReceiveValue(String jsonResult) {
                                         Log.i("TAG modelviewer TEST", "from js:" + jsonResult);
-                                        //xWalkWebView.onHide();
-                                        // Show status bar
-                                        //showStatusBar();
-                                        //startTimer();
                                     }
                                 };
                         xWalkView.evaluateJavascript(
@@ -99,8 +95,8 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
                                         "var search = 'login';" +
                                         "if(url.includes(search)) {" +
                                         "var form = document.getElementsByTagName('form')[0];" +
-                                        "document.getElementById('id_username').value = 'admin';" +
-                                        "document.getElementById('id_password').value = 'admin';" +
+                                        "document.getElementById('id_username').value = '" + username + "';" +
+                                        "document.getElementById('id_password').value = '" + password + "';" +
                                         "form.submit();" +
                                         "}" +
                                         //"});"
@@ -116,9 +112,7 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
                                     public void onReceiveValue(String jsonResult) {
                                         Log.i("TAG modelviewer TEST", "from js:" + jsonResult);
                                         xWalkWebView.onShow();
-                                        // Show status bar
-                                        //showStatusBar();
-                                        //startTimer();
+                                        loadingDialogUtil.close();
                                     }
                                 };
                         xWalkView.evaluateJavascript(
@@ -139,6 +133,12 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
                                         //"});"
                                         "})();", callback);
                     }
+
+                    @Override
+                    public void onReceivedLoadError(XWalkView view, int errorCode, String description, String failingUrl) {
+                        super.onReceivedLoadError(view, errorCode, description, failingUrl);
+                        loadingDialogUtil.close();
+                    }
                 }
         );
 
@@ -147,8 +147,24 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
         modelViewerPresenter.attachView(this);
     }
 
+    // backbutton pressed
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //finish(); // use finished if override onBackPressed() - HW use finish()
+                //NavUtils.navigateUpFromSameTask(this);
+                //onBackPressed();
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void loadCrosswalk() {
         xWalkWebView.onHide();
+        loadingDialogUtil.show();
         //xWalkWebView.getSettings().setInitialPageScale(100);
         String url = "http://10.0.0.9:8000/3d/project/" + projectId + "/task/" + taskId + "/";
         xWalkWebView.load(url, null);
@@ -162,7 +178,6 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
 
     @Override
     public void onXWalkInitStarted() {
-
     }
 
     @Override
@@ -176,7 +191,6 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
         if (mXWalkUpdater == null) {
             mXWalkUpdater = new XWalkUpdater(this, this);
         }
-
         // The updater won't be launched if previous update dialog is
         // showing.
         mXWalkUpdater.updateXWalkRuntime();
@@ -217,60 +231,5 @@ public class ModelViewerActivity extends BaseActivity implements IModelViewerAct
     @Override
     public void onXWalkUpdateCompleted() {
         mXWalkInitializer.initAsync();
-
     }
-
-    // Hide Status Bar
-    public void hideStatusBar() {
-        if (Build.VERSION.SDK_INT < 16) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            View decorView = getWindow().getDecorView();
-            // Hide Status Bar.
-            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
-        }
-    }
-
-    // Show Status Bar
-    public void showStatusBar() {
-        if (Build.VERSION.SDK_INT < 16) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            View decorView = getWindow().getDecorView();
-            // Show Status Bar.
-            int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
-            decorView.setSystemUiVisibility(uiOptions);
-        }
-    }
-
-/*
-    private Timer mTimer1;
-    private TimerTask mTt1;
-    private Handler mTimerHandler = new Handler();
-
-    private void stopTimer(){
-        if(mTimer1 != null){
-            mTimer1.cancel();
-            mTimer1.purge();
-        }
-    }
-
-    private void startTimer(){
-        mTimer1 = new Timer();
-        mTt1 = new TimerTask() {
-            public void run() {
-                mTimerHandler.post(new Runnable() {
-                    public void run(){
-                        showStatusBar();
-                        xWalkWebView.leaveFullscreen();
-                    }
-                });
-            }
-        };
-
-        mTimer1.schedule(mTt1, 1, 5000);
-    }
-*/
 }

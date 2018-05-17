@@ -26,7 +26,7 @@
     <color name="dark_gray_press">#ff7e8a97</color>
 
     <color name="text_enabled">#FFFFFFFF</color>
-    <color name="text_disabled">#a1a1a1</color>
+    <color name="text_disabled">#A1A1A1</color>
 
     <color name="transparent">#00000000</color>
     <color name="transparentLight">#1A000000</color>

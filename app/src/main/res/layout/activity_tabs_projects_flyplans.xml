@@ -10,9 +10,9 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/ProjectsFlyplansToolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp" />
+        android:layout_height="@dimen/materialize_baseline_grid_x6"
+        android:background="@color/colorPrimary"
+        android:elevation="0dp" />
 
     <FrameLayout
         android:layout_below="@id/ProjectsFlyplansToolbar"
@@ -31,13 +31,14 @@
             android:id="@+id/viewpagertab"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:paddingBottom="4dp"
+            android:background="@color/colorPrimary"
             app:stl_defaultTabTextColor="@color/custom_color_tab"
             app:stl_distributeEvenly="true"
-            app:stl_indicatorColor="@color/accent"
+            app:stl_indicatorColor="@color/colorPrimaryDark"
             app:stl_indicatorCornerRadius="1.5dp"
             app:stl_indicatorInterpolation="smart"
             app:stl_indicatorThickness="3dp"
+            app:stl_indicatorWithoutPadding="true"
             app:stl_underlineColor="@color/transparent" />
 
     </FrameLayout>

@@ -7,11 +7,14 @@ package com.drone.imavis.mvp.ui.base;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.drone.imavis.mvp.AppStartup;
+import com.drone.imavis.mvp.R;
 import com.drone.imavis.mvp.di.component.ActivityComponent;
 import com.drone.imavis.mvp.di.component.ConfigPersistentComponent;
 import com.drone.imavis.mvp.di.component.DaggerConfigPersistentComponent;
@@ -96,6 +99,14 @@ public class BaseActivity extends AppCompatActivity {
         }
         toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
         toast.show();
+    }
+
+    public void setupBackButton() {
+        // set backbutton color
+        final Drawable leftArrow = getDrawable(R.drawable.abc_ic_ab_back_material);
+        leftArrow.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+        getSupportActionBar().setHomeAsUpIndicator(leftArrow);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
 }
