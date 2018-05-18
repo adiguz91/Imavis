@@ -4,14 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.drone.imavis.mvp.R;
@@ -46,7 +44,7 @@ public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan
 
         BadgeDrawable badgeCreatedAt = new BadgeDrawable.Builder()
                 .type(BadgeDrawable.TYPE_WITH_TWO_TEXT_COMPLEMENTARY)
-                .badgeColor(0xffCC9933)
+                .badgeColor(R.color.colorPrimary) //0xffCC9933
                 .text1("CREATED")
                 .text2("")
                 .strokeWidth(2)
@@ -54,19 +52,21 @@ public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan
 
         BadgeDrawable badgeStatus = new BadgeDrawable.Builder()
                 .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
-                .badgeColor(0xff336699)
+                .badgeColor(R.color.colorPrimary)
                 .text1("UNKNOWN")
                 .build();
 
         BadgeDrawable badgeDuration = new BadgeDrawable.Builder()
-                .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
-                .badgeColor(0xff336699)
-                .text1("44sec")
+                .type(BadgeDrawable.TYPE_WITH_TWO_TEXT_COMPLEMENTARY)
+                .badgeColor(R.color.colorPrimary)
+                .text1("3D DURATION")
+                .text2("")
+                .strokeWidth(2)
                 .build();
 
         BadgeDrawable badgeImageCount = new BadgeDrawable.Builder()
                 .type(BadgeDrawable.TYPE_WITH_TWO_TEXT_COMPLEMENTARY)
-                .badgeColor(0xffCC9933)
+                .badgeColor(R.color.colorPrimary)
                 .text1("NO IMAGES")
                 .text2("-")
                 .strokeWidth(2)
@@ -76,11 +76,12 @@ public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan
         TextView textViewFlyplanName = convertView.findViewById(R.id.textViewFlyplanListViewItemFlyplanname);
         TextView textViewStatus = convertView.findViewById(R.id.textViewFlyplanListViewItemStatus);
         TextView textViewCreationDate = convertView.findViewById(R.id.textViewFlyplanListViewItemCreatedDate);
-        LinearLayout layout3dModel = convertView.findViewById(R.id.flyplanListView3dModelLayout);
         //TextView textView3DLastStartDate = layout3dModel.findViewById(R.id.textViewFlyplanListViewItemFlyplanLastStartDate);
-        TextView textView3DLastDuration = layout3dModel.findViewById(R.id.textViewFlyplanListViewItemFlyplanLastDuration);
-        ImageView imageView3D = layout3dModel.findViewById(R.id.flyPlanListView3dImage);
+        TextView textView3DLastDuration = convertView.findViewById(R.id.textViewFlyplanListViewItemFlyplanLastDuration);
+        FloatingActionButton imageView3D = convertView.findViewById(R.id.flyPlanListView3dImage);
         textViewFlyplanName.setText(item.getName());
+
+        SpannableString spannableString = new SpannableString("");
 
         if (item.getTask() != null) {
             //textViewStatus.setText(item.getTask().getStatusString());
@@ -88,13 +89,18 @@ public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan
             // https://stackoverflow.com/questions/31590714/getcolorint-id-deprecated-on-android-6-0-marshmallow-api-23
             badgeStatus.setBadgeColor(ContextCompat.getColor(context, item.getTask().getTaskStatus().getRessourceColor()));
             badgeImageCount.setText1("IMAGES");
-            badgeImageCount.setText2(" " + String.valueOf(item.getTask().getImagesCount()) + " ");
+            badgeImageCount.setText2(String.valueOf(item.getTask().getImagesCount()));
             badgeCreatedAt.setText2(item.getTask().getCreatedAtString());
 
             if (item.getTask().getTaskStatus() != TaskStatus.UNTOUCHED) {
-                layout3dModel.setVisibility(View.VISIBLE);
+                imageView3D.setVisibility(View.VISIBLE);
+
+                spannableString = new SpannableString(TextUtils.concat(
+                        badgeImageCount.toSpannable(), " ",
+                        badgeStatus.toSpannable()));
+
                 //textView3DLastStartDate.setText();
-                badgeDuration.setText1(item.getTask().getProcessingTimeString());
+                badgeDuration.setText2(item.getTask().getProcessingTimeString());
                 imageView3D.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -105,35 +111,42 @@ public class FlyplanSwipeListViewAdaper extends SwipeItemListViewAdapter<FlyPlan
                     }
                 });
             } else {
-                layout3dModel.setVisibility(View.GONE);
+                textView3DLastDuration.setVisibility(View.GONE);
+                imageView3D.setVisibility(View.GONE);
                 textViewCreationDate.setVisibility(View.GONE);
                 //badgeStatus.setText1("UNTOUCHED"); // flyplan.getTask().getStatus().name()
                 badgeImageCount.setText1("NO IMAGES");
                 badgeImageCount.setText2(" - ");
+
+                spannableString = new SpannableString(badgeStatus.toSpannable());
             }
         }
 
-        SpannableString spannableString = new SpannableString(TextUtils.concat(
-                badgeImageCount.toSpannable(), " ",
-                badgeStatus.toSpannable()));
         if (textViewStatus != null) {
             textViewStatus.setText(spannableString);
         }
 
-        SpannableString spannableStringCratedAt = new SpannableString(TextUtils.concat(badgeCreatedAt.toSpannable()));
+        SpannableString spannableStringCratedAt = new SpannableString(badgeCreatedAt.toSpannable());
         if (textViewCreationDate != null) {
             textViewCreationDate.setText(spannableStringCratedAt);
         }
 
-        SpannableString spannableStringDurationWithImage = new SpannableString("   ");
+        //SpannableString spannableStringDurationWithImage = toSpannable(badgeDuration);
+        if (textViewCreationDate != null) {
+            textView3DLastDuration.setText(badgeDuration.toSpannable());
+        }
+    }
+
+    private SpannableString toSpannable(BadgeDrawable badgeDrawable) {
+        SpannableString spanStr = new SpannableString("  ");
         Drawable icon = new IconDrawable(context, FontAwesomeIcons.fa_clock_o).colorRes(R.color.icons).actionBarSize();
         icon.setBounds(0, 0, icon.getIntrinsicWidth(), icon.getIntrinsicHeight());
-        ImageSpan span = new ImageSpan(icon, ImageSpan.ALIGN_BASELINE);
-        spannableStringDurationWithImage.setSpan(span, 0, 3, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        SpannableString custom = new SpannableString(TextUtils.concat(spannableStringDurationWithImage, badgeDuration.toSpannable()));
-        if (textViewCreationDate != null) {
-            textView3DLastDuration.setText(custom);
-        }
+        ImageSpan spanImage = new ImageSpan(icon, 0);
+        spanStr.setSpan(spanImage, 0, 1, 33); // Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+        spanStr.setSpan(new ImageSpan(badgeDrawable, 0), 1, 2, 33);
+        badgeDrawable.setBounds(0, 0, badgeDrawable.getIntrinsicWidth(), badgeDrawable.getIntrinsicHeight());
+        //SpannableString custom = new SpannableString(TextUtils.concat(spannableStringDurationWithImage, badgeDuration.toSpannable()));
+        return spanStr;
     }
 
     public void goToActivity(Context activity, Class nextActivity, Bundle bundleData) {
